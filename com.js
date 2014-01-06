@@ -7,6 +7,10 @@ var _skyStr=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 var _solarTerm=["春分","清明","谷雨","立夏","小满","芒种","夏至","小暑","大暑","立秋","处暑","白露","秋分","寒露","霜降","立冬","小雪","大雪","冬至","小寒","大寒","立春","雨水","惊蛰"];
 var _monthGeneral=[1,0,11,10,9,8,7,6,5,4,3,2,1,0];//月将，从冬至之后第一个月将开始。因为算出的中
 var _monthGeneralStr=["丑","子","亥","戌","酉","申","未","午","巳","辰","卯","寅","丑","子"];//月将，从冬至之后第一个月将开始。因为算出的中气数组可能有14个，所以月将也为14个
+var _five=[0,1,2,3,4];
+var _fiveStr=["金","木","土","水","火"];
+var _earthFive=[3,2,1,1,2,4,4,2,0,0,2,3]; //地支五行
+var _skyFive=[1,1,4,4,2,2,0,0,3,3]; //天干五行
 
 //根据年份参数返回60花甲年
 function huaJia(year){
@@ -87,8 +91,75 @@ function getShiXun(parent){
 	}
 }
 
-//根据年月日时分秒起课
-function qiKe(y,m,d,h,min,s){
+//十干寄宫
+function jiGong(gan){
+	switch(gan){
+		case 0:
+			return 2;
+			break;
+		
+		case 1:
+			return 4;
+			break;
+		
+		case 2:
+		case 4:
+			return 5;
+			break;
+			
+		case 3:
+		case 5:
+			return 7;
+			break;
+		
+		case 6:
+			return 8;
+			break;
+			
+		case 7:
+			return 10;
+			break;
+			
+		case 8:
+			return 11;
+			break;
+		
+		case 9:
+			return 1;
+			break;
+	}
+}
+
+//生克关系
+function shengKe(a,b){
+	//金克木，木克土，土克水，水克火，火克金
+	if( (a==0 && b==1) || (a==1&&b==2) || (a==2&&b==3) || (a==3&&b==4) || (a==4&&b==0) ){
+		return 1;
+	}
+	//反克
+	if( (a==1&&b==0) || (a==2&&b==1) || (a==3&&b==2) || (a==4&&b==3) || (a==0&&b==4) ){
+		return -1;
+	}
+	
+	//生
+	if( (a==0&&b==3) || (a==3&&b==1) || (a==1&&b==4) || (a==4&&b==2) || (a==2&&b==0) ){
+		return 2;
+	}
+	//反生
+	if( (a==3&&b==0) || (a==1&&b==3) || (a==4&&b==1) || (a==2&&b==4) || (a==0&&b==2) ){
+		return -2;
+	}else{
+		return 0;
+	}
+}
+
+//由干支得出五行属性
+function ganzhiToWuxing(type,value){
+	
+}
+
+//根据年月日时分秒起时
+function qiShi(y,m,d,h,min,s){
 	var zq=new Array();  //当年所有的中气
 	var jq=new Array();  //当年所有的节气
 	//从冬至开始,连续计算14个中气时刻
@@ -221,4 +292,72 @@ function qiKe(y,m,d,h,min,s){
   	return [nianXun[0],nianXun[1],yueXun[0],yueXun[1],riXun[0],riXun[1],shiXun[0],shiXun[1],yueJiang];
 }
 
+//月将加时排天地盘
+function tianDiPan(shiZhi,yueJiang){
+	var tianPan=[];
+	var tianPanFirst;
+	if(shiZhi<=yueJiang){
+		tianPanFirst=yueJiang-shiZhi;
+	}else{
+		tianPanFirst=yueJiang+12-shiZhi;
+	}
+	//循环12次排出天盘
+	for(i=0;i<=11;i++){
+		tianPan[i]=tianPanFirst+i;
+		if(tianPan[i]>11){
+			tianPan[i]=i;
+		}
+	}
+	return tianPan;
+}
 
+//排四课
+function siKe(riGan,riZhi,tianPan){
+	//第一课
+	var ke1=[];
+	ke1[0]=riGan;
+	riGanJiGong=jiGong(riGan);
+	ke1[1]=tianPan[riGanJiGong];
+	
+	//第二课
+	var ke2=[];
+	ke2[0]=ke1[1];
+	ke2[1]=tianPan[ke2[0]];
+	
+	//第三课
+	var ke3=[];
+	ke3[0]=riZhi;
+	ke3[1]=tianPan[ke3[0]];
+	
+	//第四课
+	var ke4=[];
+	ke4[0]=ke3[1];
+	ke4[1]=tianPan[ke4[0]];
+	return [ke1[0],ke1[1],ke2[0],ke2[1],ke3[0],ke3[1],ke4[0],ke4[1]];
+}
+
+//三传
+function sanChuan(siKe){
+	//循环四课的八个值，得出五行值
+	var siKeWuXing=[];
+	for(i=0;i<siKe.length;i++){
+		if(i==0 || i==4){
+			siKeWuXing[i]=_earthFive[i];
+		}else{
+			siKeWuXing[i]=_skyFive[i];
+		}
+	}
+	
+	//四课的五行生克关系
+	var siKeShengKe=[];
+	var j=0;
+	for(i=0;i<=7;i++){
+		if(i==0 || i%2==0){
+			console.log(siKeWuXing[i],siKeWuXing[i+1],j);
+			siKeShengKe[j]=shengKe(siKeWuXing[i],siKeWuXing[i+1]);
+			j++;
+		}
+	}
+	console.log(siKeWuXing);
+	return siKeShengKe;
+}
