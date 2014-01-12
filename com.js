@@ -11,6 +11,8 @@ var _five=[0,1,2,3,4];
 var _fiveStr=["金","木","土","水","火"];
 var _earthFive=[3,2,1,1,2,4,4,2,0,0,2,3]; //地支五行
 var _skyFive=[1,1,4,4,2,2,0,0,3,3]; //天干五行
+var _earthYin=[1,0,1,0,1,0,1,0,1,0,1,0]; //地支阴阳 0阴 1阳
+var _skyYinYang=[1,0,1,0,1,0,1,0,1,0]; //天干阴阳
 
 //根据年份参数返回60花甲年
 function huaJia(year){
@@ -153,10 +155,12 @@ function shengKe(a,b){
 	}
 }
 
+/*
 //由干支得出五行属性
 function ganzhiToWuxing(type,value){
 	
 }
+*/
 
 //根据年月日时分秒起时
 function qiShi(y,m,d,h,min,s){
@@ -302,10 +306,12 @@ function tianDiPan(shiZhi,yueJiang){
 		tianPanFirst=yueJiang+12-shiZhi;
 	}
 	//循环12次排出天盘
+	var j=0;
 	for(i=0;i<=11;i++){
 		tianPan[i]=tianPanFirst+i;
 		if(tianPan[i]>11){
-			tianPan[i]=i;
+			tianPan[i]=j;
+			j++;
 		}
 	}
 	return tianPan;
@@ -337,27 +343,135 @@ function siKe(riGan,riZhi,tianPan){
 }
 
 //三传
-function sanChuan(siKe){
+function sanChuan(siKe,tianPan){
+	//初，中，末
+	var chuChuan;
+	var zhongChuan;
+	var moChuan;
+	
 	//循环四课的八个值，得出五行值
 	var siKeWuXing=[];
 	for(i=0;i<siKe.length;i++){
-		if(i==0 || i==4){
-			siKeWuXing[i]=_earthFive[i];
+		if(i==0){
+			siKeWuXing[i]=_skyFive[siKe[i]];
 		}else{
-			siKeWuXing[i]=_skyFive[i];
+			siKeWuXing[i]=_earthFive[siKe[i]];
 		}
 	}
 	
 	//四课的五行生克关系
 	var siKeShengKe=[];
 	var j=0;
-	for(i=0;i<=7;i++){
-		if(i==0 || i%2==0){
-			console.log(siKeWuXing[i],siKeWuXing[i+1],j);
+	for(i=0;i<siKeWuXing.length;i++){
+		if((i+2)%2==0){
 			siKeShengKe[j]=shengKe(siKeWuXing[i],siKeWuXing[i+1]);
 			j++;
 		}
 	}
-	console.log(siKeWuXing);
+	
+	var keNum=0; //上克下数量
+	var keArr=[]; //上克下索引
+	var zeiNum=0; //下贼上数量
+	var zeiArr=[]; //下贼上索引
+	for(i=0;i<siKeShengKe.length;i++) {
+		if(siKeShengKe[i]==-1){
+			keNum++;
+			keArr.push(i);
+		}
+		if(siKeShengKe[i]==1){
+			zeiNum++;
+			zeiArr.push(i);
+		}
+	}
+	
+	//始入 or 重审
+	if(zeiNum==1){
+		for(i=0;i<=siKeShengKe.length;i++){
+			if(siKeShengKe[i]==1){
+				var index=(i+1)*2-1;
+				chuChuan=siKe[index];
+				zhongChuan=tianPan[chuChuan];
+				moChuan=tianPan[zhongChuan];
+				return [chuChuan,zhongChuan,moChuan];
+			}
+		}
+	}
+	
+	//元首
+	if(keNum==1 && zeiNum==0){
+		for(i=0;i<=siKeShengKe.length;i++){
+			if(siKeShengKe[i]==-1){
+				var index=(i+1)*2-1;
+				chuChuan=siKe[index];
+				zhongChuan=tianPan[chuChuan];
+				moChuan=tianPan[zhongChuan];
+				return [chuChuan,zhongChuan,moChuan];
+			}
+		}
+	}
+	
+	//比用:四课中有2或3课下贼上或2到3课上克下，则取与日干相比者为初传，两下贼上为比用，两上克下为知一
+	var biYong=[]; //比用备选数组
+	//判断是2下贼上还是2上克下，优先下贼上
+	var zeiOrKe;
+	var zeiOrKeType; //-1为上克下 1为下贼上
+	if(keArr.length>1){
+		zeiOrKe=keArr;
+		zeiOrKeType=-1;
+	}
+	if(zeiArr.length>1){
+		zeiOrKe=zeiArr;
+		zeiOrKeType=1;
+	}
+	if(zeiOrKe.length>1){
+		for(i=0;i<=zeiOrKe.length;i++){
+			var index=(zeiOrKe[i]+1)*2-1;
+			if(_earthYinYang[siKe[index]]==_skyYinYang[siKe[0]]){
+				biYong.push(siKe[index]);
+			}
+		}
+		//如果biYong数组中有一个值则按比用法起课
+		if(biYong.length==1){
+			chuChuan=biYong[0];
+			zhongChuan=tianPan[chuChuan];
+			moChuan=tianPan[zhongChuan];
+			return [chuChuan,zhongChuan,moChuan];
+		}
+	}
+	
+	//涉害:四课中有两个上克下或两个下贼上，与本日日干俱比或俱不比，导致无法取传，则各就所克之处由地盘涉归本家，以克多者为发用。若其克相等，则优先地盘四孟（寅申巳亥）上者，如无孟，取四仲（子午卯酉）上者，如无仲，则不取四季（辰戌丑未），阳日取干上神发用，阴日取支上神发用
+	if(biYong.length==0 || biYong.length>1){
+		for(i=0;i<=zeiOrKe.length;i++){
+			switch(zeiOrKeType){
+				case 1: //下贼上
+					break;
+					
+				case -1: //上克下
+					break;
+			}
+		}
+	}
+	console.log(chuChuan,zhongChuan,moChuan);
+	
+	//遥克:四课中若无上克下，也无下贼上，取四课上神遥克日干者法用，如无，取日干遥克之上神为法用。如日干遥克两神或两神遥克日干，则取宇日干相比者发用
+	var siKeShangShenShengKe=[]; //日干与四课上神的生克关系
+	if(keNum==0 && zeiNum==0){
+		var j=0;
+		for(i=0;i<siKe.length;i++){
+			if((i+2)%2==1){
+				siKeShangShenShengKe[j]=shengKe(siKe[i],siKe[0]);
+				j++;
+			}
+		}
+	}
+	console.log(siKeShangShenShengKe);
 	return siKeShengKe;
+}
+
+function test(){
+	var t=qiShi("2014","01","12","11","16","00"); 
+	var pan=tianDiPan(t[7],t[8]);
+	var sk=siKe(t[4],t[5],pan);
+	var sc=sanChuan(sk,pan);
+	console.log(t,pan,sk,sc);
 }
