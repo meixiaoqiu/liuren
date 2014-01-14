@@ -15,6 +15,9 @@ var _earthFive=[3,2,1,1,2,4,4,2,0,0,2,3]; //地支五行
 var _skyFive=[1,1,4,4,2,2,0,0,3,3]; //天干五行
 var _earthYin=[1,0,1,0,1,0,1,0,1,0,1,0]; //地支阴阳 0阴 1阳
 var _skyYinYang=[1,0,1,0,1,0,1,0,1,0]; //天干阴阳
+var _siMeng=[2,5,8,11]; //四孟 寅申巳亥
+var _siZhong=[0,3,6,9]; //四仲 子午卯酉
+var _siJi=[1,4,7,10]; //四季 辰戌丑未
 
 //根据年份参数返回60花甲年
 function huaJia(year){
@@ -477,7 +480,60 @@ function sanChuan(siKe,tianPan){
 	}
 	*/
 	
-	//涉害：只取孟仲
+	//涉害：只取孟仲.
+	if(biYong.length==0 || biYong.length>1){
+		var xiaShen=[]; //四课下神数组
+		for(i=0;i<siKe.length;i++){
+			var v;
+			//如果是第一课 先转为地支
+			if(i==0){
+				v=_jiGong[siKe[i]];
+			}else{
+				v=siKe[i];
+			}
+			
+			//找四课下神
+			if(i==0 || i==2 || i==4 || i==6){
+				xiaShen.push(v);
+			}
+		}
+		
+		for(i=0;i<xiaShen.length;i++){
+			//先找四孟
+			for(j=0;j<_siMeng.length;j++){
+				if(xiaShen[i]==_siMeng[j]){
+					var chuChuanIndex=i*2+1;
+					chuChuan=siKe[chuChuanIndex];
+					zhongChuan=tianPan[chuChuan];
+					moChuan=tianPan[zhongChuan];
+					return [chuChuan,zhongChuan,moChuan];
+				}
+			}
+			//再找四仲
+			for(j=0;j<_siZhong.length;j++){
+				if(xiaShen[i]==_siZhong[j]){
+					var chuChuanIndex=i*2+1;
+					chuChuan=siKe[chuChuanIndex];
+					zhongChuan=tianPan[chuChuan];
+					moChuan=tianPan[zhongChuan];
+					return [chuChuan,zhongChuan,moChuan];
+				}
+			}
+		}
+	}
+	
+	//遥克
+	if(keArr.length==0 && zeiArr.length==0){
+		var yaoke=[];
+		//找出所有遥克组合
+		for(i=0;i<4;i++){
+			var xiaShenIndex=i+i*2;
+			for(j=0;j<4;j++){
+				var shangShenIndex=j+j*2+1;
+				siKeWuXing[xiaShenIndex]
+			}
+		}
+	}
 	console.log(chuChuan,zhongChuan,moChuan);
 	
 	//遥克:四课中若无上克下，也无下贼上，取四课上神遥克日干者法用，如无，取日干遥克之上神为法用。如日干遥克两神或两神遥克日干，则取宇日干相比者发用
