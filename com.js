@@ -13,7 +13,7 @@ var _five=[0,1,2,3,4];
 var _fiveStr=["金","木","土","水","火"];
 var _earthFive=[3,2,1,1,2,4,4,2,0,0,2,3]; //地支五行
 var _skyFive=[1,1,4,4,2,2,0,0,3,3]; //天干五行
-var _earthYin=[1,0,1,0,1,0,1,0,1,0,1,0]; //地支阴阳 0阴 1阳
+var _earthYinYang=[1,0,1,0,1,0,1,0,1,0,1,0]; //地支阴阳 0阴 1阳
 var _skyYinYang=[1,0,1,0,1,0,1,0,1,0]; //天干阴阳
 var _siMeng=[2,5,8,11]; //四孟 寅申巳亥
 var _siZhong=[0,3,6,9]; //四仲 子午卯酉
@@ -527,28 +527,67 @@ function sanChuan(siKe,tianPan){
 		var yaoke=[];
 		//找出所有遥克组合
 		for(i=0;i<4;i++){
-			var xiaShenIndex=i+i*2;
-			for(j=0;j<4;j++){
-				var shangShenIndex=j+j*2+1;
-				siKeWuXing[xiaShenIndex]
+			var shangShenIndex=i+i*2+1;
+			if(shengKe(siKeWuXing[0],siKeWuXing[shangShenIndex])==1){
+				zeiArr.push(i);
+			}
+			if(shengKe(siKeWuXing[0],siKeWuXing[shangShenIndex])==-1){
+				keArr.push(i);
 			}
 		}
 	}
-	console.log(chuChuan,zhongChuan,moChuan);
+	//有贼优先贼
+	if(zeiArr.length>0){
+		if(zeiArr.length==1){
+			var chuChuanIndex=zeiArr[0]+zeiArr[0]*2+1;
+			chuChuan=siKe[chuChuanIndex];
+			zhongChuan=tianPan[chuChuan];
+			moChuan=tianPan[zhongChuan];
+			return [chuChuan,zhongChuan,moChuan];
+		}
+		//当有两个贼时，取与日干相比者法用
+		if(zeiArr.length==2){
+			var chuChuanArr=[];
+			for(i=0;i<2;i++){
+				var chuChuanIndex=zeiArr[i]+zeiArr[i]*2+1;
+				if(_skyYinYang[siKe[0]]==_earthYinYang[siKe[chuChuanIndex]]){
+					chuChuanArr.push(siKe[chuChuanIndex]);
+				}
+			}
+			if(chuChuanArr.length==1){
+				chuChuan=chuChuanArr[0];
+				zhongChuan=tianPan[chuChuan];
+				moChuan=tianPan[zhongChuan];
+				return [chuChuan,zhongChuan,moChuan];
+			}
+		}
+	}else{
+		if(keArr.length==1){
+			var chuChuanIndex=keArr[0]+keArr[0]*2+1;
+			chuChuan=siKe[chuChuanIndex];
+			zhongChuan=tianPan[chuChuan];
+			moChuan=tianPan[zhongChuan];
+			return [chuChuan,zhongChuan,moChuan];
+		}
+		//当有两个克时，取与日干相比者法用
+		if(keArr.length==2){
+			var chuChuanArr=[];
+			for(i=0;i<2;i++){
+				var chuChuanIndex=keArr[i]+keArr[i]*2+1;
+				if(_skyYinYang[siKe[0]]==_earthYinYang[siKe[chuChuanIndex]]){
+					chuChuanArr.push(siKe[chuChuanIndex]);
+				}
+			}
+			if(chuChuanArr.length==1){
+				chuChuan=chuChuanArr[0];
+				zhongChuan=tianPan[chuChuan];
+				moChuan=tianPan[zhongChuan];
+				return [chuChuan,zhongChuan,moChuan];
+			}
+		}
+	}
 	
-	//遥克:四课中若无上克下，也无下贼上，取四课上神遥克日干者法用，如无，取日干遥克之上神为法用。如日干遥克两神或两神遥克日干，则取宇日干相比者发用
-	var siKeShangShenShengKe=[]; //日干与四课上神的生克关系
-	if(keNum==0 && zeiNum==0){
-		var j=0;
-		for(i=0;i<siKe.length;i++){
-			if((i+2)%2==1){
-				siKeShangShenShengKe[j]=shengKe(siKe[i],siKe[0]);
-				j++;
-			}
-		}
-	}
-	console.log(siKeShangShenShengKe);
-	return siKeShengKe;
+	console.log(chuChuan,zhongChuan,moChuan);
 }
 
 function test(){
