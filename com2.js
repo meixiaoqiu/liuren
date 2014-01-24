@@ -31,6 +31,7 @@ var g={
 	siKeYinYang,
 	zei:[],
 	ke:[],
+	siKeUnique:[]; //四课中有效组合 从昴星课开始用到。
 	
 	biYong:[], //用于判断完比用课之后留给涉害课使用
 	
@@ -278,7 +279,31 @@ var g={
 	},
 	//是否为昴星
 	maoXing:function(){
-		return false;
+		var re=false;
+		
+		//先看四课有几课
+		var shangShen=[]; //四课下神数组
+		for(i=0;i<this.siKe.length/2;i++){
+			var shangShenIndex=i+i*2+1;
+			shangShen.push(siKe[shangShenIndex]);
+		}
+		
+		var str=shangShen.join("");
+		for(i=0;i<shangShen.length;i++){
+			var reg=new RegExp(shangShen[i],"g");
+			var c=str.match(reg);
+			if(c<2){
+				this.siKeUnique.push(i);
+			}
+		}
+		
+		//当四课齐全时起昴星
+		if(this.siKeUnique.length>=4){
+			switch (this.siKeYinYang[0]) {
+				case 0:
+			}
+		}
+		return re;
 	},
 	//是否为伏吟
 	fuYin:function(){
