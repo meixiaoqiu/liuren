@@ -17,6 +17,10 @@ var _tianGanYinYang=[1,0,1,0,1,0,1,0,1,0]; //天干阴阳
 var _siMeng=[2,5,8,11]; //四孟 寅申巳亥
 var _siZhong=[0,3,6,9]; //四仲 子午卯酉
 var _siJi=[1,4,7,10]; //四季 辰戌丑未
+var _diZhiXing=[3,10,5,0,4,8,6,1,2,9,7,11]; //地支相刑
+var _diZhiChong=[6,7,8,9,10,11,0,1,2,3,4,5]; //地支相冲
+var _dizhiYiMa=[2,11,8,5,2,11,8,5,2,11,8,5]; //地支驿马
+var _tianGanHe[5,6,7,8,9,0,1,2,3,4]; //天干相合
 
 
 //卦
@@ -130,26 +134,26 @@ var g={
 		if(!r){
 			r=this.biYong();
 		}
-		if(!r){
+		else ifif(!r){
 			r=this.sheHai();
 		}
-		if(!r){
+		else if(!r){
+			r=this.baZhuan();
+		}
+		else if(!r){
 			r=this.yaoKe();
 		}
-		if(!r){
+		else if(!r){
 			r=this.maoXing();
 		}
-		if(!r){
-			r=this.fuYin();
-		}
-		if(!r){
-			r=this.fanYin();
-		}
-		if(!r){
+		else if(!r){
 			r=this.bieZe();
 		}
-		if(!r){
-			r=this.baZhuan();
+		else if(!r){
+			r=this.fuYin();
+		}
+		else if(!r){
+			r=this.fanYin();
 		}
 		
 		
@@ -178,6 +182,7 @@ var g={
 		}
 		return re;
 	},
+	
 	//是否为比用
 	biYong:function(){
 		var re=false;
@@ -212,6 +217,7 @@ var g={
 		this.biYong=biYong;
 		return re;
 	},
+	
 	//是否为涉害
 	sheHai:function(){
 		var re=false;
@@ -254,25 +260,50 @@ var g={
 		}
 		return re;
 	},
+	
+	//todo 涉害深浅法
+	
 	//是否为遥克
 	yaoKe:function(){
 		var re=false;
 		
 		//找出所有遥克组合
+		var yaoZei=[];
+		var yaoKe=[];
 		for(i=0;i<this.siKe.length/2;i++){
 			var shangShenIndex=i+i*2+1;
 			if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==1){
-				this.zei.push(i);
+				yaoZei.push(i);
 			}
 			if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==-1){
-				this.ke.push(i);
+				yaoKe.push(i);
 			}
 		}
 		
-		//用遥贼克数组重新判断依次贼克课和比用课
-		re=this.zeiKe();
-		if(!re){
-			re=this.biYong();
+		var chuChuanIndex;
+		var yaoKeOrYaoZei=[];
+		//先看是否有上神遥克日干
+		if(yaoKe.length>0){
+			yaoKeOrYaoZei=yaoKe;
+		}else if(yaoZei.length>0){
+			yaoKeOrYaoZei=yaoZei;
+		}
+		
+		if(yaoKeOrYaoZei.length>0){
+			if(yaoKeOrYaoZei.length==1){
+				chuChuanIndex=yaoKeOrYaoZei[0]*2+1;
+			}else if (yaoKeOrYaoZei.length>1){
+				for(i=0;i<yaoKeOrYaoZei.length;i++){
+					var shangShenIndex=yaoKeOrYaoZei[i]*2+1;
+					if(_diZhiYinYang[this.siKe[shangShenIndex]]==_tianGanYinYang[this.siKe[0]]){
+						chuChuanIndex=shangShenIndex;
+					}
+				}
+			}
+			this.chuChuan=this.siKe[chuChuanIndex];
+			this.zhongChuan=this.tianPan[this.chuChuan];
+			this.moChuan=this.tianPan[this.zhongChuan];
+			re=true;
 		}
 
 		return re;
@@ -300,26 +331,125 @@ var g={
 		//当四课齐全时起昴星
 		if(this.siKeUnique.length>=4){
 			switch (this.siKeYinYang[0]) {
-				case 0:
+				case 0: //阴日取酉下神
+					var chuChuanIndex;
+					if(this.tianPan[0]>=9){
+						chuChuanIndex=9+this.tianPan[0]-9;
+					}else {
+						chuChuanIndex=9-this.tianPan[0];
+					}
+					this.chuChuan=this.tianPan[chuChuanIndex];
+					this.zhongChuan=this.siKe[1];
+					this.moChuan=this.siKe[3];
+					break;
+				
+				case 1: //阳日取酉上神
+					this.chuChuan=this.tianPan[9];
+					this.zhongChuan=this.siKe[3];
+					this.moChuan=this.siKe[1];
+					break;
 			}
+			re=true;
 		}
 		return re;
 	},
-	//是否为伏吟
-	fuYin:function(){
-		return false;
-	},
-	//是否为反吟
-	fanYin:function(){
-		return false;
-	},
+	
 	//是否为别责
 	bieZe:function(){
+		if(this.siKeUnique.length==3){
+			//阳日取干合之上神为初传，阴日取支前三合为初传
+			switch(_tianGanYinYang[this.siKe[0]]){
+				case 1:
+					this.chuChuan=_jiGong[_tianGanHe[this.siKe[0]]];
+					break;
+				
+				case 0:
+					this.chuChuan=this.siKe[4]+4;
+					if(this.chuChuan>11){
+						this.chuChuan=this.siKe[4]-8;
+					}
+					break;
+			}
+			this.zhongChuan=this.moChuan=this.siKe[1];
+		}
 		return false;
 	},
+	
+	//是否为伏吟
+	fuYin:function(){
+		var re=false;
+		if(this.tianPan[0]==_diZhi[0]){
+			var another=this.siKe[3];
+			if( shengKe(this.siKe[0],this.siKe[1])==-1 || shengKe(this.siKe[0],this.siKe[1])==1 ){
+				this.chuChuan=this.siKe[1];
+			}else{
+				switch (_tianGanYinYang[this.siKe[0]]) {
+					case 1:
+						this.chuChuan=this.siKe[1];
+						another=this.siKe[3];
+						break;
+						
+					case 0:
+						this.chuChuan=this.siKe[3];
+						another=this.siKe[1];
+						break;
+				}
+			}
+			this.zhongChuan=_diZhiXing[this.chuChuan];
+			if(this.zhongChuan==this.chuChuan){
+				this.zhongChuan=another;
+			}
+			this.moChuan=_diZhiXing[this.zhongChuan];
+			if(this.moChuan==this.zhongChuan){
+				this.moChuan=_diZhiChong[this.moChuan];
+			}
+			//丁己辛三日，末传为午
+			if(this.siKe[0]==3 || this.siKe[0]==5 || this.siKe[0]==7){
+				this.moChuan=6;
+			}
+			re=true;
+		}
+		return false;
+	},
+	
+	//是否为反吟
+	fanYin:function(){
+		var re=false;
+		if(_diZhiChong[this.tianPan[0]]==this.tianPan[6]){
+			//如有贼克，之前就已经走贼克方法排出了
+			//如无贼克，驿马为初传,辰中日末
+			this.chuChuan=_diZhiYiMa[this.siKe[4]];
+			this.zhongChuan=this.siKe[5];
+			this.moChuan=this.siKe[1];
+			re=true;
+		}
+		return re;
+	},
+	
 	//是否为八专
 	baZhuan:function(){
-		return false;
+		var re=false;
+		//干支同位
+		if(_jiGong[this.siKe[0]]==this.siKe[4]){
+			//如有贼克，之前就已经走贼克方法排出了
+			switch(_tianGanYinYang[this.siKe[0]]){
+				case 1:
+					this.chuChuan=this.siKe[1]+2;
+					if(this.chuChuan>11){
+						this.chuChuan=this.chuChuan-11;
+					}
+					break;
+				
+				case 0:
+					this.chuChuan=this.siKe[7]-2;
+					if(this.chuChuan<0){
+						this.chuChuan=this.chuChuan+12;
+					}
+					break;
+			}
+			this.zhongChuan=this.moChuan=this.siKe[1];
+		}
+		return re;
 	}
 	
 	
