@@ -19,33 +19,61 @@ var _siZhong=[0,3,6,9]; //四仲 子午卯酉
 var _siJi=[1,4,7,10]; //四季 辰戌丑未
 var _diZhiXing=[3,10,5,0,4,8,6,1,2,9,7,11]; //地支相刑
 var _diZhiChong=[6,7,8,9,10,11,0,1,2,3,4,5]; //地支相冲
-var _dizhiYiMa=[2,11,8,5,2,11,8,5,2,11,8,5]; //地支驿马
-var _tianGanHe[5,6,7,8,9,0,1,2,3,4]; //天干相合
+var _diZhiYiMa=[2,11,8,5,2,11,8,5,2,11,8,5]; //地支驿马
+var _tianGanHe=[5,6,7,8,9,0,1,2,3,4]; //天干相合
 
+
+//生克关系
+function shengKe(a,b){
+	//金克木，木克土，土克水，水克火，火克金
+	if( (a==0 && b==1) || (a==1&&b==2) || (a==2&&b==3) || (a==3&&b==4) || (a==4&&b==0) ){
+		return 1;
+	}
+	//反克
+	if( (a==1&&b==0) || (a==2&&b==1) || (a==3&&b==2) || (a==4&&b==3) || (a==0&&b==4) ){
+		return -1;
+	}
+	
+	//生
+	if( (a==0&&b==3) || (a==3&&b==1) || (a==1&&b==4) || (a==4&&b==2) || (a==2&&b==0) ){
+		return 2;
+	}
+	//反生
+	if( (a==3&&b==0) || (a==1&&b==3) || (a==4&&b==1) || (a==2&&b==4) || (a==0&&b==2) ){
+		return -2;
+	}else{
+		return 0;
+	}
+}
 
 //卦
 var g={
 	siZhu:[],
-	yueJiang,
+	yueJiang:0,
 	tianpan:[],
 	siKe:[],
 	
-	siKeWuXing,
-	siKeShengKe,
-	siKeYinYang,
+	siKeWuXing:[],
+	siKeShengKe:[],
+	siKeYinYang:[],
 	zei:[],
 	ke:[],
-	siKeUnique:[]; //四课中有效组合 从昴星课开始用到。
+	siKeUnique:[], //四课中有效组合 从昴星课开始用到。
 	
 	biYong:[], //用于判断完比用课之后留给涉害课使用
 	
-	chuChuan,
-	zhongChuan,
-	moChuan,
+	chuChuan:0,
+	zhongChuan:0,
+	moChuan:0,
 	
-	init:function(siZhu,yueJiang){
+	xunDun:[],
+	
+	qiKe:function(siZhu,yueJiang){
 		this.siZhu=siZhu;
 		this.yueJiang=yueJiang;
+		this.tianDiPan();
+		this.siKe();
+		this.sanChuan();
 	},
 	
 	//月将加时排天地盘
@@ -72,14 +100,14 @@ var g={
 	},
 	
 	//排四课
-	function siKe(){
+	siKe:function(){
 		var riGan=this.siZhu[4];
 		var riZhi=this.siZhu[5];
 		var tianPan=this.tianPan;
 		//第一课
 		var ke1=[];
 		ke1[0]=riGan;
-		riGanJiGong=jiGong(riGan);
+		riGanJiGong=_jiGong[riGan];
 		ke1[1]=tianPan[riGanJiGong];
 		
 		//第二课
@@ -100,14 +128,13 @@ var g={
 	},
 	
 	//排三传
-	function sanChuan(){
+	sanChuan:function(){
 		//循环四课的八个值，得出五行值
-		var this.siKeWuXing=[];
 		for(i=0;i<this.siKe.length;i++){
 			if(i==0){
-				this.siKeWuXing[i]=_skyFive[this.siKe[i]];
+				this.siKeWuXing[i]=_tianGanWuXing[this.siKe[i]];
 			}else{
-				this.siKeWuXing[i]=_earthFive[this.siKe[i]];
+				this.siKeWuXing[i]=_diZhiWuXing[this.siKe[i]];
 			}
 		}
 		
@@ -131,32 +158,57 @@ var g={
 		
 		//依次判断九宗门
 		var r=this.zeiKe();
+		console.log(r);
 		if(!r){
 			r=this.biYong();
+			console.log(r);
 		}
-		else ifif(!r){
+		if(!r){
 			r=this.sheHai();
+			console.log(r);
 		}
-		else if(!r){
-			r=this.baZhuan();
-		}
-		else if(!r){
+		if(!r){
 			r=this.yaoKe();
+			console.log(r);
 		}
-		else if(!r){
+		if(!r){
 			r=this.maoXing();
+			console.log(r);
 		}
-		else if(!r){
+		if(!r){
 			r=this.bieZe();
+			console.log(r);
 		}
-		else if(!r){
+		if(!r){
 			r=this.fuYin();
+			console.log(r);
 		}
-		else if(!r){
+		if(!r){
 			r=this.fanYin();
+			console.log(r);
 		}
-		
-		
+		if(!r){
+			r=this.baZhuan();
+			console.log(r);
+		}
+	},
+	
+	//旬遁
+	xunDun:function(){
+		//算出是什么旬，找出本旬第一天的支
+		var firstZhi=this.siZhu[5]-this.siZhu[4];
+		if(firstZhi<0){
+			firstZhi=12+firstZhi;
+			var xunDunFirst=this.tianPan[0]+firstZhi;
+			for(i=0;i<_diZhi.length;i++){
+				var xunDun=xunDunFirst+i;
+				if(xunDun<_diZhi.length){
+					this.xunDun.push(xunDun);
+				}else{
+					this.xunDun.push(xunDun-_diZhi.length);
+				}
+			}
+		}
 	},
 	
 	//是否为贼克
@@ -189,7 +241,7 @@ var g={
 		//比用:四课中有2或3课下贼上或2到3课上克下，则取与日干相比者为初传，两下贼上为比用，两上克下为知一
 		var biYong=[]; //比用备选数组
 		//判断是2下贼上还是2上克下，优先下贼上
-		var zeiOrKe;
+		var zeiOrKe=[];
 		var zeiOrKeType; //-1为上克下 1为下贼上
 		if(this.ke.length>1){
 			zeiOrKe=keArr;
@@ -267,43 +319,46 @@ var g={
 	yaoKe:function(){
 		var re=false;
 		
-		//找出所有遥克组合
-		var yaoZei=[];
-		var yaoKe=[];
-		for(i=0;i<this.siKe.length/2;i++){
-			var shangShenIndex=i+i*2+1;
-			if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==1){
-				yaoZei.push(i);
-			}
-			if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==-1){
-				yaoKe.push(i);
-			}
-		}
-		
-		var chuChuanIndex;
-		var yaoKeOrYaoZei=[];
-		//先看是否有上神遥克日干
-		if(yaoKe.length>0){
-			yaoKeOrYaoZei=yaoKe;
-		}else if(yaoZei.length>0){
-			yaoKeOrYaoZei=yaoZei;
-		}
-		
-		if(yaoKeOrYaoZei.length>0){
-			if(yaoKeOrYaoZei.length==1){
-				chuChuanIndex=yaoKeOrYaoZei[0]*2+1;
-			}else if (yaoKeOrYaoZei.length>1){
-				for(i=0;i<yaoKeOrYaoZei.length;i++){
-					var shangShenIndex=yaoKeOrYaoZei[i]*2+1;
-					if(_diZhiYinYang[this.siKe[shangShenIndex]]==_tianGanYinYang[this.siKe[0]]){
-						chuChuanIndex=shangShenIndex;
-					}
+		//如果干支同位，不能取遥克，按八专论
+		if(_jiGong[this.siKe[0]]!=this.siKe[4]){
+			//找出所有遥克组合
+			var yaoZei=[];
+			var yaoKe=[];
+			for(i=0;i<this.siKe.length/2;i++){
+				var shangShenIndex=i+i*2+1;
+				if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==1){
+					yaoZei.push(i);
+				}
+				if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==-1){
+					yaoKe.push(i);
 				}
 			}
-			this.chuChuan=this.siKe[chuChuanIndex];
-			this.zhongChuan=this.tianPan[this.chuChuan];
-			this.moChuan=this.tianPan[this.zhongChuan];
-			re=true;
+			
+			var chuChuanIndex;
+			var yaoKeOrYaoZei=[];
+			//先看是否有上神遥克日干
+			if(yaoKe.length>0){
+				yaoKeOrYaoZei=yaoKe;
+			}else if(yaoZei.length>0){
+				yaoKeOrYaoZei=yaoZei;
+			}
+			
+			if(yaoKeOrYaoZei.length>0){
+				if(yaoKeOrYaoZei.length==1){
+					chuChuanIndex=yaoKeOrYaoZei[0]*2+1;
+				}else if (yaoKeOrYaoZei.length>1){
+					for(i=0;i<yaoKeOrYaoZei.length;i++){
+						var shangShenIndex=yaoKeOrYaoZei[i]*2+1;
+						if(_diZhiYinYang[this.siKe[shangShenIndex]]==_tianGanYinYang[this.siKe[0]]){
+							chuChuanIndex=shangShenIndex;
+						}
+					}
+				}
+				this.chuChuan=this.siKe[chuChuanIndex];
+				this.zhongChuan=this.tianPan[this.chuChuan];
+				this.moChuan=this.tianPan[this.zhongChuan];
+				re=true;
+			}
 		}
 
 		return re;
@@ -316,7 +371,7 @@ var g={
 		var shangShen=[]; //四课下神数组
 		for(i=0;i<this.siKe.length/2;i++){
 			var shangShenIndex=i+i*2+1;
-			shangShen.push(siKe[shangShenIndex]);
+			shangShen.push(this.siKe[shangShenIndex]);
 		}
 		
 		var str=shangShen.join("");
@@ -356,6 +411,7 @@ var g={
 	
 	//是否为别责
 	bieZe:function(){
+		var re=false;
 		if(this.siKeUnique.length==3){
 			//阳日取干合之上神为初传，阴日取支前三合为初传
 			switch(_tianGanYinYang[this.siKe[0]]){
@@ -371,8 +427,9 @@ var g={
 					break;
 			}
 			this.zhongChuan=this.moChuan=this.siKe[1];
+			re=true;
 		}
-		return false;
+		return re;
 	},
 	
 	//是否为伏吟
@@ -409,7 +466,7 @@ var g={
 			}
 			re=true;
 		}
-		return false;
+		return re;
 	},
 	
 	//是否为反吟
