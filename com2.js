@@ -67,6 +67,8 @@ var g={
 	moChuan:0,
 	
 	xunDun:[],
+	tianJiang:[],
+	liuQin:[], //三传六亲
 	
 	qiKe:function(siZhu,yueJiang){
 		this.siZhu=siZhu;
@@ -210,6 +212,86 @@ var g={
 			}
 		}
 	},
+	
+	//天将 起贵人
+	tianJiang:function(){
+		var guiRen;
+		if(this.siZhu[7]>=3 && this.siZhu[7]<=8){
+			//日贵
+			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu==6){
+			//甲戊庚牛羊
+				guiRen=1;
+			}
+			if(this.siZhu[4]==1 || this.siZhu[4]==5){
+			//乙己鼠猴乡
+				guiRen=0;
+			}
+			if(this.siZhu[4]==2 || this.siZhu[4]==3){
+			//丙丁猪鸡位
+				guiRen=11;
+			}
+			if(this.siZhu[4]==8 || this.siZhu[4]==9){
+			//壬癸蛇兔藏
+				guiRen=5;
+			}
+			if(this.siZhu[4]==7){
+			//六辛逢马虎
+				guiRen=6;
+			}
+		}else{
+			//夜贵
+			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu==6){
+			//甲戊庚牛羊
+				guiRen=7;
+			}
+			if(this.siZhu[4]==1 || this.siZhu[4]==5){
+			//乙己属猴乡
+				guiRen=8;
+			}
+			if(this.siZhu[4]==2 || this.siZhu[4]==3){
+			//丙丁猪鸡位
+				guiRen=9;
+			}
+			if(this.siZhu[4]==8 || this.siZhu[4]==9){
+			//壬癸蛇兔藏
+				guiRen=3;
+			}
+			if(this.siZhu[4]==7){
+			//六辛逢马虎
+				guiRen=2;
+			}
+		}
+		//判断贵人顺逆
+		var guiRenIndex; //贵人在天盘的序号
+		for(i=0;i<this.tianPan.length;i++){
+			if(this.tianPan[i]==guiRen){
+				guiRenIndex=i;
+			}
+		}
+		var tianJiangFirst;
+		if(guiRenIndex>=5 && guiRenIndex<=10){ //顺布则背天门，逆布则向地户
+			tianJiangFirst=guiRenIndex;
+		}else{
+			tianJiangFirst=12-guiRenIndex;
+		}
+		
+		for(i=0;i<_diZhi.length;i++){
+			var jiang=tianJiangFirst+i;
+			this.tianJiang.push(jiang);
+			if(jiang>=_diZhi.length){
+				this.tianJiang.push(jiang-_diZhi.length);
+			}
+		}
+	},
+	
+	//六亲
+	liuQin:function(){
+		this.liuQin[0]=shengKe(siZhu[4],this.chuChuan);
+		this.liuQin[1]=shengKe(siZhu[4],this.zhongChuan);
+		this.liuQin[2]=shengKe(siZhu[4],this.moChuan);
+	},
+	
+	
 	
 	//是否为贼克
 	zeiKe:function(){
