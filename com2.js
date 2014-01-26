@@ -1,9 +1,11 @@
 var _jiaZi=4; //第一个甲子年为公元4年
+var _yinYang=["阴","阳"];
 var _diZhi=[0,1,2,3,4,5,6,7,8,9,10,11]; //十二地支
 var _diZhiStr=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 var _tianGan=[0,1,2,3,4,5,6,7,8,9]; //十天干
 var _tianGanStr=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 var _jieQi=["春分","清明","谷雨","立夏","小满","芒种","夏至","小暑","大暑","立秋","处暑","白露","秋分","寒露","霜降","立冬","小雪","大雪","冬至","小寒","大寒","立春","雨水","惊蛰"];
+var _tianJiang=["贵人","腾蛇","朱雀","六合","勾陈","青龙","天空","白虎","太常","玄武","太阴","天后"];
 var _yueJiang=[1,0,11,10,9,8,7,6,5,4,3,2,1,0];//月将，从冬至之后第一个月将开始。因为算出的中
 var _yueJiangStr=["丑","子","亥","戌","酉","申","未","午","巳","辰","卯","寅","丑","子"];//月将，从冬至之后第一个月将开始。因为算出的中气数组可能有14个，所以月将也为14个
 var _jiGong=[2,4,5,7,5,7,8,10,11,1]; //十干寄宫
@@ -47,10 +49,32 @@ function shengKe(a,b){
 }
 
 //卦
+var gStr={
+	siZhu:[],
+	yueJiang:"",
+	tianPan:[],
+	siKe:[],
+	
+	siKeWuXing:[],
+	siKeShengKe:[],
+	siKeYinYang:[],
+	siKeTianJiang:[],
+	
+	chuChuan:"",
+	zhongChuan:"",
+	moChuan:"",
+	chuChuanDunGan:"",
+	zhongChuanDunGan:"",
+	moChuanDunGan:"",
+	
+	dunGan:[],
+	tianJiang:[],
+	liuQin:[]
+};
 var g={
 	siZhu:[],
 	yueJiang:0,
-	tianpan:[],
+	tianPan:[],
 	siKe:[],
 	
 	siKeWuXing:[],
@@ -65,17 +89,108 @@ var g={
 	chuChuan:0,
 	zhongChuan:0,
 	moChuan:0,
+	chuChuanDunGan:0,
+	zhongChuanDunGan:0,
+	moChuanDunGan:0,
 	
-	xunDun:[],
+	dunGan:[],
 	tianJiang:[],
 	liuQin:[], //三传六亲
+	
+	toStr:function(){
+		for(i=0;i<this.siZhu.length;i++){
+			gStr.siZhu[i]=_diZhiStr[this.siZhu[i]];
+		}
+		
+		gStr.yueJiang=_diZhiStr[this.yueJiang];
+		
+		for(i=0;i<this.tianPan.length;i++){
+			gStr.tianPan[i]=_diZhiStr[this.tianPan[i]];
+		}
+		
+		var k=0;
+		for(i=0;i<this.siKe.length;i++){
+			if(i==0){
+				gStr.siKe[i]=_tianGanStr[this.siKe[i]];
+			}else{
+				gStr.siKe[i]=_diZhiStr[this.siKe[i]];
+			}
+			//算出四课天将
+			if((i+2)%2==1){
+				for(j=0;j<this.tianPan.length;j++){
+					if(this.tianPan[j]==this.siKe[i]){
+						gStr.siKeTianJiang[k]=_tianJiang[this.tianJiang[j]];
+					}
+				}
+				k++;
+			}
+		}
+		
+		for(i=0;i<this.siKeWuXing.length;i++){
+			gStr.siKeWuXing[i]=_wuXingStr[this.siKeWuXing[i]];
+		}
+		
+		for(i=0;i<this.siKeYinYang.length;i++){
+			gStr.siKeYinYang[i]=_yinYang[this.siKeYinYang[i]];
+		}
+		
+		gStr.chuChuan=_diZhiStr[this.chuChuan];
+		gStr.zhongChuan=_diZhiStr[this.zhongChuan];
+		gStr.moChuan=_diZhiStr[this.moChuan];
+		
+		gStr.chuChuanDunGan=_tianGanStr[this.chuChuanDunGan];
+		gStr.zhongChuanDunGan=_tianGanStr[this.zhongChuanDunGan];
+		gStr.moChuanDunGan=_tianGanStr[this.moChuanDunGan];
+		
+		for(i=0;i<this.dunGan.length;i++){
+			if(this.dunGan[i]<=9){
+				gStr.dunGan[i]=_tianGanStr[this.dunGan[i]];
+			}else{
+				gStr.dunGan[i]="旬空";
+			}
+			
+		}
+		
+		for(i=0;i<this.tianJiang.length;i++){
+			gStr.tianJiang[i]=_tianJiang[this.tianJiang[i]];
+		}
+		
+		for(i=0;i<this.liuQin.length;i++){
+			switch(this.liuQin[i]){
+				case 1:
+					gStr.liuQin[i]="妻财";
+					break;
+				
+				case -1:
+					gStr.liuQin[i]="官鬼";
+					break;
+					
+				case 2:
+					gStr.liuQin[i]="子孙";
+					break;
+					
+				case -2:
+					gStr.liuQin[i]="父母";
+					break;
+					
+				case 0:
+					gStr.liuQin[i]="兄弟";
+					break;
+			}
+		}
+	},
 	
 	qiKe:function(siZhu,yueJiang){
 		this.siZhu=siZhu;
 		this.yueJiang=yueJiang;
 		this.tianDiPan();
-		this.siKe();
+		this.getSiKe();
 		this.sanChuan();
+		this.xunDun();
+		this.qiGuiRen();
+		this.liuQin();
+		
+		this.toStr();
 	},
 	
 	//月将加时排天地盘
@@ -102,7 +217,7 @@ var g={
 	},
 	
 	//排四课
-	siKe:function(){
+	getSiKe:function(){
 		var riGan=this.siZhu[4];
 		var riZhi=this.siZhu[5];
 		var tianPan=this.tianPan;
@@ -162,7 +277,7 @@ var g={
 		var r=this.zeiKe();
 		console.log(r);
 		if(!r){
-			r=this.biYong();
+			r=this.biYongKe();
 			console.log(r);
 		}
 		if(!r){
@@ -201,20 +316,38 @@ var g={
 		var firstZhi=this.siZhu[5]-this.siZhu[4];
 		if(firstZhi<0){
 			firstZhi=12+firstZhi;
-			var xunDunFirst=this.tianPan[0]+firstZhi;
-			for(i=0;i<_diZhi.length;i++){
-				var xunDun=xunDunFirst+i;
-				if(xunDun<_diZhi.length){
-					this.xunDun.push(xunDun);
-				}else{
-					this.xunDun.push(xunDun-_diZhi.length);
-				}
+		}
+		var dunGanFirst=this.tianPan[0]+firstZhi;
+		for(i=0;i<_diZhi.length;i++){
+			var dunGan=dunGanFirst+i;
+			if(dunGan<_diZhi.length){
+				this.dunGan[i]=dunGan;
+			}else{
+				this.dunGan[i]=dunGan-_diZhi.length;
 			}
 		}
+		
+		//算出三传遁干
+		for(i=0;i<this.tianPan.length;i++){
+			switch (this.tianPan[i]) {
+				case this.chuChuan:
+					this.chuChuanDunGan=this.dunGan[i];
+					break;
+						
+				case this.zhongChuan:
+					this.zhongChuanDunGan=this.dunGan[i];
+					break;
+						
+				case this.moChuan:
+					this.moChuanDunGan=this.dunGan[i];
+					break;
+			}
+		}
+		
 	},
 	
 	//天将 起贵人
-	tianJiang:function(){
+	qiGuiRen:function(){
 		var guiRen;
 		if(this.siZhu[7]>=3 && this.siZhu[7]<=8){
 			//日贵
@@ -268,27 +401,38 @@ var g={
 				guiRenIndex=i;
 			}
 		}
+		//通过贵人索引推算出天盘第一个位置的天将
 		var tianJiangFirst;
+		var shunXing=true; //贵人是否顺行
 		if(guiRenIndex>=5 && guiRenIndex<=10){ //顺布则背天门，逆布则向地户
-			tianJiangFirst=guiRenIndex;
-		}else{
 			tianJiangFirst=12-guiRenIndex;
+			shunXing=false;
+		}else{
+			tianJiangFirst=guiRenIndex;
 		}
 		
 		for(i=0;i<_diZhi.length;i++){
-			var jiang=tianJiangFirst+i;
-			this.tianJiang.push(jiang);
+			if(shunXing){
+				var jiang=guiRenIndex+i;
+			}else{
+				var jiang=guiRenIndex-i;
+			}
+			
+			this.tianJiang[i]=jiang;
 			if(jiang>=_diZhi.length){
-				this.tianJiang.push(jiang-_diZhi.length);
+				this.tianJiang[i]=jiang-_diZhi.length;
+			}
+			if(jiang<0){
+				this.tianJiang[i]=_diZhi.length+jiang;
 			}
 		}
 	},
 	
 	//六亲
 	liuQin:function(){
-		this.liuQin[0]=shengKe(siZhu[4],this.chuChuan);
-		this.liuQin[1]=shengKe(siZhu[4],this.zhongChuan);
-		this.liuQin[2]=shengKe(siZhu[4],this.moChuan);
+		this.liuQin[0]=shengKe(this.siZhu[4],this.chuChuan);
+		this.liuQin[1]=shengKe(this.siZhu[4],this.zhongChuan);
+		this.liuQin[2]=shengKe(this.siZhu[4],this.moChuan);
 	},
 	
 	
@@ -318,7 +462,7 @@ var g={
 	},
 	
 	//是否为比用
-	biYong:function(){
+	biYongKe:function(){
 		var re=false;
 		//比用:四课中有2或3课下贼上或2到3课上克下，则取与日干相比者为初传，两下贼上为比用，两上克下为知一
 		var biYong=[]; //比用备选数组
@@ -326,18 +470,18 @@ var g={
 		var zeiOrKe=[];
 		var zeiOrKeType; //-1为上克下 1为下贼上
 		if(this.ke.length>1){
-			zeiOrKe=keArr;
+			zeiOrKe=this.ke;
 			zeiOrKeType=-1;
 		}
 		if(this.zei.length>1){
-			zeiOrKe=zeiArr;
+			zeiOrKe=this.zei;
 			zeiOrKeType=1;
 		}
 		if(zeiOrKe.length>1){
 			for(i=0;i<=zeiOrKe.length;i++){
 				var index=(zeiOrKe[i]+1)*2-1;
-				if(_earthYinYang[siKe[index]]==_skyYinYang[siKe[0]]){
-					biYong.push(siKe[index]);
+				if(_diZhiYinYang[this.siKe[index]]==_tianGanYinYang[this.siKe[0]]){
+					biYong.push(this.siKe[index]);
 				}
 			}
 			//如果biYong数组中有一个值则按比用法起课
@@ -359,7 +503,8 @@ var g={
 		//如果有贼或有克，且不是比用
 		if( (this.biYong.length==0 || this.biYong.length>1) && (this.zei.length>0 || this.ke.length>0) ){
 			//找四课里的孟仲
-			var meng,zhong; //孟仲
+			var meng=[];
+			var zhong=[]; //孟仲
 			for(i=0;i<this.siKe.length/2;i++){
 				var v;
 				//如果是第一课 先转为地支

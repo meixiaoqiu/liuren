@@ -141,26 +141,131 @@
           	</div>
         </div>
         <div class="row">
-        <div class="col-sm-1">
-        	月将：
-	        <select class="form-control" name="yueJiang" id="yueJiang">
-	        	<option value="0">子</option>
-	        	<option value="1">丑</option>
-	        	<option value="2">寅</option>
-	        	<option value="3">卯</option>
-	        	<option value="4">辰</option>
-	        	<option value="5">巳</option>
-	        	<option value="6">午</option>
-	        	<option value="7">未</option>
-	        	<option value="8">申</option>
-	        	<option value="9">酉</option>
-	        	<option value="10">戌</option>
-	        	<option value="11">亥</option>
-	        </select>
+        	<div class="col-xs-12">月将：</div>
+        </div>
+        <div class="row">
+        	<div class="col-sm-1 col-md-offset-2">
+		        <select class="form-control" name="yueJiang" id="yueJiang">
+		        	<option value="0">子</option>
+		        	<option value="1">丑</option>
+		        	<option value="2">寅</option>
+		        	<option value="3">卯</option>
+		        	<option value="4">辰</option>
+		        	<option value="5">巳</option>
+		        	<option value="6">午</option>
+		        	<option value="7">未</option>
+		        	<option value="8">申</option>
+		        	<option value="9">酉</option>
+		        	<option value="10">戌</option>
+		        	<option value="11">亥</option>
+		        </select>
 	        </div>
         </div>
         <div class="row">
-        	<div class="col-xs-12"><button type="button" class="btn btn-primary btn-lg" id="qiKe">起课</button></div>
+        	<div class="col-xs-12 col-md-offset-2"><button type="button" class="btn btn-primary btn-lg" id="qiKe">起课</button></div>
+        </div>
+        <div class="row">
+        	<div class="col-xs-12">
+        		<table>
+        			<tr>
+                    	<td id="chuChuanDunGan"></td>
+                    	<td id="chuChuan"></td>
+                    	<td></td>
+                    </tr>
+        			<tr>
+                    	<td id="zhongChuanDunGan"></td>
+                    	<td id="zhongChuan"></td>
+                    	<td></td>
+                    </tr>
+        			<tr>
+                    	<td id="moChuanDunGan"></td>
+                    	<td id="moChuan"></td>
+                    	<td></td>
+                    </tr>
+        		</table>
+        		<table>
+        			<tr>
+                    	<td id="siKeTianJiang0"></td>
+                    	<td id="siKeTianJiang1"></td>
+                    	<td id="siKeTianJiang2"></td>
+                    	<td id="siKeTianJiang3"></td>
+                    </tr>
+        			<tr>
+                    	<td id="siKe7"></td>
+                    	<td id="siKe5"></td>
+                    	<td id="siKe3"></td>
+                    	<td id="siKe1"></td>
+                    </tr>
+        			<tr>
+                    	<td id="siKe6"></td>
+                    	<td id="siKe4"></td>
+                    	<td id="siKe2"></td>
+                    	<td id="siKe0"></td>
+                    </tr>
+        		</table>
+        		<table>
+        			<tr>
+                    	<td>
+                        	<div id="tianPan5"></div>
+                        	<div id="tianJiang5"></div>
+                        </td>
+                    	<td>
+                        	<div id="tianPan6"></div>
+                        	<div id="tianJiang6"></div>
+                        </td>
+                    	<td>
+                        	<div id="tianPan7"></div>
+                        	<div id="tianJiang7"></div>
+                        </td>
+                    	<td>
+                        	<div id="tianPan8"></div>
+                        	<div id="tianJiang8"></div>
+                        </td>
+                    </tr>
+        			<tr>
+                    	<td>
+                        	<div id="tianPan4"></div>
+                        	<div id="tianJiang4"></div>
+                        </td>
+                    	<td></td>
+                    	<td></td>
+                    	<td>
+                        	<div id="tianPan9"></div>
+                        	<div id="tianJiang9"></div>
+                        </td>
+                    </tr>
+        			<tr>
+                    	<td>
+                        	<div id="tianPan3"></div>
+                        	<div id="tianJiang3"></div>
+                        </td>
+                    	<td></td>
+                    	<td></td>
+                    	<td>
+                        	<div id="tianPan10"></div>
+                        	<div id="tianJiang10"></div>
+                        </td>
+                    </tr>
+        			<tr>
+                    	<td>
+                        	<div id="tianPan2"></div>
+                        	<div id="tianJiang2"></div>
+                        </td>
+                    	<td>
+                        	<div id="tianPan1"></div>
+                        	<div id="tianJiang1"></div>
+                        </td>
+                    	<td>
+                        	<div id="tianPan0"></div>
+                        	<div id="tianJiang0"></div>
+                        </td>
+                    	<td>
+                        	<div id="tianPan11"></div>
+                        	<div id="tianJiang11"></div>
+                        </td>
+                    </tr>
+        		</table>
+        	</div>
         </div>
     </div>
     <script type="text/javascript">
@@ -169,7 +274,27 @@
     		g.siZhu=[$("#siZhu0").val(),$("#siZhu0").val(),$("#siZhu1").val(),$("#siZhu2").val(),$("#siZhu3").val(),$("#siZhu4").val(),$("#siZhu5").val(),$("#siZhu6").val(),$("#siZhu7").val()];
     		g.yueJiang=$("#yueJiang").val();
     		g.qiKe(g.siZhu,g.yueJiang);
-    		console.log(g.chuChuan,g.zhongChuan,g.moChuan);
+			
+			//将结果解析到页面
+			$("#chuChuan").html(gStr.chuChuan);
+			$("#zhongChuan").html(gStr.zhongChuan);
+			$("#moChuan").html(gStr.moChuan);
+			
+			$("#chuChuanDunGan").html(gStr.chuChuanDunGan);
+			$("#zhongChuanDunGan").html(gStr.zhongChuanDunGan);
+			$("#moChuanDunGan").html(gStr.moChuanDunGan);
+			
+			for(i=0;i<gStr.siKe.length;i++){
+				$("#siKe"+i).html(gStr.siKe[i]);
+				if((i+2)%2==1){
+					var index=i-(i+1)/2;
+					$("#siKeTianJiang"+index).html(gStr.siKeTianJiang[index]);
+				}
+			}
+			for(i=0;i<gStr.tianPan.length;i++){
+				$("#tianPan"+i).html(gStr.tianPan[i]);
+				$("#tianJiang"+i).html(gStr.tianJiang[i]);
+			}
     	});
     });
     </script>
