@@ -60,17 +60,15 @@ var gStr={
 	siKeYinYang:[],
 	siKeTianJiang:[],
 	
-	chuChuan:"",
-	zhongChuan:"",
-	moChuan:"",
-	chuChuanDunGan:"",
-	zhongChuanDunGan:"",
-	moChuanDunGan:"",
+	sanChuan:[],
+	sanChuanDunGan:[],
+	sanChuanTianJiang:[],
 	
 	dunGan:[],
 	tianJiang:[],
 	liuQin:[]
 };
+
 var g={
 	siZhu:[],
 	yueJiang:0,
@@ -86,16 +84,38 @@ var g={
 	
 	biYong:[], //用于判断完比用课之后留给涉害课使用
 	
-	chuChuan:0,
-	zhongChuan:0,
-	moChuan:0,
-	chuChuanDunGan:0,
-	zhongChuanDunGan:0,
-	moChuanDunGan:0,
+	sanChuan:[],
+	sanChuanDunGan:[],
+	sanChuanTianJiang:[],
+	keName:'',
 	
 	dunGan:[],
 	tianJiang:[],
 	liuQin:[], //三传六亲
+	
+	init:function(){
+		this.siZhu=[];
+		this.yueJiang=0;
+		this.tianPan=[];
+		this.siKe=[];
+		
+		this.siKeWuXing=[];
+		this.siKeShengKe=[];
+		this.siKeYinYang=[];
+		this.zei=[];
+		this.ke=[];
+		this.siKeUnique=[];
+		
+		this.biYong=[];
+		
+		this.sanChuan=[];
+		this.sanChuanDunGan=[];
+		sanChuanTianJiang=[];
+		
+		this.dunGan=[];
+		this.tianJiang=[];
+		this.liuQin=[];
+	},
 	
 	toStr:function(){
 		for(i=0;i<this.siZhu.length;i++){
@@ -134,13 +154,16 @@ var g={
 			gStr.siKeYinYang[i]=_yinYang[this.siKeYinYang[i]];
 		}
 		
-		gStr.chuChuan=_diZhiStr[this.chuChuan];
-		gStr.zhongChuan=_diZhiStr[this.zhongChuan];
-		gStr.moChuan=_diZhiStr[this.moChuan];
-		
-		gStr.chuChuanDunGan=_tianGanStr[this.chuChuanDunGan];
-		gStr.zhongChuanDunGan=_tianGanStr[this.zhongChuanDunGan];
-		gStr.moChuanDunGan=_tianGanStr[this.moChuanDunGan];
+		for(i=0;i<this.sanChuan.length;i++){
+			gStr.sanChuan[i]=_diZhiStr[this.sanChuan[i]];
+			gStr.sanChuanDunGan[i]=_tianGanStr[this.sanChuanDunGan[i]];
+			//算出三传天将
+			for(j=0;j<this.tianPan.length;j++){
+				if(this.tianPan[j]==this.sanChuan[i]){
+					gStr.sanChuanTianJiang[i]=_tianJiang[this.tianJiang[j]];
+				}
+			}
+		}
 		
 		for(i=0;i<this.dunGan.length;i++){
 			if(this.dunGan[i]<=9){
@@ -181,14 +204,16 @@ var g={
 	},
 	
 	qiKe:function(siZhu,yueJiang){
+		this.init();
+		
 		this.siZhu=siZhu;
 		this.yueJiang=yueJiang;
 		this.tianDiPan();
 		this.getSiKe();
-		this.sanChuan();
+		this.getSanChuan();
 		this.xunDun();
 		this.qiGuiRen();
-		this.liuQin();
+		this.getLiuQin();
 		
 		this.toStr();
 	},
@@ -245,7 +270,7 @@ var g={
 	},
 	
 	//排三传
-	sanChuan:function(){
+	getSanChuan:function(){
 		//循环四课的八个值，得出五行值
 		for(i=0;i<this.siKe.length;i++){
 			if(i==0){
@@ -263,7 +288,6 @@ var g={
 				j++;
 			}
 		}
-		
 		for(i=0;i<this.siKeShengKe.length;i++) {
 			if(this.siKeShengKe[i]==-1){
 				this.ke.push(i);
@@ -275,39 +299,31 @@ var g={
 		
 		//依次判断九宗门
 		var r=this.zeiKe();
-		console.log(r);
 		if(!r){
 			r=this.biYongKe();
-			console.log(r);
 		}
 		if(!r){
 			r=this.sheHai();
-			console.log(r);
 		}
 		if(!r){
 			r=this.yaoKe();
-			console.log(r);
 		}
 		if(!r){
 			r=this.maoXing();
-			console.log(r);
 		}
 		if(!r){
 			r=this.bieZe();
-			console.log(r);
 		}
 		if(!r){
 			r=this.fuYin();
-			console.log(r);
 		}
 		if(!r){
 			r=this.fanYin();
-			console.log(r);
 		}
 		if(!r){
 			r=this.baZhuan();
-			console.log(r);
 		}
+		//console.log(this.keName);
 	},
 	
 	//旬遁
@@ -330,20 +346,19 @@ var g={
 		//算出三传遁干
 		for(i=0;i<this.tianPan.length;i++){
 			switch (this.tianPan[i]) {
-				case this.chuChuan:
-					this.chuChuanDunGan=this.dunGan[i];
+				case this.sanChuan[0]:
+					this.sanChuanDunGan[0]=this.dunGan[i];
 					break;
 						
-				case this.zhongChuan:
-					this.zhongChuanDunGan=this.dunGan[i];
+				case this.sanChuan[1]:
+					this.sanChuanDunGan[1]=this.dunGan[i];
 					break;
 						
-				case this.moChuan:
-					this.moChuanDunGan=this.dunGan[i];
+				case this.sanChuan[2]:
+					this.sanChuanDunGan[2]=this.dunGan[i];
 					break;
 			}
 		}
-		
 	},
 	
 	//天将 起贵人
@@ -429,10 +444,11 @@ var g={
 	},
 	
 	//六亲
-	liuQin:function(){
-		this.liuQin[0]=shengKe(this.siZhu[4],this.chuChuan);
-		this.liuQin[1]=shengKe(this.siZhu[4],this.zhongChuan);
-		this.liuQin[2]=shengKe(this.siZhu[4],this.moChuan);
+	getLiuQin:function(){
+		//console.log(this.siZhu[0],this.sanChuan[0]);
+		this.liuQin[0]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[0]]);
+		this.liuQin[1]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[1]]);
+		this.liuQin[2]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[2]]);
 	},
 	
 	
@@ -443,21 +459,26 @@ var g={
 		var chuChuanIndex=-1;
 		//始入 or 重审
 		if(this.zei.length==1){
-			var chuChuanIndex=this.zei[0]*2;
+			var chuChuanIndex=this.zei[0]*2+1;
 			re=true;
 		}
 		
 		//元首
 		if(this.ke.length==1 && this.zei.length==0){
-			var chuChuanIndex=this.ke[0]*2;
+			var chuChuanIndex=this.ke[0]*2+1;
 			re=true;
 		}
 		
 		if(chuChuanIndex>=0){
-			this.chuChuan=this.siKe[chuChuanIndex];
-			this.zhongChuan=this.tianPan[this.chuChuan];
-			this.moChuan=this.tianPan[this.zhongChuan];
+			this.sanChuan[0]=this.siKe[chuChuanIndex];
+			this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+			this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
 		}
+		
+		if(re){
+			this.keName='zeiKe';
+		}
+		
 		return re;
 	},
 	
@@ -486,13 +507,17 @@ var g={
 			}
 			//如果biYong数组中有一个值则按比用法起课
 			if(biYong.length==1){
-				this.chuChuan=biYong[0];
-				this.zhongChuan=this.tianPan[this.chuChuan];
-				this.moChuan=this.tianPan[this.zhongChuan];
+				this.sanChuan[0]=biYong[0];
+				this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+				this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
 				re=true;
 			}
 		}
 		this.biYong=biYong;
+		
+		if(re){
+			this.keName='biYong';
+		}
 		return re;
 	},
 	
@@ -525,17 +550,21 @@ var g={
 			}
 			
 			if(zhong.length>0){
-				this.chuChuan=zhong[0];
-				this.zhongChuan=this.tianPan[this.chuChuan];
-				this.moChuan=this.tianPan[this.zhongChuan];
+				this.sanChuan[0]=zhong[0];
+				this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+				this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
 				re=true;
 			}
 			if(meng.length>0){
-				this.chuChuan=meng[0];
-				this.zhongChuan=this.tianPan[this.chuChuan];
-				this.moChuan=this.tianPan[this.zhongChuan];
+				this.sanChuan[0]=meng[0];
+				this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+				this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
 				re=true;
 			}
+		}
+		
+		if(re){
+			this.keName='sheHai';
 		}
 		return re;
 	},
@@ -581,15 +610,19 @@ var g={
 						}
 					}
 				}
-				this.chuChuan=this.siKe[chuChuanIndex];
-				this.zhongChuan=this.tianPan[this.chuChuan];
-				this.moChuan=this.tianPan[this.zhongChuan];
+				this.sanChuan[0]=this.siKe[chuChuanIndex];
+				this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+				this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
 				re=true;
 			}
 		}
 
+		if(re){
+			this.keName='yaoKe';
+		}
 		return re;
 	},
+	
 	//是否为昴星
 	maoXing:function(){
 		var re=false;
@@ -620,18 +653,22 @@ var g={
 					}else {
 						chuChuanIndex=9-this.tianPan[0];
 					}
-					this.chuChuan=this.tianPan[chuChuanIndex];
-					this.zhongChuan=this.siKe[1];
-					this.moChuan=this.siKe[3];
+					this.sanChuan[0]=this.tianPan[chuChuanIndex];
+					this.sanChuan[1]=this.siKe[1];
+					this.sanChuan[2]=this.siKe[3];
 					break;
 				
 				case 1: //阳日取酉上神
-					this.chuChuan=this.tianPan[9];
-					this.zhongChuan=this.siKe[3];
-					this.moChuan=this.siKe[1];
+					this.sanChuan[0]=this.tianPan[9];
+					this.sanChuan[1]=this.siKe[3];
+					this.sanChuan[2]=this.siKe[1];
 					break;
 			}
 			re=true;
+		}
+		
+		if(re){
+			this.keName='maoXing';
 		}
 		return re;
 	},
@@ -643,18 +680,22 @@ var g={
 			//阳日取干合之上神为初传，阴日取支前三合为初传
 			switch(_tianGanYinYang[this.siKe[0]]){
 				case 1:
-					this.chuChuan=_jiGong[_tianGanHe[this.siKe[0]]];
+					this.sanChuan[0]=_jiGong[_tianGanHe[this.siKe[0]]];
 					break;
 				
 				case 0:
-					this.chuChuan=this.siKe[4]+4;
-					if(this.chuChuan>11){
-						this.chuChuan=this.siKe[4]-8;
+					this.sanChuan[0]=this.siKe[4]+4;
+					if(this.sanChuan[0]>11){
+						this.sanChuan[0]=this.siKe[4]-8;
 					}
 					break;
 			}
-			this.zhongChuan=this.moChuan=this.siKe[1];
+			this.sanChuan[1]=this.sanChuan[2]=this.siKe[1];
 			re=true;
+		}
+		
+		if(re){
+			this.keName='bieZe';
 		}
 		return re;
 	},
@@ -665,33 +706,37 @@ var g={
 		if(this.tianPan[0]==_diZhi[0]){
 			var another=this.siKe[3];
 			if( shengKe(this.siKe[0],this.siKe[1])==-1 || shengKe(this.siKe[0],this.siKe[1])==1 ){
-				this.chuChuan=this.siKe[1];
+				this.sanChuan[0]=this.siKe[1];
 			}else{
 				switch (_tianGanYinYang[this.siKe[0]]) {
 					case 1:
-						this.chuChuan=this.siKe[1];
+						this.sanChuan[0]=this.siKe[1];
 						another=this.siKe[3];
 						break;
 						
 					case 0:
-						this.chuChuan=this.siKe[3];
+						this.sanChuan[0]=this.siKe[3];
 						another=this.siKe[1];
 						break;
 				}
 			}
-			this.zhongChuan=_diZhiXing[this.chuChuan];
-			if(this.zhongChuan==this.chuChuan){
-				this.zhongChuan=another;
+			this.sanChuan[1]=_diZhiXing[this.sanChuan[0]];
+			if(this.sanChuan[1]==this.sanChuan[0]){
+				this.sanChuan[1]=another;
 			}
-			this.moChuan=_diZhiXing[this.zhongChuan];
-			if(this.moChuan==this.zhongChuan){
-				this.moChuan=_diZhiChong[this.moChuan];
+			this.sanChuan[2]=_diZhiXing[this.sanChuan[1]];
+			if(this.sanChuan[2]==this.sanChuan[1]){
+				this.sanChuan[2]=_diZhiChong[this.sanChuan[2]];
 			}
 			//丁己辛三日，末传为午
 			if(this.siKe[0]==3 || this.siKe[0]==5 || this.siKe[0]==7){
-				this.moChuan=6;
+				this.sanChuan[2]=6;
 			}
 			re=true;
+		}
+		
+		if(re){
+			this.keName='fuYin';
 		}
 		return re;
 	},
@@ -702,10 +747,14 @@ var g={
 		if(_diZhiChong[this.tianPan[0]]==this.tianPan[6]){
 			//如有贼克，之前就已经走贼克方法排出了
 			//如无贼克，驿马为初传,辰中日末
-			this.chuChuan=_diZhiYiMa[this.siKe[4]];
-			this.zhongChuan=this.siKe[5];
-			this.moChuan=this.siKe[1];
+			this.sanChuan[0]=_diZhiYiMa[this.siKe[4]];
+			this.sanChuan[1]=this.siKe[5];
+			this.sanChuan[2]=this.siKe[1];
 			re=true;
+		}
+		
+		if(re){
+			this.keName='fanYin';
 		}
 		return re;
 	},
@@ -718,20 +767,24 @@ var g={
 			//如有贼克，之前就已经走贼克方法排出了
 			switch(_tianGanYinYang[this.siKe[0]]){
 				case 1:
-					this.chuChuan=this.siKe[1]+2;
-					if(this.chuChuan>11){
-						this.chuChuan=this.chuChuan-11;
+					this.sanChuan[0]=this.siKe[1]+2;
+					if(this.sanChuan[0]>11){
+						this.sanChuan[1]=this.sanChuan[0]-11;
 					}
 					break;
 				
 				case 0:
-					this.chuChuan=this.siKe[7]-2;
-					if(this.chuChuan<0){
-						this.chuChuan=this.chuChuan+12;
+					this.sanChuan[0]=this.siKe[7]-2;
+					if(this.sanChuan[0]<0){
+						this.sanChuan[0]=this.sanChuan[0]+12;
 					}
 					break;
 			}
-			this.zhongChuan=this.moChuan=this.siKe[1];
+			this.sanChuan[1]=this.sanChuan[2]=this.siKe[1];
+		}
+		
+		if(re){
+			this.keName='baZhuan';
 		}
 		return re;
 	}
