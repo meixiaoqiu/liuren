@@ -78,6 +78,8 @@ var g={
 	siKeWuXing:[],
 	siKeShengKe:[],
 	siKeYinYang:[],
+	siKeTianJiang:[],
+	
 	zei:[],
 	ke:[],
 	siKeUnique:[], //四课中有效组合 从昴星课开始用到。
@@ -139,6 +141,7 @@ var g={
 			if((i+2)%2==1){
 				for(j=0;j<this.tianPan.length;j++){
 					if(this.tianPan[j]==this.siKe[i]){
+						this.siKeTianJiang[k]=this.tianJiang[j];
 						gStr.siKeTianJiang[k]=_tianJiang[this.tianJiang[j]];
 					}
 				}
@@ -223,11 +226,11 @@ var g={
 		var shiZhi=this.siZhu[7];
 		var yueJiang=this.yueJiang;
 		var tianPan=[];
-		var tianPanFirst;
+		var tianPanFirst=0;
 		if(shiZhi<=yueJiang){
 			tianPanFirst=yueJiang-shiZhi;
 		}else{
-			tianPanFirst=yueJiang+12-shiZhi;
+			tianPanFirst=yueJiang*1+12-shiZhi;
 		}
 		//循环12次排出天盘
 		var j=0;
@@ -366,7 +369,7 @@ var g={
 		var guiRen;
 		if(this.siZhu[7]>=3 && this.siZhu[7]<=8){
 			//日贵
-			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu==6){
+			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu[4]==6){
 			//甲戊庚牛羊
 				guiRen=1;
 			}
@@ -388,7 +391,7 @@ var g={
 			}
 		}else{
 			//夜贵
-			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu==6){
+			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu[4]==6){
 			//甲戊庚牛羊
 				guiRen=7;
 			}
@@ -441,6 +444,7 @@ var g={
 				this.tianJiang[i]=_diZhi.length+jiang;
 			}
 		}
+		//console.log(guiRen,this.siZhu[7],this.siZhu[7]==8,this.tianJiang);
 	},
 	
 	//六亲
