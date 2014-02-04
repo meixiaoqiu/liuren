@@ -1,276 +1,271 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>大六壬</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="lib/jquery.min.js"></script>
-    <script src="lib/bootstrap.min.js"></script>
-    <link href="lib/bootstrap.min.css" rel="stylesheet">
-    <script src="js/nongli.js"></script>
-    <script src="js/com2.js"></script>
-    <script src="js/biFa.js"></script>
-    <style type="text/css">
-    	.diZhiBig{font-size:24px}
-    </style>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>大六壬</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="lib/bootstrap.min.css">
+<script src="lib/jquery.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
+<script src="js/nongli.js"></script>
+<script src="js/com2.js"></script>
+<script src="js/biFa.js"></script>
+<script src="js/keJing.js"></script>
+<style type="text/css">
+.diZhiBig {
+	font-size: 24px
+}
+</style>
 </head>
 <body>
-<div class="container">
+<form class="form-inline" role="form">
+  <div class="container">
     <div class="row">
-      <div class="col-xs-12"><h1>大六壬</h1></div>
+      <div class="col-xs-12">
+        <h1>大六壬</h1>
+      </div>
     </div>
-    <form class="form-inline" role="form">
-	    <div class="row">
-	    	<div class="col-xs-12">四柱起课：</div>
-	    </div>
-	    <div class="row">
-	      	<div class="col-xs-12 col-sm-3">
-	      		<select class="form-control" name="siZhu0" id="siZhu0">
-	      			<option value="0">甲</option>
-	      			<option value="1">乙</option>
-	      			<option value="2">丙</option>
-	      			<option value="3">丁</option>
-	      			<option value="4">戊</option>
-	      			<option value="5">己</option>
-	      			<option value="6">庚</option>
-	      			<option value="7">辛</option>
-	      			<option value="8">壬</option>
-	      			<option value="9" selected="selected">癸</option>
-	      		</select>
-	      		<select class="form-control" name="siZhu1" id="siZhu1">
-	      			<option value="0">子</option>
-	      			<option value="1">丑</option>
-	      			<option value="2">寅</option>
-	      			<option value="3">卯</option>
-	      			<option value="4">辰</option>
-	      			<option value="5" selected="selected">巳</option>
-	      			<option value="6">午</option>
-	      			<option value="7">未</option>
-	      			<option value="8">申</option>
-	      			<option value="9">酉</option>
-	      			<option value="10">戌</option>
-	      			<option value="11">亥</option>
-	      		</select>
-	      	</div>
-	      	<div class="col-xs-12 col-sm-3">
-	          	<select class="form-control" name="siZhu2" id="siZhu2">
-	          		<option value="0">甲</option>
-	          		<option value="1" selected="selected">乙</option>
-	          		<option value="2">丙</option>
-	          		<option value="3">丁</option>
-	          		<option value="4">戊</option>
-	          		<option value="5">己</option>
-	          		<option value="6">庚</option>
-	          		<option value="7">辛</option>
-	          		<option value="8">壬</option>
-	          		<option value="9">癸</option>
-	          	</select>
-	          	<select class="form-control" name="siZhu3" id="siZhu3">
-	          		<option value="0">子</option>
-	          		<option value="1" selected="selected">丑</option>
-	          		<option value="2">寅</option>
-	          		<option value="3">卯</option>
-	          		<option value="4">辰</option>
-	          		<option value="5">巳</option>
-	          		<option value="6">午</option>
-	          		<option value="7">未</option>
-	          		<option value="8">申</option>
-	          		<option value="9">酉</option>
-	          		<option value="10">戌</option>
-	          		<option value="11">亥</option>
-	          	</select>
-          	</div>
-          	<div class="col-xs-12 col-sm-3">
-	          	<select class="form-control" name="siZhu4" id="siZhu4">
-	          		<option value="0">甲</option>
-	          		<option value="1">乙</option>
-	          		<option value="2">丙</option>
-	          		<option value="3">丁</option>
-	          		<option value="4">戊</option>
-	          		<option value="5">己</option>
-	          		<option value="6" selected="selected">庚</option>
-	          		<option value="7">辛</option>
-	          		<option value="8">壬</option>
-	          		<option value="9">癸</option>
-	          	</select>
-	          	<select class="form-control" name="siZhu5" id="siZhu5">
-	          		<option value="0">子</option>
-	          		<option value="1">丑</option>
-	          		<option value="2">寅</option>
-	          		<option value="3">卯</option>
-	          		<option value="4" selected="selected">辰</option>
-	          		<option value="5">巳</option>
-	          		<option value="6">午</option>
-	          		<option value="7">未</option>
-	          		<option value="8">申</option>
-	          		<option value="9">酉</option>
-	          		<option value="10">戌</option>
-	          		<option value="11">亥</option>
-	          	</select>
-          	</div>
-          	<div class="col-xs-12 col-sm-3">
-	          	<select class="form-control" name="siZhu6" id="siZhu6">
-	          		<option value="0">甲</option>
-	          		<option value="1">乙</option>
-	          		<option value="2">丙</option>
-	          		<option value="3">丁</option>
-	          		<option value="4">戊</option>
-	          		<option value="5">己</option>
-	          		<option value="6" selected="selected">庚</option>
-	          		<option value="7">辛</option>
-	          		<option value="8">壬</option>
-	          		<option value="9">癸</option>
-	          	</select>
-	          	<select class="form-control" name="siZhu7" id="siZhu7">
-	          		<option value="0">子</option>
-	          		<option value="1">丑</option>
-	          		<option value="2">寅</option>
-	          		<option value="3">卯</option>
-	          		<option value="4">辰</option>
-	          		<option value="5">巳</option>
-	          		<option value="6">午</option>
-	          		<option value="7">未</option>
-	          		<option value="8" selected="selected">申</option>
-	          		<option value="9">酉</option>
-	          		<option value="10">戌</option>
-	          		<option value="11">亥</option>
-	          	</select>
-	      	</div>
-	    </div>
-	    <div class="row">
-	    	<div class="col-xs-12">月将：</div>
-	    </div>
-	    <div class="row">
-	    	<div class="col-xs-12">
-		        <select class="form-control" name="yueJiang" id="yueJiang">
-		        	<option value="0">子</option>
-		        	<option value="1" selected="selected">丑</option>
-		        	<option value="2">寅</option>
-		        	<option value="3">卯</option>
-		        	<option value="4">辰</option>
-		        	<option value="5">巳</option>
-		        	<option value="6">午</option>
-		        	<option value="7">未</option>
-		        	<option value="8">申</option>
-		        	<option value="9">酉</option>
-		        	<option value="10">戌</option>
-		        	<option value="11">亥</option>
-		        </select>
-	        </div>
-	    </div>
-	    <div class="row">
-	    	<div class="col-xs-12 col-md-offset-2"><button type="button" class="btn btn-primary btn-lg" id="qiKe">起课</button></div>
-	    </div>
-    </form>
+        <div class="row">
+      <div class="col-xs-12">四柱起课：</div>
+    </div>
+    
     <div class="row">
-    	<div class="col-xs-6">
-    		<table cellpadding="15" width="100%">
-    			<tr>
-    				<td id="sanChuanLiuQin0"></td>
-                	<td id="sanChuanDunGan0"></td>
-                	<td id="sanChuan0" class="diZhiBig"></td>
-                	<td id="sanChuanTianJiang0"></td>
-                </tr>
-    			<tr>
-    				<td id="sanChuanLiuQin1"></td>
-                	<td id="sanChuanDunGan1"></td>
-                	<td id="sanChuan1" class="diZhiBig"></td>
-                	<td id="sanChuanTianJiang1"></td>
-                </tr>
-    			<tr>
-    				<td id="sanChuanLiuQin2"></td>
-                	<td id="sanChuanDunGan2"></td>
-                	<td id="sanChuan2" class="diZhiBig"></td>
-                	<td id="sanChuanTianJiang2"></td>
-                </tr>
-                <tr><td colspan="4"></td></tr>
-    			<tr>
-                	<td id="siKeTianJiang3"></td>
-                	<td id="siKeTianJiang2"></td>
-                	<td id="siKeTianJiang1"></td>
-                	<td id="siKeTianJiang0"></td>
-                </tr>
-    			<tr>
-                	<td id="siKe7" class="diZhiBig"></td>
-                	<td id="siKe5" class="diZhiBig"></td>
-                	<td id="siKe3" class="diZhiBig"></td>
-                	<td id="siKe1" class="diZhiBig"></td>
-                </tr>
-    			<tr>
-                	<td id="siKe6" class="diZhiBig"></td>
-                	<td id="siKe4" class="diZhiBig"></td>
-                	<td id="siKe2" class="diZhiBig"></td>
-                	<td id="siKe0" class="diZhiBig"></td>
-                </tr>
-                <tr><td colspan="4"></td></tr>
-    			<tr>
-                	<td>
-                    	<div id="tianPan5" class="diZhiBig"></div>
-                    	<div id="tianJiang5"></div>
-                    </td>
-                	<td>
-                    	<div id="tianPan6" class="diZhiBig"></div>
-                    	<div id="tianJiang6"></div>
-                    </td>
-                	<td>
-                    	<div id="tianPan7" class="diZhiBig"></div>
-                    	<div id="tianJiang7"></div>
-                    </td>
-                	<td>
-                    	<div id="tianPan8" class="diZhiBig"></div>
-                    	<div id="tianJiang8"></div>
-                    </td>
-                </tr>
-    			<tr>
-                	<td>
-                    	<div id="tianPan4" class="diZhiBig"></div>
-                    	<div id="tianJiang4"></div>
-                    </td>
-                	<td></td>
-                	<td></td>
-                	<td>
-                    	<div id="tianPan9" class="diZhiBig"></div>
-                    	<div id="tianJiang9"></div>
-                    </td>
-                </tr>
-    			<tr>
-                	<td>
-                    	<div id="tianPan3" class="diZhiBig"></div>
-                    	<div id="tianJiang3"></div>
-                    </td>
-                	<td></td>
-                	<td></td>
-                	<td>
-                    	<div id="tianPan10" class="diZhiBig"></div>
-                    	<div id="tianJiang10"></div>
-                    </td>
-                </tr>
-    			<tr>
-                	<td>
-                    	<div id="tianPan2" class="diZhiBig"></div>
-                    	<div id="tianJiang2"></div>
-                    </td>
-                	<td>
-                    	<div id="tianPan1" class="diZhiBig"></div>
-                    	<div id="tianJiang1"></div>
-                    </td>
-                	<td>
-                    	<div id="tianPan0" class="diZhiBig"></div>
-                    	<div id="tianJiang0"></div>
-                    </td>
-                	<td>
-                    	<div id="tianPan11" class="diZhiBig"></div>
-                    	<div id="tianJiang11"></div>
-                    </td>
-                </tr>
-    		</table>
-    	</div>
-    	<div class="col-xs-6">
-    		<h3>解盘</h3>
-    		<div id="jiePan"></div>
-    	</div>
+      <div class="col-xs-12 col-sm-3">
+        <select class="form-control" name="siZhu0" id="siZhu0">
+          <option value="0">甲</option>
+          <option value="1">乙</option>
+          <option value="2">丙</option>
+          <option value="3">丁</option>
+          <option value="4">戊</option>
+          <option value="5">己</option>
+          <option value="6">庚</option>
+          <option value="7">辛</option>
+          <option value="8">壬</option>
+          <option value="9" selected="selected">癸</option>
+        </select>
+        <select class="form-control" name="siZhu1" id="siZhu1">
+          <option value="0">子</option>
+          <option value="1">丑</option>
+          <option value="2">寅</option>
+          <option value="3">卯</option>
+          <option value="4">辰</option>
+          <option value="5" selected="selected">巳</option>
+          <option value="6">午</option>
+          <option value="7">未</option>
+          <option value="8">申</option>
+          <option value="9">酉</option>
+          <option value="10">戌</option>
+          <option value="11">亥</option>
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-3">
+        <select class="form-control" name="siZhu2" id="siZhu2">
+          <option value="0">甲</option>
+          <option value="1" selected="selected">乙</option>
+          <option value="2">丙</option>
+          <option value="3">丁</option>
+          <option value="4">戊</option>
+          <option value="5">己</option>
+          <option value="6">庚</option>
+          <option value="7">辛</option>
+          <option value="8">壬</option>
+          <option value="9">癸</option>
+        </select>
+        <select class="form-control" name="siZhu3" id="siZhu3">
+          <option value="0">子</option>
+          <option value="1" selected="selected">丑</option>
+          <option value="2">寅</option>
+          <option value="3">卯</option>
+          <option value="4">辰</option>
+          <option value="5">巳</option>
+          <option value="6">午</option>
+          <option value="7">未</option>
+          <option value="8">申</option>
+          <option value="9">酉</option>
+          <option value="10">戌</option>
+          <option value="11">亥</option>
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-3">
+        <select class="form-control" name="siZhu4" id="siZhu4">
+          <option value="0" selected="selected">甲</option>
+          <option value="1">乙</option>
+          <option value="2">丙</option>
+          <option value="3">丁</option>
+          <option value="4">戊</option>
+          <option value="5">己</option>
+          <option value="6">庚</option>
+          <option value="7">辛</option>
+          <option value="8">壬</option>
+          <option value="9">癸</option>
+        </select>
+        <select class="form-control" name="siZhu5" id="siZhu5">
+          <option value="0" selected="selected">子</option>
+          <option value="1">丑</option>
+          <option value="2">寅</option>
+          <option value="3">卯</option>
+          <option value="4">辰</option>
+          <option value="5">巳</option>
+          <option value="6">午</option>
+          <option value="7">未</option>
+          <option value="8">申</option>
+          <option value="9">酉</option>
+          <option value="10">戌</option>
+          <option value="11">亥</option>
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-3">
+        <select class="form-control" name="siZhu6" id="siZhu6">
+          <option value="0">甲</option>
+          <option value="1">乙</option>
+          <option value="2">丙</option>
+          <option value="3">丁</option>
+          <option value="4">戊</option>
+          <option value="5">己</option>
+          <option value="6" selected="selected">庚</option>
+          <option value="7">辛</option>
+          <option value="8">壬</option>
+          <option value="9">癸</option>
+        </select>
+        <select class="form-control" name="siZhu7" id="siZhu7">
+          <option value="0" selected="selected">子</option>
+          <option value="1">丑</option>
+          <option value="2">寅</option>
+          <option value="3">卯</option>
+          <option value="4">辰</option>
+          <option value="5">巳</option>
+          <option value="6">午</option>
+          <option value="7">未</option>
+          <option value="8">申</option>
+          <option value="9">酉</option>
+          <option value="10">戌</option>
+          <option value="11">亥</option>
+        </select>
+      </div>
     </div>
-</div>
+    
+    <div class="row">
+      <div class="col-xs-12">月将：</div>
+    </div>
+      <div class="row">
+      <div class="col-xs-12">
+        <select class="form-control" name="yueJiang" id="yueJiang">
+          <option value="0">子</option>
+          <option value="1">丑</option>
+          <option value="2">寅</option>
+          <option value="3">卯</option>
+          <option value="4">辰</option>
+          <option value="5">巳</option>
+          <option value="6">午</option>
+          <option value="7">未</option>
+          <option value="8">申</option>
+          <option value="9" selected="selected">酉</option>
+          <option value="10">戌</option>
+          <option value="11">亥</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-xs-12">
+        <button type="button" class="btn btn-primary btn-lg" id="qiKe">起课</button>
+      </div>
+    </div>
+    
+
+  
+    <div class="row">
+      <div class="col-xs-6">
+        <table cellpadding="15" width="100%">
+          <tr>
+            <td id="sanChuanLiuQin0"></td>
+            <td id="sanChuanDunGan0"></td>
+            <td id="sanChuan0" class="diZhiBig"></td>
+            <td id="sanChuanTianJiang0"></td>
+          </tr>
+          <tr>
+            <td id="sanChuanLiuQin1"></td>
+            <td id="sanChuanDunGan1"></td>
+            <td id="sanChuan1" class="diZhiBig"></td>
+            <td id="sanChuanTianJiang1"></td>
+          </tr>
+          <tr>
+            <td id="sanChuanLiuQin2"></td>
+            <td id="sanChuanDunGan2"></td>
+            <td id="sanChuan2" class="diZhiBig"></td>
+            <td id="sanChuanTianJiang2"></td>
+          </tr>
+          <tr>
+            <td colspan="4"></td>
+          </tr>
+          <tr>
+            <td id="siKeTianJiang3"></td>
+            <td id="siKeTianJiang2"></td>
+            <td id="siKeTianJiang1"></td>
+            <td id="siKeTianJiang0"></td>
+          </tr>
+          <tr>
+            <td id="siKe7" class="diZhiBig"></td>
+            <td id="siKe5" class="diZhiBig"></td>
+            <td id="siKe3" class="diZhiBig"></td>
+            <td id="siKe1" class="diZhiBig"></td>
+          </tr>
+          <tr>
+            <td id="siKe6" class="diZhiBig"></td>
+            <td id="siKe4" class="diZhiBig"></td>
+            <td id="siKe2" class="diZhiBig"></td>
+            <td id="siKe0" class="diZhiBig"></td>
+          </tr>
+          <tr>
+            <td colspan="4"></td>
+          </tr>
+          <tr>
+            <td><div id="tianPan5" class="diZhiBig"></div>
+              <div id="tianJiang5"></div></td>
+            <td><div id="tianPan6" class="diZhiBig"></div>
+              <div id="tianJiang6"></div></td>
+            <td><div id="tianPan7" class="diZhiBig"></div>
+              <div id="tianJiang7"></div></td>
+            <td><div id="tianPan8" class="diZhiBig"></div>
+              <div id="tianJiang8"></div></td>
+          </tr>
+          <tr>
+            <td><div id="tianPan4" class="diZhiBig"></div>
+              <div id="tianJiang4"></div></td>
+            <td></td>
+            <td></td>
+            <td><div id="tianPan9" class="diZhiBig"></div>
+              <div id="tianJiang9"></div></td>
+          </tr>
+          <tr>
+            <td><div id="tianPan3" class="diZhiBig"></div>
+              <div id="tianJiang3"></div></td>
+            <td></td>
+            <td></td>
+            <td><div id="tianPan10" class="diZhiBig"></div>
+              <div id="tianJiang10"></div></td>
+          </tr>
+          <tr>
+            <td><div id="tianPan2" class="diZhiBig"></div>
+              <div id="tianJiang2"></div></td>
+            <td><div id="tianPan1" class="diZhiBig"></div>
+              <div id="tianJiang1"></div></td>
+            <td><div id="tianPan0" class="diZhiBig"></div>
+              <div id="tianJiang0"></div></td>
+            <td><div id="tianPan11" class="diZhiBig"></div>
+              <div id="tianJiang11"></div></td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-xs-6">
+        <h3>解盘</h3>
+        <div id="keJing">
+        </div>
+        <div id="jiePan"></div>
+      </div>
+    </div>
+  </div>
+</form>
 <script type="text/javascript">
 $(function(){
 	$("#qiKe").click(function(){
@@ -304,6 +299,13 @@ $(function(){
 		$("#jiePan").html("");
 		for(i=0;i<b.data.length;i++){
 			$("#jiePan").append("<div>"+bStr[b.data[i]]+"</div>");
+		}
+		
+		//过课经
+		k.action();
+		$("#keJing").html("");
+		for(i=0;i<k.fData.length;i++){
+			$("#keJing").append("<h4>"+kStr[i].name+"</h4>");
 		}
 	});
 });
