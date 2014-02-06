@@ -8,7 +8,9 @@
 <script src="lib/jquery.min.js"></script>
 <script src="lib/bootstrap.min.js"></script>
 <script src="js/nongli.js"></script>
-<script src="js/com2.js"></script>
+<script src="js/constant.js"></script>
+<script src="js/function.js"></script>
+<script src="js/gua.js"></script>
 <script src="js/biFa.js"></script>
 <script src="js/keJing.js"></script>
 <style type="text/css">
@@ -26,7 +28,7 @@
       </div>
     </div>
         <div class="row">
-      <div class="col-xs-12">四柱起课：</div>
+      <div class="col-xs-12"><h3>四柱起课：</h3></div>
     </div>
     
     <div class="row">
@@ -145,10 +147,13 @@
     </div>
     
     <div class="row">
-      <div class="col-xs-12">月将：</div>
+      <div class="col-xs-12 col-sm-3"><h3>月将：</h3></div>
+      <div class="col-xs-12 col-sm-3"><h3>生年（用于算年命）：</h3></div>
     </div>
-      <div class="row">
-      <div class="col-xs-12">
+    <div class="row">
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-3">
         <select class="form-control" name="yueJiang" id="yueJiang">
           <option value="0" selected="selected">子</option>
           <option value="1">丑</option>
@@ -164,11 +169,27 @@
           <option value="11">亥</option>
         </select>
       </div>
+          <div class="col-xs-12 col-sm-3">
+            <select class="form-control" name="siZhu6" id="siZhu6">
+              <option value="1986" selected="selected">1986</option>
+            </select>
+	          <div class="checkbox">
+	            <label>
+	              <input type="checkbox"> 立春前<a id="prevYear" href="javascript:void(0);" data-toggle="tooltip" data-original-title="立春前出生者年柱按上一年算"><span class="glyphicon glyphicon-question-sign"></span></a>
+	            </label>
+	          </div>
+          </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-xs-12 text-center">
+        <button type="button" class="btn btn-primary btn-lg" id="qiKe">起课</button>
+      </div>
     </div>
     
     <div class="row">
       <div class="col-xs-12">
-        <button type="button" class="btn btn-primary btn-lg" id="qiKe">起课</button>
+        <hr>
       </div>
     </div>
     
@@ -268,6 +289,7 @@
 </form>
 <script type="text/javascript">
 $(function(){
+	$('#prevYear').tooltip();
 	$("#qiKe").click(function(){
 		siZhu=[$("#siZhu0").val(),$("#siZhu1").val(),$("#siZhu2").val(),$("#siZhu3").val(),$("#siZhu4").val(),$("#siZhu5").val(),$("#siZhu6").val(),$("#siZhu7").val()];
 		yueJiang=$("#yueJiang").val();
