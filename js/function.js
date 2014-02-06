@@ -30,7 +30,15 @@ function huaJia(year){
 	return [sky,earth];
 }
 
-function xingNian(year) {
+//不确定用周岁还是虚岁，先按周岁算
+function xingNian(gender,year) {
+	if(gender==1){
+		var one=[2,2];
+		var plus=1;
+	}else{
+		var one=[8,8];
+		var plus=-1;
+	}
 	
 }
 
