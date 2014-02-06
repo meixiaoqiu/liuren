@@ -370,7 +370,7 @@ var g={
 		if(this.siZhu[7]>=3 && this.siZhu[7]<=8){
 			//日贵
 			if(this.siZhu[4]==0 || this.siZhu[4]==4 || this.siZhu[4]==6){
-			//甲戊庚牛羊
+				//甲戊庚牛羊
 				guiRen=1;
 			}
 			if(this.siZhu[4]==1 || this.siZhu[4]==5){
@@ -412,6 +412,7 @@ var g={
 				guiRen=2;
 			}
 		}
+		
 		//判断贵人顺逆
 		var guiRenIndex; //贵人在天盘的序号
 		for(i=0;i<this.tianPan.length;i++){
@@ -419,21 +420,22 @@ var g={
 				guiRenIndex=i;
 			}
 		}
+		
 		//通过贵人索引推算出天盘第一个位置的天将
 		var tianJiangFirst;
 		var shunXing=true; //贵人是否顺行
 		if(guiRenIndex>=5 && guiRenIndex<=10){ //顺布则背天门，逆布则向地户
-			tianJiangFirst=12-guiRenIndex;
+			tianJiangFirst=guiRenIndex;
 			shunXing=false;
 		}else{
-			tianJiangFirst=guiRenIndex;
+			tianJiangFirst=12-guiRenIndex;
 		}
 		
 		for(i=0;i<_diZhi.length;i++){
 			if(shunXing){
-				var jiang=guiRenIndex+i;
+				var jiang=tianJiangFirst+i;
 			}else{
-				var jiang=guiRenIndex-i;
+				var jiang=tianJiangFirst-i;
 			}
 			
 			this.tianJiang[i]=jiang;
@@ -444,7 +446,7 @@ var g={
 				this.tianJiang[i]=_diZhi.length+jiang;
 			}
 		}
-		//console.log(guiRen,this.siZhu[7],this.siZhu[7]==8,this.tianJiang);
+		console.log(guiRen,guiRenIndex,tianJiangFirst,shunXing,this.siZhu[4],this.tianJiang);
 	},
 	
 	//六亲
