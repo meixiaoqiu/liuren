@@ -94,9 +94,9 @@
       </div>
       <div class="col-xs-12 col-sm-3">
         <select class="form-control" name="siZhu4" id="siZhu4">
-          <option value="0" selected="selected">甲</option>
+          <option value="0">甲</option>
           <option value="1">乙</option>
-          <option value="2">丙</option>
+          <option value="2" selected="selected">丙</option>
           <option value="3">丁</option>
           <option value="4">戊</option>
           <option value="5">己</option>
@@ -106,7 +106,7 @@
           <option value="9">癸</option>
         </select>
         <select class="form-control" name="siZhu5" id="siZhu5">
-          <option value="0" selected="selected">子</option>
+          <option value="0">子</option>
           <option value="1">丑</option>
           <option value="2">寅</option>
           <option value="3">卯</option>
@@ -116,7 +116,7 @@
           <option value="7">未</option>
           <option value="8">申</option>
           <option value="9">酉</option>
-          <option value="10">戌</option>
+          <option value="10" selected="selected">戌</option>
           <option value="11">亥</option>
         </select>
       </div>
@@ -134,10 +134,10 @@
           <option value="9">癸</option>
         </select>
         <select class="form-control" name="siZhu7" id="siZhu7">
-          <option value="0">子</option>
+          <option value="0" selected="selected">子</option>
           <option value="1">丑</option>
           <option value="2">寅</option>
-          <option value="3" selected="selected">卯</option>
+          <option value="3">卯</option>
           <option value="4">辰</option>
           <option value="5">巳</option>
           <option value="6">午</option>
@@ -159,10 +159,10 @@
     <div class="row">
       <div class="col-xs-12 col-sm-3">
         <select class="form-control" name="yueJiang" id="yueJiang">
-          <option value="0" selected="selected">子</option>
+          <option value="0">子</option>
           <option value="1">丑</option>
           <option value="2">寅</option>
-          <option value="3">卯</option>
+          <option value="3" selected="selected">卯</option>
           <option value="4">辰</option>
           <option value="5">巳</option>
           <option value="6">午</option>
@@ -295,7 +295,7 @@
 </form>
 <script type="text/javascript">
 $(function(){
-	$('#prevYear').tooltip();
+	//$('#prevYear').tooltip();
 	$("#qiKe").click(function(){
 		siZhu=[$("#siZhu0").val(),$("#siZhu1").val(),$("#siZhu2").val(),$("#siZhu3").val(),$("#siZhu4").val(),$("#siZhu5").val(),$("#siZhu6").val(),$("#siZhu7").val()];
 		yueJiang=$("#yueJiang").val();
@@ -333,7 +333,7 @@ $(function(){
 		k.action();
 		$("#keJing").html("");
 		for(i=0;i<k.fData.length;i++){
-			$("#keJing").append("<h4>"+kStr[i].name+"</h4>");
+			$("#keJing").append("<h4>"+kStr[k.fData[i]].name+"</h4>");
 		}
 	});
 });

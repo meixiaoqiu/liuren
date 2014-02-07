@@ -396,7 +396,7 @@ var g={
 				this.tianJiang[i]=_diZhi.length+jiang;
 			}
 		}
-		console.log(guiRen,guiRenIndex,tianJiangFirst,shunXing,this.siZhu[4],this.tianJiang);
+		//console.log(guiRen,guiRenIndex,tianJiangFirst,shunXing,this.siZhu[4],this.tianJiang);
 	},
 	
 	//六亲

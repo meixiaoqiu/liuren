@@ -17,6 +17,7 @@ var k={
 		for(i=0;i<3;i++){
 			eval("this.k"+i+"();");
 		}
+		console.log(g.zei,g.ke);
 	},
 	
 	//元首
@@ -37,6 +38,15 @@ var k={
 	k2:function(){
 		if(g.biYong.length==1){
 			this.fData.push(2);
+		}
+	}
+	
+	//涉害
+	k3:function(){
+		if( (g.biYong.length==0||g.biYong.length>1) && (g.zei.length>1 || g.ke.length>1)  ){
+			this.fData.push(3);
+			//todo 处理比用格
+			g.tianPan
 		}
 	}
 };
