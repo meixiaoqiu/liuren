@@ -45,8 +45,40 @@ var k={
 	k3:function(){
 		if( (g.biYong.length==0||g.biYong.length>1) && (g.zei.length>1 || g.ke.length>1)  ){
 			this.fData.push(3);
+			
+			var chuChuanTianPanIndex=-1;
+			for(i=0;i<g.tianPan.length;i++){
+				if(g.sanChuan[0]==g.tianPan[i]){
+					chuChuanTianPanIndex=i;
+				}
+			}
+			
+			var jianJi=false;
+			var chaWei=false;
+			var zhuiXia=false;
+			for(i=0;i<_siMeng.length;i++){
+				if(chuChuanTianPanIndex==_siMeng[i]){
+					jianJi=true;
+				}
+				if(chuChuanTianPanIndex==_siZhong[i]){
+					chaWei=true;
+				}
+				if(chuChuanTianPanIndex==_siJi[i]){
+					zhuiXia=true;
+				}
+			}
+			
+			if(jianJi==true){
+				this.cData.push(0);//见机格
+			}
+			if(chaWei==true){
+				this.cData.push(1);//察微格
+			}
+			if(zhuiXia==true){
+				this.cData.push(2);//缀霞格
+			}
+			
 			//todo 处理比用格
-			g.tianPan
 		}
 	}
 };
