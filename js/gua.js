@@ -35,6 +35,8 @@ var g={
 	siKeUnique:[], //四课中有效组合 从昴星课开始用到。
 	
 	biYong:[], //用于判断完比用课之后留给涉害课使用
+	yaoKe:[],//用于遥克法
+	yaoZei:[],//用于遥克法
 	
 	sanChuan:[],
 	sanChuanDunGan:[],
@@ -59,6 +61,8 @@ var g={
 		this.siKeUnique=[];
 		
 		this.biYong=[];
+		yaoKe:[];
+		yaoZei:[];
 		
 		this.sanChuan=[];
 		this.sanChuanDunGan=[];
@@ -545,6 +549,9 @@ var g={
 					yaoKe.push(i);
 				}
 			}
+			
+			this.yaoZei=yaoZei;
+			this.yaoKe=yaoKe;
 			
 			var chuChuanIndex;
 			var yaoKeOrYaoZei=[];

@@ -80,6 +80,25 @@ var k={
 			
 			//todo 处理比用格
 		}
+	},
+	
+	//遥克
+	k4:function(){
+		if(g.yaoZei.length==1 || g.yaoKe.length==1){
+			this.fData.push(4);
+			if(g.yaoKe.length>0){
+				this.cData.push(3); //蒿矢
+			}else{
+				if(g.yaoZei.length>0){
+					this.cData.push(4); //弹射
+				}
+			}
+		}
+	},
+	
+	//昴星
+	k5:function(){
+		
 	}
 };
 
