@@ -21,33 +21,33 @@ var K={
 	
 	//元首
 	k0:function(){
-		if(g.ke.length==1 && g.zei.length==0){
+		if(G.ke.length==1 && G.zei.length==0){
 			this.fData.push(0);
 		}
 	},
 	
 	//重审
 	k1:function(){
-		if(g.zei.length==1 && g.ke.length==0){
+		if(G.zei.length==1 && G.ke.length==0){
 			this.fData.push(1);
 		}
 	},
 	
 	//知一
 	k2:function(){
-		if(g.biYong.length==1){
+		if(G.biYong.length==1){
 			this.fData.push(2);
 		}
 	},
 	
 	//涉害
 	k3:function(){
-		if( (g.biYong.length==0||g.biYong.length>1) && (g.zei.length>1 || g.ke.length>1)  ){
+		if( (G.biYong.length==0||G.biYong.length>1) && (G.zei.length>1 || G.ke.length>1)  ){
 			this.fData.push(3);
 			
 			var chuChuanTianPanIndex=-1;
-			for(i=0;i<g.tianPan.length;i++){
-				if(g.sanChuan[0]==g.tianPan[i]){
+			for(i=0;i<G.tianPan.length;i++){
+				if(G.sanChuan[0]==G.tianPan[i]){
 					chuChuanTianPanIndex=i;
 				}
 			}
@@ -55,7 +55,7 @@ var K={
 			var jianJi=false;
 			var chaWei=false;
 			var zhuiXia=false;
-			for(i=0;i<_siMeng.length;i++){
+			for(i=0;i<_siMenG.length;i++){
 				if(chuChuanTianPanIndex==_siMeng[i]){
 					jianJi=true;
 				}
@@ -83,12 +83,12 @@ var K={
 	
 	//遥克
 	k4:function(){
-		if(g.yaoZei.length==1 || g.yaoKe.length==1){
+		if(G.yaoZei.length==1 || G.yaoKe.length==1){
 			this.fData.push(4);
-			if(g.yaoKe.length>0){
+			if(G.yaoKe.length>0){
 				this.cData.push(3); //蒿矢
 			}else{
-				if(g.yaoZei.length>0){
+				if(G.yaoZei.length>0){
 					this.cData.push(4); //弹射
 				}
 			}
@@ -101,7 +101,7 @@ var K={
 	}
 };
 
-var kStr=[
+var Kstr=[
 	//0:元首
 	{
 		bagua:0,

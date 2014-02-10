@@ -1,5 +1,5 @@
 //卦
-var gStr={
+var Gstr={
 	siZhu:[],
 	yueJiang:"",
 	tianPan:[],
@@ -19,7 +19,7 @@ var gStr={
 	liuQin:[]
 };
 
-var g={
+var G={
 	siZhu:[],
 	yueJiang:0,
 	tianPan:[],
@@ -79,28 +79,28 @@ var g={
 	
 	toStr:function(){
 		for(i=0;i<this.siZhu.length;i++){
-			gStr.siZhu[i]=_diZhiStr[this.siZhu[i]];
+			Gstr.siZhu[i]=_diZhiStr[this.siZhu[i]];
 		}
 		
-		gStr.yueJiang=_diZhiStr[this.yueJiang];
+		Gstr.yueJiang=_diZhiStr[this.yueJiang];
 		
 		for(i=0;i<this.tianPan.length;i++){
-			gStr.tianPan[i]=_diZhiStr[this.tianPan[i]];
+			Gstr.tianPan[i]=_diZhiStr[this.tianPan[i]];
 		}
 		
 		var k=0;
 		for(i=0;i<this.siKe.length;i++){
 			if(i==0){
-				gStr.siKe[i]=_tianGanStr[this.siKe[i]];
+				Gstr.siKe[i]=_tianGanStr[this.siKe[i]];
 			}else{
-				gStr.siKe[i]=_diZhiStr[this.siKe[i]];
+				Gstr.siKe[i]=_diZhiStr[this.siKe[i]];
 			}
 			//算出四课天将
 			if((i+2)%2==1){
 				for(j=0;j<this.tianPan.length;j++){
 					if(this.tianPan[j]==this.siKe[i]){
 						this.siKeTianJiang[k]=this.tianJiang[j];
-						gStr.siKeTianJiang[k]=_tianJiang[this.tianJiang[j]];
+						Gstr.siKeTianJiang[k]=_tianJiang[this.tianJiang[j]];
 					}
 				}
 				k++;
@@ -108,57 +108,57 @@ var g={
 		}
 		
 		for(i=0;i<this.siKeWuXing.length;i++){
-			gStr.siKeWuXing[i]=_wuXingStr[this.siKeWuXing[i]];
+			Gstr.siKeWuXing[i]=_wuXingStr[this.siKeWuXing[i]];
 		}
 		
 		for(i=0;i<this.siKeYinYang.length;i++){
-			gStr.siKeYinYang[i]=_yinYang[this.siKeYinYang[i]];
+			Gstr.siKeYinYang[i]=_yinYang[this.siKeYinYang[i]];
 		}
 		
 		for(i=0;i<this.sanChuan.length;i++){
-			gStr.sanChuan[i]=_diZhiStr[this.sanChuan[i]];
-			gStr.sanChuanDunGan[i]=_tianGanStr[this.sanChuanDunGan[i]];
+			Gstr.sanChuan[i]=_diZhiStr[this.sanChuan[i]];
+			Gstr.sanChuanDunGan[i]=_tianGanStr[this.sanChuanDunGan[i]];
 			//算出三传天将
 			for(j=0;j<this.tianPan.length;j++){
 				if(this.tianPan[j]==this.sanChuan[i]){
-					gStr.sanChuanTianJiang[i]=_tianJiang[this.tianJiang[j]];
+					Gstr.sanChuanTianJiang[i]=_tianJiang[this.tianJiang[j]];
 				}
 			}
 		}
 		
 		for(i=0;i<this.dunGan.length;i++){
 			if(this.dunGan[i]<=9){
-				gStr.dunGan[i]=_tianGanStr[this.dunGan[i]];
+				Gstr.dunGan[i]=_tianGanStr[this.dunGan[i]];
 			}else{
-				gStr.dunGan[i]="旬空";
+				Gstr.dunGan[i]="旬空";
 			}
 			
 		}
 		
 		for(i=0;i<this.tianJiang.length;i++){
-			gStr.tianJiang[i]=_tianJiang[this.tianJiang[i]];
+			Gstr.tianJiang[i]=_tianJiang[this.tianJiang[i]];
 		}
 		
 		for(i=0;i<this.liuQin.length;i++){
 			switch(this.liuQin[i]){
 				case 1:
-					gStr.liuQin[i]="妻财";
+					Gstr.liuQin[i]="妻财";
 					break;
 				
 				case -1:
-					gStr.liuQin[i]="官鬼";
+					Gstr.liuQin[i]="官鬼";
 					break;
 					
 				case 2:
-					gStr.liuQin[i]="子孙";
+					Gstr.liuQin[i]="子孙";
 					break;
 					
 				case -2:
-					gStr.liuQin[i]="父母";
+					Gstr.liuQin[i]="父母";
 					break;
 					
 				case 0:
-					gStr.liuQin[i]="兄弟";
+					Gstr.liuQin[i]="兄弟";
 					break;
 			}
 		}
@@ -538,7 +538,6 @@ var g={
 	//涉害深浅法
 	sheHai2:function(){
 		var re=false;
-		console.log(this.zeiOrKe);
 		if(this.zeiOrKe.length>0){
 			var sheHai=[];
 			var nowBig=0; //目前最大涉害数
@@ -553,7 +552,6 @@ var g={
 						tianPanIndex=i;
 					}
 				}
-				console.log(tianPanIndex);
 				//涉归本家
 				sheHai[i]=0;
 				for(j=0;j<_diZhi.length;j++){

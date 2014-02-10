@@ -299,41 +299,41 @@ $(function(){
 	$("#qiKe").click(function(){
 		siZhu=[$("#siZhu0").val(),$("#siZhu1").val(),$("#siZhu2").val(),$("#siZhu3").val(),$("#siZhu4").val(),$("#siZhu5").val(),$("#siZhu6").val(),$("#siZhu7").val()];
 		yueJiang=$("#yueJiang").val();
-		g.qiKe(siZhu,yueJiang);
+		G.qiKe(siZhu,yueJiang);
 		
 		//将结果解析到页面
-		for(i=0;i<gStr.sanChuan.length;i++){
-			$("#sanChuan"+i).html(gStr.sanChuan[i]);
-			$("#sanChuanDunGan"+i).html(gStr.sanChuanDunGan[i]);
-			$("#sanChuanLiuQin"+i).html(gStr.liuQin[i]);
-			$("#sanChuanTianJiang"+i).html(gStr.sanChuanTianJiang[i]);
+		for(i=0;i<Gstr.sanChuan.length;i++){
+			$("#sanChuan"+i).html(Gstr.sanChuan[i]);
+			$("#sanChuanDunGan"+i).html(Gstr.sanChuanDunGan[i]);
+			$("#sanChuanLiuQin"+i).html(Gstr.liuQin[i]);
+			$("#sanChuanTianJiang"+i).html(Gstr.sanChuanTianJiang[i]);
 		}
 		
-		for(i=0;i<gStr.siKe.length;i++){
-			$("#siKe"+i).html(gStr.siKe[i]);
+		for(i=0;i<Gstr.siKe.length;i++){
+			$("#siKe"+i).html(Gstr.siKe[i]);
 			if((i+2)%2==1){
 				var index=i-(i+1)/2;
-				$("#siKeTianJiang"+index).html(gStr.siKeTianJiang[index]);
+				$("#siKeTianJiang"+index).html(Gstr.siKeTianJiang[index]);
 			}
 		}
 		
-		for(i=0;i<gStr.tianPan.length;i++){
-			$("#tianPan"+i).html(gStr.tianPan[i]);
-			$("#tianJiang"+i).html(gStr.tianJiang[i]);
+		for(i=0;i<Gstr.tianPan.length;i++){
+			$("#tianPan"+i).html(Gstr.tianPan[i]);
+			$("#tianJiang"+i).html(Gstr.tianJiang[i]);
 		}
 		
 		//过毕法
-		b.action();
+		B.action();
 		$("#jiePan").html("");
-		for(i=0;i<b.data.length;i++){
-			$("#jiePan").append("<div>"+bStr[b.data[i]]+"</div>");
+		for(i=0;i<B.data.length;i++){
+			$("#jiePan").append("<div>"+Bstr[B.data[i]]+"</div>");
 		}
 		
 		//过课经
 		K.action();
 		$("#keJing").html("");
 		for(i=0;i<K.fData.length;i++){
-			$("#keJing").append("<h4>"+kStr[K.fData[i]].name+"</h4>");
+			$("#keJing").append("<h4>"+Kstr[K.fData[i]].name+"</h4>");
 		}
 	});
 });
