@@ -35,6 +35,8 @@ var g={
 	siKeUnique:[], //四课中有效组合 从昴星课开始用到。
 	
 	biYong:[], //用于判断完比用课之后留给涉害课使用
+	zeiOrKe:[], //用于涉害法
+	zeiOrKeType:[], //用于涉害法
 	yaoKe:[],//用于遥克法
 	yaoZei:[],//用于遥克法
 	
@@ -61,12 +63,14 @@ var g={
 		this.siKeUnique=[];
 		
 		this.biYong=[];
-		yaoKe:[];
-		yaoZei:[];
+		this.zeiOrKe:[];
+		this.zeiOrKeType:[];
+		this.yaoKe:[];
+		this.yaoZei:[];
 		
 		this.sanChuan=[];
 		this.sanChuanDunGan=[];
-		sanChuanTianJiang=[];
+		this.sanChuanTianJiang=[];
 		
 		this.dunGan=[];
 		this.tianJiang=[];
@@ -459,7 +463,7 @@ var g={
 			zeiOrKeType=1;
 		}
 		if(zeiOrKe.length>1){
-			for(i=0;i<=zeiOrKe.length;i++){
+			for(i=0;i<zeiOrKe.length;i++){
 				var index=(zeiOrKe[i]+1)*2-1;
 				if(_diZhiYinYang[this.siKe[index]]==_tianGanYinYang[this.siKe[0]]){
 					biYong.push(this.siKe[index]);
@@ -474,6 +478,8 @@ var g={
 			}
 		}
 		this.biYong=biYong;
+		this.zeiOrKe=zeiOrKe;
+		this.zeiOrKeType=zeiOrKeType;
 		
 		if(re){
 			this.keName='biYong';
@@ -529,7 +535,58 @@ var g={
 		return re;
 	},
 	
-	//todo 涉害深浅法
+	//涉害深浅法
+	sheHai2:function(){
+		var re=false;
+		if(this.zeiOrKe>0){
+			var sheHai=[];
+			for(i=0;i<zeiOrKe.length;i++){
+				var index=(zeiOrKe[i]+1)*2-1;
+				var tianPanIndex=-1;
+				for(k=0;k<_diZhi.length;k++){
+					if(this.tianPan[i]==this.siKe[index]){
+						tianPanIndex=i;
+					}
+				}
+				//涉归本家
+				sheHai[i]=0;
+				for(j=0;j<_diZhi.length;j++){
+					var index=tianPanIndex+i;
+					if( shengKe(_diZhiWuXing[this.tianPan[index]],_diZhiWuXing[_diZhi[index]])==-this.zeiOrKeType ){
+						sheHai[i]++;
+					}
+					//涉害天干
+					if( shengKe(_diZhiWuXing[this.tianPan[index]],_tianGanWuXing[_jiGong[_diZhi[index]]])==-this.zeiOrKeType ){
+						sheHai[i]++;
+					}
+				}
+			}
+			
+			//
+			var bigNum=0;
+			var nowBig=0; //目前最大
+			for(i=0;i<sheHai.length;i++){
+				if(nowBig==sheHai[i]){
+					
+				}
+			}
+		}
+		/*
+		if( (this.biYong.length==0 || this.biYong.length>1) && (this.zei.length>0 || this.ke.length>0) ){
+			//首先判断涉害类型是下贼上还是上克下
+			var zeiOrKe=[];
+			var zeiOrKeType; //-1为上克下 1为下贼上
+			if(this.ke.length>1){
+				zeiOrKe=this.ke;
+				zeiOrKeType=-1;
+			}
+			if(this.zei.length>1){
+				zeiOrKe=this.zei;
+				zeiOrKeType=1;
+			}
+		}
+		*/
+	},
 	
 	//是否为遥克
 	yaoKe:function(){

@@ -39,7 +39,7 @@ var k={
 		if(g.biYong.length==1){
 			this.fData.push(2);
 		}
-	}
+	},
 	
 	//涉害
 	k3:function(){
