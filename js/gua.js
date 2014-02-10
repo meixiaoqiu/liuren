@@ -487,7 +487,8 @@ var G={
 		return re;
 	},
 	
-	//是否为涉害
+	//是否为涉害 此方法已弃用
+	/*
 	sheHai:function(){
 		var re=false;
 		//涉害：只取孟仲.
@@ -534,6 +535,7 @@ var G={
 		}
 		return re;
 	},
+	*/
 	
 	//涉害深浅法
 	sheHai2:function(){
@@ -545,13 +547,14 @@ var G={
 			
 			//将贼组合或克组合的天盘涉归本家
 			for(i=0;i<this.zeiOrKe.length;i++){
-				var index=(this.zeiOrKe[i]+1)*2-1;
+				var shangShenIndex=(this.zeiOrKe[i]+1)*2-1;
 				var tianPanIndex=-1;
 				for(k=0;k<_diZhi.length;k++){
-					if(this.tianPan[i]==this.siKe[index]){
-						tianPanIndex=i;
+					if(this.tianPan[k]==this.siKe[shangShenIndex]){
+						tianPanIndex=k;
 					}
 				}
+				
 				//涉归本家
 				sheHai[i]=0;
 				for(j=0;j<_diZhi.length;j++){
@@ -636,14 +639,13 @@ var G={
 	//是否为遥克
 	yaoKeKe:function(){
 		var re=false;
-		
 		//如果干支同位，不能取遥克，按八专论
 		if(_jiGong[this.siKe[0]]!=this.siKe[4]){
 			//找出所有遥克组合
 			var yaoZei=[];
 			var yaoKe=[];
 			for(i=0;i<this.siKe.length/2;i++){
-				var shangShenIndex=i+i*2+1;
+				var shangShenIndex=i*2+1;
 				if(shengKe(this.siKeWuXing[0],this.siKeWuXing[shangShenIndex])==1){
 					yaoZei.push(i);
 				}
