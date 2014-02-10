@@ -1,5 +1,5 @@
 //64课经
-var k={
+var K={
 	fData:[], //father data 父级数据，计算本课属于64课中的哪课
 	cData:[], //child data 子级数据，有些课式有多种子格局
 	
@@ -17,7 +17,6 @@ var k={
 		for(i=0;i<3;i++){
 			eval("this.k"+i+"();");
 		}
-		console.log(g.zei,g.ke);
 	},
 	
 	//元首

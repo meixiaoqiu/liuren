@@ -63,10 +63,10 @@ var g={
 		this.siKeUnique=[];
 		
 		this.biYong=[];
-		this.zeiOrKe:[];
-		this.zeiOrKeType:[];
-		this.yaoKe:[];
-		this.yaoZei:[];
+		this.zeiOrKe=[];
+		this.zeiOrKeType=[];
+		this.yaoKe=[];
+		this.yaoZei=[];
 		
 		this.sanChuan=[];
 		this.sanChuanDunGan=[];
@@ -264,10 +264,10 @@ var g={
 			r=this.biYongKe();
 		}
 		if(!r){
-			r=this.sheHai();
+			r=this.sheHai2();
 		}
 		if(!r){
-			r=this.yaoKe();
+			r=this.yaoKeKe ();
 		}
 		if(!r){
 			r=this.maoXing();
@@ -538,16 +538,22 @@ var g={
 	//涉害深浅法
 	sheHai2:function(){
 		var re=false;
-		if(this.zeiOrKe>0){
+		console.log(this.zeiOrKe);
+		if(this.zeiOrKe.length>0){
 			var sheHai=[];
-			for(i=0;i<zeiOrKe.length;i++){
-				var index=(zeiOrKe[i]+1)*2-1;
+			var nowBig=0; //目前最大涉害数
+			var lastBig=-1; //最后一个最大涉害index
+			
+			//将贼组合或克组合的天盘涉归本家
+			for(i=0;i<this.zeiOrKe.length;i++){
+				var index=(this.zeiOrKe[i]+1)*2-1;
 				var tianPanIndex=-1;
 				for(k=0;k<_diZhi.length;k++){
 					if(this.tianPan[i]==this.siKe[index]){
 						tianPanIndex=i;
 					}
 				}
+				console.log(tianPanIndex);
 				//涉归本家
 				sheHai[i]=0;
 				for(j=0;j<_diZhi.length;j++){
@@ -560,17 +566,58 @@ var g={
 						sheHai[i]++;
 					}
 				}
-			}
-			
-			//
-			var bigNum=0;
-			var nowBig=0; //目前最大
-			for(i=0;i<sheHai.length;i++){
-				if(nowBig==sheHai[i]){
-					
+				
+				if(sheHai[i]>nowBig){
+					nowBig=sheHai[i];
 				}
 			}
+			
+			//轮询查找有几个最大涉害数
+			var bigNum=0;
+			for(i=0;i<sheHai.length;i++){
+				if(nowBig==sheHai[i]){
+					bigNum++;
+					lastBig=i;
+				}
+			}
+			//如果只有一个涉害最深者，发用
+			var chuChuanIndex=-1;
+			if(bigNum==1){
+				chuChuanIndex=(this.zeiOrKe[lastBig]+1)*2-1;
+			}
+			
+			//如果大于一个涉害最深者，依次取孟、仲上者
+			var meng=[];
+			var zhong=[];
+			if(bigNum>1){
+				for(j=0;j<sheHai.length;j++){
+					var xiaShenIndex=(zeiOrKe[j]+1)*2-2;
+					for(i=0;i<_siMeng.length;i++){
+						if(this.siKe[xiaShenIndex]==_siMeng[j]){
+							meng.push(this.siKe[xiaShenIndex+1]);
+						}
+						if(this.siKe[xiaShenIndex]==_siZhong[j]){
+							zhong.push(this.siKe[xiaShenIndex+1]);
+						}
+					}
+				}
+			}
+			if(zhong.length>0){
+				this.sanChuan[0]=zhong[0];
+				re=true;
+			}
+			if(meng.length>0){
+				this.sanChuan[0]=meng[0];
+				re=true;
+			}
+			if(chuChuanIndex>=0){
+				this.sanChuan[0]=this.siKe[chuChuanIndex];
+			}
+			this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+			this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
+			re=true;
 		}
+		return re;
 		/*
 		if( (this.biYong.length==0 || this.biYong.length>1) && (this.zei.length>0 || this.ke.length>0) ){
 			//首先判断涉害类型是下贼上还是上克下
@@ -589,7 +636,7 @@ var g={
 	},
 	
 	//是否为遥克
-	yaoKe:function(){
+	yaoKeKe:function(){
 		var re=false;
 		
 		//如果干支同位，不能取遥克，按八专论
