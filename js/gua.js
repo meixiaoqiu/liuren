@@ -39,11 +39,11 @@ var G={
 	zeiOrKeType:[], //用于涉害法
 	yaoKe:[],//用于遥克法
 	yaoZei:[],//用于遥克法
+	siKeRepeat:0,//四课是否不全用于昴星，别责等
 	
 	sanChuan:[],
 	sanChuanDunGan:[],
 	sanChuanTianJiang:[],
-	keName:'',
 	
 	dunGan:[],
 	tianJiang:[],
@@ -67,6 +67,7 @@ var G={
 		this.zeiOrKeType=[];
 		this.yaoKe=[];
 		this.yaoZei=[];
+		this.siKeRepeat=0;
 		
 		this.sanChuan=[];
 		this.sanChuanDunGan=[];
@@ -228,6 +229,24 @@ var G={
 		ke4[0]=ke3[1];
 		ke4[1]=tianPan[ke4[0]];
 		this.siKe= [ke1[0],ke1[1],ke2[0],ke2[1],ke3[0],ke3[1],ke4[0],ke4[1]];
+		
+		
+		//四课有几课重复
+		var shangShen=[]; //四课上神数组
+		for(i=0;i<this.siKe.length/2;i++){
+			var shangShenIndex=i*2+1;
+			shangShen.push(this.siKe[shangShenIndex]);
+		}
+		
+		for(i=0;i<shangShen.length;i++){
+			for(j=0;j<shangShen.length;j++){
+				if(i!=j){
+					if(shangShen[i]==shangShen[j]){
+						this.siKeRepeat++;//四课不全
+					}
+				}
+			}
+		}
 	},
 	
 	//排三传
@@ -284,7 +303,6 @@ var G={
 		if(!r){
 			r=this.baZhuan();
 		}
-		//console.log(this.keName);
 	},
 	
 	//旬遁
@@ -404,12 +422,10 @@ var G={
 				this.tianJiang[i]=_diZhi.length+jiang;
 			}
 		}
-		//console.log(guiRen,guiRenIndex,tianJiangFirst,shunXing,this.siZhu[4],this.tianJiang);
 	},
 	
 	//六亲
 	getLiuQin:function(){
-		//console.log(this.siZhu[0],this.sanChuan[0]);
 		this.liuQin[0]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[0]]);
 		this.liuQin[1]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[1]]);
 		this.liuQin[2]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[2]]);
@@ -420,29 +436,26 @@ var G={
 	//是否为贼克
 	zeiKe:function(){
 		var re=false;
-		var chuChuanIndex=-1;
-		//始入 or 重审
-		if(this.zei.length==1){
-			var chuChuanIndex=this.zei[0]*2+1;
-			re=true;
+		if(this.tianPan[0]!=_diZhi[0]){
+			var chuChuanIndex=-1;
+			//始入 or 重审
+			if(this.zei.length==1){
+				var chuChuanIndex=this.zei[0]*2+1;
+				re=true;
+			}
+			
+			//元首
+			if(this.ke.length==1 && this.zei.length==0){
+				var chuChuanIndex=this.ke[0]*2+1;
+				re=true;
+			}
+			
+			if(chuChuanIndex>=0){
+				this.sanChuan[0]=this.siKe[chuChuanIndex];
+				this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
+				this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
+			}
 		}
-		
-		//元首
-		if(this.ke.length==1 && this.zei.length==0){
-			var chuChuanIndex=this.ke[0]*2+1;
-			re=true;
-		}
-		
-		if(chuChuanIndex>=0){
-			this.sanChuan[0]=this.siKe[chuChuanIndex];
-			this.sanChuan[1]=this.tianPan[this.sanChuan[0]];
-			this.sanChuan[2]=this.tianPan[this.sanChuan[1]];
-		}
-		
-		if(re){
-			this.keName='zeiKe';
-		}
-		
 		return re;
 	},
 	
@@ -481,9 +494,6 @@ var G={
 		this.zeiOrKe=zeiOrKe;
 		this.zeiOrKeType=zeiOrKeType;
 		
-		if(re){
-			this.keName='biYong';
-		}
 		return re;
 	},
 	
@@ -529,10 +539,7 @@ var G={
 				re=true;
 			}
 		}
-		
-		if(re){
-			this.keName='sheHai';
-		}
+	
 		return re;
 	},
 	*/
@@ -619,21 +626,6 @@ var G={
 			re=true;
 		}
 		return re;
-		/*
-		if( (this.biYong.length==0 || this.biYong.length>1) && (this.zei.length>0 || this.ke.length>0) ){
-			//首先判断涉害类型是下贼上还是上克下
-			var zeiOrKe=[];
-			var zeiOrKeType; //-1为上克下 1为下贼上
-			if(this.ke.length>1){
-				zeiOrKe=this.ke;
-				zeiOrKeType=-1;
-			}
-			if(this.zei.length>1){
-				zeiOrKe=this.zei;
-				zeiOrKeType=1;
-			}
-		}
-		*/
 	},
 	
 	//是否为遥克
@@ -683,48 +675,17 @@ var G={
 				re=true;
 			}
 		}
-
-		if(re){
-			this.keName='yaoKe';
-		}
 		return re;
 	},
 	
 	//是否为昴星
 	maoXing:function(){
 		var re=false;
-		//先看四课有几课
-		var shangShen=[]; //四课上神数组
-		for(i=0;i<this.siKe.length/2;i++){
-			var shangShenIndex=i*2+1;
-			shangShen.push(this.siKe[shangShenIndex]);
-		}
-		
-		var isRepeat=false;
-		for(i=0;i<shangShen.length;i++){
-			for(j=0;j<shangShen.length;j++){
-				if(i!=j){
-					if(shangShen[i]==shangShen[j]){
-						isRepeat=true;
-					}
-				}
-			}
-			/*
-			var reg=new RegExp(shangShen[i],"g");
-			var c=str.match(reg);
-			if(c<2){
-				this.siKeUnique.push(i);
-			}
-			*/
-		}
-		console.log(isRepeat,_tianGanYinYang[this.siKe[0]]);
 		//当四课齐全时起昴星
-		if(isRepeat==false){
-			console.log(_tianGanYinYang[this.siKe[0]]);
+		if(this.siKeRepeat==0){
 			switch (_tianGanYinYang[this.siKe[0]]) {
 				case 0: //阴日取酉下神
 					var chuChuanIndex;
-					console.log(this.tianPan[0]);
 					if(this.tianPan[0]>=9){
 						chuChuanIndex=this.tianPan[0]-9;
 					}else {
@@ -743,21 +704,17 @@ var G={
 			}
 			re=true;
 		}
-		
-		if(re){
-			this.keName='maoXing';
-		}
 		return re;
 	},
 	
 	//是否为别责
 	bieZe:function(){
 		var re=false;
-		if(this.siKeUnique.length==3){
+		if(this.siKeRepeat==2){
 			//阳日取干合之上神为初传，阴日取支前三合为初传
 			switch(_tianGanYinYang[this.siKe[0]]){
 				case 1:
-					this.sanChuan[0]=_jiGong[_tianGanHe[this.siKe[0]]];
+					this.sanChuan[0]=this.tianPan[_jiGong[_tianGanHe[this.siKe[0]]]];
 					break;
 				
 				case 0:
@@ -770,10 +727,6 @@ var G={
 			this.sanChuan[1]=this.sanChuan[2]=this.siKe[1];
 			re=true;
 		}
-		
-		if(re){
-			this.keName='bieZe';
-		}
 		return re;
 	},
 	
@@ -782,7 +735,7 @@ var G={
 		var re=false;
 		if(this.tianPan[0]==_diZhi[0]){
 			var another=this.siKe[3];
-			if( shengKe(this.siKe[0],this.siKe[1])==-1 || shengKe(this.siKe[0],this.siKe[1])==1 ){
+			if( shengKe(_tianGanWuXing[this.siKe[0]],_diZhiWuXing[this.siKe[1]])==-1 || shengKe(_tianGanWuXing[this.siKe[0]],_diZhiWuXing[this.siKe[1]])==1 ){
 				this.sanChuan[0]=this.siKe[1];
 			}else{
 				switch (_tianGanYinYang[this.siKe[0]]) {
@@ -811,27 +764,19 @@ var G={
 			}
 			re=true;
 		}
-		
-		if(re){
-			this.keName='fuYin';
-		}
 		return re;
 	},
 	
 	//是否为反吟
 	fanYin:function(){
 		var re=false;
-		if(_diZhiChong[this.tianPan[0]]==this.tianPan[6]){
+		if(_diZhiChong[this.tianPan[0]]==this.tianPan[0]){
 			//如有贼克，之前就已经走贼克方法排出了
 			//如无贼克，驿马为初传,辰中日末
 			this.sanChuan[0]=_diZhiYiMa[this.siKe[4]];
 			this.sanChuan[1]=this.siKe[5];
 			this.sanChuan[2]=this.siKe[1];
 			re=true;
-		}
-		
-		if(re){
-			this.keName='fanYin';
 		}
 		return re;
 	},
@@ -846,7 +791,7 @@ var G={
 				case 1:
 					this.sanChuan[0]=this.siKe[1]+2;
 					if(this.sanChuan[0]>11){
-						this.sanChuan[1]=this.sanChuan[0]-11;
+						this.sanChuan[0]=this.sanChuan[0]-12;
 					}
 					break;
 				
@@ -858,10 +803,6 @@ var G={
 					break;
 			}
 			this.sanChuan[1]=this.sanChuan[2]=this.siKe[1];
-		}
-		
-		if(re){
-			this.keName='baZhuan';
 		}
 		return re;
 	}

@@ -14,14 +14,14 @@ var K={
 	},
 	
 	filter:function(){
-		for(i=0;i<6;i++){
+		for(i=0;i<9;i++){
 			eval("this.k"+i+"();");
 		}
 	},
 	
 	//元首
 	k0:function(){
-		if(G.ke.length==1 && G.zei.length==0){
+		if(G.ke.length==1 && G.zei.length==0 && G.tianPan[0]!=_diZhi[0]){
 			this.fData.push(0);
 		}
 	},
@@ -97,7 +97,7 @@ var K={
 	
 	//昴星
 	k5:function(){
-		if(G.zei.length<=0 && G.ke.length<=0 && G.yaoZei.length<=0 && G.yaoKe.length<=0){
+		if(G.zei.length<=0 && G.ke.length<=0 && G.yaoZei.length<=0 && G.yaoKe.length<=0 && G.siKeRepeat==0){
 			this.fData.push(5);
 			if(_tianGanYinYang[G.siKe[0]]==1){
 				this.cData.push(5); //虎视转蓬
@@ -105,6 +105,29 @@ var K={
 				this.cData.push(6); //冬蛇掩目
 			}
 		}
+	},
+	
+	//别责
+	k6:function(){
+		if(G.zei.length<=0 && G.ke.length<=0 && G.yaoZei.length<=0 && G.yaoKe.length<=0 && G.siKeRepeat==2){
+			this.fData.push(6);
+		}
+	},
+	
+	//八专
+	k7:function(){
+		if(G.zei.length<=0 && G.ke.length<=0 && G.siKe[4]==_jiGong[G.siKe[0]]){
+			this.fData.push(7);
+		}
+		//todo 帷簿不修 独足
+	},
+	
+	//伏吟
+	k8:function(){
+		if(G.tianPan[0]==_diZhi[0]){
+			this.fData.push(8);
+		}
+		//todo 自任 杜传
 	}
 };
 
@@ -153,6 +176,30 @@ var Kstr=[
 	{
 		bagua:9,
 		name:"昴星课",
+		description:"",
+		xiangYue:"",
+		description2:""
+	},
+	//6
+	{
+		bagua:-1, //无对应的六十四卦
+		name:"别责课",
+		description:"",
+		xiangYue:"",
+		description2:""
+	},
+	//7
+	{
+		bagua:12,
+		name:"八专课",
+		description:"",
+		xiangYue:"",
+		description2:""
+	},
+	//8
+	{
+		bagua:51,
+		name:"伏吟课",
 		description:"",
 		xiangYue:"",
 		description2:""
@@ -211,5 +258,21 @@ var _baGua=[
 	["升","䷭"], //45
 	["困","䷮"], //46
 	["井","䷯"], //47
-	//									
+	//															
+	["革","䷰"], //48
+	["鼎","䷱"], //49
+	["震","䷲"], //50
+	["艮","䷳"], //51
+	["渐","䷴"], //52
+	["归妹","䷵"], //53
+	["丰","䷶"], //54
+	["旅","䷷"], //55
+	["巽","䷸"], //56
+	["兑","䷹"], //57
+	["涣","䷺"], //58
+	["节","䷻"], //59
+	["中孚","䷼"], //60
+	["小过","䷽"], //61
+	["既济","䷾"], //62
+	["未济","䷿"], //63
 ];
