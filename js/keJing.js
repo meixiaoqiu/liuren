@@ -14,7 +14,7 @@ var K={
 	},
 	
 	filter:function(){
-		for(i=0;i<5;i++){
+		for(i=0;i<6;i++){
 			eval("this.k"+i+"();");
 		}
 	},
@@ -97,7 +97,14 @@ var K={
 	
 	//昴星
 	k5:function(){
-		
+		if(G.zei.length<=0 && G.ke.length<=0 && G.yaoZei.length<=0 && G.yaoKe.length<=0){
+			this.fData.push(5);
+			if(_tianGanYinYang[G.siKe[0]]==1){
+				this.cData.push(5); //虎视转蓬
+			}else{
+				this.cData.push(6); //冬蛇掩目
+			}
+		}
 	}
 };
 
@@ -138,6 +145,14 @@ var Kstr=[
 	{
 		bagua:37,
 		name:"遥克课",
+		description:"",
+		xiangYue:"",
+		description2:""
+	},
+	//5
+	{
+		bagua:9,
+		name:"昴星课",
 		description:"",
 		xiangYue:"",
 		description2:""

@@ -693,41 +693,51 @@ var G={
 	//是否为昴星
 	maoXing:function(){
 		var re=false;
-		
 		//先看四课有几课
-		var shangShen=[]; //四课下神数组
+		var shangShen=[]; //四课上神数组
 		for(i=0;i<this.siKe.length/2;i++){
-			var shangShenIndex=i+i*2+1;
+			var shangShenIndex=i*2+1;
 			shangShen.push(this.siKe[shangShenIndex]);
 		}
 		
-		var str=shangShen.join("");
+		var isRepeat=false;
 		for(i=0;i<shangShen.length;i++){
+			for(j=0;j<shangShen.length;j++){
+				if(i!=j){
+					if(shangShen[i]==shangShen[j]){
+						isRepeat=true;
+					}
+				}
+			}
+			/*
 			var reg=new RegExp(shangShen[i],"g");
 			var c=str.match(reg);
 			if(c<2){
 				this.siKeUnique.push(i);
 			}
+			*/
 		}
-		
+		console.log(isRepeat,_tianGanYinYang[this.siKe[0]]);
 		//当四课齐全时起昴星
-		if(this.siKeUnique.length>=4){
-			switch (this.siKeYinYang[0]) {
+		if(isRepeat==false){
+			console.log(_tianGanYinYang[this.siKe[0]]);
+			switch (_tianGanYinYang[this.siKe[0]]) {
 				case 0: //阴日取酉下神
 					var chuChuanIndex;
+					console.log(this.tianPan[0]);
 					if(this.tianPan[0]>=9){
-						chuChuanIndex=9+this.tianPan[0]-9;
+						chuChuanIndex=this.tianPan[0]-9;
 					}else {
 						chuChuanIndex=9-this.tianPan[0];
 					}
-					this.sanChuan[0]=this.tianPan[chuChuanIndex];
+					this.sanChuan[0]=_diZhi[chuChuanIndex];
 					this.sanChuan[1]=this.siKe[1];
-					this.sanChuan[2]=this.siKe[3];
+					this.sanChuan[2]=this.siKe[5];
 					break;
 				
 				case 1: //阳日取酉上神
 					this.sanChuan[0]=this.tianPan[9];
-					this.sanChuan[1]=this.siKe[3];
+					this.sanChuan[1]=this.siKe[5];
 					this.sanChuan[2]=this.siKe[1];
 					break;
 			}
