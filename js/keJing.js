@@ -14,7 +14,7 @@ var K={
 	},
 	
 	filter:function(){
-		for(i=0;i<9;i++){
+		for(i=0;i<10;i++){
 			eval("this.k"+i+"();");
 		}
 	},
@@ -97,7 +97,7 @@ var K={
 	
 	//昴星
 	k5:function(){
-		if(G.zei.length<=0 && G.ke.length<=0 && G.yaoZei.length<=0 && G.yaoKe.length<=0 && G.siKeRepeat==0){
+		if(G.zei.length<=0 && G.ke.length<=0 && G.yaoZei.length<=0 && G.yaoKe.length<=0 && G.siKeRepeat==0 && _diZhiChong[G.tianPan[0]]!=_diZhi[0]){
 			this.fData.push(5);
 			if(_tianGanYinYang[G.siKe[0]]==1){
 				this.cData.push(5); //虎视转蓬
@@ -128,7 +128,15 @@ var K={
 			this.fData.push(8);
 		}
 		//todo 自任 杜传
-	}
+	},
+	
+	//反吟
+	k9:function(){
+		if(_diZhiChong[G.tianPan[0]]==_diZhi[0]){
+			this.fData.push(9);
+			//todo 井栏
+		}
+	},
 };
 
 var Kstr=[
@@ -200,6 +208,14 @@ var Kstr=[
 	{
 		bagua:51,
 		name:"伏吟课",
+		description:"",
+		xiangYue:"",
+		description2:""
+	},
+	//9
+	{
+		bagua:50,
+		name:"反吟课",
 		description:"",
 		xiangYue:"",
 		description2:""

@@ -182,8 +182,8 @@ var G={
 	
 	//月将加时排天地盘
 	tianDiPan:function(){
-		var shiZhi=this.siZhu[7];
-		var yueJiang=this.yueJiang;
+		var shiZhi=parseInt(this.siZhu[7]);
+		var yueJiang=parseInt(this.yueJiang);
 		var tianPan=[];
 		var tianPanFirst=0;
 		if(shiZhi<=yueJiang){
@@ -681,8 +681,8 @@ var G={
 	//是否为昴星
 	maoXing:function(){
 		var re=false;
-		//当四课齐全时起昴星
-		if(this.siKeRepeat==0){
+		//当四课齐全时起昴星 不能是反吟盘
+		if(this.siKeRepeat==0 && _diZhiChong[this.tianPan[0]]!=_diZhi[0]){
 			switch (_tianGanYinYang[this.siKe[0]]) {
 				case 0: //阴日取酉下神
 					var chuChuanIndex;
@@ -770,7 +770,7 @@ var G={
 	//是否为反吟
 	fanYin:function(){
 		var re=false;
-		if(_diZhiChong[this.tianPan[0]]==this.tianPan[0]){
+		if(_diZhiChong[this.tianPan[0]]==_diZhi[0]){
 			//如有贼克，之前就已经走贼克方法排出了
 			//如无贼克，驿马为初传,辰中日末
 			this.sanChuan[0]=_diZhiYiMa[this.siKe[4]];
