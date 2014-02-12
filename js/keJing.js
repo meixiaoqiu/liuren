@@ -14,8 +14,8 @@ var K={
 	},
 	
 	filter:function(){
-		for(i=0;i<10;i++){
-			eval("this.k"+i+"();");
+		for(f=0;f<12;f++){
+			eval("this.k"+f+"();");
 		}
 	},
 	
@@ -137,6 +137,48 @@ var K={
 			//todo 井栏
 		}
 	},
+	
+	//三光
+	k10:function(){
+		//var _wuXing=[0,1,2,3,4];
+		//var _wuXingStr=["金","木","土","水","火"];
+		var wangXiang=[];
+		//春季木旺火相
+		if(G.siZhu[3]==2 || G.siZhu[3]==3 || G.siZhu[3]==4){
+			wangXiang=[1,4];
+		}
+		//夏季火旺土相
+		if(G.siZhu[3]==5 || G.siZhu[3]==6 || G.siZhu[3]==7){
+			wangXiang=[4,2];
+		}
+		//秋季金旺水相
+		if(G.siZhu[3]==8 || G.siZhu[3]==9 || G.siZhu[3]==10){
+			wangXiang=[0,3];
+		}
+		//冬季水旺木相
+		if(G.siZhu[3]==11 || G.siZhu[3]==0 || G.siZhu[3]==1){
+			wangXiang=[3,1];
+		}
+		console.log(wangXiang);
+		if( (_tianGanWuXing[G.siKe[0]]==wangXiang[0] || _tianGanWuXing[G.siKe[0]]==wangXiang[1]) && (_diZhiWuXing[G.siKe[4]]==wangXiang[0] || _diZhiWuXing[G.siKe[4]]==wangXiang[1] || _diZhiWuXing[G.siKe[5]]==wangXiang[0] || _diZhiWuXing[G.siKe[5]]==wangXiang[1]) && (_diZhiWuXing[G.sanChuan[0]]==wangXiang[0] || _diZhiWuXing[G.sanChuan[0]]==wangXiang[1]) ){
+			for(i=0;i<_tianJiangJi.length;i++){
+				if(G.sanChuanTianJiang[0]==_tianJiangJi[i]){
+					this.fData.push(10);
+				}
+			}
+		}
+		//todo 三光失明
+		//todo 甲日未时酉将春占，日辰旺相，用神旺相，上乘吉将，为三光课也。
+	},
+	
+	//三阳
+	k11:function(){
+		//1.贵人顺行，2.日干日支上神旺相居贵人前，3.用神旺相
+		if( (G.tianJiang[0]>=8 || G.tianJiang[0]<=1) && () ){
+			
+		}
+		//todo 三阳不泰 四顺
+	}
 };
 
 var Kstr=[
@@ -216,6 +258,14 @@ var Kstr=[
 	{
 		bagua:50,
 		name:"反吟课",
+		description:"",
+		xiangYue:"",
+		description2:""
+	},
+	//10
+	{
+		bagua:21,
+		name:"三光课",
 		description:"",
 		xiangYue:"",
 		description2:""

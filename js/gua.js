@@ -49,6 +49,8 @@ var G={
 	tianJiang:[],
 	liuQin:[], //三传六亲
 	
+	wangXiang:[],
+	
 	init:function(){
 		this.siZhu=[];
 		this.yueJiang=0;
@@ -76,6 +78,8 @@ var G={
 		this.dunGan=[];
 		this.tianJiang=[];
 		this.liuQin=[];
+		
+		this.wangXiang=[];
 	},
 	
 	toStr:function(){
@@ -123,6 +127,7 @@ var G={
 			for(j=0;j<this.tianPan.length;j++){
 				if(this.tianPan[j]==this.sanChuan[i]){
 					Gstr.sanChuanTianJiang[i]=_tianJiang[this.tianJiang[j]];
+					this.sanChuanTianJiang[i]=this.tianJiang[j];
 				}
 			}
 		}
@@ -176,6 +181,7 @@ var G={
 		this.xunDun();
 		this.qiGuiRen();
 		this.getLiuQin();
+		this.wangXiangXiuQiu();
 		
 		this.toStr();
 	},
@@ -431,7 +437,40 @@ var G={
 		this.liuQin[2]=shengKe(this.siKeWuXing[0],_diZhiWuXing[this.sanChuan[2]]);
 	},
 	
-	
+	//四季旺相休囚死
+	wangXiangXiuQiu:function(){
+		//var _wuXing=[0,1,2,3,4];
+		//var _wuXingStr=["金","木","土","水","火"];
+		switch(this.yueJiang){
+			//亥戌酉
+			case 11:
+			case 10:
+			case 9:
+				this.wangXiang=[1,4,3,0,2];
+				break;
+			
+			//申未午
+			case 8:
+			case 7:
+			case 6:
+				this.wangXiang=[4,2,1,3,0];
+				break;
+				
+			//巳辰卯
+			case 5:
+			case 4:
+			case 3:
+				this.wangXiang=[0,3,2,4,1];
+				break;
+				
+			//寅丑子
+			case 2:
+			case 1:
+			case 0:
+				this.wangXiang=[3,1,0,2,4];
+				break;
+		}
+	},
 	
 	//是否为贼克
 	zeiKe:function(){
@@ -599,7 +638,7 @@ var G={
 			var zhong=[];
 			if(bigNum>1){
 				for(j=0;j<sheHai.length;j++){
-					var xiaShenIndex=(zeiOrKe[j]+1)*2-2;
+					var xiaShenIndex=(this.zeiOrKe[j]+1)*2-2;
 					for(i=0;i<_siMeng.length;i++){
 						if(this.siKe[xiaShenIndex]==_siMeng[j]){
 							meng.push(this.siKe[xiaShenIndex+1]);
