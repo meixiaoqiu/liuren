@@ -1,0 +1,21 @@
+{
+    "name": "liuren",
+    "version": "0.1.0",
+    "description": "Frontend assets for the Liuren Laravel application.",
+    "private": true,
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "dependencies": {
+        "@tailwindcss/vite": "^4.3.2",
+        "autoprefixer": "^10.5.2",
+        "axios": "^1.18.1",
+        "concurrently": "^10.0.3",
+        "laravel-vite-plugin": "^3.1.0",
+        "tailwindcss": "^4.3.2",
+        "vite": "^8.1.4"
+    }
+}

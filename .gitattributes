@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+/public/css/filament/** -whitespace linguist-generated=true
+/public/fonts/filament/** -whitespace linguist-generated=true
+/public/js/filament/** -whitespace linguist-generated=true

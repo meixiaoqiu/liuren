@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Liuren Create Button Helper",
+  "version": "1.0.0",
+  "description": "Development helper for repeatedly clicking the Filament create button.",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
