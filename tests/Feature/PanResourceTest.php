@@ -13,6 +13,35 @@ function panCreationFixtures(): array
     );
 }
 
+test('month general over hour has exactly twelve plate arrangements', function () {
+    $arrangements = [];
+
+    foreach (range(0, 11) as $yuejiang) {
+        foreach (range(0, 22, 2) as $hour) {
+            $datetime = sprintf('2026-01-01 %02d:00:00', $hour);
+            $tianpan = [];
+
+            foreach (range(0, 11) as $index) {
+                $tianpan[] = PanResource::yuejiangJiashi($yuejiang, $datetime, $index);
+            }
+
+            $pointer = ($yuejiang - PanResource::$hour2Shichen[$hour] + 12) % 12;
+
+            expect($tianpan[0])->toBe($pointer)
+                ->and($tianpan)->toBe(
+                    array_map(fn (int $index): int => ($pointer + $index) % 12, range(0, 11)),
+                );
+
+            $arrangements[$pointer] = $tianpan;
+        }
+    }
+
+    ksort($arrangements);
+
+    expect(array_keys($arrangements))->toBe(range(0, 11))
+        ->and($arrangements)->toHaveCount(12);
+});
+
 test('pan creation data matches the pre-upgrade golden output', function () {
     foreach (panCreationFixtures() as $case) {
         PanResource::qipan($case['input']);

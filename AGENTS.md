@@ -1,10 +1,30 @@
-# Repository instructions
+# 仓库工作规则
 
-## Git safety
+## Git 安全
 
-- Never create a Git commit unless the user explicitly authorizes that exact commit in the current request.
-- Never infer commit authorization from requests to implement, finish, test, prepare, clean up, or make a repository ready for release.
-- Keep completed changes uncommitted by default and report the working-tree status to the user.
-- Do not stage files, amend commits, rewrite history, create or move tags, merge, rebase, reset branches, or push to any remote unless the user explicitly authorizes the specific Git action.
-- Before any authorized commit, show the proposed file set and commit message and wait for the user's confirmation.
+- 除非用户在当前请求中明确授权创建某个具体提交，否则绝对不得创建 Git 提交。
+- 不得从“实现”“完成”“测试”“准备”“清理”或“为发布做好准备”等请求中推断用户已经授权提交。
+- 默认保持已完成的修改处于未提交状态，并向用户报告工作区状态。
+- 除非用户明确授权对应的具体 Git 操作，否则不得暂存文件、修改提交、改写历史、创建或移动标签、合并、变基、重置分支或推送远程仓库。
+- 在执行任何已经获得授权的提交之前，必须先向用户展示准备提交的文件集合和提交信息，并等待用户确认。
 
+## README 归属
+
+- 绝对不得修改 `README.md`，该文件由用户亲自维护。
+
+## 排盘计算回归安全
+
+以下规则适用于任何可能影响排盘结果的修改。
+
+- 修改排盘计算逻辑之前，必须先运行现有的1440课回归测试，并确认测试通过。
+- 绝对不得直接编辑、重新生成或整体替换 `tests/Fixtures/pan_regression_1440.json`。
+- 初始基线创建完成后，绝对不得再次运行 `pan:regression-initialize`。
+- 修改排盘计算逻辑后，必须运行 `tests/Feature/PanRegressionTest.php`。
+- 测试报告中的所有变化课默认均为“尚未批准”。
+- 必须通过修正排盘逻辑消除所有非预期变化，绝对不得仅为了让测试通过而批准非预期变化。
+- 请求用户批准之前，必须向用户展示每个变化课的精确课号、全部变化字段以及各字段修改前后的值。
+- 只有用户明确批准了对应的具体课号及字段变化后，才可以更新这些课的基线。
+- 更新基线时只能使用 `pan:regression-approve`，并且只能列出已经获得用户明确批准的精确课号。
+- `pan:regression-approve` 必须始终要求人工确认，绝对不得增加或使用任何绕过确认的机制。
+- 完成批准后，必须重新运行1440课回归测试和完整测试套件。
+- 完成工作后必须报告所有工作区变更；未经明确授权，不得暂存或提交这些变更。
