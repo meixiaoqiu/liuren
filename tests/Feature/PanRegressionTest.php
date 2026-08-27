@@ -1,10 +1,11 @@
 <?php
 
-use App\Filament\Resources\PanResource;
+use App\Services\PanCalculator;
 use App\Support\PanCreationData;
 use App\Support\PanRegression;
 
 test('all 1440 normalized pan cases match their approved baseline', function () {
+    $calculator = app(PanCalculator::class);
     $fixture = PanRegression::loadFixture();
     $expectedCaseIds = [];
 
@@ -34,8 +35,7 @@ test('all 1440 normalized pan cases match their approved baseline', function () 
     $changedCases = [];
 
     foreach ($fixture['cases'] as $caseId => $case) {
-        PanResource::qipan($case['input']);
-        $pan = session('pan');
+        $pan = $calculator->calculate($case['input'])->toArray();
         $record = PanCreationData::fromCalculatedPan($pan, $case['input']);
         $actual = PanRegression::normalize($record);
         $differences = PanRegression::fieldDifferences($case['expected'], $actual);

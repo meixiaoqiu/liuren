@@ -23,6 +23,11 @@ test('calculator returns a pan without depending on the filament session adapter
             'jiuzongmen',
         ])
         ->and(session()->has('pan'))->toBeFalse();
+});
+
+test('filament adapter stores the calculator result in the session', function () {
+    $datetime = '2024-08-11 14:00:28';
+    $calculated = app(PanCalculator::class)->calculate($datetime)->toArray();
 
     $adapted = PanResource::qipan($datetime);
 

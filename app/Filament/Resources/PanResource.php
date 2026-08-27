@@ -6,8 +6,6 @@ use App\Filament\Resources\PanResource\Pages;
 use App\Models\Pan;
 use App\Services\PanCalculator;
 use BackedEnum;
-use com\tyme\culture\Element;
-use com\tyme\solar\SolarTime;
 use DateTime;
 use Filament\Actions;
 use Filament\Forms;
@@ -1474,17 +1472,7 @@ class PanResource extends Resource
      */
     public static function yuejiangJiashi($yuejiang, $shichenTime, $tianpanIndex)
     {
-        $shichen = self::time2Shichen($shichenTime);
-        $yueJiangJiaShi = $yuejiang - $shichen;
-        if ($yueJiangJiaShi < 0) {
-            $yueJiangJiaShi += 12;
-        }
-        $return = $yueJiangJiaShi + $tianpanIndex;
-        if ($return > 11) {
-            $return -= 12;
-        }
-
-        return $return;
+        return PanCalculator::yuejiangJiashi($yuejiang, $shichenTime, $tianpanIndex);
     }
 
     /**
@@ -1496,10 +1484,7 @@ class PanResource extends Resource
      */
     public static function time2Shichen($shichenTime)
     {
-        $hour = date('G', strtotime($shichenTime));
-        $shichen = self::$hour2Shichen[$hour];
-
-        return $shichen;
+        return PanCalculator::time2Shichen($shichenTime);
     }
 
     /**
@@ -1511,12 +1496,7 @@ class PanResource extends Resource
      */
     public static function getYuejiang($datetime)
     {
-        // 获取节气index
-        $solar = SolarTime::fromYmdHms($datetime[0], $datetime[1], $datetime[2], $datetime[3], $datetime[4], $datetime[5]);
-        $solarIndex = $solar->getTerm()->getIndex();
-
-        // 通过节气算出月将
-        return self::$jieqi2Yuejiang[$solarIndex];
+        return PanCalculator::getYuejiang($datetime);
     }
 
     /**
@@ -1528,15 +1508,7 @@ class PanResource extends Resource
      */
     public static function time2array($datetime)
     {
-        $time = strtotime($datetime);
-        $y = date('Y', $time);
-        $m = date('m', $time);
-        $d = date('d', $time);
-        $h = date('H', $time);
-        $i = date('i', $time);
-        $s = date('s', $time);
-
-        return [$y, $m, $d, $h, $i, $s];
+        return PanCalculator::time2array($datetime);
     }
 
     /**
@@ -1549,25 +1521,7 @@ class PanResource extends Resource
      */
     public static function getShengke($upIndex, $downIndex)
     {
-        $up = Element::fromIndex($upIndex);
-        $down = Element::fromIndex($downIndex);
-
-        $woSheng = $up->getReinforce();
-        $woKe = $up->getRestrain();
-        $shengWo = $up->getReinforced();
-        $keWo = $up->getRestrained();
-        $wuxingShengke = [0, '无']; // 生克状态 0：无生克，1：上克下，2：上生下，-1：下贼上，-2：下生上
-        if ($woSheng == $down) {
-            $wuxingShengke = [2, '上生下'];
-        } elseif ($woKe == $down) {
-            $wuxingShengke = [1, '上克下'];
-        } elseif ($shengWo == $down) {
-            $wuxingShengke = [-2, '下生上'];
-        } elseif ($keWo == $down) {
-            $wuxingShengke = [-1, '下贼上'];
-        }
-
-        return $wuxingShengke;
+        return PanCalculator::getShengke($upIndex, $downIndex);
     }
 
     /**

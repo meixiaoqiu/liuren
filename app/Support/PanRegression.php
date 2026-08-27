@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-use App\Filament\Resources\PanResource;
+use App\Services\PanCalculator;
 use RuntimeException;
 
 class PanRegression
@@ -29,7 +29,7 @@ class PanRegression
     {
         $dayIndex = array_search(
             [$pan['rigan'], $pan['rizhi']],
-            PanResource::$jiazi2Ganzhi,
+            PanCalculator::$jiazi2Ganzhi,
             true,
         );
 
