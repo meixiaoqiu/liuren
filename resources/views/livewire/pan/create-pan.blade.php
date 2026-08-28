@@ -1,0 +1,151 @@
+<div class="min-h-screen">
+    <header class="border-b border-base-300 bg-base-100/90 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl items-center px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+                <div class="grid size-10 place-items-center rounded-xl bg-primary text-lg font-semibold text-primary-content shadow-sm">壬</div>
+                <div>
+                    <p class="text-base font-semibold tracking-wide">大六壬排盘</p>
+                    <p class="text-xs text-base-content/55">以时起课 · 北京时间</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div class="grid min-w-0 gap-6 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
+            <aside class="lg:sticky lg:top-6">
+                <x-card title="选择起课时间" subtitle="只需输入时间，其余参数由系统自动推算。" shadow separator>
+                    <x-form wire:submit="calculate">
+                        @csrf
+                        <x-datetime
+                            label="北京时间"
+                            wire:model="datetime"
+                            type="datetime-local"
+                            icon="o-calendar-days"
+                            hint="系统按 Asia/Shanghai 时区计算"
+                            required
+                        />
+
+                        <x-slot:actions>
+                            <x-button label="立即排盘" type="submit" icon="o-sparkles" class="btn-primary w-full" spinner="calculate" />
+                        </x-slot:actions>
+                    </x-form>
+                </x-card>
+            </aside>
+
+            <section class="min-w-0" aria-live="polite">
+                @if ($pan === null)
+                    <x-card class="min-h-96 border border-dashed border-base-300 bg-base-100/60">
+                        <div class="grid min-h-80 place-items-center text-center">
+                            <div class="max-w-sm">
+                                <div class="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-primary/10 text-2xl text-primary">课</div>
+                                <h1 class="text-2xl font-semibold">开始一次排盘</h1>
+                                <p class="mt-3 leading-7 text-base-content/60">选择起课时间并点击“立即排盘”，三传、四课与天地盘会在这里完整呈现。</p>
+                            </div>
+                        </div>
+                    </x-card>
+                @else
+                    @php
+                        $transmissions = [
+                            ['name' => '初传', 'index' => 0],
+                            ['name' => '中传', 'index' => 1],
+                            ['name' => '末传', 'index' => 2],
+                        ];
+                        $lessonColumns = [7, 5, 3, 1];
+                        $palacePositions = [
+                            5 => '1 / 1', 6 => '1 / 2', 7 => '1 / 3', 8 => '1 / 4',
+                            4 => '2 / 1', 9 => '2 / 4', 3 => '3 / 1', 10 => '3 / 4',
+                            2 => '4 / 1', 1 => '4 / 2', 0 => '4 / 3', 11 => '4 / 4',
+                        ];
+                    @endphp
+
+                    <div class="space-y-6">
+                        <x-card shadow>
+                            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <div class="mb-2 flex flex-wrap gap-2">
+                                        <x-badge :value="$jiuzongmenNames[$pan['jiuzongmen']]" class="badge-primary" />
+                                    </div>
+                                    <h1 id="pan-result-heading" class="text-2xl font-semibold tracking-wide sm:text-3xl">{{ $pan['sizhu'] }}</h1>
+                                    <p class="mt-2 text-sm text-base-content/55">{{ str_replace('T', ' ', $datetime) }} · 北京时间</p>
+                                </div>
+                                <div class="rounded-2xl border border-amber-600/20 bg-amber-50 px-5 py-3 text-center">
+                                    <p class="text-xs tracking-widest text-amber-800/60">月将</p>
+                                    <p class="mt-1 text-2xl font-semibold text-amber-700">{{ $dizhi[$pan['yuejiang']] }}</p>
+                                </div>
+                            </div>
+                        </x-card>
+
+                        <div class="grid gap-6 xl:grid-cols-2">
+                            <x-card title="三传" subtitle="初传 · 中传 · 末传" shadow separator>
+                                <div class="divide-y divide-base-200">
+                                    @foreach ($transmissions as $transmission)
+                                        @php($index = $transmission['index'])
+                                        <div class="grid grid-cols-[3.5rem_minmax(0,1fr)_4rem] items-center gap-3 py-4 first:pt-1 last:pb-1">
+                                            <span class="text-sm font-medium text-base-content/50">{{ $transmission['name'] }}</span>
+                                            <div class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-3">
+                                                <span class="justify-self-end text-sm text-base-content/60">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
+                                                <span class="text-3xl font-semibold text-primary">{{ $dizhi[$pan['sanchuan'.$index]] }}</span>
+                                                <span class="justify-self-start text-sm text-base-content/60">{{ $tiangan[$pan['xundun'.$index]] }}</span>
+                                            </div>
+                                            <x-badge :value="$tianjiangNames[$pan['sanchuan'.$index.'tianjiang']]" class="badge-soft justify-self-end" />
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </x-card>
+
+                            <x-card title="四课" subtitle="从右至左为一至四课" shadow separator>
+                                <div class="grid grid-cols-4 gap-2 text-center" dir="rtl">
+                                    @foreach ($lessonColumns as $upperIndex)
+                                        <div class="rounded-xl bg-base-200 px-2 py-4">
+                                            <p class="flex items-baseline justify-center gap-1.5 text-2xl font-semibold text-primary">
+                                                <span>{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
+                                                <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex]]] }}</span>
+                                            </p>
+                                            <div class="mx-auto my-2 h-px w-6 bg-base-300"></div>
+                                            <p class="flex items-baseline justify-center gap-1.5 text-2xl font-semibold text-primary">
+                                                @if ($upperIndex === 1)
+                                                    <span>{{ $tiangan[$pan['sike'][0]] }}</span>
+                                                    <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingTian[$pan['sike'][0]]] }}</span>
+                                                @else
+                                                    <span>{{ $dizhi[$pan['sike'][$upperIndex - 1]] }}</span>
+                                                    <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex - 1]]] }}</span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </x-card>
+                        </div>
+
+                        <x-card title="天地盘" subtitle="十二宫位 · 天盘在上，地盘在下" shadow separator>
+                            <div class="min-w-0 pb-1">
+                                <div class="pan-board mx-auto w-full">
+                                    @foreach ($palacePositions as $groundIndex => $position)
+                                        <div class="pan-palace" style="grid-area: {{ $position }}">
+                                            <span class="pan-ground" aria-label="地盘{{ $dizhi[$groundIndex] }}">{{ $dizhi[$groundIndex] }}</span>
+                                            <span class="relative z-10 text-xs text-base-content/55">{{ $tianjiangNames[$pan['tianjiang'][$groundIndex]] }}</span>
+                                            <strong class="relative z-10 text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
+                                        </div>
+                                    @endforeach
+
+                                    <div class="pan-center">
+                                        <span class="text-xs tracking-[0.3em] text-base-content/45">四柱</span>
+                                        <strong class="mt-2 text-xl font-semibold tracking-wider">{{ $pan['sizhu'] }}</strong>
+                                        <span class="mt-3 text-sm text-base-content/55">{{ $jiuzongmenNames[$pan['jiuzongmen']] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </x-card>
+
+                        @if (($pan['explain'] ?? '无') !== '无')
+                            <x-card title="课体说明" shadow>
+                                <p class="leading-7 text-base-content/70">{{ $pan['explain'] }}</p>
+                            </x-card>
+                        @endif
+                    </div>
+                @endif
+            </section>
+        </div>
+    </main>
+</div>

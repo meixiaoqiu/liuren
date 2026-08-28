@@ -1,7 +1,12 @@
 @import 'tailwindcss';
 
+@plugin "daisyui" {
+    themes: light --default;
+}
+
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/robsontenorio/mary/src/View/Components/**/*.php';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -41,5 +46,63 @@
     ::backdrop,
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+@layer components {
+    .pan-board {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-rows: repeat(4, 5.5rem);
+        gap: 0.375rem;
+        min-width: 0;
+    }
+
+    .pan-palace {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        overflow: hidden;
+        border: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+        border-radius: 0.875rem;
+        background: var(--color-base-100);
+    }
+
+    .pan-ground {
+        position: absolute;
+        right: 0.25rem;
+        bottom: -0.35rem;
+        color: color-mix(in oklab, var(--color-base-content) 11%, transparent);
+        font-size: 3.25rem;
+        font-weight: 800;
+        line-height: 1;
+        user-select: none;
+    }
+
+    .pan-center {
+        grid-area: 2 / 2 / 4 / 4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1rem;
+        background: color-mix(in oklab, var(--color-primary) 9%, var(--color-base-100));
+        text-align: center;
+    }
+
+    @media (min-width: 40rem) {
+        .pan-board {
+            grid-template-rows: repeat(4, 7.25rem);
+            gap: 0.5rem;
+        }
+
+        .pan-ground {
+            right: 0.45rem;
+            bottom: -0.7rem;
+            font-size: 4.5rem;
+        }
     }
 }
