@@ -11,10 +11,10 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <div class="grid min-w-0 gap-6 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
+    <main class="mx-auto max-w-7xl px-0 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+        <div class="grid min-w-0 gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6">
             <aside class="lg:sticky lg:top-6">
-                <x-card title="选择起课时间" subtitle="只需输入时间，其余参数由系统自动推算。" shadow separator>
+                <x-card title="选择起课时间" subtitle="只需输入时间，其余参数由系统自动推算。" class="pan-mobile-edge" shadow separator>
                     <x-form wire:submit="calculate">
                         @csrf
                         <x-datetime
@@ -35,7 +35,7 @@
 
             <section class="min-w-0" aria-live="polite">
                 @if ($pan === null)
-                    <x-card class="min-h-96 border border-dashed border-base-300 bg-base-100/60">
+                    <x-card class="pan-mobile-edge min-h-96 border border-dashed border-base-300 bg-base-100/60">
                         <div class="grid min-h-80 place-items-center text-center">
                             <div class="max-w-sm">
                                 <div class="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-primary/10 text-2xl text-primary">课</div>
@@ -64,8 +64,8 @@
                         ];
                     @endphp
 
-                    <div class="space-y-6">
-                        <x-card shadow>
+                    <div class="pan-result-stack space-y-3 sm:space-y-6">
+                        <x-card class="pan-data-card pan-mobile-edge" shadow>
                             <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h1 id="pan-result-heading" class="text-2xl font-semibold tracking-wide sm:text-3xl">{{ $pan['sizhu'] }}</h1>
@@ -79,26 +79,29 @@
                         </x-card>
 
                         <div class="grid gap-6 xl:grid-cols-2">
-                            <x-card title="三传" subtitle="初传 · 中传 · 末传" shadow separator>
+                            <x-card title="三传" class="pan-data-card pan-mobile-edge" shadow separator>
                                 <div class="divide-y divide-base-200">
                                     @foreach ($transmissions as $transmission)
                                         @php
                                             $index = $transmission['index'];
+                                            $branch = $pan['sanchuan'.$index];
                                         @endphp
-                                        <div class="grid grid-cols-[3.5rem_minmax(0,1fr)_4rem] items-center gap-3 py-4 first:pt-1 last:pb-1">
-                                            <span class="text-sm font-medium text-base-content/50">{{ $transmission['name'] }}</span>
-                                            <div class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-3">
-                                                <span class="justify-self-end text-sm text-base-content/60">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
-                                                <span class="text-3xl font-semibold text-primary">{{ $dizhi[$pan['sanchuan'.$index]] }}</span>
-                                                <span class="justify-self-start text-sm text-base-content/60">{{ $xundunLabels[$pan['sanchuan'.$index]] }}</span>
+                                        <div class="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 py-4 first:pt-1 last:pb-1">
+                                            <span class="text-center text-sm font-medium text-base-content/55">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
+                                            <div class="text-center">
+                                                <x-badge :value="$tianjiangNames[$pan['sanchuan'.$index.'tianjiang']]" class="badge-soft mb-3" />
+                                                <p class="mx-auto grid max-w-48 grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
+                                                    <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$branch] }}</span>
+                                                    <span class="text-2xl font-semibold text-primary">{{ $dizhi[$branch] }}</span>
+                                                    <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$branch]] }}</span>
+                                                </p>
                                             </div>
-                                            <x-badge :value="$tianjiangNames[$pan['sanchuan'.$index.'tianjiang']]" class="badge-soft justify-self-end" />
                                         </div>
                                     @endforeach
                                 </div>
                             </x-card>
 
-                            <x-card title="四课" subtitle="从右至左为一至四课" shadow separator>
+                            <x-card title="四课" subtitle="从右至左为一至四课" class="pan-data-card pan-mobile-edge" shadow separator>
                                 <div class="grid grid-cols-4 gap-2 text-center">
                                     @foreach ($lessonColumns as $lessonColumn)
                                         @php
@@ -156,7 +159,7 @@
                             </x-card>
                         </div>
 
-                        <x-card title="天地盘" subtitle="十二宫位 · 天盘在上，地盘在下" shadow separator>
+                        <x-card title="天地盘" subtitle="十二宫位 · 天盘在上，地盘在下" class="pan-data-card pan-mobile-edge" shadow separator>
                             <div class="min-w-0 pb-1">
                                 <div class="pan-board mx-auto w-full">
                                     @foreach ($palacePositions as $groundIndex => $position)
@@ -164,10 +167,13 @@
                                             <span class="pan-ground" aria-label="地盘{{ $dizhi[$groundIndex] }}">{{ $dizhi[$groundIndex] }}</span>
                                             <x-badge
                                                 :value="$tianjiangNames[$pan['tianjiang'][$groundIndex]]"
-                                                class="badge-soft relative z-10"
+                                                class="badge-soft relative z-10 mb-1"
                                             />
-                                            <strong class="relative z-10 text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
-                                            <span class="relative z-10 text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
+                                            <p class="relative z-10 grid w-full grid-cols-[1fr_auto_1fr] items-baseline gap-1 px-1">
+                                                <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
+                                                <strong class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
+                                                <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['tianpan'][$groundIndex]]] }}</span>
+                                            </p>
                                         </div>
                                     @endforeach
 
@@ -179,7 +185,7 @@
                             </div>
                         </x-card>
 
-                        <x-card title="解盘信息" subtitle="课体名称与取用说明" shadow separator>
+                        <x-card title="解盘信息" subtitle="课体名称与取用说明" class="pan-data-card pan-mobile-edge" shadow separator>
                             <div class="space-y-4">
                                 @foreach ($lessonInterpretations as $interpretation)
                                     <article class="rounded-2xl border border-base-300 bg-base-100 p-5">

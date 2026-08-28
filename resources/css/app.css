@@ -50,6 +50,24 @@
 }
 
 @layer components {
+    @media (max-width: 39.999rem) {
+        .pan-mobile-edge {
+            border-radius: 0;
+        }
+
+        .pan-data-card {
+            padding: 0.75rem;
+        }
+
+        .pan-data-card > .pb-5 {
+            padding-bottom: 0.75rem;
+        }
+
+        .pan-data-card > .pb-5 hr {
+            margin-top: 0.5rem;
+        }
+    }
+
     .pan-board {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
