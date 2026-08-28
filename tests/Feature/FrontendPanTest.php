@@ -33,7 +33,10 @@ test('frontend calculation matches the calculator without side effects', functio
         ->assertSet('pan', $expected)
         ->assertSee('三传')
         ->assertSee('四课')
-        ->assertSee('天地盘');
+        ->assertSee('天地盘')
+        ->assertSee('解盘信息')
+        ->assertSee(PanCalculator::$jiuzongmen[$expected['jiuzongmen']])
+        ->assertSee($expected['wuxingShengke0'][0] === 0 ? '不生不克' : $expected['wuxingShengke0'][1]);
 
     expect(session()->has('pan'))->toBeFalse()
         ->and(Pan::query()->count())->toBe($recordsBefore);

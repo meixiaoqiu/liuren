@@ -51,7 +51,12 @@
                             ['name' => '中传', 'index' => 1],
                             ['name' => '末传', 'index' => 2],
                         ];
-                        $lessonColumns = [7, 5, 3, 1];
+                        $lessonColumns = [
+                            ['upper' => 7, 'relation' => 3],
+                            ['upper' => 5, 'relation' => 2],
+                            ['upper' => 3, 'relation' => 1],
+                            ['upper' => 1, 'relation' => 0],
+                        ];
                         $palacePositions = [
                             5 => '1 / 1', 6 => '1 / 2', 7 => '1 / 3', 8 => '1 / 4',
                             4 => '2 / 1', 9 => '2 / 4', 3 => '3 / 1', 10 => '3 / 4',
@@ -63,9 +68,6 @@
                         <x-card shadow>
                             <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <div class="mb-2 flex flex-wrap gap-2">
-                                        <x-badge :value="$jiuzongmenNames[$pan['jiuzongmen']]" class="badge-primary" />
-                                    </div>
                                     <h1 id="pan-result-heading" class="text-2xl font-semibold tracking-wide sm:text-3xl">{{ $pan['sizhu'] }}</h1>
                                     <p class="mt-2 text-sm text-base-content/55">{{ str_replace('T', ' ', $datetime) }} · 北京时间</p>
                                 </div>
@@ -80,7 +82,9 @@
                             <x-card title="三传" subtitle="初传 · 中传 · 末传" shadow separator>
                                 <div class="divide-y divide-base-200">
                                     @foreach ($transmissions as $transmission)
-                                        @php($index = $transmission['index'])
+                                        @php
+                                            $index = $transmission['index'];
+                                        @endphp
                                         <div class="grid grid-cols-[3.5rem_minmax(0,1fr)_4rem] items-center gap-3 py-4 first:pt-1 last:pb-1">
                                             <span class="text-sm font-medium text-base-content/50">{{ $transmission['name'] }}</span>
                                             <div class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-3">
@@ -96,13 +100,27 @@
 
                             <x-card title="四课" subtitle="从右至左为一至四课" shadow separator>
                                 <div class="grid grid-cols-4 gap-2 text-center" dir="rtl">
-                                    @foreach ($lessonColumns as $upperIndex)
+                                    @foreach ($lessonColumns as $lessonColumn)
+                                        @php
+                                            $upperIndex = $lessonColumn['upper'];
+                                            $relation = $pan['wuxingShengke'.$lessonColumn['relation']];
+                                            $relationName = $relation[0] === 0 ? '不生不克' : $relation[1];
+                                            $relationClass = match ($relation[0]) {
+                                                1, -1 => 'badge-error badge-soft',
+                                                2, -2 => 'badge-success badge-soft',
+                                                default => 'badge-ghost',
+                                            };
+                                        @endphp
                                         <div class="rounded-xl bg-base-200 px-2 py-4">
                                             <p class="flex items-baseline justify-center gap-1.5 text-2xl font-semibold text-primary">
                                                 <span>{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
                                                 <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex]]] }}</span>
                                             </p>
-                                            <div class="mx-auto my-2 h-px w-6 bg-base-300"></div>
+                                            <div class="my-2 flex items-center gap-1">
+                                                <span class="h-px min-w-0 flex-1 bg-base-300"></span>
+                                                <x-badge :value="$relationName" class="{{ $relationClass }} h-auto px-1.5 py-0.5 text-[0.65rem] whitespace-nowrap" />
+                                                <span class="h-px min-w-0 flex-1 bg-base-300"></span>
+                                            </div>
                                             <p class="flex items-baseline justify-center gap-1.5 text-2xl font-semibold text-primary">
                                                 @if ($upperIndex === 1)
                                                     <span>{{ $tiangan[$pan['sike'][0]] }}</span>
@@ -132,17 +150,24 @@
                                     <div class="pan-center">
                                         <span class="text-xs tracking-[0.3em] text-base-content/45">四柱</span>
                                         <strong class="mt-2 text-xl font-semibold tracking-wider">{{ $pan['sizhu'] }}</strong>
-                                        <span class="mt-3 text-sm text-base-content/55">{{ $jiuzongmenNames[$pan['jiuzongmen']] }}</span>
                                     </div>
                                 </div>
                             </div>
                         </x-card>
 
-                        @if (($pan['explain'] ?? '无') !== '无')
-                            <x-card title="课体说明" shadow>
-                                <p class="leading-7 text-base-content/70">{{ $pan['explain'] }}</p>
-                            </x-card>
-                        @endif
+                        <x-card title="解盘信息" subtitle="课体名称与取用说明" shadow separator>
+                            <div class="space-y-4">
+                                @foreach ($lessonInterpretations as $interpretation)
+                                    <article class="rounded-2xl border border-base-300 bg-base-100 p-5">
+                                        <div class="mb-3 flex items-center gap-3">
+                                            <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">课</span>
+                                            <h2 class="text-lg font-semibold">{{ $interpretation['name'] }}</h2>
+                                        </div>
+                                        <p class="pl-11 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
+                                    </article>
+                                @endforeach
+                            </div>
+                        </x-card>
                     </div>
                 @endif
             </section>
