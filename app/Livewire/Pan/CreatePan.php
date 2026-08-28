@@ -41,10 +41,32 @@ class CreatePan extends Component
             'wuxing' => PanCalculator::$wuxing,
             'wuxingTian' => PanCalculator::$wuxingTian,
             'wuxingDi' => PanCalculator::$wuxingDi,
+            'jigong' => PanCalculator::$jigong,
             'tianjiangNames' => PanCalculator::$tianjiang,
             'liuqinNames' => PanCalculator::$liuqin,
+            'xundunLabels' => $this->xundunLabels(),
             'lessonInterpretations' => $this->lessonInterpretations(),
         ]);
+    }
+
+    /** @return array<int, string> */
+    private function xundunLabels(): array
+    {
+        if ($this->pan === null) {
+            return [];
+        }
+
+        $dayIndex = array_search(
+            [$this->pan['rigan'], $this->pan['rizhi']],
+            PanCalculator::$jiazi2Ganzhi,
+            true,
+        );
+        $xunFirstZhi = [0, 10, 8, 6, 4, 2][intdiv($dayIndex, 10)];
+
+        return array_map(
+            fn (int $branch): string => PanCalculator::$tiangan[($branch - $xunFirstZhi + 12) % 12],
+            array_keys(PanCalculator::$dizhi),
+        );
     }
 
     /**

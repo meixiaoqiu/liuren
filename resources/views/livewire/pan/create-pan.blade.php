@@ -52,10 +52,10 @@
                             ['name' => '末传', 'index' => 2],
                         ];
                         $lessonColumns = [
-                            ['upper' => 7, 'relation' => 3],
-                            ['upper' => 5, 'relation' => 2],
-                            ['upper' => 3, 'relation' => 1],
-                            ['upper' => 1, 'relation' => 0],
+                            ['number' => 4, 'upper' => 7, 'relation' => 3, 'lowerType' => 'branch'],
+                            ['number' => 3, 'upper' => 5, 'relation' => 2, 'lowerType' => 'branch'],
+                            ['number' => 2, 'upper' => 3, 'relation' => 1, 'lowerType' => 'branch'],
+                            ['number' => 1, 'upper' => 1, 'relation' => 0, 'lowerType' => 'stem'],
                         ];
                         $palacePositions = [
                             5 => '1 / 1', 6 => '1 / 2', 7 => '1 / 3', 8 => '1 / 4',
@@ -90,7 +90,7 @@
                                             <div class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-3">
                                                 <span class="justify-self-end text-sm text-base-content/60">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
                                                 <span class="text-3xl font-semibold text-primary">{{ $dizhi[$pan['sanchuan'.$index]] }}</span>
-                                                <span class="justify-self-start text-sm text-base-content/60">{{ $tiangan[$pan['xundun'.$index]] }}</span>
+                                                <span class="justify-self-start text-sm text-base-content/60">{{ $xundunLabels[$pan['sanchuan'.$index]] }}</span>
                                             </div>
                                             <x-badge :value="$tianjiangNames[$pan['sanchuan'.$index.'tianjiang']]" class="badge-soft justify-self-end" />
                                         </div>
@@ -99,12 +99,19 @@
                             </x-card>
 
                             <x-card title="四课" subtitle="从右至左为一至四课" shadow separator>
-                                <div class="grid grid-cols-4 gap-2 text-center" dir="rtl">
+                                <div class="grid grid-cols-4 gap-2 text-center">
                                     @foreach ($lessonColumns as $lessonColumn)
                                         @php
                                             $upperIndex = $lessonColumn['upper'];
                                             $relation = $pan['wuxingShengke'.$lessonColumn['relation']];
                                             $relationName = $relation[0] === 0 ? '不生不克' : $relation[1];
+                                            $upperGroundIndex = array_search($pan['sike'][$upperIndex], $pan['tianpan'], true);
+                                            $lessonTianjiang = $tianjiangNames[$pan['tianjiang'][$upperGroundIndex]];
+                                            $lowerTianpanBranch = $lessonColumn['lowerType'] === 'stem'
+                                                ? $jigong[$pan['sike'][0]]
+                                                : $pan['sike'][$upperIndex - 1];
+                                            $lowerGroundIndex = array_search($lowerTianpanBranch, $pan['tianpan'], true);
+                                            $lowerTianjiang = $tianjiangNames[$pan['tianjiang'][$lowerGroundIndex]];
                                             $relationClass = match ($relation[0]) {
                                                 1, -1 => 'badge-error badge-soft',
                                                 2, -2 => 'badge-success badge-soft',
@@ -112,22 +119,35 @@
                                             };
                                         @endphp
                                         <div class="rounded-xl bg-base-200 px-2 py-4">
-                                            <p class="flex items-baseline justify-center gap-1.5 text-2xl font-semibold text-primary">
-                                                <span>{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
-                                                <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex]]] }}</span>
+                                            <x-badge
+                                                :value="$lessonTianjiang"
+                                                class="badge-soft mb-3"
+                                                aria-label="第{{ $lessonColumn['number'] }}课天将{{ $lessonTianjiang }}"
+                                            />
+                                            <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
+                                                <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['sike'][$upperIndex]] }}</span>
+                                                <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
+                                                <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex]]] }}</span>
                                             </p>
                                             <div class="my-2 flex items-center gap-1">
                                                 <span class="h-px min-w-0 flex-1 bg-base-300"></span>
                                                 <x-badge :value="$relationName" class="{{ $relationClass }} h-auto px-1.5 py-0.5 text-[0.65rem] whitespace-nowrap" />
                                                 <span class="h-px min-w-0 flex-1 bg-base-300"></span>
                                             </div>
-                                            <p class="flex items-baseline justify-center gap-1.5 text-2xl font-semibold text-primary">
-                                                @if ($upperIndex === 1)
-                                                    <span>{{ $tiangan[$pan['sike'][0]] }}</span>
-                                                    <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingTian[$pan['sike'][0]]] }}</span>
+                                            <x-badge
+                                                :value="$lowerTianjiang"
+                                                class="badge-soft mb-3"
+                                                aria-label="第{{ $lessonColumn['number'] }}课下层天将{{ $lowerTianjiang }}"
+                                            />
+                                            <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
+                                                @if ($lessonColumn['lowerType'] === 'stem')
+                                                    <span></span>
+                                                    <span class="text-2xl font-semibold text-primary">{{ $tiangan[$pan['sike'][0]] }}</span>
+                                                    <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingTian[$pan['sike'][0]]] }}</span>
                                                 @else
-                                                    <span>{{ $dizhi[$pan['sike'][$upperIndex - 1]] }}</span>
-                                                    <span class="text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex - 1]]] }}</span>
+                                                    <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['sike'][$upperIndex - 1]] }}</span>
+                                                    <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex - 1]] }}</span>
+                                                    <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex - 1]]] }}</span>
                                                 @endif
                                             </p>
                                         </div>
@@ -142,8 +162,12 @@
                                     @foreach ($palacePositions as $groundIndex => $position)
                                         <div class="pan-palace" style="grid-area: {{ $position }}">
                                             <span class="pan-ground" aria-label="地盘{{ $dizhi[$groundIndex] }}">{{ $dizhi[$groundIndex] }}</span>
-                                            <span class="relative z-10 text-xs text-base-content/55">{{ $tianjiangNames[$pan['tianjiang'][$groundIndex]] }}</span>
+                                            <x-badge
+                                                :value="$tianjiangNames[$pan['tianjiang'][$groundIndex]]"
+                                                class="badge-soft relative z-10"
+                                            />
                                             <strong class="relative z-10 text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
+                                            <span class="relative z-10 text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
                                         </div>
                                     @endforeach
 
