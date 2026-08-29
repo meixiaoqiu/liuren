@@ -55,3 +55,36 @@ test('frontend rejects an invalid datetime', function () {
         ->assertHasErrors(['datetime'])
         ->assertSet('pan', null);
 });
+
+test('frontend explains the shehai process for a shehai lesson', function () {
+    $datetime = '2000-05-18T03:24';
+    $expected = app(PanCalculator::class)
+        ->calculate('2000-05-18 03:24:00')
+        ->toArray();
+    $trace = $expected['shehaiTrace'];
+
+    expect($trace)->not->toBeNull()
+        ->and($trace['candidates'])->not->toBeEmpty()
+        ->and(array_column($trace['candidates'], 'lesson_index'))->toContain($trace['decision']['selected_lesson_index'])
+        ->and($trace['decision']['selected_branch'])->toBe($expected['sanchuan0']);
+
+    foreach ($trace['candidates'] as $candidate) {
+        expect($candidate['depth'])->toBe(count($candidate['encounters']))
+            ->and($candidate['path'])->not->toBeEmpty();
+    }
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $datetime)
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('涉害过程')
+        ->assertSee($trace['relation'])
+        ->assertSee($trace['decision']['rule'])
+        ->assertSee(PanCalculator::$dizhi[$trace['decision']['selected_branch']]);
+
+    foreach ($trace['candidates'] as $candidate) {
+        $component
+            ->assertSee('第'.$candidate['lesson'].'课候选')
+            ->assertSee($candidate['depth'].'重');
+    }
+});

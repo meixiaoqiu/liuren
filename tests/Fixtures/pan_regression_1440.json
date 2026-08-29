@@ -340,14 +340,14 @@
                 "jiuzongmen": 18,
                 "liuqin0": 2,
                 "liuqin1": 1,
-                "liuqin2": 2,
+                "liuqin2": 0,
                 "nianming": 0,
                 "sanchuan0": 3,
                 "sanchuan0tianjiang": 4,
                 "sanchuan1": 0,
                 "sanchuan1tianjiang": 1,
-                "sanchuan2": 3,
-                "sanchuan2tianjiang": 4,
+                "sanchuan2": 6,
+                "sanchuan2tianjiang": 7,
                 "sike0": 3,
                 "sike1": 7,
                 "sike2": 7,
@@ -383,7 +383,7 @@
                 "xingnian": 0,
                 "xundun0": 3,
                 "xundun1": 0,
-                "xundun2": 3
+                "xundun2": 6
             }
         },
         "pointer-00_day-03_night": {
@@ -393,14 +393,14 @@
                 "jiuzongmen": 18,
                 "liuqin0": 2,
                 "liuqin1": 1,
-                "liuqin2": 2,
+                "liuqin2": 0,
                 "nianming": 0,
                 "sanchuan0": 3,
                 "sanchuan0tianjiang": 6,
                 "sanchuan1": 0,
                 "sanchuan1tianjiang": 9,
-                "sanchuan2": 3,
-                "sanchuan2tianjiang": 6,
+                "sanchuan2": 6,
+                "sanchuan2tianjiang": 3,
                 "sike0": 3,
                 "sike1": 7,
                 "sike2": 7,
@@ -436,7 +436,7 @@
                 "xingnian": 0,
                 "xundun0": 3,
                 "xundun1": 0,
-                "xundun2": 3
+                "xundun2": 6
             }
         },
         "pointer-00_day-04_day": {
@@ -1612,14 +1612,14 @@
                 "jiuzongmen": 18,
                 "liuqin0": 1,
                 "liuqin1": -1,
-                "liuqin2": 1,
+                "liuqin2": 2,
                 "nianming": 0,
                 "sanchuan0": 3,
                 "sanchuan0tianjiang": 3,
                 "sanchuan1": 0,
                 "sanchuan1tianjiang": 0,
-                "sanchuan2": 3,
-                "sanchuan2tianjiang": 3,
+                "sanchuan2": 6,
+                "sanchuan2tianjiang": 6,
                 "sike0": 5,
                 "sike1": 7,
                 "sike2": 7,
@@ -1655,7 +1655,7 @@
                 "xingnian": 0,
                 "xundun0": 5,
                 "xundun1": 2,
-                "xundun2": 5
+                "xundun2": 8
             }
         },
         "pointer-00_day-15_night": {
@@ -1665,14 +1665,14 @@
                 "jiuzongmen": 18,
                 "liuqin0": 1,
                 "liuqin1": -1,
-                "liuqin2": 1,
+                "liuqin2": 2,
                 "nianming": 0,
                 "sanchuan0": 3,
                 "sanchuan0tianjiang": 5,
                 "sanchuan1": 0,
                 "sanchuan1tianjiang": 8,
-                "sanchuan2": 3,
-                "sanchuan2tianjiang": 5,
+                "sanchuan2": 6,
+                "sanchuan2tianjiang": 2,
                 "sike0": 5,
                 "sike1": 7,
                 "sike2": 7,
@@ -1708,7 +1708,7 @@
                 "xingnian": 0,
                 "xundun0": 5,
                 "xundun1": 2,
-                "xundun2": 5
+                "xundun2": 8
             }
         },
         "pointer-00_day-16_day": {
@@ -2884,14 +2884,14 @@
                 "jiuzongmen": 18,
                 "liuqin0": -1,
                 "liuqin1": -2,
-                "liuqin2": -1,
+                "liuqin2": 1,
                 "nianming": 0,
                 "sanchuan0": 3,
                 "sanchuan0tianjiang": 3,
                 "sanchuan1": 0,
                 "sanchuan1tianjiang": 6,
-                "sanchuan2": 3,
-                "sanchuan2tianjiang": 3,
+                "sanchuan2": 6,
+                "sanchuan2tianjiang": 0,
                 "sike0": 7,
                 "sike1": 10,
                 "sike2": 10,
@@ -2927,7 +2927,7 @@
                 "xingnian": 0,
                 "xundun0": 7,
                 "xundun1": 4,
-                "xundun2": 7
+                "xundun2": 10
             }
         },
         "pointer-00_day-27_night": {
@@ -2937,14 +2937,14 @@
                 "jiuzongmen": 18,
                 "liuqin0": -1,
                 "liuqin1": -2,
-                "liuqin2": -1,
+                "liuqin2": 1,
                 "nianming": 0,
                 "sanchuan0": 3,
                 "sanchuan0tianjiang": 1,
                 "sanchuan1": 0,
                 "sanchuan1tianjiang": 10,
-                "sanchuan2": 3,
-                "sanchuan2tianjiang": 1,
+                "sanchuan2": 6,
+                "sanchuan2tianjiang": 4,
                 "sike0": 7,
                 "sike1": 10,
                 "sike2": 10,
@@ -2980,7 +2980,7 @@
                 "xingnian": 0,
                 "xundun0": 7,
                 "xundun1": 4,
-                "xundun2": 7
+                "xundun2": 10
             }
         },
         "pointer-00_day-28_day": {

@@ -196,6 +196,8 @@
                                         <p class="pl-11 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
                                     </article>
                                 @endforeach
+
+                                @include('livewire.pan.partials.shehai-trace')
                             </div>
                         </x-card>
                     </div>

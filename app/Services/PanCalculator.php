@@ -406,6 +406,7 @@ class PanCalculator
         }
         // 九宗门：涉害
         $xianghai = []; // 相害数据，key=>四课index，value：相害数
+        $pan['shehaiTrace'] = null;
         if ((count($xiaZeiShangIndex) > 1 || (count($shangKeXiaIndex) > 1 && count($xiaZeiShangIndex) == 0)) && ((count($riganXiangbi) > 1 && $pan['sike'][$riganXiangbi[0]] != $pan['sike'][$riganXiangbi[1]]) || count($riganXiangbi) == 0)) { // 与日干俱比或俱不比
             $jiuZongMen = 5; // 涉害
             if (count($riganXiangbi) > 1) { // 如果与日干俱不比，则使用俱不比的数组判断涉害数
@@ -413,14 +414,20 @@ class PanCalculator
             } else {
                 $biyongArr = $riganBubi;
             }
+            $pan['shehaiTrace'] = [
+                'relation' => count($xiaZeiShangIndex) > 1 ? '下贼上' : '上克下',
+                'candidates' => [],
+                'decision' => null,
+            ];
             // 轮询
             $sikeXia = []; // 用于和四孟四仲求交集的四课下课数组
             foreach ($biyongArr as $v) {
                 if ($v - 1 == 0) { // 如果是天干位置，则应通过寄宫查地支
-                    $sikeXia[] = self::$jigong[$pan['sike'][$v - 1]];
+                    $lowerGround = self::$jigong[$pan['sike'][$v - 1]];
                 } else {
-                    $sikeXia[] = $pan['sike'][$v - 1];
+                    $lowerGround = $pan['sike'][$v - 1];
                 }
+                $sikeXia[] = $lowerGround;
                 $shehaiBegin = array_search($pan['sike'][$v], $pan['tianpan']);
                 $shehaiEnd = $pan['sike'][$v];
 
@@ -431,30 +438,74 @@ class PanCalculator
                     $shehaiArr = array_merge(range($shehaiBegin, 11), range(0, $shehaiEnd));
                 }
                 $xianghai[$v] = 0;
+                $candidateTrace = [
+                    'lesson' => intdiv($v + 1, 2),
+                    'lesson_index' => $v,
+                    'upper' => $pan['sike'][$v],
+                    'lower_type' => $v === 1 ? 'stem' : 'branch',
+                    'lower' => $pan['sike'][$v - 1],
+                    'lower_ground' => $lowerGround,
+                    'path' => $shehaiArr,
+                    'encounters' => [],
+                    'depth' => 0,
+                ];
                 foreach ($shehaiArr as $w) { // 涉害过程轮询
                     if (count($xiaZeiShangIndex) > 1 && self::getShengke(self::$wuxingDi[$w], self::$wuxingDi[$pan['sike'][$v]])[0] == 1) { // 看地盘位的值是否相害
                         $xianghai[$v]++; // 下贼上时，获取生克关系也应取下贼上
-                        // var_dump('地盘 ' . self::$dizhi[$w] . ' 贼 ' . self::$dizhi[$pan['sike'][$v]]);
+                        $candidateTrace['encounters'][] = [
+                            'source_kind' => 'branch',
+                            'source' => $w,
+                            'ground' => $w,
+                            'relation' => '贼',
+                            'target_kind' => 'branch',
+                            'target' => $pan['sike'][$v],
+                        ];
                     } elseif (count($shangKeXiaIndex) > 1 && self::getShengke(self::$wuxingDi[$pan['sike'][$v]], self::$wuxingDi[$w])[0] == 1) { // 看地盘位的值是否相害
                         $xianghai[$v]++; // 上克下时，获取生克关系也应取上克下
-                        // var_dump('地盘 ' . self::$dizhi[$pan['sike'][$v]] . ' 克 ' . self::$dizhi[$w]);
+                        $candidateTrace['encounters'][] = [
+                            'source_kind' => 'branch',
+                            'source' => $pan['sike'][$v],
+                            'ground' => $w,
+                            'relation' => '克',
+                            'target_kind' => 'branch',
+                            'target' => $w,
+                        ];
                     }
                     // 看地盘所寄宫的天干的五行是否与这一课相害
                     $jigongTiangan = array_keys(self::$jigong, $w);
                     foreach ($jigongTiangan as $x) {
                         if (count($xiaZeiShangIndex) > 1 && self::getShengke(self::$wuxingTian[$x], self::$wuxingDi[$pan['sike'][$v]])[0] == 1) {
                             $xianghai[$v]++;
-                            // var_dump('天干 ' . self::$tiangan[$x] . ' 贼 ' . self::$dizhi[$pan['sike'][$v]]);
+                            $candidateTrace['encounters'][] = [
+                                'source_kind' => 'stem',
+                                'source' => $x,
+                                'ground' => $w,
+                                'relation' => '贼',
+                                'target_kind' => 'branch',
+                                'target' => $pan['sike'][$v],
+                            ];
                         } elseif (count($shangKeXiaIndex) > 1 && self::getShengke(self::$wuxingDi[$pan['sike'][$v]], self::$wuxingTian[$x])[0] == 1) {
                             $xianghai[$v]++;
-                            // var_dump('天干 ' . self::$dizhi[$pan['sike'][$v]] . ' 克 ' . self::$tiangan[$x]);
+                            $candidateTrace['encounters'][] = [
+                                'source_kind' => 'branch',
+                                'source' => $pan['sike'][$v],
+                                'ground' => $w,
+                                'relation' => '克',
+                                'target_kind' => 'stem',
+                                'target' => $x,
+                            ];
                         }
                     }
                 }
+                $candidateTrace['depth'] = $xianghai[$v];
+                $pan['shehaiTrace']['candidates'][] = $candidateTrace;
             }
             // 取涉害多者为初传
+            $decisionRule = '取涉害较深者';
+            $selectedLessonIndex = null;
             if (count($xianghai) > 0) {
                 $shehaiMax = array_search(max($xianghai), $xianghai); // 涉害多者在四课中的index
+                $selectedLessonIndex = $shehaiMax;
                 $pan['sanchuan0'] = $pan['sike'][$shehaiMax];
             }
             if ((count($xianghai) > 1 || count($xianghai) == 0) && count(array_unique($xianghai)) == 1) { // 涉害数相等
@@ -465,21 +516,34 @@ class PanCalculator
                 $ifZhong = array_intersect($sikeXia, $zhong);
                 if (! empty($ifMeng)) {
                     $jiuZongMen = 6; // 涉害见机
+                    $decisionRule = '涉害相等，取四孟';
                     $mengDipan = array_shift($ifMeng);
+                    $selectedLessonIndex = $biyongArr[array_search($mengDipan, $sikeXia, true)];
                     $pan['sanchuan0'] = $pan['tianpan'][$mengDipan];
                 } elseif (! empty($ifZhong)) {
                     $jiuZongMen = 7; // 涉害察微
+                    $decisionRule = '涉害相等，取四仲';
                     $zhongDipan = array_shift($ifZhong);
+                    $selectedLessonIndex = $biyongArr[array_search($zhongDipan, $sikeXia, true)];
                     $pan['sanchuan0'] = $pan['tianpan'][$zhongDipan];
                 } else {
                     $jiuZongMen = 8; // 涉害缀瑕
+                    $decisionRule = '涉害相等且不临孟仲，依日干阴阳取用';
                     if (self::$yinyangTian[$pan['rigan']] == 1) { // 阳日取干上神
+                        $selectedLessonIndex = 1;
                         $pan['sanchuan0'] = $pan['sike'][1];
                     } else {                                    // 阴日取支上神
+                        $selectedLessonIndex = 5;
                         $pan['sanchuan0'] = $pan['sike'][5];
                     }
                 }
             }
+            $pan['shehaiTrace']['decision'] = [
+                'rule' => $decisionRule,
+                'tied' => count($xianghai) > 1 && count(array_unique($xianghai)) === 1,
+                'selected_lesson_index' => $selectedLessonIndex,
+                'selected_branch' => $pan['sanchuan0'],
+            ];
         }
         $pan['sanchuan1'] = $pan['tianpan'][$pan['sanchuan0']];
         $pan['sanchuan2'] = $pan['tianpan'][$pan['sanchuan1']];
@@ -625,7 +689,9 @@ class PanCalculator
                     } else {
                         $pan['sanchuan1'] = self::$xing[$pan['sanchuan0']];
                     }
-                    if (in_array($pan['sanchuan1'], [4, 6, 9, 11])) { // 中传自刑
+                    if ($pan['sanchuan0'] === 3 && $pan['sanchuan1'] === 0) { // 子卯互刑不复再传，以子冲午为末传
+                        $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
+                    } elseif (in_array($pan['sanchuan1'], [4, 6, 9, 11])) { // 中传自刑
                         $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
                     } else {
                         $pan['sanchuan2'] = self::$xing[$pan['sanchuan1']];
