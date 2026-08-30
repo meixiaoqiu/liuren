@@ -38,7 +38,9 @@ test('frontend calculation matches the calculator without side effects', functio
         ->assertSee('四课')
         ->assertSee('天地盘')
         ->assertSee('解盘信息')
-        ->assertSee(PanCalculator::$jiuzongmen[$expected['jiuzongmen']])
+        ->assertSee('八专课')
+        ->assertSee('中末传归干上神')
+        ->assertDontSee('规则尚未覆盖')
         ->assertSee($expected['wuxingShengke0'][0] === 0 ? '不生不克' : $expected['wuxingShengke0'][1])
         ->assertDontSee('旬遁')
         ->assertSee($firstLessonTianjiang)
@@ -87,4 +89,25 @@ test('frontend explains the shehai process for a shehai lesson', function () {
             ->assertSee('第'.$candidate['lesson'].'课候选')
             ->assertSee($candidate['depth'].'重');
     }
+});
+
+test('frontend distinguishes a fanyin pattern from its initial transmission method', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-07T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('返吟')
+        ->assertSee('涉害课')
+        ->assertSee('冲神递取')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend hides the ordinary tianpan shunchuan explanation without losing coverage', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-22T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('蒿矢课')
+        ->assertDontSee('天盘顺传')
+        ->assertDontSee('规则尚未覆盖');
 });

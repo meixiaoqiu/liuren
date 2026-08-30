@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Domain\Pan\Rules;
+
+/** 文件作用：登记规则引擎每次起盘需要执行的全部具体规则。 */
+final class RuleRegistry
+{
+    /** @return list<PanRule> */
+    public function rules(): array
+    {
+        return [
+            new FanyinRule,
+            new FuyinRule,
+            new WuyiRule,
+            new BuyuRule,
+            new ZirenRule,
+            new ZixinRule,
+            new DuzhuanRule,
+            new YuanshouRule,
+            new ChongshenRule,
+            new BiyongRule,
+            new ZhiyiRule,
+            new ShehaiRule,
+            new JianjiRule,
+            new ChaweiRule,
+            new ZhuixiaRule,
+            new HaoshiRule,
+            new TansheRule,
+            new HushiRule,
+            new DongsheYanmuRule,
+            new BiezheRule,
+            new BazhuanRule,
+            new ChongSanchuanRule,
+            new TianpanShunchuanRule,
+            new HushiSanchuanRule,
+            new DongsheYanmuSanchuanRule,
+            new GanShangshenSanchuanRule,
+            new FanyinWuqinRule,
+            new DuzuRule,
+        ];
+    }
+}

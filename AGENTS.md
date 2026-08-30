@@ -12,6 +12,13 @@
 
 - 绝对不得修改 `README.md`，该文件由用户亲自维护。
 
+## PHP 与 Docker 运行环境
+
+- 宿主机和 WSL 中均不提供 PHP 运行时；绝对不得直接在宿主机或 WSL 中运行 `php`、`composer`、`php artisan`、Pest 或 PHPUnit 命令。
+- 所有 PHP、Composer、Artisan、Pest 和 PHPUnit 命令都必须在项目的 Docker 容器内运行。
+- 项目 PHP 容器名为 `php85-fpm`，容器内仓库目录为 `/var/www/html/liuren`。例如，运行 Artisan 测试应使用 `docker exec -w /var/www/html/liuren php85-fpm php artisan test`。
+- 需要执行 PHP 相关命令时，应先检查当前运行的 Docker 容器以确定项目容器和进入方式；只有在无法从环境中确定时才询问用户，不得改用宿主机 PHP。
+
 ## 排盘计算回归安全
 
 以下规则适用于任何可能影响排盘结果的修改。

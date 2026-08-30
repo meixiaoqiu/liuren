@@ -55,7 +55,7 @@ class PanCalculator
     public static ?array $tianjiang = ['贵人', '螣蛇', '朱雀', '六合', '勾陈', '青龙', '天空', '白虎', '太常', '玄武', '太阴', '天后'];
 
     // 定义九宗门名字
-    public static ?array $jiuzongmen = ['未知', '元首', '重审', '比用', '比用知一', '涉害', '涉害见机', '涉害察微', '涉害缀瑕', '遥克蒿矢', '遥克弹射', '昴星虎视', '昴星冬蛇掩目', '别责', '八专', '八专独足', '伏吟不虞', '伏吟自任', '伏吟自信', '伏吟杜撰', '反吟无依', '反吟无亲'];
+    public static ?array $jiuzongmen = ['未知', '元首', '重审', '比用', '比用知一', '涉害', '涉害见机', '涉害察微', '涉害缀瑕', '遥克蒿矢', '遥克弹射', '昴星虎视', '昴星冬蛇掩目', '别责', '八专', '八专独足', '伏吟不虞', '伏吟自任', '伏吟自信', '伏吟杜传', '反吟无依', '反吟无亲'];
 
     // 定义六亲
     public static ?array $liuqin = [
@@ -363,14 +363,47 @@ class PanCalculator
         $pan['sanchuan0'] = 0;
         $pan['sanchuan1'] = 0;
         $pan['sanchuan2'] = 0;
+        $calculationTrace = [
+            'plate_patterns' => match ($pan['tianpan'][0]) {
+                0 => ['fuyin'],
+                6 => ['fanyin'],
+                default => [],
+            },
+            'lesson_patterns' => [],
+            'initial_transmission' => [
+                'recorded' => false,
+                'method' => null,
+                'evidence' => [],
+            ],
+            'middle_transmission' => [
+                'recorded' => false,
+                'method' => null,
+                'source' => null,
+            ],
+            'final_transmission' => [
+                'recorded' => false,
+                'method' => null,
+                'source' => null,
+            ],
+        ];
         // 九宗门：重审或元首
         if (count($xiaZeiShangIndex) == 1 || (count($xiaZeiShangIndex) == 0 && count($shangKeXiaIndex) == 1)) {
             if (count($xiaZeiShangIndex) == 1) {
                 $pan['sanchuan0'] = $pan['sike'][$xiaZeiShangIndex[0]];
                 $jiuZongMen = 2; // 重审
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'chongshen',
+                    'evidence' => ['lesson_index' => $xiaZeiShangIndex[0]],
+                ];
             } else {
                 $pan['sanchuan0'] = $pan['sike'][$shangKeXiaIndex[0]];
                 $jiuZongMen = 1; // 元首
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'yuanshou',
+                    'evidence' => ['lesson_index' => $shangKeXiaIndex[0]],
+                ];
             }
         }
         // 九宗门：比用或知一
@@ -388,6 +421,14 @@ class PanCalculator
             }
             if (count($riganXiangbi) == 1 || (count($riganXiangbi) > 1 && $pan['sike'][$riganXiangbi[0]] == $pan['sike'][$riganXiangbi[1]])) { // 四课有重复的，也按比用算
                 $pan['sanchuan0'] = $pan['sike'][$riganXiangbi[0]];
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'biyong',
+                    'evidence' => [
+                        'candidate_lesson_indexes' => $xiaZeiShangIndex,
+                        'selected_lesson_index' => $riganXiangbi[0],
+                    ],
+                ];
             }
         }
         if (count($shangKeXiaIndex) > 1 && count($xiaZeiShangIndex) == 0) {
@@ -402,6 +443,14 @@ class PanCalculator
             }
             if (count($riganXiangbi) == 1 || (count($riganXiangbi) > 1 && $pan['sike'][$riganXiangbi[0]] == $pan['sike'][$riganXiangbi[1]])) { // 四课有重复的，也按比用算
                 $pan['sanchuan0'] = $pan['sike'][$riganXiangbi[0]];
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'zhiyi',
+                    'evidence' => [
+                        'candidate_lesson_indexes' => $shangKeXiaIndex,
+                        'selected_lesson_index' => $riganXiangbi[0],
+                    ],
+                ];
             }
         }
         // 九宗门：涉害
@@ -502,6 +551,7 @@ class PanCalculator
             }
             // 取涉害多者为初传
             $decisionRule = '取涉害较深者';
+            $shehaiMethod = 'shehai';
             $selectedLessonIndex = null;
             if (count($xianghai) > 0) {
                 $shehaiMax = array_search(max($xianghai), $xianghai); // 涉害多者在四课中的index
@@ -517,18 +567,21 @@ class PanCalculator
                 if (! empty($ifMeng)) {
                     $jiuZongMen = 6; // 涉害见机
                     $decisionRule = '涉害相等，取四孟';
+                    $shehaiMethod = 'shehai_jianji';
                     $mengDipan = array_shift($ifMeng);
                     $selectedLessonIndex = $biyongArr[array_search($mengDipan, $sikeXia, true)];
                     $pan['sanchuan0'] = $pan['tianpan'][$mengDipan];
                 } elseif (! empty($ifZhong)) {
                     $jiuZongMen = 7; // 涉害察微
                     $decisionRule = '涉害相等，取四仲';
+                    $shehaiMethod = 'shehai_chawei';
                     $zhongDipan = array_shift($ifZhong);
                     $selectedLessonIndex = $biyongArr[array_search($zhongDipan, $sikeXia, true)];
                     $pan['sanchuan0'] = $pan['tianpan'][$zhongDipan];
                 } else {
                     $jiuZongMen = 8; // 涉害缀瑕
                     $decisionRule = '涉害相等且不临孟仲，依日干阴阳取用';
+                    $shehaiMethod = 'shehai_zhuixia';
                     if (self::$yinyangTian[$pan['rigan']] == 1) { // 阳日取干上神
                         $selectedLessonIndex = 1;
                         $pan['sanchuan0'] = $pan['sike'][1];
@@ -544,18 +597,47 @@ class PanCalculator
                 'selected_lesson_index' => $selectedLessonIndex,
                 'selected_branch' => $pan['sanchuan0'],
             ];
+            $calculationTrace['initial_transmission'] = [
+                'recorded' => true,
+                'method' => $shehaiMethod,
+                'evidence' => $pan['shehaiTrace'],
+            ];
         }
         $pan['sanchuan1'] = $pan['tianpan'][$pan['sanchuan0']];
         $pan['sanchuan2'] = $pan['tianpan'][$pan['sanchuan1']];
+        if ($calculationTrace['initial_transmission']['recorded']) {
+            $calculationTrace['middle_transmission'] = [
+                'recorded' => true,
+                'method' => 'tianpan_shunchuan',
+                'source' => 'initial_transmission',
+            ];
+            $calculationTrace['final_transmission'] = [
+                'recorded' => true,
+                'method' => 'tianpan_shunchuan',
+                'source' => 'middle_transmission',
+            ];
+        }
 
         if ($pan['tianpan'][0] == 6 && ! in_array($pan['rigan'].$pan['rizhi'], ['37', '57'])) {
             // 除丁未、己未，均为反吟
             $jiuZongMen = 20; // 反吟无依
+            $calculationTrace['lesson_patterns'][] = 'fanyin_wuyi';
             $pan['sanchuan1'] = self::$chong[$pan['sanchuan0']];
             $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
+            $calculationTrace['middle_transmission'] = [
+                'recorded' => true,
+                'method' => 'chong',
+                'source' => 'initial_transmission',
+            ];
+            $calculationTrace['final_transmission'] = [
+                'recorded' => true,
+                'method' => 'chong',
+                'source' => 'middle_transmission',
+            ];
             if (($pan['rigan'] == 7 && $pan['rizhi'] == 7) || ($pan['rigan'] == 7 && $pan['rizhi'] == 1) || ($pan['rigan'] == 3 && $pan['rizhi'] == 1) || ($pan['rigan'] == 5 && $pan['rizhi'] == 1)) {
                 // 辛未，辛丑，丁丑，己丑 无亲格
                 $jiuZongMen = 21; // 反吟无亲
+                $calculationTrace['lesson_patterns'] = ['fanyin_wuqin'];
                 if ($pan['rizhi'] == 1) {
                     $pan['sanchuan0'] = 11;
                 } else {
@@ -563,6 +645,21 @@ class PanCalculator
                 }
                 $pan['sanchuan1'] = $pan['sike'][5];
                 $pan['sanchuan2'] = $pan['sike'][1];
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'fanyin_wuqin',
+                    'evidence' => [],
+                ];
+                $calculationTrace['middle_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'fanyin_wuqin',
+                    'source' => 'branch_upper',
+                ];
+                $calculationTrace['final_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'fanyin_wuqin',
+                    'source' => 'stem_upper',
+                ];
             }
         } else {
             // 九宗门 遥克
@@ -591,6 +688,24 @@ class PanCalculator
                     }
                     $pan['sanchuan1'] = $pan['tianpan'][$pan['sanchuan0']];
                     $pan['sanchuan2'] = $pan['tianpan'][$pan['sanchuan1']];
+                    $calculationTrace['initial_transmission'] = [
+                        'recorded' => true,
+                        'method' => 'haoshi',
+                        'evidence' => [
+                            'candidate_lesson_indexes' => $yaokeShangKeXia,
+                            'selected_branch' => $pan['sanchuan0'],
+                        ],
+                    ];
+                    $calculationTrace['middle_transmission'] = [
+                        'recorded' => true,
+                        'method' => 'tianpan_shunchuan',
+                        'source' => 'initial_transmission',
+                    ];
+                    $calculationTrace['final_transmission'] = [
+                        'recorded' => true,
+                        'method' => 'tianpan_shunchuan',
+                        'source' => 'middle_transmission',
+                    ];
                 } elseif (count($yaokeXiaZeiShang) > 0) {
                     $jiuZongMen = 10; // 遥克弹射
                     if (count($yaokeXiaZeiShang) == 1) {
@@ -605,6 +720,24 @@ class PanCalculator
                     }
                     $pan['sanchuan1'] = $pan['tianpan'][$pan['sanchuan0']];
                     $pan['sanchuan2'] = $pan['tianpan'][$pan['sanchuan1']];
+                    $calculationTrace['initial_transmission'] = [
+                        'recorded' => true,
+                        'method' => 'tanshe',
+                        'evidence' => [
+                            'candidate_lesson_indexes' => $yaokeXiaZeiShang,
+                            'selected_branch' => $pan['sanchuan0'],
+                        ],
+                    ];
+                    $calculationTrace['middle_transmission'] = [
+                        'recorded' => true,
+                        'method' => 'tianpan_shunchuan',
+                        'source' => 'initial_transmission',
+                    ];
+                    $calculationTrace['final_transmission'] = [
+                        'recorded' => true,
+                        'method' => 'tianpan_shunchuan',
+                        'source' => 'middle_transmission',
+                    ];
                 } elseif (count($yaokeShangKeXia) == 0 && count($yaokeXiaZeiShang) == 0) {
                     if ($pan['sike'][1] != $pan['sike'][7] && $pan['sike'][3] != $pan['sike'][5]) { // 四课不重复者为昴星
                         if (self::$yinyangTian[$pan['rigan']] == 1) {
@@ -612,11 +745,41 @@ class PanCalculator
                             $pan['sanchuan0'] = $pan['tianpan'][9]; // 初传取地盘酉上神
                             $pan['sanchuan1'] = $pan['sike'][5];  // 中传取支上神
                             $pan['sanchuan2'] = $pan['sike'][1];  // 末传取干上神
+                            $calculationTrace['initial_transmission'] = [
+                                'recorded' => true,
+                                'method' => 'hushi',
+                                'evidence' => ['source' => 'ground_you_upper'],
+                            ];
+                            $calculationTrace['middle_transmission'] = [
+                                'recorded' => true,
+                                'method' => 'hushi_sanchuan',
+                                'source' => 'branch_upper',
+                            ];
+                            $calculationTrace['final_transmission'] = [
+                                'recorded' => true,
+                                'method' => 'hushi_sanchuan',
+                                'source' => 'stem_upper',
+                            ];
                         } else {
                             $jiuZongMen = 12; // 昴星冬蛇掩目
                             $pan['sanchuan0'] = array_search(9, $pan['tianpan']); // 初传取天盘酉下神
                             $pan['sanchuan1'] = $pan['sike'][1];                // 中传取干上神
                             $pan['sanchuan2'] = $pan['sike'][5];                // 末传取支上神
+                            $calculationTrace['initial_transmission'] = [
+                                'recorded' => true,
+                                'method' => 'dongshe_yanmu',
+                                'evidence' => ['source' => 'heaven_you_lower'],
+                            ];
+                            $calculationTrace['middle_transmission'] = [
+                                'recorded' => true,
+                                'method' => 'dongshe_yanmu_sanchuan',
+                                'source' => 'stem_upper',
+                            ];
+                            $calculationTrace['final_transmission'] = [
+                                'recorded' => true,
+                                'method' => 'dongshe_yanmu_sanchuan',
+                                'source' => 'branch_upper',
+                            ];
 
                         }
                     } elseif ($pan['sike'][1] == $pan['sike'][7] || $pan['sike'][3] == $pan['sike'][5]) { // 四课中，1和7相等，或3和5相等，判断别责
@@ -635,6 +798,21 @@ class PanCalculator
                             $pan['sanchuan0'] = $zhihe;
                         }
                         $pan['sanchuan1'] = $pan['sanchuan2'] = $pan['sike'][1];
+                        $calculationTrace['initial_transmission'] = [
+                            'recorded' => true,
+                            'method' => 'biezhe',
+                            'evidence' => ['day_polarity' => self::$yinyangTian[$pan['rigan']] === 1 ? 'yang' : 'yin'],
+                        ];
+                        $calculationTrace['middle_transmission'] = [
+                            'recorded' => true,
+                            'method' => 'gan_shangshen',
+                            'source' => 'stem_upper',
+                        ];
+                        $calculationTrace['final_transmission'] = [
+                            'recorded' => true,
+                            'method' => 'gan_shangshen',
+                            'source' => 'stem_upper',
+                        ];
                     }
                 }
             } elseif (($pan['sike'][1] == $pan['sike'][5] && $pan['sike'][3] == $pan['sike'][7]) && $pan['tianpan'][0] != 0 && count($shangKeXiaIndex) == 0 && count($xiaZeiShangIndex) == 0) { // 只有两课且天地盘不重合且没有上下课为八专
@@ -651,11 +829,41 @@ class PanCalculator
                     }
                 }
                 $pan['sanchuan1'] = $pan['sanchuan2'] = $pan['sike'][1];
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'bazhuan',
+                    'evidence' => ['day_polarity' => self::$yinyangTian[$pan['rigan']] === 1 ? 'yang' : 'yin'],
+                ];
+                $calculationTrace['middle_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'gan_shangshen',
+                    'source' => 'stem_upper',
+                ];
+                $calculationTrace['final_transmission'] = [
+                    'recorded' => true,
+                    'method' => 'gan_shangshen',
+                    'source' => 'stem_upper',
+                ];
                 if ($pan['sanchuan0'] == $pan['sanchuan1'] && $pan['sanchuan1'] == $pan['sanchuan2']) {
                     $jiuZongMen = 15; // 八专独足
                 }
             }
             if ($pan['tianpan'][0] == 0) {
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => false,
+                    'method' => null,
+                    'evidence' => [],
+                ];
+                $calculationTrace['middle_transmission'] = [
+                    'recorded' => false,
+                    'method' => null,
+                    'source' => null,
+                ];
+                $calculationTrace['final_transmission'] = [
+                    'recorded' => false,
+                    'method' => null,
+                    'source' => null,
+                ];
                 $jiuZongMen = 16; // 伏吟不虞
                 if (count($xiaZeiShangIndex) > 0) {
                     $pan['sanchuan0'] = $pan['sike'][$xiaZeiShangIndex[0]];
@@ -697,6 +905,33 @@ class PanCalculator
                         $pan['sanchuan2'] = self::$xing[$pan['sanchuan1']];
                     }
                 }
+                $fuyinPattern = match ($jiuZongMen) {
+                    16 => 'fuyin_buyu',
+                    17 => 'fuyin_ziren',
+                    18 => 'fuyin_zixin',
+                    19 => 'fuyin_duzhuan',
+                };
+                $calculationTrace['lesson_patterns'][] = $fuyinPattern;
+                $calculationTrace['initial_transmission'] = [
+                    'recorded' => true,
+                    'method' => match ($jiuZongMen) {
+                        16 => 'fuyin_overcome',
+                        17 => 'fuyin_stem_upper',
+                        18 => 'fuyin_branch_upper',
+                        19 => self::$yinyangTian[$pan['rigan']] == 1 ? 'fuyin_stem_upper_self_punishment' : 'fuyin_branch_upper_self_punishment',
+                    },
+                    'evidence' => ['lesson_pattern' => $fuyinPattern],
+                ];
+                $calculationTrace['middle_transmission'] = [
+                    'recorded' => true,
+                    'method' => $jiuZongMen === 19 ? 'fuyin_duzhuan_sequence' : 'fuyin_punishment_sequence',
+                    'source' => 'initial_transmission',
+                ];
+                $calculationTrace['final_transmission'] = [
+                    'recorded' => true,
+                    'method' => $jiuZongMen === 19 ? 'fuyin_duzhuan_sequence' : 'fuyin_punishment_sequence',
+                    'source' => 'middle_transmission',
+                ];
             }
         }
 
@@ -750,6 +985,8 @@ class PanCalculator
         $pan['sanchuan1tianjiang'] = $pan['tianjiang'][$sanchuan1tianjiangIndex];
         $sanchuan2tianjiangIndex = array_search($pan['sanchuan2'], $pan['tianpan']);
         $pan['sanchuan2tianjiang'] = $pan['tianjiang'][$sanchuan2tianjiangIndex];
+
+        $pan['calculationTrace'] = $calculationTrace;
 
         return new PanResult($pan);
     }

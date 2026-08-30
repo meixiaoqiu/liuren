@@ -1,5 +1,5 @@
 @if (! empty($pan['shehaiTrace']))
-    <section class="overflow-hidden rounded-3xl bg-base-200/45" aria-labelledby="shehai-process-heading">
+    <section class="pan-block overflow-hidden bg-base-200/45" aria-labelledby="shehai-process-heading">
         <div class="flex items-start gap-3 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
             <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-sm font-semibold text-primary-content shadow-sm">涉</span>
             <div>
@@ -9,7 +9,7 @@
         </div>
 
         <div class="space-y-5 px-4 pb-4 sm:px-6 sm:pb-6">
-            <div class="flex flex-wrap items-center gap-2 rounded-xl bg-base-100/70 px-4 py-3 text-sm text-base-content/65">
+            <div class="pan-block flex flex-wrap items-center gap-2 bg-base-100/70 px-4 py-3 text-sm text-base-content/65">
                 <span>本课按</span>
                 <x-badge :value="$pan['shehaiTrace']['relation']" class="badge-warning badge-soft" />
                 <span>方向计算涉害深浅。</span>
@@ -23,7 +23,7 @@
                             ? $tiangan[$candidate['lower']].'（寄'.$dizhi[$candidate['lower_ground']].'宫）'
                             : $dizhi[$candidate['lower']];
                     @endphp
-                    <article class="relative rounded-2xl bg-base-100 p-5 shadow-sm ring-1 {{ $isSelected ? 'ring-primary/35' : 'ring-base-content/8' }} sm:p-6">
+                    <article class="pan-block relative bg-base-100 p-5 shadow-sm sm:p-6">
                         @if ($isSelected)
                             <span class="absolute inset-y-5 left-0 w-1 rounded-r-full bg-primary" aria-hidden="true"></span>
                         @endif
@@ -42,7 +42,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-5 border-t border-base-content/8 pt-4">
+                        <div class="mt-5 pt-4">
                             <p class="text-xs font-medium tracking-wide text-base-content/45">涉历路径</p>
                             <div class="mt-2 flex flex-wrap items-center gap-1.5">
                                 @foreach ($candidate['path'] as $pathIndex => $ground)
@@ -54,7 +54,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-5 border-t border-base-content/8 pt-4">
+                        <div class="mt-5 pt-4">
                             <p class="text-xs font-medium tracking-wide text-base-content/45">克贼明细</p>
                             @if ($candidate['encounters'] === [])
                                 <p class="mt-2 text-sm text-base-content/55">途中未遇克贼。</p>
@@ -69,7 +69,7 @@
                                                 ? $tiangan[$encounter['target']]
                                                 : $dizhi[$encounter['target']];
                                         @endphp
-                                        <li class="flex items-start gap-3 rounded-xl bg-base-200/65 px-4 py-3 text-sm leading-6">
+                                        <li class="pan-block flex items-start gap-3 bg-base-200/65 px-4 py-3 text-sm leading-6">
                                             <span class="grid size-6 shrink-0 place-items-center rounded-full bg-base-100 text-xs font-medium text-base-content/50 shadow-xs">{{ $encounterIndex + 1 }}</span>
                                             <span>地盘{{ $dizhi[$encounter['ground']] }}位：{{ $sourceName }}{{ $encounter['relation'] }}{{ $targetName }}</span>
                                         </li>
@@ -81,7 +81,7 @@
                 @endforeach
             </div>
 
-            <div class="flex items-start gap-4 rounded-2xl bg-primary px-5 py-5 text-primary-content shadow-sm sm:px-6">
+            <div class="pan-block flex items-start gap-4 bg-primary px-5 py-5 text-primary-content shadow-sm sm:px-6">
                 <span class="grid size-10 shrink-0 place-items-center rounded-full bg-primary-content/15 text-lg font-semibold">
                     {{ $dizhi[$pan['shehaiTrace']['decision']['selected_branch']] }}
                 </span>

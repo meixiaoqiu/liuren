@@ -1,5 +1,5 @@
-<div class="min-h-screen">
-    <header class="border-b border-base-300 bg-base-100/90 backdrop-blur">
+<div class="pan-classical-shell">
+    <header class="pan-classical-header backdrop-blur">
         <div class="mx-auto flex max-w-7xl items-center px-4 py-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
                 <div class="grid size-10 place-items-center rounded-xl bg-primary text-lg font-semibold text-primary-content shadow-sm">壬</div>
@@ -14,7 +14,7 @@
     <main class="mx-auto max-w-7xl px-0 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
         <div class="grid min-w-0 gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6">
             <aside class="lg:sticky lg:top-6">
-                <x-card title="选择起课时间" subtitle="只需输入时间，其余参数由系统自动推算。" class="pan-mobile-edge" shadow separator>
+                <x-card title="选择起课时间" subtitle="只需输入时间，其余参数由系统自动推算。" class="pan-mobile-edge" shadow>
                     <x-form wire:submit="calculate">
                         @csrf
                         <x-datetime
@@ -35,7 +35,7 @@
 
             <section class="min-w-0" aria-live="polite">
                 @if ($pan === null)
-                    <x-card class="pan-mobile-edge min-h-96 border border-dashed border-base-300 bg-base-100/60">
+                    <x-card class="pan-mobile-edge min-h-96 bg-base-100/60">
                         <div class="grid min-h-80 place-items-center text-center">
                             <div class="max-w-sm">
                                 <div class="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-primary/10 text-2xl text-primary">课</div>
@@ -71,16 +71,16 @@
                                     <h1 id="pan-result-heading" class="text-2xl font-semibold tracking-wide sm:text-3xl">{{ $pan['sizhu'] }}</h1>
                                     <p class="mt-2 text-sm text-base-content/55">{{ str_replace('T', ' ', $datetime) }} · 北京时间</p>
                                 </div>
-                                <div class="rounded-2xl border border-amber-600/20 bg-amber-50 px-5 py-3 text-center">
-                                    <p class="text-xs tracking-widest text-amber-800/60">月将</p>
-                                    <p class="mt-1 text-2xl font-semibold text-amber-700">{{ $dizhi[$pan['yuejiang']] }}</p>
+                                <div class="pan-block bg-primary/10 px-5 py-3 text-center">
+                                    <p class="text-xs tracking-widest text-primary/70">月将</p>
+                                    <p class="mt-1 text-2xl font-semibold text-primary">{{ $dizhi[$pan['yuejiang']] }}</p>
                                 </div>
                             </div>
                         </x-card>
 
                         <div class="grid gap-6 xl:grid-cols-2">
-                            <x-card title="三传" class="pan-data-card pan-mobile-edge" shadow separator>
-                                <div class="divide-y divide-base-200">
+                            <x-card title="三传" class="pan-data-card pan-mobile-edge" shadow>
+                                <div>
                                     @foreach ($transmissions as $transmission)
                                         @php
                                             $index = $transmission['index'];
@@ -91,7 +91,7 @@
                                             <div class="text-center">
                                                 <x-badge :value="$tianjiangNames[$pan['sanchuan'.$index.'tianjiang']]" class="badge-soft mb-3" />
                                                 <p class="mx-auto grid max-w-48 grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
-                                                    <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$branch] }}</span>
+                                                    <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$branch] }}</span>
                                                     <span class="text-2xl font-semibold text-primary">{{ $dizhi[$branch] }}</span>
                                                     <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$branch]] }}</span>
                                                 </p>
@@ -101,7 +101,7 @@
                                 </div>
                             </x-card>
 
-                            <x-card title="四课" subtitle="从右至左为一至四课" class="pan-data-card pan-mobile-edge" shadow separator>
+                            <x-card title="四课" subtitle="从右至左为一至四课" class="pan-data-card pan-mobile-edge" shadow>
                                 <div class="grid grid-cols-4 gap-2 text-center">
                                     @foreach ($lessonColumns as $lessonColumn)
                                         @php
@@ -121,21 +121,21 @@
                                                 default => 'badge-ghost',
                                             };
                                         @endphp
-                                        <div class="rounded-xl bg-base-200 px-2 py-4">
+                                        <div class="pan-block bg-secondary/8 px-2 py-4">
                                             <x-badge
                                                 :value="$lessonTianjiang"
                                                 class="badge-soft mb-3"
                                                 aria-label="第{{ $lessonColumn['number'] }}课天将{{ $lessonTianjiang }}"
                                             />
                                             <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
-                                                <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['sike'][$upperIndex]] }}</span>
+                                                <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['sike'][$upperIndex]] }}</span>
                                                 <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
                                                 <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex]]] }}</span>
                                             </p>
                                             <div class="my-2 flex items-center gap-1">
-                                                <span class="h-px min-w-0 flex-1 bg-base-300"></span>
+                                                <span class="min-w-0 flex-1 border-t border-dashed border-base-300"></span>
                                                 <x-badge :value="$relationName" class="{{ $relationClass }} h-auto px-1.5 py-0.5 text-[0.65rem] whitespace-nowrap" />
-                                                <span class="h-px min-w-0 flex-1 bg-base-300"></span>
+                                                <span class="min-w-0 flex-1 border-t border-dashed border-base-300"></span>
                                             </div>
                                             <x-badge
                                                 :value="$lowerTianjiang"
@@ -148,7 +148,7 @@
                                                     <span class="text-2xl font-semibold text-primary">{{ $tiangan[$pan['sike'][0]] }}</span>
                                                     <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingTian[$pan['sike'][0]]] }}</span>
                                                 @else
-                                                    <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['sike'][$upperIndex - 1]] }}</span>
+                                                    <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['sike'][$upperIndex - 1]] }}</span>
                                                     <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex - 1]] }}</span>
                                                     <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex - 1]]] }}</span>
                                                 @endif
@@ -159,7 +159,7 @@
                             </x-card>
                         </div>
 
-                        <x-card title="天地盘" subtitle="十二宫位 · 天盘在上，地盘在下" class="pan-data-card pan-mobile-edge" shadow separator>
+                        <x-card title="天地盘" subtitle="十二宫位 · 天盘在上，地盘在下" class="pan-data-card pan-mobile-edge" shadow>
                             <div class="min-w-0 pb-1">
                                 <div class="pan-board mx-auto w-full">
                                     @foreach ($palacePositions as $groundIndex => $position)
@@ -170,7 +170,7 @@
                                                 class="badge-soft relative z-10 mb-1"
                                             />
                                             <p class="relative z-10 grid w-full grid-cols-[1fr_auto_1fr] items-baseline gap-1 px-1">
-                                                <span class="justify-self-end text-xs font-medium text-amber-700">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
+                                                <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
                                                 <strong class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
                                                 <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['tianpan'][$groundIndex]]] }}</span>
                                             </p>
@@ -185,15 +185,24 @@
                             </div>
                         </x-card>
 
-                        <x-card title="解盘信息" subtitle="课体名称与取用说明" class="pan-data-card pan-mobile-edge" shadow separator>
+                        <x-card title="解盘信息" subtitle="课体名称与取用说明" class="pan-data-card pan-mobile-edge" shadow>
                             <div class="space-y-4">
+                                @foreach ($coverageNotices as $notice)
+                                    <div class="pan-block bg-warning/10 px-5 py-4 text-sm text-warning-content">
+                                        {{ $notice }}
+                                    </div>
+                                @endforeach
+
                                 @foreach ($lessonInterpretations as $interpretation)
-                                    <article class="rounded-2xl border border-base-300 bg-base-100 p-5">
-                                        <div class="mb-3 flex items-center gap-3">
-                                            <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">课</span>
-                                            <h2 class="text-lg font-semibold">{{ $interpretation['name'] }}</h2>
+                                    <article class="py-1">
+                                        <div class="flex items-center gap-3">
+                                            <span class="grid size-8 shrink-0 place-items-center bg-neutral text-sm font-semibold text-neutral-content">{{ $interpretation['marker'] }}</span>
+                                            <div>
+                                                <span class="text-xs text-base-content/45">{{ $interpretation['group'] }}</span>
+                                                <h2 class="text-lg font-semibold">{{ $interpretation['name'] }}</h2>
+                                            </div>
                                         </div>
-                                        <p class="pl-11 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
+                                        <p class="mt-2 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
                                     </article>
                                 @endforeach
 
