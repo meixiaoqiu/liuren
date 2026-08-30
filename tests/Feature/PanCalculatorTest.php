@@ -63,17 +63,20 @@ test('calculator records the initial method at the branch that selected it', fun
         fn ($match): string => $match->code,
         app(PanRuleEngine::class)->evaluate($result),
     );
+    $expectedRuleCode = in_array($method, ['biyong', 'zhiyi'], true)
+        ? 'selection.zhiyi'
+        : 'selection.'.$method;
 
     expect($pan['calculationTrace']['initial_transmission']['recorded'])->toBeTrue()
         ->and($pan['calculationTrace']['initial_transmission']['method'])->toBe($method)
-        ->and($codes)->toContain('selection.'.$method);
+        ->and($codes)->toContain($expectedRuleCode);
 })->with([
     'yuanshou' => ['2000-05-07 15:00:00', 'yuanshou'],
     'chongshen' => ['2000-05-06 15:00:00', 'chongshen'],
     'biyong' => ['2000-05-16 15:00:00', 'biyong'],
     'zhiyi' => ['2000-05-18 15:00:00', 'zhiyi'],
     'shehai' => ['2000-05-09 15:00:00', 'shehai'],
-    'shehai jianji' => ['2000-01-11 13:00:00', 'shehai_jianji'],
+    'shehai jianji' => ['2000-01-11 11:00:00', 'shehai_jianji'],
     'shehai chawei' => ['2000-03-13 13:00:00', 'shehai_chawei'],
     'haoshi' => ['2000-05-22 13:00:00', 'haoshi'],
     'tanshe' => ['2000-06-07 13:00:00', 'tanshe'],
@@ -174,7 +177,7 @@ test('fanyin wuyi remains compatible with its actual initial selection rule', fu
     expect($codes)
         ->toContain('plate.fanyin')
         ->toContain('lesson.fanyin_wuyi')
-        ->toContain('selection.shehai')
+        ->not->toContain('selection.shehai')
         ->toContain('sanchuan.chong');
 });
 

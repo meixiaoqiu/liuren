@@ -13,6 +13,17 @@ abstract readonly class ChuchuanMethodRule implements PanRule
 
     protected const DESCRIPTION = '';
 
+    protected const MARKER = '课';
+
+    protected const GUA = null;
+
+    protected const GUA_SYMBOL = null;
+
+    protected const XIANG = null;
+
+    /** @var list<string> */
+    protected const EXCLUDED_PLATE_PATTERNS = [];
+
     public function code(): string
     {
         return 'selection.'.static::METHOD;
@@ -20,7 +31,13 @@ abstract readonly class ChuchuanMethodRule implements PanRule
 
     public function match(PanFacts $facts): ?RuleMatch
     {
-        if ($facts->chuchuanMethod() !== static::METHOD) {
+        foreach (static::EXCLUDED_PLATE_PATTERNS as $pattern) {
+            if ($facts->hasPlatePattern($pattern)) {
+                return null;
+            }
+        }
+
+        if ($facts->chuchuanMethod() !== static::METHOD || ! $this->qualifies($facts)) {
             return null;
         }
 
@@ -29,8 +46,17 @@ abstract readonly class ChuchuanMethodRule implements PanRule
             name: static::NAME,
             group: '初传取法',
             description: static::DESCRIPTION,
+            marker: static::MARKER,
+            gua: static::GUA,
+            guaSymbol: static::GUA_SYMBOL,
+            xiang: static::XIANG,
             evidence: $facts->chuchuanEvidence(),
             coverageAreas: ['initial_transmission'],
         );
+    }
+
+    protected function qualifies(PanFacts $facts): bool
+    {
+        return true;
     }
 }

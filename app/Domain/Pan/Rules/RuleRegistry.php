@@ -18,7 +18,6 @@ final class RuleRegistry
             new DuzhuanRule,
             new YuanshouRule,
             new ChongshenRule,
-            new BiyongRule,
             new ZhiyiRule,
             new ShehaiRule,
             new JianjiRule,

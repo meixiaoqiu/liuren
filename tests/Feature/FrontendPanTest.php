@@ -97,8 +97,39 @@ test('frontend distinguishes a fanyin pattern from its initial transmission meth
         ->call('calculate')
         ->assertHasNoErrors()
         ->assertSee('返吟')
-        ->assertSee('涉害课')
+        ->assertDontSee('涉害课')
         ->assertSee('冲神递取')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend does not classify a fanyin lesson using jianji selection as shehai lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-11T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('返吟')
+        ->assertDontSee('涉害课')
+        ->assertDontSee('见机格')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend does not classify a fanyin lesson using biyong selection as zhiyi lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-09T13:39')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('返吟')
+        ->assertDontSee('知一课')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend does not classify a fanyin lesson using chongshen selection as chongshen lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-08T13:39')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('返吟')
+        ->assertDontSee('重审课')
         ->assertDontSee('规则尚未覆盖');
 });
 
@@ -110,4 +141,60 @@ test('frontend hides the ordinary tianpan shunchuan explanation without losing c
         ->assertSee('蒿矢课')
         ->assertDontSee('天盘顺传')
         ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows the qian gua metadata for a yuanshou lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-07T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('元首课')
+        ->assertSee('乾卦')
+        ->assertSee('䷀')
+        ->assertSee('四课中只有一处上克下，取克下之上神为初传。')
+        ->assertSee('天地得位，品物咸新。')
+        ->assertSee('门庭喜溢，利见大人。');
+});
+
+test('frontend shows the kun gua metadata for a chongshen lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-06T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('重审课')
+        ->assertSee('坤卦')
+        ->assertSee('䷁');
+});
+
+test('frontend shows the bi gua metadata for a zhiyi lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-18T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('知一课')
+        ->assertSee('比卦')
+        ->assertSee('䷇');
+});
+
+test('frontend classifies the biyong method as the zhiyi lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-16T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('知一课')
+        ->assertDontSee('比用课')
+        ->assertSee('比卦')
+        ->assertSee('䷇');
+});
+
+test('frontend shows the kan gua metadata for a shehai lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-09T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('涉害课')
+        ->assertSee('坎卦')
+        ->assertSee('䷜')
+        ->assertSee('风波险恶，度涉艰难。')
+        ->assertSee('胎孕迟滞，行人未还。');
 });

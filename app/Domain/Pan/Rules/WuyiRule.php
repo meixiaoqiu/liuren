@@ -14,4 +14,6 @@ final readonly class WuyiRule extends LessonPatternRule
     protected const GROUP = '返吟课体';
 
     protected const DESCRIPTION = '返吟而不属于四个无亲日，初传仍依实际克贼、比用或涉害等法选取，中末传以冲神递取。';
+
+    protected const COVERAGE_AREAS = ['initial_transmission'];
 }

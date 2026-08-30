@@ -19,7 +19,7 @@ class CreatePan extends Component
 
     public ?array $pan = null;
 
-    /** @var array<int, array{code: string, name: string, group: string, description: string, marker: string, evidence: array<string, mixed>, coverageAreas: list<string>}> */
+    /** @var array<int, array{code: string, name: string, group: string, description: string, marker: string, gua: ?string, guaSymbol: ?string, xiang: ?string, evidence: array<string, mixed>, coverageAreas: list<string>}> */
     public array $ruleMatches = [];
 
     /** @var list<string> */

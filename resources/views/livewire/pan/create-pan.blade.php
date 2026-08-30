@@ -194,15 +194,30 @@
                                 @endforeach
 
                                 @foreach ($lessonInterpretations as $interpretation)
-                                    <article class="py-1">
+                                    <article class="flow-root py-1">
+                                        @if ($interpretation['guaSymbol'] !== null)
+                                            <span class="float-right ml-4 mb-2 grid size-20 place-items-center bg-primary/10 text-4xl leading-none text-primary" aria-label="{{ $interpretation['gua'] }}卦卦符">
+                                                {{ $interpretation['guaSymbol'] }}
+                                            </span>
+                                        @endif
                                         <div class="flex items-center gap-3">
-                                            <span class="grid size-8 shrink-0 place-items-center bg-neutral text-sm font-semibold text-neutral-content">{{ $interpretation['marker'] }}</span>
+                                            <div class="flex h-9 shrink-0 items-stretch">
+                                                <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">{{ $interpretation['marker'] }}</span>
+                                                @if ($interpretation['gua'] !== null)
+                                                    <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">
+                                                        <span>{{ $interpretation['gua'] }}卦</span>
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <div>
                                                 <span class="text-xs text-base-content/45">{{ $interpretation['group'] }}</span>
                                                 <h2 class="text-lg font-semibold">{{ $interpretation['name'] }}</h2>
                                             </div>
                                         </div>
                                         <p class="mt-2 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
+                                        @if ($interpretation['xiang'] !== null)
+                                            <p class="mt-2 italic leading-7 text-base-content/55">{{ $interpretation['xiang'] }}</p>
+                                        @endif
                                     </article>
                                 @endforeach
 

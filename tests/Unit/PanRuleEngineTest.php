@@ -38,9 +38,9 @@ test('the engine returns every matching rule instead of one category', function 
 
     expect($codes)
         ->toContain('plate.fanyin')
-        ->toContain('selection.shehai')
         ->toContain('sanchuan.chong')
-        ->and($matches)->toHaveCount(3);
+        ->not->toContain('selection.shehai')
+        ->and($matches)->toHaveCount(2);
 
     $matchesByCode = [];
 
@@ -48,10 +48,7 @@ test('the engine returns every matching rule instead of one category', function 
         $matchesByCode[$match->code] = $match;
     }
 
-    expect($matchesByCode['selection.shehai']->name)->toBe('涉害课')
-        ->and($matchesByCode['selection.shehai']->marker)->toBe('课')
-        ->and($matchesByCode['selection.shehai']->group)->toBe('初传取法')
-        ->and($matchesByCode['sanchuan.chong']->description)->toContain('中传取初传之冲神');
+    expect($matchesByCode['sanchuan.chong']->description)->toContain('中传取初传之冲神');
 });
 
 test('the engine reports stages that have no new rule coverage', function () {
@@ -136,14 +133,45 @@ test('every implemented initial transmission method has an independent rule', fu
     ]);
 
     $matches = (new PanRuleEngine)->evaluate($pan);
+    $matchesByCode = collect($matches)->keyBy('code');
+    $match = $matchesByCode[$code];
+    $expectedCount = str_starts_with($method, 'shehai_') ? 2 : 1;
 
-    expect($matches)->toHaveCount(1)
-        ->and($matches[0]->code)->toBe($code)
-        ->and($matches[0]->name)->toBe($name);
+    expect($matches)->toHaveCount($expectedCount)
+        ->and($matchesByCode)->toHaveKey($code)
+        ->and($match->name)->toBe($name);
+
+    if ($code === 'selection.yuanshou') {
+        expect($match->gua)->toBe('乾')
+            ->and($match->guaSymbol)->toBe('䷀')
+            ->and($match->xiang)->toStartWith('天地得位，品物咸新。')
+            ->and($match->xiang)->toEndWith('门庭喜溢，利见大人。');
+    }
+
+    if ($code === 'selection.chongshen') {
+        expect($match->gua)->toBe('坤')
+            ->and($match->guaSymbol)->toBe('䷁');
+    }
+
+    if ($code === 'selection.zhiyi') {
+        expect($match->gua)->toBe('比')
+            ->and($match->guaSymbol)->toBe('䷇');
+    }
+
+    if ($code === 'selection.shehai') {
+        expect($match->gua)->toBe('坎')
+            ->and($match->guaSymbol)->toBe('䷜')
+            ->and($match->xiang)->toBe('风波险恶，度涉艰难。谋为利名，多费机关。婚姻有阻，疾病难安。胎孕迟滞，行人未还。');
+    }
+
+    if (str_starts_with($code, 'selection.shehai_')) {
+        expect($match->marker)->toBe('格')
+            ->and($matchesByCode)->toHaveKey('selection.shehai');
+    }
 })->with([
     'yuanshou' => ['yuanshou', 'selection.yuanshou', '元首课'],
     'chongshen' => ['chongshen', 'selection.chongshen', '重审课'],
-    'biyong' => ['biyong', 'selection.biyong', '比用课'],
+    'biyong belongs to zhiyi lesson' => ['biyong', 'selection.zhiyi', '知一课'],
     'zhiyi' => ['zhiyi', 'selection.zhiyi', '知一课'],
     'shehai' => ['shehai', 'selection.shehai', '涉害课'],
     'shehai jianji' => ['shehai_jianji', 'selection.shehai_jianji', '见机格'],
