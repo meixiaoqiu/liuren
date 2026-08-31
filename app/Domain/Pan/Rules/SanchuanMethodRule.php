@@ -15,6 +15,13 @@ abstract readonly class SanchuanMethodRule implements PanRule
 
     protected const DESCRIPTION = '';
 
+    protected const GROUP = '中末传取法';
+
+    protected const MARKER = '传';
+
+    /** @var list<string> */
+    protected const COVERAGE_AREAS = ['middle_transmission', 'final_transmission'];
+
     public function code(): string
     {
         return 'sanchuan.'.static::RULE_CODE;
@@ -29,13 +36,14 @@ abstract readonly class SanchuanMethodRule implements PanRule
         return new RuleMatch(
             code: $this->code(),
             name: static::NAME,
-            group: '中末传取法',
+            group: static::GROUP,
             description: static::DESCRIPTION,
+            marker: static::MARKER,
             evidence: [
                 'middle_method' => static::METHOD,
                 'final_method' => static::METHOD,
             ],
-            coverageAreas: ['middle_transmission', 'final_transmission'],
+            coverageAreas: static::COVERAGE_AREAS,
         );
     }
 }

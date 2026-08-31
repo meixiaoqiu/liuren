@@ -24,6 +24,9 @@ final class ZhiyiRule implements PanRule
 
     protected const XIANG = '比者为喜，不比为忧。词宜和允，兵利主谋。祸从外起，事向朋谋。寻人失物，近处堪求。';
 
+    /** @var list<string> */
+    protected const COVERAGE_AREAS = ['initial_transmission'];
+
     public function code(): string
     {
         return self::RULE_CODE;
@@ -49,7 +52,7 @@ final class ZhiyiRule implements PanRule
                 ...$facts->chuchuanEvidence(),
                 'method' => $method,
             ],
-            coverageAreas: ['initial_transmission'],
+            coverageAreas: self::COVERAGE_AREAS,
         );
     }
 }

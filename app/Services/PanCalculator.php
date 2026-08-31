@@ -564,14 +564,14 @@ class PanCalculator
                 $zhong = [0, 3, 6, 9]; // 四仲
                 $ifMeng = array_intersect($sikeXia, $meng);
                 $ifZhong = array_intersect($sikeXia, $zhong);
-                if (! empty($ifMeng)) {
+                if (! empty($ifMeng) && count($ifMeng) < count($sikeXia)) {
                     $jiuZongMen = 6; // 涉害见机
                     $decisionRule = '涉害相等，取四孟';
                     $shehaiMethod = 'shehai_jianji';
                     $mengDipan = array_shift($ifMeng);
                     $selectedLessonIndex = $biyongArr[array_search($mengDipan, $sikeXia, true)];
                     $pan['sanchuan0'] = $pan['tianpan'][$mengDipan];
-                } elseif (! empty($ifZhong)) {
+                } elseif (! empty($ifZhong) && count($ifZhong) < count($sikeXia)) {
                     $jiuZongMen = 7; // 涉害察微
                     $decisionRule = '涉害相等，取四仲';
                     $shehaiMethod = 'shehai_chawei';
@@ -580,7 +580,7 @@ class PanCalculator
                     $pan['sanchuan0'] = $pan['tianpan'][$zhongDipan];
                 } else {
                     $jiuZongMen = 8; // 涉害缀瑕
-                    $decisionRule = '涉害相等且不临孟仲，依日干阴阳取用';
+                    $decisionRule = '涉害相等且孟仲季复等，依日干阴阳取用';
                     $shehaiMethod = 'shehai_zhuixia';
                     if (self::$yinyangTian[$pan['rigan']] == 1) { // 阳日取干上神
                         $selectedLessonIndex = 1;

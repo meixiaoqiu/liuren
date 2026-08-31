@@ -50,6 +50,11 @@ class CreatePan extends Component
             fn ($match): bool => ! in_array($match->code, self::HIDDEN_RULE_CODES, true),
         );
 
+        usort(
+            $visibleMatches,
+            fn ($left, $right): int => ($left->marker === '课' ? 0 : 1) <=> ($right->marker === '课' ? 0 : 1),
+        );
+
         $this->ruleMatches = array_values(array_map(
             fn ($match): array => $match->toArray(),
             $visibleMatches,

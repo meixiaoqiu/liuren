@@ -76,7 +76,8 @@ test('calculator records the initial method at the branch that selected it', fun
     'biyong' => ['2000-05-16 15:00:00', 'biyong'],
     'zhiyi' => ['2000-05-18 15:00:00', 'zhiyi'],
     'shehai' => ['2000-05-09 15:00:00', 'shehai'],
-    'shehai jianji' => ['2000-01-11 11:00:00', 'shehai_jianji'],
+    'shehai zhuixia day' => ['2000-01-11 11:00:00', 'shehai_zhuixia'],
+    'shehai zhuixia night' => ['2000-05-10 03:00:00', 'shehai_zhuixia'],
     'shehai chawei' => ['2000-03-13 13:00:00', 'shehai_chawei'],
     'haoshi' => ['2000-05-22 13:00:00', 'haoshi'],
     'tanshe' => ['2000-06-07 13:00:00', 'tanshe'],
@@ -93,6 +94,10 @@ test('second batch rules explain their actual middle and final transmission meth
 
     expect($codes)->toContain(...$expectedCodes)
         ->and($engine->coverageNotices($result))->toBe([]);
+
+    if (str_starts_with($expectedCodes[1], 'sanchuan.')) {
+        expect(collect($engine->evaluate($result))->firstWhere('code', $expectedCodes[1])->marker)->toBe('传');
+    }
 })->with([
     'haoshi follows the heaven plate' => [
         '2000-05-22 13:00:00',
@@ -118,22 +123,24 @@ test('second batch rules explain their actual middle and final transmission meth
         '2000-05-01 15:00:00',
         ['selection.bazhuan', 'sanchuan.gan_shangshen'],
     ],
-    'fanyin wuqin uses the prescribed order' => [
+    'fanyin jinglan uses the prescribed order' => [
         '2000-01-14 13:00:00',
-        ['plate.fanyin', 'selection.fanyin_wuqin'],
+        ['plate.fanyin', 'structure.jinglan'],
     ],
 ]);
 
-test('duzu is an additional structure match rather than an alternative to bazhuan', function () {
+test('duzu and weibu buxiu are additional grid matches rather than alternatives to bazhuan', function () {
     $result = app(PanCalculator::class)->calculate('2000-05-01 13:00:00');
-    $codes = array_map(
-        fn ($match): string => $match->code,
-        app(PanRuleEngine::class)->evaluate($result),
-    );
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
 
-    expect($codes)
-        ->toContain('selection.bazhuan')
-        ->toContain('structure.duzu');
+    expect($matches)->toHaveKeys(['selection.bazhuan', 'structure.duzu', 'structure.weibu_buxiu'])
+        ->and($matches['structure.duzu']->marker)->toBe('格')
+        ->and($matches['structure.weibu_buxiu']->marker)->toBe('格')
+        ->and($matches['structure.weibu_buxiu']->evidence['matched_generals'])->toBe([
+            ['transmission' => 0, 'general' => 3, 'name' => '六合'],
+            ['transmission' => 1, 'general' => 3, 'name' => '六合'],
+            ['transmission' => 2, 'general' => 3, 'name' => '六合'],
+        ]);
 });
 
 test('remaining legacy lesson types have independent rule matches', function (string $datetime, int $legacyType, string $ruleCode, string $name) {
@@ -144,11 +151,11 @@ test('remaining legacy lesson types have independent rule matches', function (st
         ->and($matches)->toHaveKey($ruleCode)
         ->and($matches[$ruleCode]->name)->toBe($name);
 })->with([
-    'fuyin buyu' => ['2000-07-06 13:00:00', 16, 'lesson.fuyin_buyu', '不虞课'],
-    'fuyin ziren' => ['2000-07-05 13:00:00', 17, 'lesson.fuyin_ziren', '自任课'],
-    'fuyin zixin' => ['2000-07-08 13:00:00', 18, 'lesson.fuyin_zixin', '自信课'],
-    'fuyin duzhuan' => ['2000-07-13 13:00:00', 19, 'lesson.fuyin_duzhuan', '杜传课'],
-    'fanyin wuyi' => ['2000-01-07 13:00:00', 20, 'lesson.fanyin_wuyi', '无依课'],
+    'fuyin with overcoming' => ['2000-07-06 13:00:00', 16, 'plate.fuyin', '伏吟课'],
+    'fuyin ziren' => ['2000-07-05 13:00:00', 17, 'lesson.fuyin_ziren', '自任格'],
+    'fuyin zixin' => ['2000-07-08 13:00:00', 18, 'lesson.fuyin_zixin', '自信格'],
+    'fuyin duzhuan' => ['2000-07-13 13:00:00', 19, 'lesson.fuyin_duzhuan', '杜传格'],
+    'ordinary fanyin' => ['2000-01-07 13:00:00', 20, 'plate.fanyin', '返吟课'],
 ]);
 
 test('every fuyin lesson rule explains all three transmission stages', function (string $datetime, string $pattern) {
@@ -167,7 +174,15 @@ test('every fuyin lesson rule explains all three transmission stages', function 
     'duzhuan' => ['2000-07-13 13:00:00', 'fuyin_duzhuan'],
 ]);
 
-test('fanyin wuyi remains compatible with its actual initial selection rule', function () {
+test('ordinary fuyin with overcoming is not presented as an additional buyu classification', function () {
+    $result = app(PanCalculator::class)->calculate('2000-07-06 13:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result));
+
+    expect($matches->pluck('code')->all())->toContain('plate.fuyin')
+        ->and($matches->pluck('code')->all())->not->toContain('lesson.fuyin_buyu');
+});
+
+test('ordinary fanyin is not presented as an additional wuyi classification', function () {
     $result = app(PanCalculator::class)->calculate('2000-01-07 13:00:00');
     $codes = array_map(
         fn ($match): string => $match->code,
@@ -176,9 +191,39 @@ test('fanyin wuyi remains compatible with its actual initial selection rule', fu
 
     expect($codes)
         ->toContain('plate.fanyin')
-        ->toContain('lesson.fanyin_wuyi')
+        ->not->toContain('lesson.fanyin_wuyi')
         ->not->toContain('selection.shehai')
         ->toContain('sanchuan.chong');
+});
+
+test('fanyin without overcoming is additionally classified as jinglan grid', function () {
+    $result = app(PanCalculator::class)->calculate('2000-01-14 13:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKeys(['plate.fanyin', 'structure.jinglan'])
+        ->and($matches['structure.jinglan']->marker)->toBe('格')
+        ->and($matches['structure.jinglan']->name)->toBe('井栏格（无亲格）');
+});
+
+test('sanguang requires day branch initial transmission to be prosperous and all three places to ride auspicious generals', function () {
+    $result = app(PanCalculator::class)->calculate('2000-02-18 11:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.sanguang')
+        ->and($matches['lesson.sanguang']->name)->toBe('三光课')
+        ->and($matches['lesson.sanguang']->gua)->toBe('贲')
+        ->and($matches['lesson.sanguang']->guaSymbol)->toBe('䷕')
+        ->and($matches['lesson.sanguang']->evidence)->toMatchArray([
+            'month_branch' => 2,
+            'day_stem' => 2,
+            'day_branch' => 6,
+            'initial_transmission' => 6,
+            'generals' => [
+                'day_upper' => 0,
+                'branch_upper' => 11,
+                'initial' => 5,
+            ],
+        ]);
 });
 
 test('fuyin zixin breaks the zi mao punishment loop with wu', function (string $datetime) {

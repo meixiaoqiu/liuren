@@ -96,9 +96,40 @@ test('frontend distinguishes a fanyin pattern from its initial transmission meth
         ->set('datetime', '2000-01-07T13:00')
         ->call('calculate')
         ->assertHasNoErrors()
-        ->assertSee('返吟')
+        ->assertSee('返吟课')
+        ->assertSee('震卦')
+        ->assertSee('䷲')
+        ->assertDontSee('无依课')
         ->assertDontSee('涉害课')
         ->assertSee('冲神递取')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows jinglan as a grid of fanyin rather than wuqin lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-14T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('返吟课')
+        ->assertSee('井栏格')
+        ->assertDontSee('无亲课')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows sanguang lesson with ben hexagram', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-02-18T11:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSet('ruleMatches.0.name', '返吟课')
+        ->assertSet('ruleMatches.0.marker', '课')
+        ->assertSet('ruleMatches.1.name', '三光课')
+        ->assertSet('ruleMatches.1.marker', '课')
+        ->assertSet('ruleMatches.2.marker', '传')
+        ->assertSee('三光课')
+        ->assertSee('贲卦')
+        ->assertSee('䷕')
+        ->assertSee('课入三光，万事吉昌')
         ->assertDontSee('规则尚未覆盖');
 });
 
@@ -138,8 +169,56 @@ test('frontend hides the ordinary tianpan shunchuan explanation without losing c
         ->set('datetime', '2000-05-22T13:00')
         ->call('calculate')
         ->assertHasNoErrors()
-        ->assertSee('蒿矢课')
+        ->assertSee('遥克课')
+        ->assertSee('蒿矢格')
+        ->assertSee('睽卦')
+        ->assertSee('䷥')
         ->assertDontSee('天盘顺传')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows maoxing lesson with its hushi grid and hexagram', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-12T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('昴星课')
+        ->assertSee('虎视格')
+        ->assertSee('履卦')
+        ->assertSee('䷉')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend leaves biezhe hexagram empty according to liuren daquan', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-10T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('别责课')
+        ->assertDontSee('涣卦')
+        ->assertDontSee('䷺')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows the tongren gua metadata for a bazhuan lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-01T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('八专课')
+        ->assertSee('同人卦')
+        ->assertSee('䷌')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows both duzu and weibu buxiu grids when a bazhuan lesson qualifies', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-01T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('八专课')
+        ->assertSee('独足格')
+        ->assertSee('帷簿不修格')
         ->assertDontSee('规则尚未覆盖');
 });
 

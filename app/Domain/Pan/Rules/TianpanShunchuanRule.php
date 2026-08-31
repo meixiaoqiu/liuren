@@ -2,9 +2,7 @@
 
 namespace App\Domain\Pan\Rules;
 
-/**
- * 文件作用：识别中传、末传依天盘逐次顺取的三传规则，并返回相应说明。
- */
+/** 文件作用：识别中传、末传依天盘逐次顺取的三传规则，并返回相应说明。 */
 final readonly class TianpanShunchuanRule extends SanchuanMethodRule
 {
     protected const METHOD = 'tianpan_shunchuan';

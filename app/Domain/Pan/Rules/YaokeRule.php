@@ -4,25 +4,25 @@ namespace App\Domain\Pan\Rules;
 
 use App\Domain\Pan\Facts\PanFacts;
 
-/** 文件作用：定义六十四课涉害课，涵盖涉害本课及见机、察微、缀瑕子格。 */
-final class ShehaiRule implements PanRule
+/** 文件作用：定义六十四课遥克课，涵盖蒿矢格与弹射格。 */
+final class YaokeRule implements PanRule
 {
     /** @var list<string> */
-    protected const METHODS = ['shehai', 'shehai_jianji', 'shehai_chawei', 'shehai_zhuixia'];
+    protected const METHODS = ['haoshi', 'tanshe'];
 
-    protected const RULE_CODE = 'selection.shehai';
+    protected const RULE_CODE = 'selection.yaoke';
 
-    protected const NAME = '涉害课';
+    protected const NAME = '遥克课';
 
     protected const GROUP = '初传取法';
 
-    protected const DESCRIPTION = '四课中克贼不止一处，依涉害法比较候选课，逐层取定初传。';
+    protected const DESCRIPTION = '四课无上下克贼，取四课上神与日干遥克者发用；上神克日为蒿矢，日克上神为弹射。';
 
-    protected const GUA = '坎';
+    protected const GUA = '睽';
 
-    protected const GUA_SYMBOL = '䷜';
+    protected const GUA_SYMBOL = '䷥';
 
-    protected const XIANG = '风波险恶，度涉艰难。谋为利名，多费机关。婚姻有阻，疾病难安。胎孕迟滞，行人未还。';
+    protected const XIANG = '始有凶势，愈久愈休。忧喜未实，文书虚谋，外祸干已，有客为仇，兵利为主，不利他求。';
 
     /** @var list<string> */
     protected const COVERAGE_AREAS = ['initial_transmission'];

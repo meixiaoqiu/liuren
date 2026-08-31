@@ -135,7 +135,7 @@ test('every implemented initial transmission method has an independent rule', fu
     $matches = (new PanRuleEngine)->evaluate($pan);
     $matchesByCode = collect($matches)->keyBy('code');
     $match = $matchesByCode[$code];
-    $expectedCount = str_starts_with($method, 'shehai_') ? 2 : 1;
+    $expectedCount = str_starts_with($method, 'shehai_') || in_array($method, ['haoshi', 'tanshe', 'hushi', 'dongshe_yanmu'], true) ? 2 : 1;
 
     expect($matches)->toHaveCount($expectedCount)
         ->and($matchesByCode)->toHaveKey($code)
@@ -168,6 +168,30 @@ test('every implemented initial transmission method has an independent rule', fu
         expect($match->marker)->toBe('格')
             ->and($matchesByCode)->toHaveKey('selection.shehai');
     }
+
+    if (in_array($code, ['selection.haoshi', 'selection.tanshe'], true)) {
+        expect($match->marker)->toBe('格')
+            ->and($matchesByCode)->toHaveKey('selection.yaoke')
+            ->and($matchesByCode['selection.yaoke']->gua)->toBe('睽')
+            ->and($matchesByCode['selection.yaoke']->guaSymbol)->toBe('䷥');
+    }
+
+    if (in_array($code, ['selection.hushi', 'selection.dongshe_yanmu'], true)) {
+        expect($match->marker)->toBe('格')
+            ->and($matchesByCode)->toHaveKey('selection.maoxing')
+            ->and($matchesByCode['selection.maoxing']->gua)->toBe('履')
+            ->and($matchesByCode['selection.maoxing']->guaSymbol)->toBe('䷉');
+    }
+
+    if ($code === 'selection.biezhe') {
+        expect($match->gua)->toBeNull()
+            ->and($match->guaSymbol)->toBeNull();
+    }
+
+    if ($code === 'selection.bazhuan') {
+        expect($match->gua)->toBe('同人')
+            ->and($match->guaSymbol)->toBe('䷌');
+    }
 })->with([
     'yuanshou' => ['yuanshou', 'selection.yuanshou', '元首课'],
     'chongshen' => ['chongshen', 'selection.chongshen', '重审课'],
@@ -177,10 +201,10 @@ test('every implemented initial transmission method has an independent rule', fu
     'shehai jianji' => ['shehai_jianji', 'selection.shehai_jianji', '见机格'],
     'shehai chawei' => ['shehai_chawei', 'selection.shehai_chawei', '察微格'],
     'shehai zhuixia' => ['shehai_zhuixia', 'selection.shehai_zhuixia', '缀瑕格'],
-    'haoshi' => ['haoshi', 'selection.haoshi', '蒿矢课'],
-    'tanshe' => ['tanshe', 'selection.tanshe', '弹射课'],
-    'hushi' => ['hushi', 'selection.hushi', '虎视课'],
-    'dongshe yanmu' => ['dongshe_yanmu', 'selection.dongshe_yanmu', '冬蛇掩目课'],
+    'haoshi' => ['haoshi', 'selection.haoshi', '蒿矢格'],
+    'tanshe' => ['tanshe', 'selection.tanshe', '弹射格'],
+    'hushi' => ['hushi', 'selection.hushi', '虎视格'],
+    'dongshe yanmu' => ['dongshe_yanmu', 'selection.dongshe_yanmu', '冬蛇掩目格'],
     'biezhe' => ['biezhe', 'selection.biezhe', '别责课'],
     'bazhuan' => ['bazhuan', 'selection.bazhuan', '八专课'],
 ]);

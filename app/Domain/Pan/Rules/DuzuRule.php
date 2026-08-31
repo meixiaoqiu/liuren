@@ -7,14 +7,26 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：判断八专课是否同时构成三传皆同的独足格。 */
 final class DuzuRule implements PanRule
 {
+    protected const CHUCHUAN_METHOD = 'bazhuan';
+
+    protected const RULE_CODE = 'structure.duzu';
+
+    protected const NAME = '独足格';
+
+    protected const GROUP = '三传格局';
+
+    protected const DESCRIPTION = '八专课中初传、中传和末传归于同一神，同时成独足格。';
+
+    protected const MARKER = '格';
+
     public function code(): string
     {
-        return 'structure.duzu';
+        return self::RULE_CODE;
     }
 
     public function match(PanFacts $facts): ?RuleMatch
     {
-        if ($facts->chuchuanMethod() !== 'bazhuan') {
+        if ($facts->chuchuanMethod() !== self::CHUCHUAN_METHOD) {
             return null;
         }
 
@@ -32,9 +44,10 @@ final class DuzuRule implements PanRule
 
         return new RuleMatch(
             code: $this->code(),
-            name: '独足格',
-            group: '三传格局',
-            description: '八专课中初传、中传和末传归于同一神，同时成独足格。',
+            name: self::NAME,
+            group: self::GROUP,
+            description: self::DESCRIPTION,
+            marker: self::MARKER,
             evidence: ['transmission' => $transmissions[0]],
         );
     }

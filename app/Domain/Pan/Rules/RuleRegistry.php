@@ -11,8 +11,6 @@ final class RuleRegistry
         return [
             new FanyinRule,
             new FuyinRule,
-            new WuyiRule,
-            new BuyuRule,
             new ZirenRule,
             new ZixinRule,
             new DuzhuanRule,
@@ -23,8 +21,10 @@ final class RuleRegistry
             new JianjiRule,
             new ChaweiRule,
             new ZhuixiaRule,
+            new YaokeRule,
             new HaoshiRule,
             new TansheRule,
+            new MaoxingRule,
             new HushiRule,
             new DongsheYanmuRule,
             new BiezheRule,
@@ -34,8 +34,10 @@ final class RuleRegistry
             new HushiSanchuanRule,
             new DongsheYanmuSanchuanRule,
             new GanShangshenSanchuanRule,
-            new FanyinWuqinRule,
+            new JinglanRule,
             new DuzuRule,
+            new WeibuBuxiuRule,
+            new SanguangRule,
         ];
     }
 }

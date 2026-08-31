@@ -44963,7 +44963,7 @@
             "input": "2000-01-11 11:00:00",
             "expected": {
                 "explain": "无",
-                "jiuzongmen": 6,
+                "jiuzongmen": 8,
                 "liuqin0": -1,
                 "liuqin1": 0,
                 "liuqin2": 1,
@@ -45016,7 +45016,7 @@
             "input": "2000-05-10 03:00:00",
             "expected": {
                 "explain": "无",
-                "jiuzongmen": 6,
+                "jiuzongmen": 8,
                 "liuqin0": -1,
                 "liuqin1": 0,
                 "liuqin2": 1,

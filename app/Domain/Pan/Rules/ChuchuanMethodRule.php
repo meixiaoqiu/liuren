@@ -13,6 +13,8 @@ abstract readonly class ChuchuanMethodRule implements PanRule
 
     protected const DESCRIPTION = '';
 
+    protected const GROUP = '初传取法';
+
     protected const MARKER = '课';
 
     protected const GUA = null;
@@ -20,6 +22,9 @@ abstract readonly class ChuchuanMethodRule implements PanRule
     protected const GUA_SYMBOL = null;
 
     protected const XIANG = null;
+
+    /** @var list<string> */
+    protected const COVERAGE_AREAS = ['initial_transmission'];
 
     /** @var list<string> */
     protected const EXCLUDED_PLATE_PATTERNS = [];
@@ -44,14 +49,14 @@ abstract readonly class ChuchuanMethodRule implements PanRule
         return new RuleMatch(
             code: $this->code(),
             name: static::NAME,
-            group: '初传取法',
+            group: static::GROUP,
             description: static::DESCRIPTION,
             marker: static::MARKER,
             gua: static::GUA,
             guaSymbol: static::GUA_SYMBOL,
             xiang: static::XIANG,
             evidence: $facts->chuchuanEvidence(),
-            coverageAreas: ['initial_transmission'],
+            coverageAreas: static::COVERAGE_AREAS,
         );
     }
 

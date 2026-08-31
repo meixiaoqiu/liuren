@@ -11,7 +11,7 @@ final readonly class ZhuixiaRule extends ChuchuanMethodRule
 
     protected const NAME = '缀瑕格';
 
-    protected const DESCRIPTION = '候选课涉害相等且不临孟仲，依日干阴阳取干上神或支上神为初传。';
+    protected const DESCRIPTION = '候选课涉害相等，且同属孟、仲或季仍不能决胜，依日干阴阳取干上神或支上神为初传。';
 
     protected const MARKER = '格';
 

@@ -17,6 +17,10 @@ abstract readonly class LessonPatternRule implements PanRule
 
     protected const DESCRIPTION = '';
 
+    protected const MARKER = '课';
+
+    protected const XIANG = null;
+
     /** @var list<string> */
     protected const COVERAGE_AREAS = [];
 
@@ -36,6 +40,8 @@ abstract readonly class LessonPatternRule implements PanRule
             name: static::NAME,
             group: static::GROUP,
             description: static::DESCRIPTION,
+            marker: static::MARKER,
+            xiang: static::XIANG,
             evidence: ['lesson_pattern' => static::PATTERN],
             coverageAreas: static::COVERAGE_AREAS,
         );
