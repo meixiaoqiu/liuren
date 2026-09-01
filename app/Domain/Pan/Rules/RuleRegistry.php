@@ -38,6 +38,10 @@ final class RuleRegistry
             new DuzuRule,
             new WeibuBuxiuRule,
             new SanguangRule,
+            new SanyangRule,
+            new SanqiRule,
+            new LiuyiRule,
+            new ShitaiRule,
         ];
     }
 }

@@ -16,7 +16,7 @@ final class SanguangRule implements PanRule
 
     protected const GROUP = '六十四课';
 
-    protected const DESCRIPTION = '日干、日支与发用均得月令旺相，日上神、辰上神与发用又均乘吉将。';
+    protected const DESCRIPTION = '日干、日支与发用均得季节旺相，日上神、辰上神与发用又均乘吉将。';
 
     protected const GUA = '贲';
 
@@ -77,6 +77,39 @@ final class SanguangRule implements PanRule
                 'day_branch' => $branch,
                 'initial_transmission' => $initial,
                 'generals' => $generals,
+                'reasoning' => [
+                    'wang_xiang_elements' => $facts->wangXiangElements(),
+                    'seasonal_period' => $facts->seasonalPeriod(),
+                    'positions' => [
+                        [
+                            'label' => '日',
+                            'subject_type' => 'stem',
+                            'subject' => $stem,
+                            'element' => $facts->stemElement($stem),
+                            'strength' => $facts->stemSeasonalStrength($stem),
+                            'upper_branch' => $dayUpper,
+                            'general' => $generals['day_upper'],
+                        ],
+                        [
+                            'label' => '辰',
+                            'subject_type' => 'branch',
+                            'subject' => $branch,
+                            'element' => $facts->branchElement($branch),
+                            'strength' => $facts->branchSeasonalStrength($branch),
+                            'upper_branch' => $branchUpper,
+                            'general' => $generals['branch_upper'],
+                        ],
+                        [
+                            'label' => '用',
+                            'subject_type' => 'branch',
+                            'subject' => $initial,
+                            'element' => $facts->branchElement($initial),
+                            'strength' => $facts->branchSeasonalStrength($initial),
+                            'upper_branch' => $initial,
+                            'general' => $generals['initial'],
+                        ],
+                    ],
+                ],
             ],
         );
     }

@@ -261,6 +261,10 @@ class PanCalculator
 
         // 第一步，根据时间确定月将
         $time = self::time2array($datetime);
+        $pan['calculationTime'] = sprintf(
+            '%04d-%02d-%02d %02d:%02d:%02d',
+            ...array_map('intval', $time),
+        );
         $yuejiang = self::getYuejiang($time);
         $pan['yuejiang'] = $yuejiang;
 

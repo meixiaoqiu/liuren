@@ -1,6 +1,9 @@
 <?php
 
+use App\Data\PanResult;
+use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\Rules\PanRuleEngine;
+use App\Domain\Pan\Rules\ShitaiRule;
 use App\Filament\Resources\PanResource;
 use App\Services\PanCalculator;
 
@@ -224,6 +227,170 @@ test('sanguang requires day branch initial transmission to be prosperous and all
                 'initial' => 5,
             ],
         ]);
+});
+
+test('seasonal strength changes to earth eighteen exact days before each four-li term', function (string $before, string $boundary, string $fourLi) {
+    $calculator = app(PanCalculator::class);
+    $beforePeriod = PanFacts::from($calculator->calculate($before))->seasonalPeriod();
+    $boundaryPeriod = PanFacts::from($calculator->calculate($boundary))->seasonalPeriod();
+
+    expect($beforePeriod['key'])->not->toBe('soil')
+        ->and($boundaryPeriod)->toMatchArray([
+            'key' => 'soil',
+            'name' => '四季土旺',
+            'wang' => 2,
+            'xiang' => 3,
+            'starts_at' => $boundary,
+            'ends_at' => $fourLi,
+        ]);
+})->with([
+    'before 2000 start of spring' => ['2000-01-17 20:40:23', '2000-01-17 20:40:24', '2000-02-04 20:40:24'],
+    'before 2000 start of summer' => ['2000-04-17 12:50:09', '2000-04-17 12:50:10', '2000-05-05 12:50:10'],
+    'before 2000 start of autumn' => ['2000-07-20 13:02:58', '2000-07-20 13:02:59', '2000-08-07 13:02:59'],
+    'before 2000 start of winter' => ['2000-10-20 10:48:03', '2000-10-20 10:48:04', '2000-11-07 10:48:04'],
+]);
+
+test('sanyang requires forward nobleman day and branch riding its five front generals and prosperous initial transmission', function () {
+    $result = app(PanCalculator::class)->calculate('2000-06-28 03:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.sanyang')
+        ->and($matches['lesson.sanyang']->name)->toBe('三阳课')
+        ->and($matches['lesson.sanyang']->gua)->toBe('晋')
+        ->and($matches['lesson.sanyang']->guaSymbol)->toBe('䷢')
+        ->and($matches['lesson.sanyang']->evidence)->toMatchArray([
+            'month_branch' => 6,
+            'nobleman_forward' => true,
+            'nobleman_ground' => 4,
+            'day_stem' => ['stem' => 3, 'lodging_branch' => 7, 'front_general_rank' => 3, 'general' => 3],
+            'day_branch' => ['branch' => 5, 'front_general_rank' => 1, 'general' => 1],
+            'initial_transmission' => ['branch' => 5, 'element' => 1, 'strength' => '旺'],
+        ]);
+});
+
+test('sanyang excludes the sixth general behind the nobleman front five', function () {
+    $result = app(PanCalculator::class)->calculate('2026-01-12 12:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->not->toHaveKey('lesson.sanyang');
+});
+
+test('sanqi matches the daquan standard example and records hai zi chou as linked wonders', function () {
+    $result = app(PanCalculator::class)->calculate('2000-05-27 14:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.sanqi')
+        ->not->toHaveKey('structure.sanqi_lianzhu')
+        ->and($matches['lesson.sanqi']->name)->toBe('三奇课')
+        ->and($matches['lesson.sanqi']->gua)->toBe('豫')
+        ->and($matches['lesson.sanqi']->guaSymbol)->toBe('䷏')
+        ->and($matches['lesson.sanqi']->evidence)->toMatchArray([
+            'xun_index' => 2,
+            'xun_wonder' => 0,
+            'day_wonder' => 5,
+            'transmissions' => [11, 0, 1],
+            'xun_wonder_positions' => [1],
+            'day_wonder_positions' => [],
+            'both_wonders_present' => false,
+            'three_wonders_linked' => true,
+        ]);
+});
+
+test('sanqi is not formed by a day wonder without the xun wonder', function () {
+    $result = app(PanCalculator::class)->calculate('2000-01-02 13:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->not->toHaveKey('lesson.sanqi');
+});
+
+test('liuyi matches the daquan standard example when the xun head branch enters transmissions', function () {
+    $result = app(PanCalculator::class)->calculate('2000-06-27 03:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.liuyi')
+        ->and($matches['lesson.liuyi']->name)->toBe('六仪课')
+        ->and($matches['lesson.liuyi']->gua)->toBe('兑')
+        ->and($matches['lesson.liuyi']->guaSymbol)->toBe('䷹')
+        ->and($matches['lesson.liuyi']->evidence)->toMatchArray([
+            'xun_index' => 5,
+            'xun_instrument' => 2,
+            'branch_instrument' => 2,
+            'transmissions' => [2, 7, 0],
+            'xun_instrument_positions' => [0],
+            'branch_instrument_positions' => [0],
+            'both_instruments_present' => true,
+        ]);
+});
+
+test('liuyi is not formed by a branch instrument without the xun instrument', function () {
+    $result = app(PanCalculator::class)->calculate('2000-01-05 13:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->not->toHaveKey('lesson.liuyi');
+});
+
+test('shitai matches the daquan standard example with year month dragon union and calendar wealth virtue', function () {
+    $result = app(PanCalculator::class)->calculate('1900-11-01 20:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.shitai')
+        ->and($matches['lesson.shitai']->name)->toBe('时泰课')
+        ->and($matches['lesson.shitai']->gua)->toBe('泰')
+        ->and($matches['lesson.shitai']->guaSymbol)->toBe('䷊')
+        ->and($matches['lesson.shitai']->evidence)->toMatchArray([
+            'year_branch' => 0,
+            'month_branch' => 10,
+            'day_stem' => 4,
+            'day_virtue' => 5,
+            'transmissions' => [0, 5, 10],
+            'transmission_generals' => [5, 10, 3],
+            'year_positions' => [0],
+            'month_positions' => [2],
+            'year_is_day_wealth' => true,
+            'month_is_day_wealth' => false,
+            'year_is_day_virtue' => false,
+            'month_is_day_virtue' => false,
+            'year_is_initial' => true,
+            'month_is_initial' => false,
+            'qualifying_calendar_gods' => ['year'],
+            'dragon_union_at_edges' => true,
+            'dragon_positions' => [0],
+            'union_positions' => [2],
+        ]);
+});
+
+test('shitai allows the year branch to enter after the initial transmission', function () {
+    $facts = PanFacts::from(new PanResult([
+        'nianzhi' => 0,
+        'yuezhi' => 10,
+        'rigan' => 4,
+        'sanchuan0' => 10,
+        'sanchuan1' => 0,
+        'sanchuan2' => 5,
+        'tianpan' => range(0, 11),
+        'tianjiang' => [10, 0, 1, 2, 4, 3, 6, 7, 8, 9, 5, 11],
+    ]));
+
+    $match = (new ShitaiRule)->match($facts);
+
+    expect($match)->not->toBeNull()
+        ->and($match->evidence)->toMatchArray([
+            'transmissions' => [10, 0, 5],
+            'transmission_generals' => [5, 10, 3],
+            'year_positions' => [1],
+            'month_positions' => [0],
+            'year_is_initial' => false,
+            'month_is_initial' => true,
+            'qualifying_calendar_gods' => ['year'],
+            'dragon_union_at_edges' => true,
+        ]);
+});
+
+test('shitai requires the complete combination rather than only a favorable transmission', function () {
+    $result = app(PanCalculator::class)->calculate('1900-11-02 20:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->not->toHaveKey('lesson.shitai');
 });
 
 test('fuyin zixin breaks the zi mao punishment loop with wu', function (string $datetime) {

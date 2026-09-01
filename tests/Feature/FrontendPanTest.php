@@ -130,6 +130,92 @@ test('frontend shows sanguang lesson with ben hexagram', function () {
         ->assertSee('贲卦')
         ->assertSee('䷕')
         ->assertSee('课入三光，万事吉昌')
+        ->assertSee('三光判断')
+        ->assertSee('春季：木旺，火相')
+        ->assertSee('旺相时段：2000-02-04 20:40:24 至 2000-04-17 12:50:10')
+        ->assertSee('四季末十八日按下一个四立交节时刻前推十八个整日计算')
+        ->assertSee('丙上亥乘')
+        ->assertSee('贵人')
+        ->assertSee('午上子乘')
+        ->assertSee('天后')
+        ->assertSee('发用午乘')
+        ->assertSee('青龙')
+        ->assertSee('日、辰、用三处均旺相且乘吉将')
+        ->assertSee('得季节')
+        ->assertDontSee('得月令')
+        ->assertDontSee('月令旺相')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows sanyang lesson with jin hexagram', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-06-28T03:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('三阳课')
+        ->assertSee('晋卦')
+        ->assertSee('䷢')
+        ->assertSee('课入三阳，官爵翱翔')
+        ->assertSee('三阳判断')
+        ->assertSee('季节旺相：火旺，土相')
+        ->assertSee('贵人临辰，十二天将顺行')
+        ->assertSee('丁寄未，乘六合，为贵前第3将')
+        ->assertSee('日支巳乘螣蛇，为贵前第1将')
+        ->assertSee('贵人顺行，日辰均乘贵前五将')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows sanqi lesson and records lianzhu without inventing a grid', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-27T14:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('三奇课')
+        ->assertSee('豫卦')
+        ->assertSee('䷏')
+        ->assertSee('三奇联珠')
+        ->assertDontSee('三奇联珠格')
+        ->assertSee('三奇判断')
+        ->assertSee('甲申旬，三传为亥、子、丑')
+        ->assertSee('本旬以子为奇')
+        ->assertSee('见于中传')
+        ->assertSee('乙日以巳为奇')
+        ->assertSee('未见于三传')
+        ->assertSee('占日所在六甲旬的旬奇发用、入于中传或末传，故成三奇课')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows liuyi lesson with dui hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-06-27T03:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('六仪课')
+        ->assertSee('兑卦')
+        ->assertSee('䷹')
+        ->assertSee('六仪判断')
+        ->assertSee('占日属于甲寅旬，三传为寅、未、子')
+        ->assertSee('本旬以旬首地支寅为仪，见于初传')
+        ->assertSee('辰日以寅为支仪')
+        ->assertSee('旬仪发用、入于中传或末传，故成六仪课')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows shitai lesson with the daquan text and correction reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1900-11-01T20:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('时泰课')
+        ->assertSee('泰卦')
+        ->assertSee('䷊')
+        ->assertSee('时泰判断')
+        ->assertSee('三传为子、巳、戌')
+        ->assertSee('太岁子见于初传；月建戌见于末传')
+        ->assertSee('青龙见于初传，六合见于末传')
+        ->assertSee('太岁子为日财；月建戌非日财德')
+        ->assertSee('初末传乘青龙、六合相对')
+        ->assertSee('岁月发用更佳，入于中传或末传亦可')
         ->assertDontSee('规则尚未覆盖');
 });
 

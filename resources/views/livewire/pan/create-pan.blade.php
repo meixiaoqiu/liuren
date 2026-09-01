@@ -218,6 +218,21 @@
                                         @if ($interpretation['xiang'] !== null)
                                             <p class="mt-2 italic leading-7 text-base-content/55">{{ $interpretation['xiang'] }}</p>
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.sanguang')
+                                            @include('livewire.pan.partials.sanguang-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.sanyang')
+                                            @include('livewire.pan.partials.sanyang-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.sanqi')
+                                            @include('livewire.pan.partials.sanqi-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.liuyi')
+                                            @include('livewire.pan.partials.liuyi-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.shitai')
+                                            @include('livewire.pan.partials.shitai-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
                                     </article>
                                 @endforeach
 
