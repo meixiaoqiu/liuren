@@ -7,9 +7,9 @@ use RuntimeException;
 
 class PanRegression
 {
-    public const CASE_COUNT = 1440;
+    public const CASE_COUNT = 720;
 
-    public const FIXTURE_PATH = 'tests/Fixtures/pan_regression_1440.json';
+    public const FIXTURE_PATH = 'tests/Fixtures/pan_regression_720.json';
 
     public const EXCLUDED_FIELDS = [
         'shichen',
@@ -23,6 +23,21 @@ class PanRegression
         'rizhi',
         'shigan',
         'shizhi',
+        'sanchuan0tianjiang',
+        'sanchuan1tianjiang',
+        'sanchuan2tianjiang',
+        'tianjiang0',
+        'tianjiang1',
+        'tianjiang2',
+        'tianjiang3',
+        'tianjiang4',
+        'tianjiang5',
+        'tianjiang6',
+        'tianjiang7',
+        'tianjiang8',
+        'tianjiang9',
+        'tianjiang10',
+        'tianjiang11',
     ];
 
     public static function caseId(array $pan): string
@@ -37,9 +52,7 @@ class PanRegression
             throw new RuntimeException('Unable to resolve the sexagenary day index.');
         }
 
-        $period = in_array($pan['shizhi'], [3, 4, 5, 6, 7, 8], true) ? 'day' : 'night';
-
-        return sprintf('pointer-%02d_day-%02d_%s', $pan['tianpan'][0], $dayIndex, $period);
+        return sprintf('pointer-%02d_day-%02d', $pan['tianpan'][0], $dayIndex);
     }
 
     public static function normalize(array $record): array

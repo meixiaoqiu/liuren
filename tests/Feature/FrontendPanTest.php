@@ -149,7 +149,7 @@ test('frontend shows sanguang lesson with ben hexagram', function () {
 
 test('frontend shows sanyang lesson with jin hexagram', function () {
     Livewire::test(CreatePan::class)
-        ->set('datetime', '2000-06-28T03:00')
+        ->set('datetime', '2004-04-16T18:00')
         ->call('calculate')
         ->assertHasNoErrors()
         ->assertSee('三阳课')
@@ -157,10 +157,10 @@ test('frontend shows sanyang lesson with jin hexagram', function () {
         ->assertSee('䷢')
         ->assertSee('课入三阳，官爵翱翔')
         ->assertSee('三阳判断')
-        ->assertSee('季节旺相：火旺，土相')
-        ->assertSee('贵人临辰，十二天将顺行')
-        ->assertSee('丁寄未，乘六合，为贵前第3将')
-        ->assertSee('日支巳乘螣蛇，为贵前第1将')
+        ->assertSee('季节旺相：木旺，火相')
+        ->assertSee('贵人临亥，十二天将顺行')
+        ->assertSee('乙寄辰，乘青龙，为贵前第5将')
+        ->assertSee('日支丑乘朱雀，为贵前第2将')
         ->assertSee('贵人顺行，日辰均乘贵前五将')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -216,6 +216,24 @@ test('frontend shows shitai lesson with the daquan text and correction reasoning
         ->assertSee('太岁子为日财；月建戌非日财德')
         ->assertSee('初末传乘青龙、六合相对')
         ->assertSee('岁月发用更佳，入于中传或末传亦可')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows longde lesson with cui hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2013-09-04T18:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('龙德课')
+        ->assertSee('萃卦')
+        ->assertSee('䷬')
+        ->assertSee('君恩及下，万姓欢忻')
+        ->assertSee('龙德判断')
+        ->assertSee('三传为巳、丑、酉')
+        ->assertSee('太岁巳作初传，乘')
+        ->assertSee('贵人')
+        ->assertSee('月将巳见于初传，与太岁同神')
+        ->assertSee('太岁乘贵人发用，月将又入于三传')
         ->assertDontSee('规则尚未覆盖');
 });
 

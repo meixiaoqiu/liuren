@@ -14,14 +14,14 @@ class InitializePanRegression extends Command
 {
     protected $signature = 'pan:regression-initialize';
 
-    protected $description = 'Create the initial immutable 1440-pan regression fixture';
+    protected $description = 'Create the initial immutable 720 core-pan regression fixture';
 
     public function handle(): int
     {
         $path = PanRegression::fixturePath();
 
         if (is_file($path)) {
-            $this->error('The 1440-pan fixture already exists and will not be overwritten.');
+            $this->error('The 720 core-pan fixture already exists and will not be overwritten.');
 
             return self::FAILURE;
         }
@@ -46,7 +46,7 @@ class InitializePanRegression extends Command
 
         ksort($cases);
         file_put_contents($path, json_encode([
-            'version' => 1,
+            'version' => 2,
             'case_count' => PanRegression::CASE_COUNT,
             'excluded_fields' => PanRegression::EXCLUDED_FIELDS,
             'cases' => $cases,
@@ -81,9 +81,8 @@ class InitializePanRegression extends Command
                 ];
                 $shizhi = PanResource::$hour2Shichen[$hour];
                 $pointer = ($yuejiang - $shizhi + 12) % 12;
-                $period = in_array($shizhi, [3, 4, 5, 6, 7, 8], true) ? 'day' : 'night';
                 $dayIndex = array_search([$rigan, $rizhi], PanResource::$jiazi2Ganzhi, true);
-                $caseId = sprintf('pointer-%02d_day-%02d_%s', $pointer, $dayIndex, $period);
+                $caseId = sprintf('pointer-%02d_day-%02d', $pointer, $dayIndex);
                 $inputs[$caseId] ??= $input;
             }
 

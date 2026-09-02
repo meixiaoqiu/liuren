@@ -11,7 +11,7 @@ class ApprovePanRegression extends Command
 {
     protected $signature = 'pan:regression-approve {cases* : Exact case IDs to approve}';
 
-    protected $description = 'Approve current output for explicitly named 1440-pan regression cases';
+    protected $description = 'Approve current output for explicitly named pan regression cases';
 
     public function handle(): int
     {
