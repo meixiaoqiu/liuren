@@ -12,7 +12,9 @@ test('frontend pan page is available', function () {
     $this->get(route('pan.create'))
         ->assertOk()
         ->assertSee('大六壬排盘')
-        ->assertSee('选择起课时间')
+        ->assertSee('设置起课信息')
+        ->assertSee('年命')
+        ->assertSee('行年')
         ->assertSee('立即排盘')
         ->assertSee('csrf-token');
 });
@@ -22,6 +24,7 @@ test('frontend calculation matches the calculator without side effects', functio
     $expected = app(PanCalculator::class)
         ->calculate('2024-08-11 14:00:00')
         ->toArray();
+    $expected = [...$expected, 'nianming' => 2, 'xingnian' => 4];
     $firstLessonTianpanBranch = PanCalculator::$jigong[$expected['rigan']];
     $firstLessonGroundIndex = array_search($firstLessonTianpanBranch, $expected['tianpan'], true);
     $firstLessonTianjiang = PanCalculator::$tianjiang[$expected['tianjiang'][$firstLessonGroundIndex]];
@@ -56,6 +59,25 @@ test('frontend rejects an invalid datetime', function () {
         ->call('calculate')
         ->assertHasErrors(['datetime'])
         ->assertSet('pan', null);
+});
+
+test('frontend keeps the form available when get parameters are invalid', function () {
+    Livewire::withQueryParams([
+        'datetime' => 'not-a-date',
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+    ])->test(CreatePan::class)
+        ->assertHasErrors(['datetime'])
+        ->assertSet('pan', null)
+        ->assertSee('立即排盘');
+});
+
+test('frontend rejects a lesson time before the birth time', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1986-07-31T23:59')
+        ->set('birthDatetime', '1986-08-01T00:00')
+        ->call('calculate')
+        ->assertHasErrors(['birthDatetime']);
 });
 
 test('frontend explains the shehai process for a shehai lesson', function () {
@@ -201,8 +223,83 @@ test('frontend shows liuyi lesson with dui hexagram and its reasoning', function
         ->assertDontSee('规则尚未覆盖');
 });
 
+test('frontend shows guanjue lesson with yi hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->assertSet('birthDatetime', '1986-08-01T00:00')
+        ->assertSet('gender', 'male')
+        ->set('datetime', '1986-09-28T03:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('年命寅 · 行年寅')
+        ->assertSee('官爵课')
+        ->assertSee('益卦')
+        ->assertSee('䷩')
+        ->assertSee('官爵印绶，得之荣华')
+        ->assertSee('官爵判断')
+        ->assertSee('三传为申、戌、子')
+        ->assertSee('初传申，为太岁、本命、行年驿马')
+        ->assertSee('天魁戌见于中传')
+        ->assertSee('太常见于末传')
+        ->assertSee('占日驿马仅作课内参考')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows fugui lesson with dayou hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2025-01-10T07:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('富贵课')
+        ->assertSee('大有卦')
+        ->assertSee('䷍')
+        ->assertSee('天降福德，万事新鲜')
+        ->assertSee('富贵判断')
+        ->assertSee('基础：吉')
+        ->assertSee('当前：吉象成立')
+        ->assertSee('成立依据')
+        ->assertSee('课义判断')
+        ->assertSee('初传子乘天乙贵人，得旺气')
+        ->assertSee('天盘子水临地盘卯木，上生下')
+        ->assertSee('地盘卯为日支')
+        ->assertSee('未见明确增减条件')
+        ->assertDontSee('综合提示')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows fugui imprisonment and exception as an ordered judgment chain', function () {
+    Livewire::withQueryParams([
+        'datetime' => '2026-03-08T05:00',
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors()
+        ->assertSee('富贵课')
+        ->assertSeeInOrder(['太常为绶', '贵人入狱', '不以坐狱论'])
+        ->assertSee('增强')
+        ->assertSee('减损')
+        ->assertSee('例外')
+        ->assertDontSee('增吉')
+        ->assertDontSee('减吉')
+        ->assertDontSee('解凶');
+});
+
+test('frontend accepts reproducible pan inputs from get parameters', function () {
+    Livewire::withQueryParams([
+        'datetime' => '2025-01-10T07:00',
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+    ])->test(CreatePan::class)
+        ->assertSet('datetime', '2025-01-10T07:00')
+        ->assertSet('birthDatetime', '1986-08-01T00:00')
+        ->assertSet('gender', 'male')
+        ->assertHasNoErrors()
+        ->assertSet('pan.calculationTime', '2025-01-10 07:00:00')
+        ->assertSee('富贵课');
+});
+
 test('frontend shows shitai lesson with the daquan text and correction reasoning', function () {
     Livewire::test(CreatePan::class)
+        ->set('birthDatetime', '1800-01-01T00:00')
         ->set('datetime', '1900-11-01T20:00')
         ->call('calculate')
         ->assertHasNoErrors()

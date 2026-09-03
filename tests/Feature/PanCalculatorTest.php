@@ -2,6 +2,9 @@
 
 use App\Data\PanResult;
 use App\Domain\Pan\Facts\PanFacts;
+use App\Domain\Pan\FateCalculator;
+use App\Domain\Pan\Rules\FuguiRule;
+use App\Domain\Pan\Rules\GuanjueRule;
 use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Domain\Pan\Rules\ShitaiRule;
 use App\Filament\Resources\PanResource;
@@ -392,6 +395,187 @@ test('shitai requires the complete combination rather than only a favorable tran
 
     expect($matches)->not->toHaveKey('lesson.shitai');
 });
+
+test('guanjue matches the daquan standard structure when a calendar horse starts transmissions and kui chang enter', function () {
+    $facts = PanFacts::from(new PanResult([
+        'nianzhi' => 7,
+        'yuezhi' => 3,
+        'rizhi' => 11,
+        'nianming' => 11,
+        'xingnian' => 6,
+        'sanchuan0' => 5,
+        'sanchuan1' => 10,
+        'sanchuan2' => 3,
+        'tianpan' => range(0, 11),
+        'tianjiang' => [0, 1, 2, 8, 4, 5, 6, 7, 9, 10, 3, 11],
+    ]));
+
+    $match = (new GuanjueRule)->match($facts);
+
+    expect($match)->not->toBeNull()
+        ->and($match->name)->toBe('官爵课')
+        ->and($match->gua)->toBe('益')
+        ->and($match->guaSymbol)->toBe('䷩')
+        ->and($match->evidence)->toMatchArray([
+            'source_branches' => ['year' => 7, 'month' => 3, 'birth_year' => 11, 'annual_fate' => 6],
+            'source_horses' => ['year' => 5, 'month' => 5, 'birth_year' => 5, 'annual_fate' => 8],
+            'day_branch' => 11,
+            'day_horse' => 5,
+            'day_horse_matches_initial' => true,
+            'initial_transmission' => 5,
+            'matching_horse_sources' => ['year', 'month', 'birth_year'],
+            'transmissions' => [5, 10, 3],
+            'transmission_generals' => [5, 3, 8],
+            'tiankui_positions' => [1],
+            'taichang_positions' => [2],
+        ]);
+});
+
+test('guanjue requires the horse to issue rather than merely enter a later transmission', function () {
+    $facts = PanFacts::from(new PanResult([
+        'nianzhi' => 7,
+        'yuezhi' => 3,
+        'rizhi' => 11,
+        'sanchuan0' => 10,
+        'sanchuan1' => 5,
+        'sanchuan2' => 3,
+        'tianpan' => range(0, 11),
+        'tianjiang' => [0, 1, 2, 8, 4, 5, 6, 7, 9, 10, 3, 11],
+    ]));
+
+    expect((new GuanjueRule)->match($facts))->toBeNull();
+});
+
+test('guanjue does not allow the day horse alone to form the lesson', function () {
+    $facts = PanFacts::from(new PanResult([
+        'nianzhi' => 0,
+        'yuezhi' => 0,
+        'rizhi' => 11,
+        'nianming' => 0,
+        'xingnian' => 0,
+        'sanchuan0' => 5,
+        'sanchuan1' => 10,
+        'sanchuan2' => 3,
+        'tianpan' => range(0, 11),
+        'tianjiang' => [0, 1, 2, 8, 4, 5, 6, 7, 9, 10, 3, 11],
+    ]));
+
+    expect((new GuanjueRule)->match($facts))->toBeNull();
+});
+
+test('guanjue is reproducible from a real calendar input', function () {
+    $result = app(PanCalculator::class)->calculate('1986-09-28 03:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.guanjue')
+        ->and($matches['lesson.guanjue']->evidence)->toMatchArray([
+            'source_branches' => ['year' => 2, 'month' => 9],
+            'source_horses' => ['year' => 8, 'month' => 11],
+            'day_branch' => 11,
+            'day_horse' => 5,
+            'day_horse_matches_initial' => false,
+            'initial_transmission' => 8,
+            'matching_horse_sources' => ['year'],
+            'transmissions' => [8, 10, 0],
+            'transmission_generals' => [0, 10, 8],
+            'tiankui_positions' => [1],
+            'taichang_positions' => [2],
+        ]);
+});
+
+test('derived fate stays fixed across months in the same current year branch', function () {
+    $calculator = app(PanCalculator::class);
+    $fateCalculator = new FateCalculator;
+    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
+    $springBranch = $calculator->calculate('2026-03-01 12:00:00')->get('nianzhi');
+    $winterBranch = $calculator->calculate('2026-12-01 12:00:00')->get('nianzhi');
+
+    expect($springBranch)->toBe($winterBranch)
+        ->and($fateCalculator->calculate($birthBranch, $springBranch, 'male'))
+        ->toBe($fateCalculator->calculate($birthBranch, $winterBranch, 'male'))
+        ->toBe(['nianming' => 2, 'xingnian' => 6]);
+});
+
+test('fugui requires nobleman to ride the vigorous generating initial over day fate ground', function () {
+    $calculator = app(PanCalculator::class);
+    $calculated = $calculator->calculate('2025-01-10 07:00:00');
+    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
+    $fate = (new FateCalculator)->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
+    $facts = PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate]));
+    $match = (new FuguiRule)->match($facts);
+
+    expect($match)->not->toBeNull()
+        ->and($match->name)->toBe('富贵课')
+        ->and($match->gua)->toBe('大有')
+        ->and($match->evidence)->toMatchArray([
+            'initial_transmission' => 0,
+            'initial_general' => 0,
+            'initial_element' => 4,
+            'initial_strength' => '旺',
+            'ground_branch' => 3,
+            'ground_element' => 0,
+            'generating_direction' => 'upper_generates_lower',
+            'matching_targets' => ['day_branch'],
+        ]);
+});
+
+test('fugui records horse riding dragon as an enhancement', function () {
+    $data = [
+        'rigan' => 0,
+        'rizhi' => 3,
+        'yuezhi' => 11,
+        'nianzhi' => 0,
+        'sanchuan0' => 0,
+        'sanchuan1' => 9,
+        'sanchuan2' => 6,
+        'tianpan' => [9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8],
+        'tianjiang' => [1, 2, 3, 0, 4, 5, 6, 7, 8, 9, 10, 11],
+    ];
+    $match = (new FuguiRule)->match(PanFacts::from(new PanResult($data)));
+
+    expect($match)->not->toBeNull()
+        ->and(array_column($match->evidence['modifiers'], 'code'))->toContain('horse_riding_dragon')
+        ->and($match->evidence['current_state']['key'])->toBe('auspicious_enhanced');
+});
+
+test('fugui keeps nobleman imprisonment before its classical exception', function () {
+    $calculator = app(PanCalculator::class);
+    $calculated = $calculator->calculate('2026-03-08 05:00:00');
+    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
+    $fate = (new FateCalculator)->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
+    $match = (new FuguiRule)->match(PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate])));
+
+    expect($match)->not->toBeNull()
+        ->and(array_column($match->evidence['modifiers'], 'code'))->toBe([
+            'taichang_ribbon',
+            'nobleman_in_prison',
+            'prison_exception',
+        ])
+        ->and($match->evidence['current_state']['key'])->toBe('auspicious_enhanced');
+});
+
+test('near-current guanjue examples use only automatically derived fate', function (
+    string $datetime,
+    array $expectedSources,
+    array $expectedTransmissions,
+) {
+    $calculator = app(PanCalculator::class);
+    $fateCalculator = new FateCalculator;
+    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
+    $calculated = $calculator->calculate($datetime);
+    $fate = $fateCalculator->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
+    $facts = PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate]));
+    $match = (new GuanjueRule)->match($facts);
+
+    expect($fate)->toBe(['nianming' => 2, 'xingnian' => 6])
+        ->and($match)->not->toBeNull()
+        ->and($match->evidence['matching_horse_sources'])->toBe($expectedSources)
+        ->and($match->evidence['transmissions'])->toBe($expectedTransmissions);
+})->with([
+    'year birth and annual fate horses' => ['2026-09-28 03:00:00', ['year', 'birth_year', 'annual_fate'], [8, 10, 0]],
+    'month horse' => ['2026-10-04 07:00:00', ['month'], [11, 10, 7]],
+    'all four permitted horses' => ['2026-10-18 03:00:00', ['year', 'month', 'birth_year', 'annual_fate'], [8, 10, 0]],
+]);
 
 test('fuyin zixin breaks the zi mao punishment loop with wu', function (string $datetime) {
     $pan = app(PanCalculator::class)->calculate($datetime)->toArray();

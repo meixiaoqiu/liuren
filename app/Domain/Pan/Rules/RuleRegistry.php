@@ -42,6 +42,8 @@ final class RuleRegistry
             new SanqiRule,
             new LiuyiRule,
             new ShitaiRule,
+            new GuanjueRule,
+            new FuguiRule,
         ];
     }
 }

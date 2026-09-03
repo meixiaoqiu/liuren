@@ -14,7 +14,7 @@
     <main class="mx-auto max-w-7xl px-0 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
         <div class="grid min-w-0 gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6">
             <aside class="lg:sticky lg:top-6">
-                <x-card title="选择起课时间" subtitle="只需输入时间，其余参数由系统自动推算。" class="pan-mobile-edge" shadow>
+                <x-card title="设置起课信息" subtitle="输入起课时间、出生时间与性别，自动推算年命行年。" class="pan-mobile-edge" shadow>
                     <x-form wire:submit="calculate">
                         @csrf
                         <x-datetime
@@ -25,6 +25,26 @@
                             hint="系统按 Asia/Shanghai 时区计算"
                             required
                         />
+
+                        <x-datetime
+                            label="出生时间"
+                            wire:model="birthDatetime"
+                            type="datetime-local"
+                            icon="o-cake"
+                            hint="出生时间会写入当前网址，请谨慎分享"
+                            required
+                        />
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <x-select
+                                label="性别"
+                                wire:model="gender"
+                                :options="$genderOptions"
+                                icon="o-user"
+                                required
+                            />
+                            <div class="self-end pb-1 text-sm leading-6 text-base-content/55">年命、行年将在排盘后自动显示。</div>
+                        </div>
 
                         <x-slot:actions>
                             <x-button label="立即排盘" type="submit" icon="o-sparkles" class="btn-primary w-full" spinner="calculate" />
@@ -69,7 +89,7 @@
                             <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h1 id="pan-result-heading" class="text-2xl font-semibold tracking-wide sm:text-3xl">{{ $pan['sizhu'] }}</h1>
-                                    <p class="mt-2 text-sm text-base-content/55">{{ str_replace('T', ' ', $datetime) }} · 北京时间</p>
+                                    <p class="mt-2 text-sm text-base-content/55">{{ str_replace('T', ' ', $datetime) }} · 北京时间 · 年命{{ $dizhi[$pan['nianming']] }} · 行年{{ $dizhi[$pan['xingnian']] }}</p>
                                 </div>
                                 <div class="pan-block bg-primary/10 px-5 py-3 text-center">
                                     <p class="text-xs tracking-widest text-primary/70">月将</p>
@@ -232,6 +252,12 @@
                                         @endif
                                         @if ($interpretation['code'] === 'lesson.shitai')
                                             @include('livewire.pan.partials.shitai-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.guanjue')
+                                            @include('livewire.pan.partials.guanjue-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.fugui')
+                                            @include('livewire.pan.partials.fugui-trace', ['trace' => $interpretation['evidence']])
                                         @endif
                                     </article>
                                 @endforeach
