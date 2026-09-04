@@ -4,21 +4,14 @@ use App\Services\PanCalculator;
 use App\Support\PanCreationData;
 use App\Support\PanRegression;
 
-test('all 1440 normalized pan cases match their approved baseline', function () {
+test('all 720 normalized core pan cases match their approved baseline', function () {
     $calculator = app(PanCalculator::class);
     $fixture = PanRegression::loadFixture();
     $expectedCaseIds = [];
 
     foreach (range(0, 11) as $pointer) {
         foreach (range(0, 59) as $dayIndex) {
-            foreach (['day', 'night'] as $period) {
-                $expectedCaseIds[] = sprintf(
-                    'pointer-%02d_day-%02d_%s',
-                    $pointer,
-                    $dayIndex,
-                    $period,
-                );
-            }
+            $expectedCaseIds[] = sprintf('pointer-%02d_day-%02d', $pointer, $dayIndex);
         }
     }
 
@@ -26,7 +19,7 @@ test('all 1440 normalized pan cases match their approved baseline', function () 
     $actualCaseIds = array_keys($fixture['cases']);
     sort($actualCaseIds);
 
-    expect($fixture['version'])->toBe(1)
+    expect($fixture['version'])->toBe(2)
         ->and($fixture['case_count'])->toBe(PanRegression::CASE_COUNT)
         ->and($fixture['excluded_fields'])->toBe(PanRegression::EXCLUDED_FIELDS)
         ->and($actualCaseIds)->toBe($expectedCaseIds)

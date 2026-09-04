@@ -32,6 +32,17 @@ test('calculator returns a pan without depending on the filament session adapter
         ->and(session()->has('pan'))->toBeFalse();
 });
 
+test('nobleman switches at the actual Beijing sunrise and sunset using fixed UTC plus eight', function () {
+    $calculator = app(PanCalculator::class);
+    $beforeSunset = $calculator->calculate('2013-09-04 18:41:56')->toArray();
+    $atSunset = $calculator->calculate('2013-09-04 18:41:57')->toArray();
+
+    expect($beforeSunset['sunrise'])->toBe('2013-09-04 05:44:55')
+        ->and($beforeSunset['sunset'])->toBe('2013-09-04 18:41:57')
+        ->and($beforeSunset['guirenPeriod'])->toBe('day')
+        ->and($atSunset['guirenPeriod'])->toBe('night');
+});
+
 test('filament adapter stores the calculator result in the session', function () {
     $datetime = '2024-08-11 14:00:28';
     $calculated = app(PanCalculator::class)->calculate($datetime)->toArray();
@@ -254,20 +265,23 @@ test('seasonal strength changes to earth eighteen exact days before each four-li
 ]);
 
 test('sanyang requires forward nobleman day and branch riding its five front generals and prosperous initial transmission', function () {
-    $result = app(PanCalculator::class)->calculate('2000-06-28 03:00:00');
+    $result = app(PanCalculator::class)->calculate('2004-04-16 18:00:00');
+    $pan = $result->toArray();
     $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
 
-    expect($matches)->toHaveKey('lesson.sanyang')
+    expect($pan['guirenPeriod'])->toBe('day')
+        ->and($pan['sunset'])->toBe('2004-04-16 18:53:26')
+        ->and($matches)->toHaveKey('lesson.sanyang')
         ->and($matches['lesson.sanyang']->name)->toBe('三阳课')
         ->and($matches['lesson.sanyang']->gua)->toBe('晋')
         ->and($matches['lesson.sanyang']->guaSymbol)->toBe('䷢')
         ->and($matches['lesson.sanyang']->evidence)->toMatchArray([
-            'month_branch' => 6,
+            'month_branch' => 4,
             'nobleman_forward' => true,
-            'nobleman_ground' => 4,
-            'day_stem' => ['stem' => 3, 'lodging_branch' => 7, 'front_general_rank' => 3, 'general' => 3],
-            'day_branch' => ['branch' => 5, 'front_general_rank' => 1, 'general' => 1],
-            'initial_transmission' => ['branch' => 5, 'element' => 1, 'strength' => '旺'],
+            'nobleman_ground' => 11,
+            'day_stem' => ['stem' => 1, 'lodging_branch' => 4, 'front_general_rank' => 5, 'general' => 5],
+            'day_branch' => ['branch' => 1, 'front_general_rank' => 2, 'general' => 2],
+            'initial_transmission' => ['branch' => 2, 'element' => 0, 'strength' => '旺'],
         ]);
 });
 
@@ -498,7 +512,7 @@ test('derived fate stays fixed across months in the same current year branch', f
 
 test('fugui requires nobleman to ride the vigorous generating initial over day fate ground', function () {
     $calculator = app(PanCalculator::class);
-    $calculated = $calculator->calculate('2025-01-10 07:00:00');
+    $calculated = $calculator->calculate('2025-01-10 08:00:00');
     $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
     $fate = (new FateCalculator)->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
     $facts = PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate]));
@@ -540,7 +554,7 @@ test('fugui records horse riding dragon as an enhancement', function () {
 
 test('fugui keeps nobleman imprisonment before its classical exception', function () {
     $calculator = app(PanCalculator::class);
-    $calculated = $calculator->calculate('2026-03-08 05:00:00');
+    $calculated = $calculator->calculate('2026-03-08 06:40:00');
     $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
     $fate = (new FateCalculator)->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
     $match = (new FuguiRule)->match(PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate])));
@@ -576,6 +590,37 @@ test('near-current guanjue examples use only automatically derived fate', functi
     'month horse' => ['2026-10-04 07:00:00', ['month'], [11, 10, 7]],
     'all four permitted horses' => ['2026-10-18 03:00:00', ['year', 'month', 'birth_year', 'annual_fate'], [8, 10, 0]],
 ]);
+
+test('longde requires the year branch to ride nobleman as initial with month general in transmissions', function () {
+    $result = app(PanCalculator::class)->calculate('2026-01-19 10:00:00');
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect($matches)->toHaveKey('lesson.longde')
+        ->and($matches['lesson.longde']->name)->toBe('龙德课')
+        ->and($matches['lesson.longde']->gua)->toBe('萃')
+        ->and($matches['lesson.longde']->guaSymbol)->toBe('䷬')
+        ->and($matches['lesson.longde']->evidence)->toMatchArray([
+            'year_branch' => 5,
+            'month_general' => 1,
+            'transmissions' => [5, 1, 9],
+            'initial_general' => 0,
+            'month_general_positions' => [1],
+            'year_and_month_general_coincide' => false,
+        ]);
+});
+
+test('longde restores the daquan example by using daylight before the actual Beijing sunset', function () {
+    $result = app(PanCalculator::class)->calculate('2013-09-04 18:00:00');
+    $pan = $result->toArray();
+    $matches = collect(app(PanRuleEngine::class)->evaluate($result))->keyBy('code');
+
+    expect([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([5, 1, 9])
+        ->and($pan['guirenPeriod'])->toBe('day')
+        ->and($pan['sunrise'])->toBe('2013-09-04 05:44:55')
+        ->and($pan['sunset'])->toBe('2013-09-04 18:41:57')
+        ->and($pan['sanchuan0tianjiang'])->toBe(0)
+        ->and($matches)->toHaveKey('lesson.longde');
+});
 
 test('fuyin zixin breaks the zi mao punishment loop with wu', function (string $datetime) {
     $pan = app(PanCalculator::class)->calculate($datetime)->toArray();

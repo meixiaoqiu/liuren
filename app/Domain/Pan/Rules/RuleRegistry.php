@@ -44,6 +44,7 @@ final class RuleRegistry
             new ShitaiRule,
             new GuanjueRule,
             new FuguiRule,
+            new LongdeRule,
         ];
     }
 }

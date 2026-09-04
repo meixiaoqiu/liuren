@@ -5,9 +5,18 @@ namespace App\Services;
 use App\Data\PanResult;
 use com\tyme\culture\Element;
 use com\tyme\solar\SolarTime;
+use DateTimeImmutable;
+use DateTimeZone;
+use RuntimeException;
 
 class PanCalculator
 {
+    protected const BEIJING_LATITUDE = 39.9042;
+
+    protected const BEIJING_LONGITUDE = 116.4074;
+
+    protected const BEIJING_TIMEZONE = '+08:00';
+
     // 定义地支
     public static ?array $dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
@@ -213,6 +222,46 @@ class PanCalculator
         $s = date('s', $time);
 
         return [$y, $m, $d, $h, $i, $s];
+    }
+
+    /**
+     * 按北京经纬度和固定 UTC+8 计算起课时的昼夜。
+     *
+     * @param  array{0: int|string, 1: int|string, 2: int|string, 3: int|string, 4: int|string, 5: int|string}  $time
+     * @return array{period: 'day'|'night', sunrise: string, sunset: string}
+     */
+    private static function getBeijingDaylight(array $time): array
+    {
+        $timezone = new DateTimeZone(self::BEIJING_TIMEZONE);
+        $datetime = DateTimeImmutable::createFromFormat(
+            '!Y-m-d H:i:s',
+            sprintf('%04d-%02d-%02d %02d:%02d:%02d', ...array_map('intval', $time)),
+            $timezone,
+        );
+
+        if ($datetime === false) {
+            throw new RuntimeException('无法解析起课时间。');
+        }
+
+        $sunInfo = date_sun_info(
+            $datetime->setTime(12, 0)->getTimestamp(),
+            self::BEIJING_LATITUDE,
+            self::BEIJING_LONGITUDE,
+        );
+        $sunrise = $sunInfo['sunrise'];
+        $sunset = $sunInfo['sunset'];
+
+        if (! is_int($sunrise) || ! is_int($sunset)) {
+            throw new RuntimeException('无法计算北京当日的日出日落。');
+        }
+
+        $timestamp = $datetime->getTimestamp();
+
+        return [
+            'period' => $timestamp >= $sunrise && $timestamp < $sunset ? 'day' : 'night',
+            'sunrise' => (new DateTimeImmutable("@{$sunrise}"))->setTimezone($timezone)->format('Y-m-d H:i:s'),
+            'sunset' => (new DateTimeImmutable("@{$sunset}"))->setTimezone($timezone)->format('Y-m-d H:i:s'),
+        ];
     }
 
     /**
@@ -957,8 +1006,12 @@ class PanCalculator
 
         // 起贵人
         $tianjiang = [[1, 7], [0, 8], [11, 9], [11, 9], [1, 7], [0, 8], [1, 7], [6, 2], [5, 3], [5, 3]];
+        $daylight = self::getBeijingDaylight($time);
+        $pan['guirenPeriod'] = $daylight['period'];
+        $pan['sunrise'] = $daylight['sunrise'];
+        $pan['sunset'] = $daylight['sunset'];
         $guiren = $tianjiang[$pan['rigan']][1]; // 夜贵
-        if (in_array($pan['shizhi'], [3, 4, 5, 6, 7, 8])) { // 昼贵
+        if ($daylight['period'] === 'day') { // 昼贵
             $guiren = $tianjiang[$pan['rigan']][0];
         }
         $dipanGuiren = array_search($guiren, $pan['tianpan']);

@@ -42,7 +42,7 @@ test('month general over hour has exactly twelve plate arrangements', function (
         ->and($arrangements)->toHaveCount(12);
 });
 
-test('pan creation data matches the pre-upgrade golden output', function () {
+test('pan creation data matches the approved golden output', function () {
     foreach (panCreationFixtures() as $case) {
         PanResource::qipan($case['input']);
 
