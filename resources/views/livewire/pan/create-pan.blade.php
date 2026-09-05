@@ -262,6 +262,15 @@
                                         @if ($interpretation['code'] === 'lesson.longde')
                                             @include('livewire.pan.partials.longde-trace', ['trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.xuangai')
+                                            @include('livewire.pan.partials.xuangai-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.zhuyin')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '铸印判断', 'trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.zhuolun')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '斫轮判断', 'trace' => $interpretation['evidence']])
+                                        @endif
                                     </article>
                                 @endforeach
 

@@ -45,6 +45,9 @@ final class RuleRegistry
             new GuanjueRule,
             new FuguiRule,
             new LongdeRule,
+            new XuangaiRule,
+            new ZhuyinRule,
+            new ZhuolunRule,
         ];
     }
 }

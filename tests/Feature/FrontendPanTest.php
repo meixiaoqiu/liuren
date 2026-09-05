@@ -478,3 +478,94 @@ test('frontend shows the kan gua metadata for a shehai lesson', function () {
         ->assertSee('风波险恶，度涉艰难。')
         ->assertSee('胎孕迟滞，行人未还。');
 });
+
+test('frontend shows xuangai lesson with sheng hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-02-12T06:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('轩盖课')
+        ->assertSee('升卦')
+        ->assertSee('䷭')
+        ->assertSee('轩盖判断')
+        ->assertSee('成立依据')
+        ->assertSee('胜光发用')
+        ->assertSee('太冲居中')
+        ->assertSee('神后居末')
+        ->assertSee('已核实的课义条件')
+        ->assertSee('正七月正格')
+        ->assertSee('盘面')
+        ->assertSee('三传所乘天将')
+        ->assertSee('本课尚未支持的判断项')
+        ->assertSee('课遇高轩，车马皆全')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend does not classify a non-wu-mao-zi transmission as xuangai lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-05-07T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('元首课')
+        ->assertDontSee('轩盖课');
+});
+
+test('frontend shows the verified wangxiang condition for a xuangai lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-02-09T06:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('轩盖课')
+        ->assertSee('已核实的课义条件')
+        ->assertSee('日用旺相')
+        ->assertSee('正七月正格')
+        ->assertDontSee('三传落空亡')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows the empty transmission condition for a xuangai lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2001-02-15T06:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('轩盖课')
+        ->assertSee('已核实的课义条件')
+        ->assertSee('三传落空亡')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows zhuyin lesson with ding hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('birthDatetime', '1800-01-01T00:00')
+        ->set('datetime', '1903-02-17T14:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('铸印课')
+        ->assertSee('鼎卦')
+        ->assertSee('䷱')
+        ->assertSee('铸印判断')
+        ->assertSee('成课条件')
+        ->assertSee('戌入传')
+        ->assertSee('巳入传')
+        ->assertSee('吉凶判断')
+        ->assertSee('顽金铸篆，藉火功全')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows zhuolun lesson with yi hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-02-13T09:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('斫轮课')
+        ->assertSee('颐卦')
+        ->assertSee('䷚')
+        ->assertSee('斫轮判断')
+        ->assertSee('成课条件')
+        ->assertSee('卯加庚辛')
+        ->assertSee('卯为用')
+        ->assertSee('吉凶判断')
+        ->assertSee('本课尚未支持的判断项')
+        ->assertSee('木欲成器，须假金斫')
+        ->assertDontSee('规则尚未覆盖');
+});
