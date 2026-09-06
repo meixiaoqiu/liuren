@@ -262,6 +262,12 @@
                                         @if ($interpretation['code'] === 'lesson.yincong')
                                             @include('livewire.pan.partials.lesson-trace', ['title' => '引从判断', 'trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.hengtong')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '亨通判断', 'trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['group'] === '亨通课体')
+                                            @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
+                                        @endif
                                     </article>
                                 @endforeach
 

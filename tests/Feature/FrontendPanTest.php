@@ -598,3 +598,46 @@ test('frontend shows yincong lesson with day prosperity flanking in fuyin', func
         ->assertSee('干支拱日禄')
         ->assertDontSee('规则尚未覆盖');
 });
+
+test('frontend shows hengtong lesson with jian hexagram and its grids', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-04-08T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('亨通课')
+        ->assertSee('渐卦')
+        ->assertSee('䷴')
+        ->assertSee('三传相生，干支有情')
+        ->assertSee('亨通判断')
+        ->assertSee('成课条件')
+        ->assertSee('递生格')
+        ->assertSee('递生格依据')
+        ->assertSee('三传申、亥、寅')
+        ->assertSee('吉凶判断')
+        ->assertSee('本课尚未支持的判断项')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows hengtong lesson with ju-wang grid', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-06-13T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('亨通课')
+        ->assertSee('亨通判断')
+        ->assertSee('俱旺格')
+        ->assertSee('俱旺格依据')
+        ->assertSee('干上子为日干壬之旺神')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows hengtong lesson with yongshen-shengri alone', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-07T15:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('亨通课')
+        ->assertSee('用神生日')
+        ->assertSee('初传子生日干甲')
+        ->assertDontSee('规则尚未覆盖');
+});

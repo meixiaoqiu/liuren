@@ -49,6 +49,12 @@ final class RuleRegistry
             new ZhuyinRule,
             new ZhuolunRule,
             new YinCongRule,
+            new HengtongRule,
+            new DiShengRule,
+            new JuShengRule,
+            new HuShengRule,
+            new JuWangRule,
+            new HuWangRule,
         ];
     }
 }
