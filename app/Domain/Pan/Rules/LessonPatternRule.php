@@ -17,7 +17,8 @@ abstract readonly class LessonPatternRule implements PanRule
 
     protected const DESCRIPTION = '';
 
-    protected const MARKER = '课';
+    /** 缺省为 null，交由 RuleMatch 使用默认分类（经）；子类可覆写为格等。 */
+    protected const MARKER = null;
 
     protected const XIANG = null;
 

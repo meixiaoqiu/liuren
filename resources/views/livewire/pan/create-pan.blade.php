@@ -1,15 +1,5 @@
 <div class="pan-classical-shell">
-    <header class="pan-classical-header backdrop-blur">
-        <div class="mx-auto flex max-w-7xl items-center px-4 py-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-3">
-                <div class="grid size-10 place-items-center rounded-xl bg-primary text-lg font-semibold text-primary-content shadow-sm">壬</div>
-                <div>
-                    <p class="text-base font-semibold tracking-wide">大六壬排盘</p>
-                    <p class="text-xs text-base-content/55">以时起课 · 北京时间</p>
-                </div>
-            </div>
-        </div>
-    </header>
+    @include('partials.pan-header')
 
     <main class="mx-auto max-w-7xl px-0 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
         <div class="grid min-w-0 gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6">
@@ -109,7 +99,7 @@
                                         <div class="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 py-4 first:pt-1 last:pb-1">
                                             <span class="text-center text-sm font-medium text-base-content/55">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
                                             <div class="text-center">
-                                                <x-badge :value="$tianjiangNames[$pan['sanchuan'.$index.'tianjiang']]" class="badge-soft mb-3" />
+                                                <span class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $tianjiangNames[$pan['sanchuan'.$index.'tianjiang']] }}</span>
                                                 <p class="mx-auto grid max-w-48 grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
                                                     <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$branch] }}</span>
                                                     <span class="text-2xl font-semibold text-primary">{{ $dizhi[$branch] }}</span>
@@ -142,11 +132,10 @@
                                             };
                                         @endphp
                                         <div class="pan-block bg-secondary/8 px-2 py-4">
-                                            <x-badge
-                                                :value="$lessonTianjiang"
-                                                class="badge-soft mb-3"
+                                            <span
+                                                class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary"
                                                 aria-label="第{{ $lessonColumn['number'] }}课天将{{ $lessonTianjiang }}"
-                                            />
+                                            >{{ $lessonTianjiang }}</span>
                                             <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
                                                 <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['sike'][$upperIndex]] }}</span>
                                                 <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
@@ -157,11 +146,10 @@
                                                 <x-badge :value="$relationName" class="{{ $relationClass }} h-auto px-1.5 py-0.5 text-[0.65rem] whitespace-nowrap" />
                                                 <span class="min-w-0 flex-1 border-t border-dashed border-base-300"></span>
                                             </div>
-                                            <x-badge
-                                                :value="$lowerTianjiang"
-                                                class="badge-soft mb-3"
+                                            <span
+                                                class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary"
                                                 aria-label="第{{ $lessonColumn['number'] }}课下层天将{{ $lowerTianjiang }}"
-                                            />
+                                            >{{ $lowerTianjiang }}</span>
                                             <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
                                                 @if ($lessonColumn['lowerType'] === 'stem')
                                                     <span></span>
@@ -183,12 +171,12 @@
                             <div class="min-w-0 pb-1">
                                 <div class="pan-board mx-auto w-full">
                                     @foreach ($palacePositions as $groundIndex => $position)
-                                        <div class="pan-palace" style="grid-area: {{ $position }}">
+                                        <div class="pan-palace isolate" style="grid-area: {{ $position }}">
                                             <span class="pan-ground" aria-label="地盘{{ $dizhi[$groundIndex] }}">{{ $dizhi[$groundIndex] }}</span>
-                                            <x-badge
-                                                :value="$tianjiangNames[$pan['tianjiang'][$groundIndex]]"
-                                                class="badge-soft relative z-10 mb-1"
-                                            />
+                                            <div class="relative z-10 mb-1 flex flex-col">
+                                                <span class="flex h-9 items-center justify-center px-2.5 text-sm {{ $pan['shunni'] === 1 ? 'bg-primary/12 font-semibold text-primary' : 'bg-base-100 text-base-content/40' }}">{{ $tianjiangNames[$pan['tianjiangShun'][$groundIndex]] }}</span>
+                                                <span class="flex h-9 items-center justify-center px-2.5 text-sm {{ $pan['shunni'] === -1 ? 'bg-primary/12 font-semibold text-primary' : 'bg-base-100 text-base-content/40' }}">{{ $tianjiangNames[$pan['tianjiangNi'][$groundIndex]] }}</span>
+                                            </div>
                                             <p class="relative z-10 grid w-full grid-cols-[1fr_auto_1fr] items-baseline gap-1 px-1">
                                                 <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
                                                 <strong class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
@@ -198,8 +186,8 @@
                                     @endforeach
 
                                     <div class="pan-center">
-                                        <span class="text-xs tracking-[0.3em] text-base-content/45">四柱</span>
-                                        <strong class="mt-2 text-xl font-semibold tracking-wider">{{ $pan['sizhu'] }}</strong>
+                                        <span class="text-xs tracking-[0.3em] text-base-content/45">天将</span>
+                                        <strong class="mt-2 text-xl font-semibold tracking-wider {{ $pan['shunni'] === 1 ? 'text-primary' : 'text-secondary' }}">{{ $pan['shunni'] === 1 ? '顺行' : '逆行' }}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -270,6 +258,9 @@
                                         @endif
                                         @if ($interpretation['code'] === 'lesson.zhuolun')
                                             @include('livewire.pan.partials.lesson-trace', ['title' => '斫轮判断', 'trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.yincong')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '引从判断', 'trace' => $interpretation['evidence']])
                                         @endif
                                     </article>
                                 @endforeach

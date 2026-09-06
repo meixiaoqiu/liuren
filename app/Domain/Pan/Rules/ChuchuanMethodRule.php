@@ -15,7 +15,8 @@ abstract readonly class ChuchuanMethodRule implements PanRule
 
     protected const GROUP = '初传取法';
 
-    protected const MARKER = '课';
+    /** 缺省为 null，交由 RuleMatch 使用默认分类（经）；子类可覆写为格等。 */
+    protected const MARKER = null;
 
     protected const GUA = null;
 

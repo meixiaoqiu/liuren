@@ -48,6 +48,7 @@ final class RuleRegistry
             new XuangaiRule,
             new ZhuyinRule,
             new ZhuolunRule,
+            new YinCongRule,
         ];
     }
 }

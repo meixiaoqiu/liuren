@@ -265,6 +265,22 @@ class PanCalculator
     }
 
     /**
+     * 把天将 index 归一化到 0-11 范围。
+     */
+    private static function normalizeTianjiang(int $value): int
+    {
+        if ($value < -12) {
+            $value += 24;
+        } elseif ($value < 0) {
+            $value += 12;
+        } elseif ($value > 11) {
+            $value -= 12;
+        }
+
+        return $value;
+    }
+
+    /**
      * 获取两个五行的生克关系
      *
      *
@@ -1019,20 +1035,14 @@ class PanCalculator
         if (in_array($dipanGuiren, [5, 6, 7, 8, 9, 10])) {
             $shunni = -1; // 贵人逆行
         }
+        $pan['shunni'] = $shunni;
         $pan['tianjiang'] = [];
+        $pan['tianjiangShun'] = [];
+        $pan['tianjiangNi'] = [];
         for ($i = 0; $i < 12; $i++) {
-            if ($shunni == 1) {
-                $pan['tianjiang'][$i] = $pan['tianpan'][0] - $guiren + $i;
-            } else {
-                $pan['tianjiang'][$i] = $guiren - $i - $pan['tianpan'][0];
-            }
-            if ($pan['tianjiang'][$i] < -12) {
-                $pan['tianjiang'][$i] += 24;
-            } elseif ($pan['tianjiang'][$i] < 0) {
-                $pan['tianjiang'][$i] += 12;
-            } elseif ($pan['tianjiang'][$i] > 11) {
-                $pan['tianjiang'][$i] -= 12;
-            }
+            $pan['tianjiangShun'][$i] = self::normalizeTianjiang($pan['tianpan'][0] - $guiren + $i);
+            $pan['tianjiangNi'][$i] = self::normalizeTianjiang($guiren - $i - $pan['tianpan'][0]);
+            $pan['tianjiang'][$i] = $shunni == 1 ? $pan['tianjiangShun'][$i] : $pan['tianjiangNi'][$i];
         }
 
         // 三传的贵人

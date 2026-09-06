@@ -144,9 +144,9 @@ test('frontend shows sanguang lesson with ben hexagram', function () {
         ->call('calculate')
         ->assertHasNoErrors()
         ->assertSet('ruleMatches.0.name', '返吟课')
-        ->assertSet('ruleMatches.0.marker', '课')
+        ->assertSet('ruleMatches.0.marker', '经')
         ->assertSet('ruleMatches.1.name', '三光课')
-        ->assertSet('ruleMatches.1.marker', '课')
+        ->assertSet('ruleMatches.1.marker', '经')
         ->assertSet('ruleMatches.2.marker', '传')
         ->assertSee('三光课')
         ->assertSee('贲卦')
@@ -567,5 +567,34 @@ test('frontend shows zhuolun lesson with yi hexagram and its reasoning', functio
         ->assertSee('吉凶判断')
         ->assertSee('本课尚未支持的判断项')
         ->assertSee('木欲成器，须假金斫')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows yincong lesson with huan hexagram and its reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-01-23T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('引从课')
+        ->assertSee('涣卦')
+        ->assertSee('䷺')
+        ->assertSee('引从判断')
+        ->assertSee('成课条件')
+        ->assertSee('拱天干')
+        ->assertSee('吉凶判断')
+        ->assertSee('本课尚未支持的判断项')
+        ->assertSee('拱夹支干，仕人佳兆')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows yincong lesson with day prosperity flanking in fuyin', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-06-28T13:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('引从课')
+        ->assertSee('引从判断')
+        ->assertSee('成课条件')
+        ->assertSee('干支拱日禄')
         ->assertDontSee('规则尚未覆盖');
 });

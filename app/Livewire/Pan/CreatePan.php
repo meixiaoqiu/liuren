@@ -97,7 +97,7 @@ class CreatePan extends Component
 
         usort(
             $visibleMatches,
-            fn ($left, $right): int => ($left->marker === '课' ? 0 : 1) <=> ($right->marker === '课' ? 0 : 1),
+            fn ($left, $right): int => ($left->isPrimary ? 0 : 1) <=> ($right->isPrimary ? 0 : 1),
         );
 
         $this->ruleMatches = array_values(array_map(
