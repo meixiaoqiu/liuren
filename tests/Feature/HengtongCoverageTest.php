@@ -23,7 +23,6 @@ test('Hengtong lesson and its five grids match the exact expected cases across t
     ];
 
     $groups = ['diSheng' => [], 'juSheng' => [], 'huSheng' => [], 'juWang' => [], 'huWang' => []];
-    $yongshenShengRi = [];
     $lessonHits = [];
 
     foreach ($fixture['cases'] as $caseId => $case) {
@@ -33,15 +32,6 @@ test('Hengtong lesson and its five grids match the exact expected cases across t
             if ($rule->match($facts) !== null) {
                 $groups[$name][] = $caseId;
             }
-        }
-
-        // 用神生日：初传生日干，为总定义中独立于五格的成课条件。
-        $initial = $facts->get('sanchuan0');
-        $rigan = $facts->get('rigan');
-        $initialElement = is_int($initial) ? $facts->branchElement($initial) : null;
-        $stemElement = is_int($rigan) ? $facts->stemElement($rigan) : null;
-        if ($initialElement !== null && $stemElement !== null && $stemElement === ($initialElement + 1) % 5) {
-            $yongshenShengRi[] = $caseId;
         }
 
         if ((new HengtongRule)->match($facts) !== null) {
@@ -54,7 +44,6 @@ test('Hengtong lesson and its five grids match the exact expected cases across t
     sort($groups['huSheng']);
     sort($groups['juWang']);
     sort($groups['huWang']);
-    sort($yongshenShengRi);
     sort($lessonHits);
 
     // 五格精确课号集合（一格命中多格时允许跨组重叠，但每组集合必须精确一致）。
@@ -185,10 +174,10 @@ test('Hengtong lesson and its five grids match the exact expected cases across t
         'pointer-11_day-55',
     ]);
 
-    // 课命中集合恰为五格并集与“用神生日”的并集，去重后 189 课，防止漏课或误增。
-    $merged = array_unique([...array_merge(...array_values($groups)), ...$yongshenShengRi]);
+    // 课命中集合恰为五格命中集合的并集，去重后 101 课，防止漏课或误增。
+    $merged = array_unique(array_merge(...array_values($groups)));
     sort($merged);
 
-    expect($merged)->toHaveCount(189)
+    expect($merged)->toHaveCount(101)
         ->and($lessonHits)->toBe($merged);
 });

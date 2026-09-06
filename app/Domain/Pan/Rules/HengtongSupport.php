@@ -176,21 +176,4 @@ trait HengtongSupport
 
         return '干上'.self::BRANCH_NAMES[$data['stemUpper']].'为日支'.self::BRANCH_NAMES[$data['rizhi']].'之旺神，支上'.self::BRANCH_NAMES[$data['branchUpper']].'为日干'.self::STEM_NAMES[$data['rigan']].'之旺神。';
     }
-
-    /** 用神生日（初传生日干）成课说明；未命中返回 null。 */
-    protected static function yongshenShengRiDetail(PanFacts $facts): ?string
-    {
-        $initial = $facts->get('sanchuan0');
-        $rigan = $facts->get('rigan');
-
-        if (! is_int($initial) || ! is_int($rigan)) {
-            return null;
-        }
-
-        if (! self::branchGeneratesStem($facts, $initial, $rigan)) {
-            return null;
-        }
-
-        return '初传'.self::BRANCH_NAMES[$initial].'生日干'.self::STEM_NAMES[$rigan].'。';
-    }
 }

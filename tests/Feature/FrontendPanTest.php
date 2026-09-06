@@ -630,14 +630,3 @@ test('frontend shows hengtong lesson with ju-wang grid', function () {
         ->assertSee('干上子为日干壬之旺神')
         ->assertDontSee('规则尚未覆盖');
 });
-
-test('frontend shows hengtong lesson with yongshen-shengri alone', function () {
-    Livewire::test(CreatePan::class)
-        ->set('datetime', '2000-01-07T15:00')
-        ->call('calculate')
-        ->assertHasNoErrors()
-        ->assertSee('亨通课')
-        ->assertSee('用神生日')
-        ->assertSee('初传子生日干甲')
-        ->assertDontSee('规则尚未覆盖');
-});

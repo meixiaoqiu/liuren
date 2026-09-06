@@ -4,7 +4,7 @@ namespace App\Domain\Pan\Rules;
 
 use App\Domain\Pan\Facts\PanFacts;
 
-/** 文件作用：按《六壬大全》判断用神生日，或三传递生日干，或干支上下神互生俱生、互旺俱旺所成的亨通课。 */
+/** 文件作用：按《六壬大全》判断三传递生日干，或干支上下神互生俱生、互旺俱旺所成的亨通课。 */
 final class HengtongRule implements PanRule
 {
     use HengtongSupport;
@@ -15,7 +15,7 @@ final class HengtongRule implements PanRule
 
     protected const GROUP = '六十四课';
 
-    protected const DESCRIPTION = '用神生日，或三传递生日干，或干支上下神互生俱生、互旺俱旺。';
+    protected const DESCRIPTION = '三传递生日干，或干支上下神互生俱生、互旺俱旺。';
 
     protected const GUA = '渐';
 
@@ -49,15 +49,12 @@ final class HengtongRule implements PanRule
             ['title' => '互旺格', 'detail' => '干上为支旺神、支上为干旺神。', 'matched' => self::huWangDetail($facts) !== null],
         ];
 
-        // 用神生日：初传生日干，为总定义中独立于五格的成课条件（此种亨通课可无格）。
-        $yongshenShengRi = self::yongshenShengRiDetail($facts);
-
         $foundations = array_filter(
             $grids,
             fn (array $grid): bool => $grid['matched'],
         );
 
-        if ($foundations === [] && $yongshenShengRi === null) {
+        if ($foundations === []) {
             return null;
         }
 
@@ -65,10 +62,6 @@ final class HengtongRule implements PanRule
             fn (array $grid): array => ['title' => $grid['title'], 'detail' => $grid['detail']],
             $foundations,
         ));
-
-        if ($yongshenShengRi !== null) {
-            array_unshift($foundations, ['title' => '用神生日', 'detail' => $yongshenShengRi]);
-        }
 
         return new RuleMatch(
             code: $this->code(),

@@ -149,39 +149,6 @@ test('hu-wang grid matches when the uppers are each other\'s prosperity branch',
         ->and($match->evidence['detail'])->toContain('干上酉为日支申之旺神');
 });
 
-test('hengtong matches on yongshen-shengri alone without a full transmission chain', function () {
-    // 甲子日，初传亥生日干甲，三传不递生，干上支上不生旺：仅“用神生日”成立。
-    $match = ht_match(HengtongRule::class, [
-        'sanchuan0' => 11,
-        'sanchuan1' => 1,
-        'sanchuan2' => 3,
-        'rigan' => 0,
-        'rizhi' => 0,
-        'sike' => [0, 2, 2, 2, 0, 2, 2, 2],
-    ]);
-
-    expect($match)->not->toBeNull()
-        ->and($match->evidence['foundations'])->toHaveCount(1)
-        ->and($match->evidence['foundations'][0]['title'])->toBe('用神生日')
-        ->and($match->evidence['foundations'][0]['detail'])->toBe('初传亥生日干甲。');
-});
-
-test('hengtong lists yongshen-shengri before the matched grid', function () {
-    // 癸丑日递生逆：初传酉生日干癸，同时命中递生格，用神生日列在最前。
-    $match = ht_match(HengtongRule::class, [
-        'sanchuan0' => 9,
-        'sanchuan1' => 1,
-        'sanchuan2' => 5,
-        'rigan' => 9,
-        'rizhi' => 1,
-        'sike' => [9, 2, 2, 2, 1, 2, 2, 2],
-    ]);
-
-    expect($match)->not->toBeNull()
-        ->and(collect($match->evidence['foundations'])->pluck('title')->all())
-        ->toBe(['用神生日', '递生格']);
-});
-
 test('hengtong does not match when there is no generation or prosperity relation', function () {
     expect(ht_match(HengtongRule::class, [
         'sanchuan0' => 2,

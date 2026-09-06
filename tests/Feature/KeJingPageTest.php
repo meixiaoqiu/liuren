@@ -59,7 +59,7 @@ test('hengtong catalog covers all five grids and both di-sheng directions', func
 
     $labels = implode('', array_column($hengtong['cases'], 'label'));
 
-    expect($hengtong['cases'])->toHaveCount(7)
+    expect($hengtong['cases'])->toHaveCount(6)
         ->and($labels)
-        ->toContain('用神生日', '递生格', '俱生格', '互生格', '互旺格', '俱旺格', '逆');
+        ->toContain('递生格', '俱生格', '互生格', '互旺格', '俱旺格', '逆');
 });
