@@ -6,7 +6,7 @@ use App\Data\PanResult;
 use App\Domain\Pan\Facts\PanFacts;
 use LogicException;
 
-/** 文件作用：逐一执行注册规则、收集全部命中结果，并报告尚未覆盖的取传阶段。 */
+/** 文件作用：逐一执行注册规则、收集全部命中结果，并报告尚未覆盖的取传阶段与因上下文缺失而未评估的规则。 */
 final readonly class PanRuleEngine
 {
     public function __construct(private RuleRegistry $registry = new RuleRegistry) {}
@@ -24,6 +24,11 @@ final readonly class PanRuleEngine
             }
 
             $registeredCodes[$rule->code()] = true;
+
+            if ($this->missingContext($rule, $facts) !== []) {
+                continue;
+            }
+
             $match = $rule->match($facts);
 
             if ($match !== null) {
@@ -32,6 +37,48 @@ final readonly class PanRuleEngine
         }
 
         return $matches;
+    }
+
+    /**
+     * 因缺少必要上下文而未执行的规则（区别于“信息完整但条件不成立”）。
+     *
+     * @return list<array{code: string, name: string, notice: string}>
+     */
+    public function notEvaluated(PanResult $pan): array
+    {
+        $facts = PanFacts::from($pan);
+        $notEvaluated = [];
+
+        foreach ($this->registry->rules() as $rule) {
+            if ($rule instanceof ContextAwareRule && $this->missingContext($rule, $facts) !== []) {
+                $notEvaluated[] = [
+                    'code' => $rule->code(),
+                    ...$rule->notEvaluatedInfo(),
+                ];
+            }
+        }
+
+        return $notEvaluated;
+    }
+
+    /** @return list<string> */
+    private function missingContext(PanRule $rule, PanFacts $facts): array
+    {
+        if (! $rule instanceof ContextAwareRule) {
+            return [];
+        }
+
+        $missing = [];
+
+        foreach ($rule->requiredContext() as $path) {
+            $parts = explode('.', $path, 2);
+
+            if ($parts[0] === 'people' && $facts->personByRole($parts[1] ?? '') === null) {
+                $missing[] = $path;
+            }
+        }
+
+        return $missing;
     }
 
     /** @return list<string> */

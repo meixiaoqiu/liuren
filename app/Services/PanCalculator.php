@@ -342,6 +342,7 @@ class PanCalculator
         $sizhuHour = self::$jiazi2Ganzhi[$sizhu->getEightChar()->getHour()->getIndex()];
         $pan['niangan'] = $sizhuYear[0];
         $pan['nianzhi'] = $sizhuYear[1];
+        $pan['nian_index'] = $sizhu->getEightChar()->getYear()->getIndex();
         $pan['yuegan'] = $sizhuMonth[0];
         $pan['yuezhi'] = $sizhuMonth[1];
         $pan['rigan'] = $sizhuDay[0];

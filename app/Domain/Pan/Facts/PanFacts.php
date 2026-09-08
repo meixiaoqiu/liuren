@@ -44,6 +44,31 @@ final readonly class PanFacts
         return $this->pan->get($key);
     }
 
+    /**
+     * 占测上下文中的全部相关人物（含占者本人）。
+     *
+     * @return list<array{role: string, birth_datetime: ?string, gender: ?string, nianming: ?int, xingnian: ?int, xingnian_gan: ?int}>
+     */
+    public function people(): array
+    {
+        $context = $this->get('context');
+        $people = is_array($context) ? ($context['people'] ?? []) : [];
+
+        return is_array($people) ? array_values($people) : [];
+    }
+
+    /** @return array{role: string, birth_datetime: ?string, gender: ?string, nianming: ?int, xingnian: ?int, xingnian_gan: ?int}|null */
+    public function personByRole(string $role): ?array
+    {
+        foreach ($this->people() as $person) {
+            if (($person['role'] ?? null) === $role) {
+                return $person;
+            }
+        }
+
+        return null;
+    }
+
     /** @return array<string, mixed> */
     public function calculationTrace(): array
     {

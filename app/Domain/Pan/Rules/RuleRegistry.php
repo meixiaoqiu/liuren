@@ -55,6 +55,9 @@ final class RuleRegistry
             new HuShengRule,
             new JuWangRule,
             new HuWangRule,
+            new FanchangRule,
+            new DeYunRule,
+            new WangYunRule,
         ];
     }
 }

@@ -500,21 +500,21 @@ test('guanjue is reproducible from a real calendar input', function () {
 test('derived fate stays fixed across months in the same current year branch', function () {
     $calculator = app(PanCalculator::class);
     $fateCalculator = new FateCalculator;
-    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
-    $springBranch = $calculator->calculate('2026-03-01 12:00:00')->get('nianzhi');
-    $winterBranch = $calculator->calculate('2026-12-01 12:00:00')->get('nianzhi');
+    $birthIndex = $calculator->calculate('1986-08-01 00:00:00')->get('nian_index');
+    $springIndex = $calculator->calculate('2026-03-01 12:00:00')->get('nian_index');
+    $winterIndex = $calculator->calculate('2026-12-01 12:00:00')->get('nian_index');
 
-    expect($springBranch)->toBe($winterBranch)
-        ->and($fateCalculator->calculate($birthBranch, $springBranch, 'male'))
-        ->toBe($fateCalculator->calculate($birthBranch, $winterBranch, 'male'))
-        ->toBe(['nianming' => 2, 'xingnian' => 6]);
+    expect($springIndex)->toBe($winterIndex)
+        ->and($fateCalculator->calculate($birthIndex, $springIndex, 'male'))
+        ->toBe($fateCalculator->calculate($birthIndex, $winterIndex, 'male'))
+        ->toBe(['nianming' => 2, 'xingnian' => 6, 'xingnian_gan' => 2]);
 });
 
 test('fugui requires nobleman to ride the vigorous generating initial over day fate ground', function () {
     $calculator = app(PanCalculator::class);
     $calculated = $calculator->calculate('2025-01-10 08:00:00');
-    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
-    $fate = (new FateCalculator)->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
+    $birthIndex = $calculator->calculate('1986-08-01 00:00:00')->get('nian_index');
+    $fate = (new FateCalculator)->calculate($birthIndex, $calculated->get('nian_index'), 'male');
     $facts = PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate]));
     $match = (new FuguiRule)->match($facts);
 
@@ -555,8 +555,8 @@ test('fugui records horse riding dragon as an enhancement', function () {
 test('fugui keeps nobleman imprisonment before its classical exception', function () {
     $calculator = app(PanCalculator::class);
     $calculated = $calculator->calculate('2026-03-08 06:40:00');
-    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
-    $fate = (new FateCalculator)->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
+    $birthIndex = $calculator->calculate('1986-08-01 00:00:00')->get('nian_index');
+    $fate = (new FateCalculator)->calculate($birthIndex, $calculated->get('nian_index'), 'male');
     $match = (new FuguiRule)->match(PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate])));
 
     expect($match)->not->toBeNull()
@@ -575,13 +575,13 @@ test('near-current guanjue examples use only automatically derived fate', functi
 ) {
     $calculator = app(PanCalculator::class);
     $fateCalculator = new FateCalculator;
-    $birthBranch = $calculator->calculate('1986-08-01 00:00:00')->get('nianzhi');
+    $birthIndex = $calculator->calculate('1986-08-01 00:00:00')->get('nian_index');
     $calculated = $calculator->calculate($datetime);
-    $fate = $fateCalculator->calculate($birthBranch, $calculated->get('nianzhi'), 'male');
+    $fate = $fateCalculator->calculate($birthIndex, $calculated->get('nian_index'), 'male');
     $facts = PanFacts::from(new PanResult([...$calculated->toArray(), ...$fate]));
     $match = (new GuanjueRule)->match($facts);
 
-    expect($fate)->toBe(['nianming' => 2, 'xingnian' => 6])
+    expect($fate)->toBe(['nianming' => 2, 'xingnian' => 6, 'xingnian_gan' => 2])
         ->and($match)->not->toBeNull()
         ->and($match->evidence['matching_horse_sources'])->toBe($expectedSources)
         ->and($match->evidence['transmissions'])->toBe($expectedTransmissions);

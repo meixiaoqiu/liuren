@@ -36,6 +36,39 @@
                             <div class="self-end pb-1 text-sm leading-6 text-base-content/55">年命、行年将在排盘后自动显示。</div>
                         </div>
 
+                        <div class="space-y-3">
+                            @foreach ($people as $index => $person)
+                                <div class="rounded-lg border border-base-300/80 bg-base-100 p-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-base-content/70">相关人物</span>
+                                        <button type="button" wire:click="removePerson({{ $index }})" class="text-xs text-base-content/50 hover:text-error">移除</button>
+                                    </div>
+                                    <div class="mt-2 grid grid-cols-2 gap-3">
+                                        <x-select
+                                            label="身份"
+                                            wire:model="people.{{ $index }}.role"
+                                            :options="$personRoleOptions"
+                                            icon="o-user-group"
+                                        />
+                                        <x-select
+                                            label="性别"
+                                            wire:model="people.{{ $index }}.gender"
+                                            :options="$genderOptions"
+                                            icon="o-user"
+                                        />
+                                    </div>
+                                    <x-datetime
+                                        label="出生时间"
+                                        wire:model="people.{{ $index }}.birth_datetime"
+                                        type="datetime-local"
+                                        icon="o-cake"
+                                    />
+                                </div>
+                            @endforeach
+
+                            <x-button label="添加相关人物" icon="o-plus" class="btn-outline btn-sm w-full" wire:click="addPerson" type="button" />
+                        </div>
+
                         <x-slot:actions>
                             <x-button label="立即排盘" type="submit" icon="o-sparkles" class="btn-primary w-full" spinner="calculate" />
                         </x-slot:actions>
@@ -187,7 +220,11 @@
 
                                     <div class="pan-center">
                                         <span class="text-xs tracking-[0.3em] text-base-content/45">天将</span>
-                                        <strong class="mt-2 text-xl font-semibold tracking-wider {{ $pan['shunni'] === 1 ? 'text-primary' : 'text-secondary' }}">{{ $pan['shunni'] === 1 ? '顺行' : '逆行' }}</strong>
+                                        <strong class="mt-1 text-xl font-semibold tracking-wider {{ $pan['shunni'] === 1 ? 'text-primary' : 'text-secondary' }}">{{ $pan['shunni'] === 1 ? '顺行' : '逆行' }}</strong>
+                                        @if ($seasonalPeriod !== null)
+                                            <span class="mt-2 text-xs tracking-wider text-base-content/45">{{ $seasonalPeriod['name'] }}</span>
+                                            <span class="mt-1 text-sm font-medium text-base-content/70">{{ $wuxing[$seasonalPeriod['wang']] }}旺 · {{ $wuxing[$seasonalPeriod['xiang']] }}相</span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -200,6 +237,12 @@
                                         {{ $notice }}
                                     </div>
                                 @endforeach
+
+                                @if ($referenceCase !== null)
+                                    <div class="pan-block bg-warning/10 px-5 py-4 text-sm text-warning-content">
+                                        原文参考盘·尚未覆盖（繁昌课·本命五行口径未定）。
+                                    </div>
+                                @endif
 
                                 @foreach ($lessonInterpretations as $interpretation)
                                     <article class="flow-root py-1">
@@ -268,7 +311,19 @@
                                         @if ($interpretation['group'] === '亨通课体')
                                             @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.fanchang')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '繁昌判断', 'trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['group'] === '繁昌课体')
+                                            @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
+                                        @endif
                                     </article>
+                                @endforeach
+
+                                @foreach ($notEvaluated as $pending)
+                                    <div class="pan-block bg-base-200/70 px-5 py-4 text-sm text-base-content/70">
+                                        <span class="font-medium text-base-content/80">{{ $pending['name'] }}</span>：{{ $pending['notice'] }}
+                                    </div>
                                 @endforeach
 
                                 @include('livewire.pan.partials.shehai-trace')

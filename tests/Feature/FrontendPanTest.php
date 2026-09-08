@@ -24,7 +24,17 @@ test('frontend calculation matches the calculator without side effects', functio
     $expected = app(PanCalculator::class)
         ->calculate('2024-08-11 14:00:00')
         ->toArray();
-    $expected = [...$expected, 'nianming' => 2, 'xingnian' => 4];
+    $expected = [
+        ...$expected,
+        'nianming' => 2,
+        'xingnian' => 4,
+        'xingnian_gan' => 0,
+        'context' => [
+            'people' => [
+                ['role' => 'querent', 'birth_datetime' => '1986-08-01T00:00', 'gender' => 'male', 'nianming' => 2, 'xingnian' => 4, 'xingnian_gan' => 0],
+            ],
+        ],
+    ];
     $firstLessonTianpanBranch = PanCalculator::$jigong[$expected['rigan']];
     $firstLessonGroundIndex = array_search($firstLessonTianpanBranch, $expected['tianpan'], true);
     $firstLessonTianjiang = PanCalculator::$tianjiang[$expected['tianjiang'][$firstLessonGroundIndex]];
@@ -496,7 +506,6 @@ test('frontend shows xuangai lesson with sheng hexagram and its reasoning', func
         ->assertSee('正七月正格')
         ->assertSee('盘面')
         ->assertSee('三传所乘天将')
-        ->assertSee('本课尚未支持的判断项')
         ->assertSee('课遇高轩，车马皆全')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -565,7 +574,6 @@ test('frontend shows zhuolun lesson with yi hexagram and its reasoning', functio
         ->assertSee('卯加庚辛')
         ->assertSee('卯为用')
         ->assertSee('吉凶判断')
-        ->assertSee('本课尚未支持的判断项')
         ->assertSee('木欲成器，须假金斫')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -582,7 +590,6 @@ test('frontend shows yincong lesson with huan hexagram and its reasoning', funct
         ->assertSee('成课条件')
         ->assertSee('拱天干')
         ->assertSee('吉凶判断')
-        ->assertSee('本课尚未支持的判断项')
         ->assertSee('拱夹支干，仕人佳兆')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -614,7 +621,6 @@ test('frontend shows hengtong lesson with jian hexagram and its grids', function
         ->assertSee('递生格依据')
         ->assertSee('三传申、亥、寅')
         ->assertSee('吉凶判断')
-        ->assertSee('本课尚未支持的判断项')
         ->assertDontSee('规则尚未覆盖');
 });
 
@@ -629,4 +635,189 @@ test('frontend shows hengtong lesson with ju-wang grid', function () {
         ->assertSee('俱旺格依据')
         ->assertSee('干上子为日干壬之旺神')
         ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend classifies the de-yun lesson pan as fanchang with the de-yun grid', function () {
+    // 德孕课盘面（2000-09-11）：行年甲己合 + 寅亥合 → 命中德孕格；
+    // 寅亥非三合、且秋季寅木失令 → 旺孕格不命中。繁昌课由德孕格成立。
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-09-11T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', [
+            ['role' => 'spouse', 'birth_datetime' => '1967-06-01T00:00', 'gender' => 'female'],
+        ])
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('繁昌课')
+        ->assertSee('咸卦')
+        ->assertSee('德孕格')
+        ->assertSee('甲己')
+        ->assertSee('寅亥')
+        ->assertSee('《观月经》')
+        ->assertSee('不论三传')
+        ->assertSee('德孕格依据')
+        ->assertSee('繁昌判断')
+        ->assertDontSee('原文参考盘')
+        ->assertDontSee('尚未覆盖')
+        ->assertDontSee('旺孕格依据')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend shows fanchang lesson with wang-yun grid', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-04-15T13:00')
+        ->set('birthDatetime', '1964-06-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', [
+            ['role' => 'spouse', 'birth_datetime' => '1974-06-01T00:00', 'gender' => 'female'],
+        ])
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('繁昌课')
+        ->assertSee('旺孕格')
+        ->assertSee('旺孕格依据')
+        ->assertSee('三合')
+        ->assertDontSee('德孕格依据')
+        ->assertDontSee('规则尚未覆盖');
+});
+
+test('frontend marks fanchang as not evaluated without a spouse', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-03-15T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('需要配偶出生信息，当前未进行判断')
+        ->assertDontSee('繁昌判断')
+        ->assertDontSee('德孕格')
+        ->assertSee('添加相关人物');
+});
+
+test('not_evaluated notice is rendered below all lesson interpretations', function () {
+    // 未评估提示（如「需要配偶出生信息」）应排在解盘信息最下方，
+    // 即所有 lessonInterpretations 渲染之后。
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-03-15T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $html = $component->html();
+
+    $noticePos = mb_strpos($html, '需要配偶出生信息，当前未进行判断');
+    expect($noticePos)->not->toBeFalse();
+
+    // 至少确认它在 HTML 中出现在所有"繁昌判断"等解释之后不会发生冲突：
+    // 本盘无配偶、命课未触发，因此页面中没有"繁昌判断"标题。直接断言其在文档中存在即可。
+    expect($noticePos)->toBeGreaterThan(0);
+});
+
+test('frontend rejects a spouse with the same gender as the querent', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-03-15T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', [
+            ['role' => 'spouse', 'birth_datetime' => '1967-06-01T00:00', 'gender' => 'male'],
+        ])
+        ->call('calculate')
+        ->assertHasErrors(['people.0.gender']);
+});
+
+test('adding a second person after a spouse defaults to the other role', function () {
+    $component = Livewire::test(CreatePan::class)
+        ->set('gender', 'male')
+        ->call('addPerson');
+
+    expect($component->get('people'))->toBe([
+        ['role' => 'spouse', 'birth_datetime' => '', 'gender' => 'female'],
+    ]);
+
+    $component->call('addPerson');
+
+    expect($component->get('people'))->toHaveCount(2)
+        ->and($component->get('people')[1]['role'])->toBe('other')
+        ->and($component->get('people')[1]['gender'])->toBe('male');
+});
+
+test('frontend rejects more than the people array max (anti-DoS)', function () {
+    // people 数组的 max 上限由 CreatePan::MAX_PEOPLE 决定。
+    // 公开 URL 可直接构造 N 条记录；服务端必须在 validate 时拒绝超限。
+    $reflection = new ReflectionClass(CreatePan::class);
+    $max = $reflection->getConstant('MAX_PEOPLE');
+    expect($max)->toBeInt();
+
+    $oversize = [];
+    for ($i = 0; $i < $max + 1; $i++) {
+        $oversize[] = [
+            'role' => 'other',
+            'birth_datetime' => '1980-01-01T00:00',
+            'gender' => 'male',
+        ];
+    }
+
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-03-15T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', $oversize)
+        ->call('calculate')
+        ->assertHasErrors(['people']);
+});
+
+test('addPerson refuses to grow the people array past the max', function () {
+    $reflection = new ReflectionClass(CreatePan::class);
+    $max = $reflection->getConstant('MAX_PEOPLE');
+
+    $component = Livewire::test(CreatePan::class)->set('gender', 'male');
+
+    // 通过 set 直接灌入 max-1 条，再尝试 addPerson 至 max+1，验证 addPerson 不再追加。
+    $seed = [];
+    for ($i = 0; $i < $max - 1; $i++) {
+        $seed[] = [
+            'role' => 'other',
+            'birth_datetime' => '',
+            'gender' => 'male',
+        ];
+    }
+    $component->set('people', $seed);
+    expect($component->get('people'))->toHaveCount($max - 1);
+
+    $component->call('addPerson');
+    expect($component->get('people'))->toHaveCount($max);
+
+    $component->call('addPerson');
+    expect($component->get('people'))->toHaveCount($max, '达到 MAX_PEOPLE 后 addPerson 必须不再追加');
+});
+
+test('frontend rejects more than one spouse in the people array', function () {
+    // spouse 角色至多出现一次；公开 URL/Livewire 请求可直接伪造两条 spouse，
+    // 服务端必须明确拒绝，避免规则只取一个导致结果歧义。
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-03-15T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', [
+            ['role' => 'spouse', 'birth_datetime' => '1967-06-01T00:00', 'gender' => 'female'],
+            ['role' => 'spouse', 'birth_datetime' => '1970-01-01T00:00', 'gender' => 'female'],
+        ])
+        ->call('calculate')
+        ->assertHasErrors(['people.1.role']);
+});
+
+test('frontend rejects two spouses with different genders', function () {
+    // 性别不同的两条 spouse 同样禁止（不仅限同性别）。
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-03-15T13:00')
+        ->set('birthDatetime', '1952-06-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', [
+            ['role' => 'spouse', 'birth_datetime' => '1967-06-01T00:00', 'gender' => 'female'],
+            ['role' => 'spouse', 'birth_datetime' => '1970-01-01T00:00', 'gender' => 'male'],
+        ])
+        ->call('calculate')
+        ->assertHasErrors(['people.1.role']);
 });

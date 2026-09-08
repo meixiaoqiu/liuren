@@ -38,9 +38,25 @@
                                 <h3 class="text-sm font-semibold tracking-wide text-base-content/70">入选课例</h3>
                                 <div class="mt-3 grid gap-3 lg:grid-cols-2">
                                     @foreach ($lesson['cases'] as $case)
-                                        <a href="{{ route('pan.create', ['datetime' => $case['datetime'], 'birth' => $case['birth'], 'gender' => $case['gender']]) }}" class="block transition hover:opacity-90">
+                                        @php
+                                            $query = [
+                                                'datetime' => $case['datetime'],
+                                                'birth' => $case['birth'],
+                                                'gender' => $case['gender'],
+                                            ];
+                                            if (! empty($case['people'] ?? [])) {
+                                                $query['people'] = $case['people'];
+                                            }
+                                            if (($case['status'] ?? 'executable') === 'reference_only' && ! empty($case['case_id'] ?? null)) {
+                                                $query['reference_case'] = $case['case_id'];
+                                            }
+                                        @endphp
+                                        <a href="{{ route('pan.create', $query) }}" class="block transition hover:opacity-90">
                                             <x-card :title="$case['label']" class="bg-base-200/45">
                                                 <x-slot:menu>
+                                                    @if (($case['status'] ?? 'executable') === 'reference_only')
+                                                        <x-badge value="原文参考盘·尚未覆盖" class="badge-warning badge-soft" />
+                                                    @endif
                                                     <x-icon name="o-arrow-top-right-on-square" class="text-primary" />
                                                 </x-slot:menu>
                                                 <x-alert icon="o-light-bulb" class="alert-soft">

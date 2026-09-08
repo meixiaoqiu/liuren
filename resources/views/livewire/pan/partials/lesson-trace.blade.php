@@ -45,16 +45,6 @@
                     @endforeach
                 </div>
             @endif
-
-            @if (! empty($trace['uncovered'] ?? []))
-                <h4 class="mt-5 text-sm font-semibold tracking-wide text-base-content/70">本课尚未支持的判断项</h4>
-                <p class="mt-1 text-xs leading-5 text-base-content/45">以下为原文提到、但本课尚未实现的判断项，不代表当前盘面已触发。</p>
-                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-base-content/55">
-                    @foreach ($trace['uncovered'] as $uncovered)
-                        <li>{{ $uncovered }}</li>
-                    @endforeach
-                </ul>
-            @endif
         </div>
     </div>
 </section>
