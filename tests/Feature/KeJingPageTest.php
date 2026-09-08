@@ -89,6 +89,65 @@ test('fanchang catalog covers both the de-yun and wang-yun grids', function () {
         ->toContain('德孕格', '旺孕格');
 });
 
+test('rong-hua catalog contains the daquan bing-yin and ren-shen executable cases', function () {
+    $rongHua = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.rong_hua');
+
+    expect($rongHua)->not->toBeNull()
+        ->and($rongHua['gua'])->toBe('渐')
+        ->and($rongHua['guaSymbol'])->toBe('䷴');
+
+    $labels = implode('', array_column($rongHua['cases'], 'label'));
+
+    expect($rongHua['cases'])->toHaveCount(2)
+        ->and($labels)
+        ->toContain('丙寅日正文结构', '壬申日正文结构');
+});
+
+test('rong-hua catalog and kejing page preserve every named daquan example', function () {
+    $rongHua = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.rong_hua');
+    $labels = array_column($rongHua['source_examples'], 'label');
+
+    expect($rongHua['source_examples'])->toHaveCount(16)
+        ->and($labels)->toContain(
+            '丙寅日', '壬申日', '癸丑日', '甲申日', '乙酉日', '丁卯日',
+            '甲子日', '丁酉日', '丙丁日', '丁丑日', '六丁日',
+            '丙申日卯时子将', '庚辰日亥加寅',
+        );
+
+    $this->get(route('kejing'))
+        ->assertOk()
+        ->assertSee('《六壬大全》正文全部举例')
+        ->assertSee('壬申日')
+        ->assertSee('贵人蹉跎')
+        ->assertSee('遍地贵人')
+        ->assertSee('丙申日卯时子将')
+        ->assertSee('庚辰日亥加寅');
+});
+
+test('rong-hua bing-yin case is executable and reproduces the lesson on the pan page', function () {
+    $rongHua = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.rong_hua');
+
+    $case = collect($rongHua['cases'])->firstWhere('case_id', 'lesson.rong_hua.bing_yin');
+
+    expect($case)->not->toBeNull();
+    expect($case['status'])->toBe('executable');
+
+    $component = Livewire::withQueryParams([
+        'datetime' => $case['datetime'],
+        'birth' => $case['birth'],
+        'gender' => $case['gender'],
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors();
+
+    $component->assertSee('荣华课')
+        ->assertSee('渐卦')
+        ->assertSee('䷴')
+        ->assertSee('干支吉神，入宅俱利');
+});
+
 test('kejing page fanchang case links carry the spouse context', function () {
     $fanchang = collect(KeJingCatalog::lessons())
         ->firstWhere('code', 'lesson.fanchang');

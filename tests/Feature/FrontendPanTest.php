@@ -254,6 +254,19 @@ test('frontend shows guanjue lesson with yi hexagram and its reasoning', functio
         ->assertDontSee('规则尚未覆盖');
 });
 
+test('frontend shows rong-hua lesson with jian hexagram and its reasoning', function () {
+    // 2001-05-03 11:00：丙寅日干上申马、支上巳禄，申旺相发用，中传亥贵。
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2001-05-03T11:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('荣华课')
+        ->assertSee('渐卦')
+        ->assertSee('䷴')
+        ->assertSee('干支吉神，入宅俱利')
+        ->assertDontSee('规则尚未覆盖');
+});
+
 test('frontend shows fugui lesson with dayou hexagram and its reasoning', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2025-01-10T08:00')
