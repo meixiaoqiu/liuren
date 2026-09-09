@@ -317,6 +317,9 @@
                                         @if ($interpretation['group'] === '繁昌课体')
                                             @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.de_qing')
+                                            @include('livewire.pan.partials.deqing-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
                                     </article>
                                 @endforeach
 

@@ -59,6 +59,7 @@ final class RuleRegistry
             new DeYunRule,
             new WangYunRule,
             new RongHuaRule,
+            new DeQingRule,
         ];
     }
 }

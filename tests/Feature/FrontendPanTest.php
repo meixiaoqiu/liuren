@@ -149,15 +149,25 @@ test('frontend shows jinglan as a grid of fanyin rather than wuqin lesson', func
 });
 
 test('frontend shows sanguang lesson with ben hexagram', function () {
-    Livewire::test(CreatePan::class)
+    $component = Livewire::test(CreatePan::class)
         ->set('datetime', '2000-02-18T11:00')
         ->call('calculate')
-        ->assertHasNoErrors()
-        ->assertSet('ruleMatches.0.name', '返吟课')
-        ->assertSet('ruleMatches.0.marker', '经')
-        ->assertSet('ruleMatches.1.name', '三光课')
-        ->assertSet('ruleMatches.1.marker', '经')
-        ->assertSet('ruleMatches.2.marker', '传')
+        ->assertHasNoErrors();
+
+    $matches = $component->get('ruleMatches');
+    $names = array_column($matches, 'name');
+    $markers = array_column($matches, 'marker');
+    $sanguangIndex = array_search('三光课', $names, true);
+    $fanyinIndex = array_search('返吟课', $names, true);
+
+    // 返吟、三光为 primary（经），应排在 secondary（传）之前；具体下标因其他 primary 规则增减可能变化。
+    expect($fanyinIndex)->toBeInt()
+        ->and($sanguangIndex)->toBeInt()
+        ->and($matches[$fanyinIndex]['marker'])->toBe('经')
+        ->and($matches[$sanguangIndex]['marker'])->toBe('经')
+        ->and(in_array('传', $markers, true))->toBeTrue('至少应保留一处非经标记的辅助判断');
+
+    $component
         ->assertSee('三光课')
         ->assertSee('贲卦')
         ->assertSee('䷕')

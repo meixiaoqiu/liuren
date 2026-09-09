@@ -71,10 +71,24 @@ final readonly class PanRuleEngine
         $missing = [];
 
         foreach ($rule->requiredContext() as $path) {
-            $parts = explode('.', $path, 2);
+            $parts = explode('.', $path, 3);
 
-            if ($parts[0] === 'people' && $facts->personByRole($parts[1] ?? '') === null) {
+            if ($parts[0] !== 'people') {
+                continue;
+            }
+
+            $person = $facts->personByRole($parts[1] ?? '');
+            if ($person === null) {
                 $missing[] = $path;
+
+                continue;
+            }
+
+            // 三段式路径：people.<role>.<field>，要求字段存在且非 null
+            if (isset($parts[2])) {
+                if (! array_key_exists($parts[2], $person) || $person[$parts[2]] === null) {
+                    $missing[] = $path;
+                }
             }
         }
 
