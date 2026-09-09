@@ -42,6 +42,34 @@ test('every executable kejing case link reproduces its lesson on the pan page', 
     }
 });
 
+test('he-mei catalog case reproduces the daquan cross-liuhe structure', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.he_mei');
+    $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.he_mei.ren_wu_si_shi_chou_jiang');
+
+    expect($case)->not->toBeNull()
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2026-01-08T09:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.he_mei');
+
+    expect([$pan['rigan'], $pan['rizhi']])->toBe([8, 6])
+        ->and($pan['yuejiang'])->toBe(1)
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([10, 6, 2])
+        ->and($pan['tianpan'][11])->toBe(7)
+        ->and($pan['tianpan'][6])->toBe(2)
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['matched_structures'])->toContain('cross_liuhe')
+        ->and($match['evidence']['cross_liuhe'])->toBeTrue();
+});
+
 test('every kejing case declares its selection reason', function () {
     foreach (KeJingCatalog::lessons() as $lesson) {
         foreach ($lesson['cases'] as $case) {

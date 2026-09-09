@@ -102,19 +102,10 @@ function hehuan_synthetic_pan(
     ]);
 }
 
-test('LIUHE_PAIRS enumerates all six orthodox branch pairs in both directions', function () {
-    $constant = (new ReflectionClass(HeHuanRule::class))->getReflectionConstant('LIUHE_PAIRS');
-
-    expect($constant)->not->toBeFalse()
-        ->and($constant->getValue())->toBe([
-            [0, 1], [1, 0],       // 子丑
-            [2, 11], [11, 2],     // 寅亥
-            [3, 10], [10, 3],     // 卯戌
-            [4, 9], [9, 4],       // 辰酉
-            [5, 8], [8, 5],       // 巳申
-            [6, 7], [7, 6],       // 午未
-        ]);
-});
+// 六合有序对 12 方向覆盖已于重构时迁移到 tests/Unit/BranchRelationsTest：
+//   - liuhe contains exactly the six orthodox unordered pairs
+//   - liuhe accepts all twelve directions and rejects every other ordered pair
+// 本文件不再独立维护 LIUHE_PAIRS 列表。
 
 test('he-huan reproduces the daquan wu-shen day shen-jiang case with supplied context', function () {
     $pan = hehuan_full_pan('2000-06-19 00:00:00', '1959-06-21 12:00:00', 'male');

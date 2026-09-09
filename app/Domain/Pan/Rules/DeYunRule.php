@@ -2,6 +2,7 @@
 
 namespace App\Domain\Pan\Rules;
 
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 
 /**
@@ -31,21 +32,6 @@ final class DeYunRule extends FanchangGridRule
         [4, 9], // 戊癸
     ];
 
-    /**
-     * 地支六合显式表（子丑、寅亥、卯戌、辰酉、巳申、午未）。
-     * 测试必须使用此显式表断言六合成立。
-     *
-     * @var list<array{0: int, 1: int}>
-     */
-    private const BRANCH_COMBINES = [
-        [0, 1],   // 子丑
-        [2, 11],  // 寅亥
-        [3, 10],  // 卯戌
-        [4, 9],   // 辰酉
-        [5, 8],   // 巳申
-        [6, 7],   // 午未
-    ];
-
     protected const SLUG = 'de_yun';
 
     protected const NAME = '德孕格';
@@ -66,7 +52,7 @@ final class DeYunRule extends FanchangGridRule
         $wZhi = $data['qi_xingnian'];
 
         $stemPair = self::findPair(self::STEM_COMBINES, $hGan, $wGan);
-        $branchPair = self::findPair(self::BRANCH_COMBINES, $hZhi, $wZhi);
+        $branchPair = BranchRelations::liuhePair($hZhi, $wZhi);
 
         if ($stemPair === null || $branchPair === null) {
             return null;

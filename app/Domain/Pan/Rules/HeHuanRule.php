@@ -2,6 +2,7 @@
 
 namespace App\Domain\Pan\Rules;
 
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 
 /**
@@ -44,32 +45,6 @@ final class HeHuanRule implements ContextAwareRule
 {
     /** @var list<int> 六吉将：贵、合、龙、常、阴、后。 */
     private const AUSPICIOUS_GENERALS = [0, 3, 5, 8, 10, 11];
-
-    /** @var list<array{0:int,1:int}> 地支六合对。 */
-    private const LIUHE_PAIRS = [
-        [0, 1], [1, 0],
-        [2, 11], [11, 2],
-        [3, 10], [10, 3],
-        [4, 9], [9, 4],
-        [5, 8], [8, 5],
-        [6, 7], [7, 6],
-    ];
-
-    /**
-     * 四组三合支序列（已按升序规范化，避免 isSanhe 比较时漏判）。
-     *   [0, 4, 8]    = 申子辰（水局）
-     *   [1, 5, 9]    = 巳酉丑（金局）
-     *   [2, 6, 10]   = 寅午戌（火局）
-     *   [3, 7, 11]   = 亥卯未（木局）
-     *
-     * @var list<list<int>>
-     */
-    private const SANHE_TRIPLES = [
-        [0, 4, 8],
-        [1, 5, 9],
-        [2, 6, 10],
-        [3, 7, 11],
-    ];
 
     protected const RULE_CODE = 'lesson.he_huan';
 
@@ -149,7 +124,7 @@ final class HeHuanRule implements ContextAwareRule
         }
 
         // 2a) 初传与干上神作地支六合。
-        $initialHexesUpper = $this->isLiuhe($initial, $dayUpper);
+        $initialHexesUpper = BranchRelations::isLiuhe($initial, $dayUpper);
         if (! $initialHexesUpper) {
             return null;
         }
@@ -204,17 +179,6 @@ final class HeHuanRule implements ContextAwareRule
         );
     }
 
-    private function isLiuhe(int $a, int $b): bool
-    {
-        foreach (self::LIUHE_PAIRS as $pair) {
-            if ($pair[0] === $a && $pair[1] === $b) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * 根据日干所在旬与目标地支计算寄宫天干。
      *
@@ -257,8 +221,7 @@ final class HeHuanRule implements ContextAwareRule
         int $final
     ): bool {
         foreach ([[$dayBranch, $initial, $middle], [$dayBranch, $initial, $final]] as $branches) {
-            sort($branches);
-            if (in_array($branches, self::SANHE_TRIPLES, true)) {
+            if (BranchRelations::isSanhe(...$branches)) {
                 return true;
             }
         }
@@ -278,9 +241,9 @@ final class HeHuanRule implements ContextAwareRule
         int $final
     ): ?array {
         foreach ([[$dayBranch, $initial, $middle], [$dayBranch, $initial, $final]] as $branches) {
-            sort($branches);
-            if (in_array($branches, self::SANHE_TRIPLES, true)) {
-                return $branches;
+            $triple = BranchRelations::sanheTriple(...$branches);
+            if ($triple !== null) {
+                return $triple;
             }
         }
 

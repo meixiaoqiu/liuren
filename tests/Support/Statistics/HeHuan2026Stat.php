@@ -12,6 +12,7 @@
 require dirname(__DIR__, 3).'/vendor/autoload.php';
 
 use App\Data\PanResult;
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Services\PanCalculator;
@@ -20,19 +21,6 @@ $calculator = new PanCalculator;
 $fateCalculator = new FateCalculator;
 
 $auspiciousGenerals = [0, 3, 5, 8, 10, 11];
-
-$liuhe = [];
-foreach ([[0, 1], [10, 11], [8, 9], [4, 5], [2, 3], [6, 7]] as $p) {
-    $liuhe[$p[0].','.$p[1]] = true;
-    $liuhe[$p[1].','.$p[0]] = true;
-}
-
-$sanhetu = [
-    [0, 4, 8],
-    [1, 5, 9],
-    [2, 6, 10],
-    [3, 7, 11],
-];
 
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
 $birth = '1959-06-21 12:00:00';
@@ -97,12 +85,11 @@ for ($day = 0; $day < 365; $day++) {
         }
         $counts['stem_hex_candidate']++;
 
-        $initialHexesUpper = $liuhe[$initial.','.$dayUpper] ?? false;
+        $initialHexesUpper = BranchRelations::isLiuhe($initial, $dayUpper);
 
         $sanchuanSanhe = false;
         foreach ([[$dayBranch, $initial, $middle], [$dayBranch, $initial, $final]] as $branches) {
-            sort($branches);
-            if (in_array($branches, $sanhetu, true)) {
+            if (BranchRelations::isSanhe(...$branches)) {
                 $sanchuanSanhe = true;
                 break;
             }

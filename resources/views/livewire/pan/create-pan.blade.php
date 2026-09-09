@@ -323,6 +323,9 @@
                                         @if ($interpretation['code'] === 'lesson.he_huan')
                                             @include('livewire.pan.partials.hehuan-trace', ['trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.he_mei')
+                                            @include('livewire.pan.partials.hemei-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
                                     </article>
                                 @endforeach
 

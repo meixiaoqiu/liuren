@@ -2,6 +2,7 @@
 
 namespace App\Domain\Pan\Rules;
 
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 
 /** 文件作用：为繁昌课下的德孕、旺孕两格提供夫妻行年读取与地支三合判断。德孕按《观月经》口径（行年干支相合），旺孕按行年地支三合且俱得季节旺相。 */
@@ -10,28 +11,10 @@ trait FanchangSupport
     /** @var list<string> */
     protected const BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
-    /** @var array<int, list<int>> 地支三合局（寅午戌火、亥卯未木、巳酉丑金、申子辰水）。 */
-    protected const SAN_HE_JU = [
-        [2, 6, 10],
-        [11, 3, 7],
-        [5, 9, 1],
-        [8, 0, 4],
-    ];
-
     /** 地支三合（同类异位，即同属一个三合局且不相等）。 */
     protected static function branchesTripleCombine(int $a, int $b): bool
     {
-        if ($a === $b) {
-            return false;
-        }
-
-        foreach (self::SAN_HE_JU as $ju) {
-            if (in_array($a, $ju, true) && in_array($b, $ju, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return BranchRelations::shareSanheGroup($a, $b);
     }
 
     /**
