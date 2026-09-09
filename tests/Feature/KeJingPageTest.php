@@ -126,6 +126,49 @@ test('rong-hua catalog and kejing page preserve every named daquan example', fun
         ->assertSee('庚辰日亥加寅');
 });
 
+test('he-huan catalog declares the daquan wu-shen executable case and references its path', function () {
+    $heHuan = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.he_huan');
+
+    expect($heHuan)->not->toBeNull()
+        ->and($heHuan['gua'])->toBe('井')
+        ->and($heHuan['guaSymbol'])->toBe('䷯')
+        ->and($heHuan['cases'])->toHaveCount(1);
+
+    $case = collect($heHuan['cases'])->firstWhere('case_id', 'lesson.he_huan.wu_shen_ri');
+
+    expect($case)->not->toBeNull()
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2000-06-19T00:00')
+        ->and($case['gender'])->toBe('male');
+
+    $sourceLabels = array_column($heHuan['source_examples'], 'label');
+
+    expect($sourceLabels)->toContain(
+        '戊申日子时申将', '丙申日反吟', '辛卯日', '壬寅日', '甲申日',
+        '丁丑、己丑日', '戊辰日', '辛酉日', '乙酉日',
+    );
+});
+
+test('he-huan executable case reproduces the lesson on the pan page', function () {
+    $heHuan = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.he_huan');
+
+    $case = collect($heHuan['cases'])->firstWhere('case_id', 'lesson.he_huan.wu_shen_ri');
+
+    $component = Livewire::withQueryParams([
+        'datetime' => $case['datetime'],
+        'birth' => $case['birth'],
+        'gender' => $case['gender'],
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors();
+
+    $component->assertSee('合欢课')
+        ->assertSee('井卦')
+        ->assertSee('䷯')
+        ->assertSee('乾坤匹配');
+});
+
 test('rong-hua bing-yin case is executable and reproduces the lesson on the pan page', function () {
     $rongHua = collect(KeJingCatalog::lessons())
         ->firstWhere('code', 'lesson.rong_hua');
