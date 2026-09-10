@@ -622,3 +622,34 @@ test('youzi catalog example is executable and reproduces the daquan structure', 
         ->and($match['evidence']['xun_ding_as_initial'])->toBeTrue()
         ->and($match['evidence']['month_tianma_as_initial'])->toBeFalse();
 });
+
+test('zhuixu catalog examples are executable and reproduce both daquan paths', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.zhuixu');
+
+    expect($lesson)->not->toBeNull()
+        ->and($lesson['name'])->toBe('赘婿课')
+        ->and($lesson['gua'])->toBe('旅')
+        ->and($lesson['guaSymbol'])->toBe('䷷')
+        ->and($lesson['cases'])->toHaveCount(2)
+        ->and(collect($lesson['cases'])->pluck('status')->all())->toBe(['executable', 'executable']);
+
+    foreach ($lesson['cases'] as $index => $case) {
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])
+            ->set('birthDatetime', $case['birth'])
+            ->set('gender', $case['gender'])
+            ->call('calculate')
+            ->assertHasNoErrors();
+
+        $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.zhuixu');
+        expect($match)->not->toBeNull();
+
+        if ($index === 0) {
+            expect($match['evidence']['branch_path'])->toBeTrue()
+                ->and($match['evidence']['stem_path'])->toBeFalse();
+        } else {
+            expect($match['evidence']['stem_path'])->toBeTrue()
+                ->and($match['evidence']['stem_lodging_branch'])->toBe(5);
+        }
+    }
+});

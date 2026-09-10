@@ -10,6 +10,28 @@ function youzi_match(PanResult $pan): mixed
     return (new YouziRule)->match(PanFacts::from($pan));
 }
 
+dataset('youzi month tianma mapping', [
+    '子月天马寅' => [0, 2],
+    '丑月天马辰' => [1, 4],
+    '寅月天马午' => [2, 6],
+    '卯月天马申' => [3, 8],
+    '辰月天马戌' => [4, 10],
+    '巳月天马子' => [5, 0],
+    '午月天马寅' => [6, 2],
+    '未月天马辰' => [7, 4],
+    '申月天马午' => [8, 6],
+    '酉月天马申' => [9, 8],
+    '戌月天马戌' => [10, 10],
+    '亥月天马子' => [11, 0],
+]);
+
+test('youzi month tianma table covers all twelve month branches', function (int $monthBranch, int $expectedTianma) {
+    $mapping = (new ReflectionClass(YouziRule::class))->getConstant('MONTH_TIANMA_BY_MONTH_BRANCH');
+
+    expect($mapping)->toHaveCount(12)
+        ->and($mapping[$monthBranch])->toBe($expectedTianma);
+})->with('youzi month tianma mapping');
+
 test('youzi matches xun ding as initial when all transmissions are seasonal', function () {
     $match = youzi_match(new PanResult([
         'rigan' => 1, 'rizhi' => 5, 'yuezhi' => 2,

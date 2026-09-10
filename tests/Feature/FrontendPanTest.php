@@ -874,6 +874,31 @@ test('frontend shows youzi lesson and reasoning for the daquan example', functio
         ->assertSee('丁马加季');
 });
 
+test('frontend shows zhuixu branch path for the daquan jia-xu example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2024-03-11T05:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('赘婿课')
+        ->assertSee('旅卦')
+        ->assertSee('䷷')
+        ->assertSee('赘婿判断')
+        ->assertSee('成课条件')
+        ->assertSee('日干克辰')
+        ->assertSee('支临干发用');
+});
+
+test('frontend shows zhuixu stem path for the daquan bing-shen example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2019-12-25T07:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('赘婿课')
+        ->assertSee('干临支发用');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
