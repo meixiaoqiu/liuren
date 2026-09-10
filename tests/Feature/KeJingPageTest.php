@@ -592,3 +592,33 @@ test('bikou catalog records yixun zhoubian as an independent related grid', func
         ->and($example['detail'])->toContain('独立成立')
         ->and($example['detail'])->toContain('不要求闭口课命中');
 });
+
+test('youzi catalog example is executable and reproduces the daquan structure', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.youzi');
+    $case = $lesson['cases'][0];
+
+    expect($lesson['name'])->toBe('游子课')
+        ->and($lesson['gua'])->toBe('观')
+        ->and($lesson['guaSymbol'])->toBe('䷓')
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2022-04-22T11:00')
+        ->and(collect($lesson['source_examples'])->pluck('label'))->toContain('三月将乙巳日午时');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.youzi');
+
+    expect([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([7, 10, 1])
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['xun_ding'])->toBe(7)
+        ->and($match['evidence']['month_tianma'])->toBe(10)
+        ->and($match['evidence']['initial'])->toBe(7)
+        ->and($match['evidence']['xun_ding_as_initial'])->toBeTrue()
+        ->and($match['evidence']['month_tianma_as_initial'])->toBeFalse();
+});

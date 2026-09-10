@@ -858,6 +858,22 @@ test('frontend shows bikou lesson and reasoning for the daquan example', functio
         ->assertSee('旬尾加旬首发用');
 });
 
+test('frontend shows youzi lesson and reasoning for the daquan example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2022-04-22T11:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('游子课')
+        ->assertSee('观卦')
+        ->assertSee('䷓')
+        ->assertSee('游子判断')
+        ->assertSee('成课条件')
+        ->assertSee('三传皆季')
+        ->assertSee('旬丁发用')
+        ->assertSee('丁马加季');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
