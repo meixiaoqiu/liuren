@@ -844,3 +844,50 @@ test('frontend rejects two spouses with different genders', function () {
         ->call('calculate')
         ->assertHasErrors(['people.1.role']);
 });
+
+test('frontend shows bikou lesson and reasoning for the daquan example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1904-02-20T05:00')
+        ->set('birthDatetime', '1900-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('闭口课')
+        ->assertSee('谦卦')
+        ->assertSee('䷎')
+        ->assertSee('闭口判断')
+        ->assertSee('旬尾加旬首发用');
+});
+
+test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1905-12-22T05:00')
+        ->set('birthDatetime', '1900-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('一旬周遍格')
+        ->assertSee('闭口课篇附格')
+        ->assertSee('旬尾加干、旬首加支')
+        ->assertDontSee('闭口判断');
+});
+
+test('recent lesson explanations do not expose implementation notation', function (string $datetime, string $birth, string $gender) {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', $datetime)
+        ->set('birthDatetime', $birth)
+        ->set('gender', $gender)
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertDontSee('sanchuan0')
+        ->assertDontSee('① AND')
+        ->assertDontSee('干上神 =')
+        ->assertDontSee('初传 =')
+        ->assertDontSee('日干德 =')
+        ->assertDontSee('命中三合局 =')
+        ->assertDontSee('旬首=');
+})->with([
+    '德庆课' => ['2001-11-21T19:00', '1984-06-01T00:00', 'male'],
+    '合欢课' => ['2000-06-19T00:00', '1959-06-21T12:00', 'male'],
+    '斩关课' => ['2026-01-01T01:00', '1986-08-01T00:00', 'male'],
+    '闭口课' => ['1904-02-20T05:00', '1900-01-01T00:00', 'male'],
+    '一旬周遍格' => ['1905-12-22T05:00', '1900-01-01T00:00', 'male'],
+]);

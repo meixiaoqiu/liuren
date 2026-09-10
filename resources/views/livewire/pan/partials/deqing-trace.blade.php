@@ -44,7 +44,7 @@
             ? "（等于初传{$initialBranch}）"
             : "（不等于初传{$initialBranch}）";
 
-        return "地盘{$label}={$groundBranch} → {$label}宫上神={$upperBranch}，乘{$genName}，{$verdict}{$initialCompare}。";
+        return "地盘{$label}宫为{$groundBranch}，宫上神为{$upperBranch}，乘{$genName}，{$verdict}{$initialCompare}。";
     };
 
     $hasContext = ($nianming !== null && ($nianming['ground'] ?? null) !== null)
@@ -58,7 +58,7 @@
         $verdictLabel = '不成立：四德之一发用且乘六吉将，但发用德神未加临占人本命宫或行年宫。';
         $verdictBadge = '德庆不成立';
     } else {
-        $viaText = implode(' + ', $matchedViaLabels);
+        $viaText = implode('、', $matchedViaLabels);
         $verdictLabel = "成立：发用德神（{$initialBranch}）乘{$initialGeneralName}（吉将），通过 {$viaText} 路径加临占人本命或行年。";
         $verdictBadge = '德庆成立';
     }
@@ -80,17 +80,17 @@
         <div class="pan-block bg-base-100/75 px-4 py-4">
             <strong>① 四类德神取值</strong>
             <p class="mt-3 text-sm leading-6 text-base-content/65">
-                日干德 = {{ $branchNames[$trace['stem_virtue'] ?? 0] }}（{{ $stemNames[$trace['day_stem'] ?? 0] }}日所到）、
-                日支德 = {{ $branchNames[$trace['branch_virtue'] ?? 0] }}（{{ $branchNames[$trace['day_branch'] ?? 0] }}日起巳顺行）、
-                天德 = {{ $branchNames[$trace['heavenly_virtue'] ?? 0] }}（{{ $branchNames[$trace['month_branch'] ?? 0] }}月所到）、
-                月德 = {{ $branchNames[$trace['monthly_virtue'] ?? 0] }}（{{ $branchNames[$trace['month_branch'] ?? 0] }}月所到）。<br>
-                本盘初传{{ $initialBranch }}<strong>{{ empty($matchedVirtueLabels) ? '未命中任何德神' : '命中' . implode('+', $matchedVirtueLabels) }}</strong>。
+                日干德为{{ $branchNames[$trace['stem_virtue'] ?? 0] }}（{{ $stemNames[$trace['day_stem'] ?? 0] }}日所到）、
+                日支德为{{ $branchNames[$trace['branch_virtue'] ?? 0] }}（{{ $branchNames[$trace['day_branch'] ?? 0] }}日起巳顺行）、
+                天德为{{ $branchNames[$trace['heavenly_virtue'] ?? 0] }}（{{ $branchNames[$trace['month_branch'] ?? 0] }}月所到）、
+                月德为{{ $branchNames[$trace['monthly_virtue'] ?? 0] }}（{{ $branchNames[$trace['month_branch'] ?? 0] }}月所到）。<br>
+                本盘初传{{ $initialBranch }}<strong>{{ empty($matchedVirtueLabels) ? '未命中任何德神' : '命中' . implode('、', $matchedVirtueLabels) }}</strong>。
             </p>
         </div>
         <div class="pan-block bg-base-100/75 px-4 py-4">
             <strong>② 初传天将</strong>
             <p class="mt-3 text-sm leading-6 text-base-content/65">
-                初传{{ $initialBranch }}所乘天将 = <strong>{{ $initialGeneralName }}</strong>。
+                初传{{ $initialBranch }}所乘天将为<strong>{{ $initialGeneralName }}</strong>。
                 {{ $isAuspiciousGeneral ? '属于六吉将（' . implode('、', $auspiciousGeneralNames) . '）。' : '不属于六吉将（' . implode('、', $auspiciousGeneralNames) . '）。' }}
             </p>
         </div>

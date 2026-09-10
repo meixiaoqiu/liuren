@@ -18,6 +18,25 @@ test('kejing page lists every lesson with its hexagram', function () {
     }
 });
 
+test('kejing page does not expose implementation names or internal numeric notation', function () {
+    $this->get(route('kejing'))
+        ->assertOk()
+        ->assertDontSee('FateCalculator')
+        ->assertDontSee('PanCalculator')
+        ->assertDontSee('tianpan[')
+        ->assertDontSee('sanchuan0')
+        ->assertDontSee('YIN=')
+        ->assertDontSee('OR 路径')
+        ->assertDontSee('fixture')
+        ->assertDontSee('pointer')
+        ->assertDontSee('已 executable')
+        ->assertDontSee('本命=')
+        ->assertDontSee('行年=')
+        ->assertDontSee('旬首=')
+        ->assertDontSee('戊子日（4/0）')
+        ->assertDontSee('亥月（11）');
+});
+
 test('every executable kejing case link reproduces its lesson on the pan page', function () {
     foreach (KeJingCatalog::lessons() as $lesson) {
         foreach ($lesson['cases'] as $case) {
@@ -499,4 +518,77 @@ test('zhan-guan jia-yin case reproduces the daquan xu-jia-yin structure', functi
         ->and($match)->not->toBeNull()
         ->and($match['evidence']['is_tian_kui'])->toBeTrue()
         ->and($match['evidence']['on_day_branch'])->toBeTrue();
+});
+
+test('bikou catalog example is executable and reproduces the daquan structure', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.bikou');
+    $case = $lesson['cases'][0];
+
+    expect($lesson['gua'])->toBe('谦')
+        ->and($lesson['guaSymbol'])->toBe('䷎')
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('1904-02-20T05:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.bikou');
+    expect([$pan['rigan'], $pan['rizhi'], $pan['yuejiang']])->toBe([0, 8, 0])
+        ->and($pan['tianpan'][8])->toBe(5)
+        ->and($pan['sanchuan0'])->toBe(5)
+        ->and($match['evidence']['tail_on_head'])->toBeTrue();
+});
+
+test('bikou catalog reproduces the daquan jia-zi upper-god-riding-xuanwu path', function () {
+    // 第三路：甲子日·地盘子位上神=辰、地盘子位天将=玄武(9)、初传=辰
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.bikou');
+    $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.bikou.jia_zi_chen_jia_zi_fa_yong');
+
+    expect($case)->not->toBeNull()
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('1920-01-07T17:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.bikou');
+
+    expect([$pan['rigan'], $pan['rizhi']])->toBe([0, 0])
+        ->and($pan['tianpan'][0])->toBe(4)        // 地盘子位上神 = 辰
+        ->and($pan['tianjiang'][0])->toBe(9)      // 地盘子位天将 = 玄武
+        ->and($pan['sanchuan0'])->toBe(4)         // 初传 = 辰
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['head_upper_riding_xuanwu'])->toBeTrue();
+});
+
+test('bikou catalog source_examples labels one path per daquan textual case', function () {
+    // 三路各对应 1 条 source_examples，明确路径标签。
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.bikou');
+
+    expect($lesson['source_examples'])->toHaveCount(4);
+
+    $labels = array_column($lesson['source_examples'], 'label');
+    $paths = array_column($lesson['source_examples'], 'path');
+
+    expect($labels)->toContain('甲申日卯时子将', '丁酉日午加酉', '甲子日辰加子')
+        ->and($paths)->toContain('第一路·旬尾加旬首', '第二路·旬首乘玄武', '第三路·地盘旬首位上神乘玄武');
+});
+
+test('bikou catalog records yixun zhoubian as an independent related grid', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.bikou');
+    $example = collect($lesson['source_examples'])->firstWhere('label', '乙未日卯时寅将');
+
+    expect($example)->not->toBeNull()
+        ->and($example['detail'])->toContain('独立成立')
+        ->and($example['detail'])->toContain('不要求闭口课命中');
 });

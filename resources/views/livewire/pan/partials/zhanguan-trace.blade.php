@@ -35,7 +35,7 @@
             <p class="mt-1 text-sm text-base-content/55">
                 日干{{ $stemNames[$dayStem] ?? '?' }}寄宫{{ $branchNames[$stemLodging] ?? '?' }}、干上神{{ $branchNames[$dayUpper] ?? '?' }}；
                 日支{{ $branchNames[$dayBranch] ?? '?' }}、支上神{{ $branchNames[$branchUpper] ?? '?' }}；
-                初传 = {{ $faYongBranchName }}（{{ $faYongLabel }}）。
+                初传为{{ $faYongBranchName }}（{{ $faYongLabel }}）。
             </p>
         </div>
         <x-badge value="斩关成立" class="badge-primary badge-soft" />
@@ -45,9 +45,9 @@
         <div class="pan-block bg-base-100/75 px-4 py-4">
             <strong>① 发用为魁或罡</strong>
             <p class="mt-3 text-sm leading-6 text-base-content/65">
-                初传 = {{ $faYongBranchName }}，
+                初传为{{ $faYongBranchName }}，
                 <strong>{{ $isTianGang || $isTianKui ? '成立（' . $faYongLabel . '）' : '不成立' }}</strong>。<br>
-                （魁=戌、罡=辰；九宗门"发用"即初传 sanchuan0）
+                （魁指戌，罡指辰；九宗门所称“发用”即初传。）
             </p>
         </div>
         <div class="pan-block bg-base-100/75 px-4 py-4">
@@ -55,14 +55,14 @@
             <p class="mt-3 text-sm leading-6 text-base-content/65">
                 日干{{ $stemNames[$dayStem] ?? '?' }}的寄宫位为
                 {{ $branchNames[$stemLodging] ?? '?' }}，
-                该位天盘上神 = {{ $branchNames[$dayUpper] ?? '?' }}；
-                日支{{ $branchNames[$dayBranch] ?? '?' }}位天盘上神 = {{ $branchNames[$branchUpper] ?? '?' }}。
+                该位天盘上神为{{ $branchNames[$dayUpper] ?? '?' }}；
+                日支{{ $branchNames[$dayBranch] ?? '?' }}位天盘上神为{{ $branchNames[$branchUpper] ?? '?' }}。
                 初传{{ $faYongBranchName }}{{ $addPath }}：
                 <strong>{{ $onDayStem || $onDayBranch ? '成立' : '不成立' }}</strong>。
             </p>
         </div>
         <div class="pan-block bg-base-100/75 px-4 py-4 md:col-span-2">
-            <strong>③ 最终结论（① AND ② 同时成立）</strong>
+            <strong>③ 最终结论（以上两项同时成立）</strong>
             <p class="mt-3 text-sm leading-6 text-base-content/65">
                 成立：发用为{{ $faYongLabel }}（{{ $faYongBranchName }}），{{ $addPath }}，
                 满足《六壬大全》"魁罡加日辰发用"正文最小严格口径。
