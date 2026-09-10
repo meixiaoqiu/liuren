@@ -62,6 +62,7 @@ final class RuleRegistry
             new DeQingRule,
             new HeHuanRule,
             new HeMeiRule,
+            new ZhanGuanRule,
         ];
     }
 }

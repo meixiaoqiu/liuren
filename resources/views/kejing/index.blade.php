@@ -70,12 +70,15 @@
 
                             @if (! empty($lesson['source_examples'] ?? []))
                                 <div class="mt-6">
-                                    <h3 class="text-sm font-semibold tracking-wide text-base-content/70">《六壬大全》正文全部举例</h3>
-                                    <p class="mt-1 text-sm leading-6 text-base-content/50">以下逐条保留正文举例；未标为入选课例者只作原文证据，不表示现行程序已经完整覆盖。</p>
+                                    <h3 class="text-sm font-semibold tracking-wide text-base-content/70">古籍相关课例与旁证</h3>
+                                    <p class="mt-1 text-sm leading-6 text-base-content/50">以下逐条保留古籍中的相关材料（正文 / 《订讹》/《袖中金》/《观月经》/《心镜》/《曾门》/《定章》等）；不标为入选课例者只作原文证据，不表示现行程序已经完整覆盖。</p>
                                     <div class="mt-3 grid gap-3 lg:grid-cols-2">
                                         @foreach ($lesson['source_examples'] as $example)
                                             <div class="bg-base-200/45 px-4 py-3">
                                                 <strong class="text-sm">{{ $example['label'] }}</strong>
+                                                @if (! empty($example['source'] ?? null))
+                                                    <span class="ml-2 inline-block rounded bg-base-300/70 px-1.5 py-0.5 text-xs text-base-content/70">来源：{{ $example['source'] }}</span>
+                                                @endif
                                                 <p class="mt-1 text-sm leading-6 text-base-content/60">{{ $example['detail'] }}</p>
                                             </div>
                                         @endforeach

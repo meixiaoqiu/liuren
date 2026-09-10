@@ -146,7 +146,7 @@ test('rong-hua catalog and kejing page preserve every named daquan example', fun
 
     $this->get(route('kejing'))
         ->assertOk()
-        ->assertSee('《六壬大全》正文全部举例')
+        ->assertSee('古籍相关课例与旁证')
         ->assertSee('壬申日')
         ->assertSee('贵人蹉跎')
         ->assertSee('遍地贵人')
@@ -389,4 +389,114 @@ test('forged or unknown reference_case never shows the reference banner', functi
 
         $component->assertDontSee('原文参考盘');
     }
+});
+
+test('zhan-guan catalog declares the daquan jia-yin and modern yang-hai executable cases and references its paths', function () {
+    $zhanGuan = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.zhan_guan');
+
+    expect($zhanGuan)->not->toBeNull()
+        ->and($zhanGuan['gua'])->toBe('遁')
+        ->and($zhanGuan['guaSymbol'])->toBe('䷠')
+        ->and($zhanGuan['cases'])->toHaveCount(2);
+
+    $jiaYin = collect($zhanGuan['cases'])->firstWhere('case_id', 'lesson.zhan_guan.jia_yin_hai_shi_wei_jiang');
+    $yiHai = collect($zhanGuan['cases'])->firstWhere('case_id', 'lesson.zhan_guan.yi_hai_zi_shi');
+
+    expect($jiaYin)->not->toBeNull()
+        ->and($jiaYin['status'])->toBe('executable')
+        ->and($jiaYin['datetime'])->toBe('1904-07-19T21:00');
+
+    expect($yiHai)->not->toBeNull()
+        ->and($yiHai['status'])->toBe('executable')
+        ->and($yiHai['datetime'])->toBe('2026-01-01T01:00');
+
+    $sourceLabels = array_column($zhanGuan['source_examples'], 'label');
+
+    expect($sourceLabels)->toContain(
+        '甲寅日亥时未将', '神藏煞没（四大吉时）', '魁渡天门（反向描述）', '传有虎阴申酉（斩关得断）', '凡见辰戌加日辰发用者'
+    );
+});
+
+test('zhan-guan executable case reproduces the lesson on the pan page', function () {
+    $zhanGuan = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.zhan_guan');
+
+    $case = collect($zhanGuan['cases'])->firstWhere('case_id', 'lesson.zhan_guan.yi_hai_zi_shi');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.zhan_guan');
+
+    // 乙亥日子时，伏吟：tianpan == range(0,11)，干上 = tianpan[寄宫辰] = 辰，支上 = tianpan[亥] = 亥
+    expect([$pan['rigan'], $pan['rizhi']])->toBe([1, 11])
+        ->and($pan['tianpan'][4])->toBe(4)        // 干上 = 辰 = 寄宫位
+        ->and($pan['tianpan'][11])->toBe(11)      // 支上 = 亥
+        ->and($pan['sanchuan0'])->toBe(4)         // 初传辰
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['is_tian_gang'])->toBeTrue()
+        ->and($match['evidence']['on_day_stem'])->toBeTrue();
+
+    $component->assertSee('斩关课')
+        ->assertSee('遁卦')
+        ->assertSee('䷠')
+        ->assertSee('天罡（辰）');
+});
+
+test('zhan-guan production xiang text uses the shidianguji base copy, not the modern paraphrase', function () {
+    // 课经文档明确采用识典底本"捉贼难获，出行自强，厌祷吉详"，并声明
+    // "出行无殃"为已修正的旧整理本文字。本测试确认前台生产文案与底本一致。
+    $zhanGuan = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.zhan_guan');
+
+    $case = collect($zhanGuan['cases'])->firstWhere('case_id', 'lesson.zhan_guan.yi_hai_zi_shi');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $component
+        ->assertSee('捉贼难获')
+        ->assertSee('出行自强')
+        ->assertSee('厌祷吉详')
+        ->assertDontSee('捕贼难获')
+        ->assertDontSee('出行无殃')
+        ->assertDontSee('厌祷吉祥');
+});
+
+test('zhan-guan jia-yin case reproduces the daquan xu-jia-yin structure', function () {
+    $zhanGuan = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.zhan_guan');
+
+    $case = collect($zhanGuan['cases'])->firstWhere('case_id', 'lesson.zhan_guan.jia_yin_hai_shi_wei_jiang');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.zhan_guan');
+
+    // 甲寅日：日干甲寄寅(2)，日支寅(2)。要求"戌加寅为用"：初传=戌(10) + 支上神=戌(10)
+    // 即 tianpan[rizhi=2] = 10 (戌)，且 sanchuan0 = 10。三传应为戌午寅。
+    expect([$pan['rigan'], $pan['rizhi']])->toBe([0, 2])
+        ->and($pan['yuejiang'])->toBe(7)        // 月将未
+        ->and($pan['tianpan'][2])->toBe(10)     // 戌加寅
+        ->and($pan['sanchuan0'])->toBe(10)      // 初传戌
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([10, 6, 2])
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['is_tian_kui'])->toBeTrue()
+        ->and($match['evidence']['on_day_branch'])->toBeTrue();
 });
