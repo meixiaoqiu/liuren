@@ -100,7 +100,7 @@ test('chongpo exposes its metadata', function () {
         ->and($match->evidence['uncovered'])->toHaveCount(3);
 });
 
-test('chongpo reproduces the daquan standard example with the production calculator', function () {
+test('chongpo reproduces the daquan plate and the ding-e time-general supplement', function () {
     $pan = (new PanCalculator)->calculate('2056-04-18 13:00:00');
     $match = chongpo_match($pan);
 

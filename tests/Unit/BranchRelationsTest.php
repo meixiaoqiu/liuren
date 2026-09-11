@@ -2,6 +2,19 @@
 
 use App\Domain\Pan\BranchRelations;
 
+test('chong and po mappings contain all twelve canonical relations', function () {
+    expect(BranchRelations::CHONG)->toBe([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5])
+        ->and(BranchRelations::PO)->toBe([9, 4, 11, 6, 1, 8, 3, 10, 5, 0, 7, 2]);
+
+    foreach (range(0, 11) as $branch) {
+        expect(BranchRelations::clashOf($branch))->toBe(BranchRelations::CHONG[$branch])
+            ->and(BranchRelations::breakOf($branch))->toBe(BranchRelations::PO[$branch]);
+    }
+
+    expect(BranchRelations::clashOf(12))->toBeNull()
+        ->and(BranchRelations::breakOf(12))->toBeNull();
+});
+
 test('liuhe contains exactly the six orthodox unordered pairs', function () {
     expect(BranchRelations::LIUHE_PAIRS)->toBe([
         [0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7],

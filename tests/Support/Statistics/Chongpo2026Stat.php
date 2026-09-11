@@ -7,14 +7,13 @@
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
 
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\Rules\ChongpoRule;
 use App\Services\PanCalculator;
 
 $calculator = new PanCalculator;
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
-$chong = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
-$po = [9, 4, 11, 6, 1, 8, 3, 10, 5, 0, 7, 2];
 $counts = [
     'total' => 0,
     'strict_path_a' => 0,
@@ -47,9 +46,11 @@ for ($date = new DateTimeImmutable('2026-01-01'); $date <= new DateTimeImmutable
             if (! is_int($base)) {
                 continue;
             }
-            $looseRelations[] = $chong[$base];
-            $looseRelations[] = $po[$base];
-            if (in_array($chong[$base], $transmissions, true) && in_array($po[$base], $transmissions, true)) {
+            $baseClash = BranchRelations::clashOf($base);
+            $baseBreak = BranchRelations::breakOf($base);
+            $looseRelations[] = $baseClash;
+            $looseRelations[] = $baseBreak;
+            if (in_array($baseClash, $transmissions, true) && in_array($baseBreak, $transmissions, true)) {
                 $pairBases[] = $base;
             }
         }
@@ -60,7 +61,8 @@ for ($date = new DateTimeImmutable('2026-01-01'); $date <= new DateTimeImmutable
         $counts['same_base_chong_po_pair_in_transmissions'] += (int) ($pairBases !== []);
         $counts['same_base_pair_with_initial_participating'] += (int) array_any(
             $pairBases,
-            static fn (int $base): bool => $initial === $chong[$base] || $initial === $po[$base],
+            static fn (int $base): bool => $initial === BranchRelations::clashOf($base)
+                || $initial === BranchRelations::breakOf($base),
         );
     }
 }

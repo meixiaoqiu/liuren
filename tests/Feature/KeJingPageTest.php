@@ -686,7 +686,7 @@ test('sanjiao is ordered between youzi and zhuixu and its catalog case is execut
         ->and($match['evidence']['matched_yin_he_occurrences'])->not->toBeEmpty();
 });
 
-test('chongpo follows zhuixu and its daquan example is executable', function () {
+test('chongpo follows zhuixu and its combined-source reproduction is executable', function () {
     $lessons = collect(KeJingCatalog::lessons());
     $codes = $lessons->pluck('code')->all();
     $lesson = $lessons->firstWhere('code', 'lesson.chongpo');

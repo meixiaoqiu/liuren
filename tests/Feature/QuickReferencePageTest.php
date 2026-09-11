@@ -57,9 +57,16 @@ test('catalog display data follows the existing domain definitions', function ()
     sort($catalogPunishments);
 
     $expectedClashes = [];
-    foreach (PanCalculator::$chong as $source => $target) {
+    foreach (BranchRelations::CHONG as $source => $target) {
         if ($source < $target) {
             $expectedClashes[] = $branches[$source].$branches[$target];
+        }
+    }
+
+    $expectedBreaks = [];
+    foreach (BranchRelations::PO as $source => $target) {
+        if ($source < $target) {
+            $expectedBreaks[] = $branches[$source].$branches[$target];
         }
     }
 
@@ -83,6 +90,7 @@ test('catalog display data follows the existing domain definitions', function ()
     expect(QuickReferenceCatalog::stemLodgings())->toBe($expectedLodgings)
         ->and($catalogPunishments)->toBe($expectedPunishments)
         ->and(QuickReferenceCatalog::clashes())->toBe($expectedClashes)
+        ->and(QuickReferenceCatalog::breaks())->toBe($expectedBreaks)
         ->and(QuickReferenceCatalog::liuhe())->toBe($expectedLiuhe)
         ->and($catalogSanheSets)->toBe($domainSanheSets)
         ->and(QuickReferenceCatalog::monthGenerals())->toBe($expectedMonthGenerals)

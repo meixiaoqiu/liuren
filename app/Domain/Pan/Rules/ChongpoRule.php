@@ -2,6 +2,7 @@
 
 namespace App\Domain\Pan\Rules;
 
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Services\PanCalculator;
 
@@ -26,12 +27,6 @@ final class ChongpoRule implements PanRule
     protected const GUA_SYMBOL = '䷪';
 
     protected const XIANG = '人情反覆，门户不宁。婚姻不遂，胎孕难成。疾病凶散，财利事平。';
-
-    /** @var list<int> */
-    private const CHONG = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
-
-    /** @var list<int> */
-    private const PO = [9, 4, 11, 6, 1, 8, 3, 10, 5, 0, 7, 2];
 
     /** @var list<string> */
     private const UNCOVERED = [
@@ -62,9 +57,9 @@ final class ChongpoRule implements PanRule
             return null;
         }
 
-        $stemClash = self::CHONG[$stemLodgingBranch] ?? null;
-        $branchClash = self::CHONG[$dayBranch] ?? null;
-        $initialBreakGround = self::PO[$initial] ?? null;
+        $stemClash = BranchRelations::clashOf($stemLodgingBranch);
+        $branchClash = BranchRelations::clashOf($dayBranch);
+        $initialBreakGround = BranchRelations::breakOf($initial);
         if ($stemClash === null || $branchClash === null || $initialBreakGround === null) {
             return null;
         }

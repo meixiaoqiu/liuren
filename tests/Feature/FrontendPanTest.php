@@ -915,7 +915,7 @@ test('frontend shows zhuixu stem path for the daquan bing-shen example', functio
         ->assertSee('干临支发用');
 });
 
-test('frontend shows chongpo reasoning for the modern reproduction of the daquan example', function () {
+test('frontend shows chongpo reasoning for the modern reproduction of the daquan plate', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2056-04-18T13:00')
         ->set('birthDatetime', '2000-01-01T00:00')

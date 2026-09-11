@@ -5,6 +5,11 @@ namespace App\Support;
 use App\Domain\Pan\BranchRelations;
 use App\Services\PanCalculator;
 
+/**
+ * 文件作用：为前台速查页整理干支、五行和常用关系的只读展示数据。
+ *
+ * 边界：关系值复用生产领域定义，不在本目录内另建六冲、六破、六合或三合规则来源。
+ */
 final class QuickReferenceCatalog
 {
     public static function categories(): array
@@ -65,7 +70,7 @@ final class QuickReferenceCatalog
     public static function clashes(): array
     {
         $pairs = [];
-        foreach (PanCalculator::$chong as $from => $to) {
+        foreach (BranchRelations::CHONG as $from => $to) {
             if ($from < $to) {
                 $pairs[] = [$from, $to];
             }
@@ -81,7 +86,14 @@ final class QuickReferenceCatalog
 
     public static function breaks(): array
     {
-        return ['子酉', '丑辰', '寅亥', '卯午', '巳申', '未戌'];
+        $pairs = [];
+        foreach (BranchRelations::PO as $from => $to) {
+            if ($from < $to) {
+                $pairs[] = [$from, $to];
+            }
+        }
+
+        return self::branchGroups($pairs);
     }
 
     public static function sanhe(): array
