@@ -719,3 +719,35 @@ test('chongpo follows zhuixu and its combined-source reproduction is executable'
         ->and($match['evidence']['initial_ground'])->toBe(3)
         ->and($match['evidence']['initial_break_ground'])->toBe(3);
 });
+
+test('yinyi follows chongpo and its catalog keeps yinv as an independent source example', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.yinyi');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.yinyi', $codes, true))->toBe(array_search('lesson.chongpo', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('淫泆课')
+        ->and($lesson['gua'])->toBe('既济')
+        ->and($lesson['guaSymbol'])->toBe('䷾')
+        ->and($case['case_id'])->toBe('lesson.yinyi.xin_wei_shen_shi_chen_jiang')
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2020-09-25T15:00')
+        ->and(collect($lesson['source_examples'])->firstWhere('path', '独立附格·泆女格')['detail'])->toContain('淫泆主体不成立');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+    $pan = $component->get('pan');
+    $matches = collect($component->get('ruleMatches'));
+
+    expect([$pan['rigan'], $pan['rizhi'], $pan['shizhi'], $pan['yuejiang']])->toBe([7, 7, 8, 4])
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([3, 11, 7])
+        ->and([$pan['sanchuan0tianjiang'], $pan['sanchuan1tianjiang'], $pan['sanchuan2tianjiang']])->toBe([3, 7, 11])
+        ->and($matches->firstWhere('code', 'lesson.yinyi'))->not->toBeNull()
+        ->and($matches->firstWhere('code', 'structure.jiaotong'))->not->toBeNull()
+        ->and($matches->firstWhere('code', 'structure.yinv'))->toBeNull();
+});

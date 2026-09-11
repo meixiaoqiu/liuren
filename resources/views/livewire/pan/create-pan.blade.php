@@ -344,6 +344,15 @@
                                         @if ($interpretation['code'] === 'lesson.chongpo')
                                             @include('livewire.pan.partials.lesson-trace', ['title' => '冲破判断', 'trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.yinyi')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '淫泆判断', 'trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'structure.jiaotong')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '狡童格', 'trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'structure.yinv')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '泆女格', 'trace' => $interpretation['evidence']])
+                                        @endif
                                         @if ($interpretation['code'] === 'structure.yixun_zhoubian')
                                             @include('livewire.pan.partials.yixun-zhoubian-trace', ['trace' => $interpretation['evidence']])
                                         @endif

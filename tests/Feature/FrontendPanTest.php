@@ -931,6 +931,37 @@ test('frontend shows chongpo reasoning for the modern reproduction of the daquan
         ->assertSee('卯为午之破');
 });
 
+test('frontend shows yinyi and jiaotong independently for the xin-wei example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2020-09-25T15:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('淫泆课')
+        ->assertSee('既济卦')
+        ->assertSee('䷾')
+        ->assertSee('淫泆判断')
+        ->assertSee('卯酉发用')
+        ->assertSee('将乘后合')
+        ->assertSee('狡童格')
+        ->assertSee('初传乘六合')
+        ->assertSee('末传乘天后')
+        ->assertDontSee('泆女格');
+});
+
+test('frontend shows independent yinv without yinyi for the wu-xu example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2025-07-28T07:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('泆女格')
+        ->assertSee('初传乘天后')
+        ->assertSee('末传乘六合')
+        ->assertDontSee('淫泆判断')
+        ->assertDontSee('狡童格');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
