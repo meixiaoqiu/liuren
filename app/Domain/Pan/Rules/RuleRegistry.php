@@ -71,6 +71,7 @@ final class RuleRegistry
             new YinyiRule,
             new JiaotongRule,
             new YinvRule,
+            new WuyinRule,
             new YixunZhoubianRule,
         ];
     }

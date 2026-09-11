@@ -962,6 +962,15 @@ test('frontend shows independent yinv without yinyi for the wu-xu example', func
         ->assertDontSee('狡童格');
 });
 
+test('frontend shows wuyin reasoning for the corrected yi-hai example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2020-02-02T09:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('芜淫课')->assertSee('小畜卦')->assertSee('䷈')->assertSee('芜淫判断')
+        ->assertSee('三课不备且有克')->assertSee('阴不备');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
