@@ -65,6 +65,7 @@ final class RuleRegistry
             new ZhanGuanRule,
             new BikouRule,
             new YouziRule,
+            new SanjiaoRule,
             new ZhuixuRule,
             new YixunZhoubianRule,
         ];

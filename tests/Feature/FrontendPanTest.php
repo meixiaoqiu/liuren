@@ -889,6 +889,22 @@ test('frontend shows zhuixu branch path for the daquan jia-xu example', function
         ->assertSee('支临干发用');
 });
 
+test('frontend shows sanjiao lesson and its three-layer reasoning', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-05-14T11:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('三交课')
+        ->assertSee('姤卦')
+        ->assertSee('䷫')
+        ->assertSee('三交判断')
+        ->assertSee('一交·四仲加辰')
+        ->assertSee('二交·传皆四仲')
+        ->assertSee('三交·仲神乘阴合')
+        ->assertSee('卯乘太阴');
+});
+
 test('frontend shows zhuixu stem path for the daquan bing-shen example', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2019-12-25T07:00')

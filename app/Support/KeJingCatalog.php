@@ -559,6 +559,24 @@ final class KeJingCatalog
                 ],
             ],
             [
+                'name' => '三交课',
+                'code' => 'lesson.sanjiao',
+                'gua' => '姤',
+                'guaSymbol' => '䷫',
+                'summary' => '四仲日占，支辰阴阳及三传皆为四仲，且四课上神或三传所见仲神至少一处乘太阴或六合。',
+                'cases' => [
+                    self::case(
+                        'lesson.sanjiao.wu_zi_wu_shi_you_jiang',
+                        '戊子日·午时·酉将（《大全》正文标准课例）',
+                        '戊子为四仲日；支阳卯、支阴午皆为四仲；三传卯午酉皆仲；四课上神与初传所见的卯乘太阴，三交俱备。',
+                        '2026-05-14T11:00',
+                    ),
+                ],
+                'source_examples' => [
+                    ['label' => '戊子日午时酉将', 'source' => '《六壬大全》正文标准课例', 'detail' => '四课戊申、申亥、子卯、卯午；三传卯午酉；课传中的卯乘太阴，三交俱备。'],
+                ],
+            ],
+            [
                 'name' => '赘婿课',
                 'code' => 'lesson.zhuixu',
                 'gua' => '旅',
