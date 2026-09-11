@@ -685,3 +685,37 @@ test('sanjiao is ordered between youzi and zhuixu and its catalog case is execut
         ->and($match)->not->toBeNull()
         ->and($match['evidence']['matched_yin_he_occurrences'])->not->toBeEmpty();
 });
+
+test('chongpo follows zhuixu and its daquan example is executable', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.chongpo');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.chongpo', $codes, true))->toBe(array_search('lesson.zhuixu', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('冲破课')
+        ->and($lesson['gua'])->toBe('夬')
+        ->and($lesson['guaSymbol'])->toBe('䷪')
+        ->and($lesson['summary'])->toContain('自身破位')
+        ->and($case['case_id'])->toBe('lesson.chongpo.zi_nian_geng_zi_wei_shi_xu_jiang')
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2056-04-18T13:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.chongpo');
+
+    expect([$pan['nianzhi'], $pan['rigan'], $pan['rizhi'], $pan['shizhi'], $pan['yuejiang']])->toBe([0, 6, 0, 7, 10])
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([6, 9, 0])
+        ->and($pan['tianpan'][3])->toBe(6)
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['branch_path'])->toBeTrue()
+        ->and($match['evidence']['initial_ground'])->toBe(3)
+        ->and($match['evidence']['initial_break_ground'])->toBe(3);
+});

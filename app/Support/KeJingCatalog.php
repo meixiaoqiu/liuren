@@ -602,6 +602,24 @@ final class KeJingCatalog
                     ['label' => '癸巳日第九局', 'path' => 'reference·宽口径旁证', 'source' => '《御定六壬直指》', 'detail' => '巳为癸日财并临癸干，但巳居末传、并未发用，该书仍列“赘婿”课体。'],
                 ],
             ],
+            [
+                'name' => '冲破课',
+                'code' => 'lesson.chongpo',
+                'gua' => '夬',
+                'guaSymbol' => '䷪',
+                'summary' => '日干寄宫或日支的冲神发用，且该冲神加临其自身破位；岁月日时冲破的正文扩展暂作为未决解释保存，不放宽主体。',
+                'cases' => [
+                    self::case(
+                        'lesson.chongpo.zi_nian_geng_zi_wei_shi_xu_jiang',
+                        '子年·庚子日·未时·戌将（《大全》正文标准课例）',
+                        '日支子之冲神午发用；天盘午实际加临地盘卯，卯为午之破；三传午酉子。',
+                        '2056-04-18T13:00',
+                    ),
+                ],
+                'source_examples' => [
+                    ['label' => '子年庚子日未时戌将', 'path' => '日支冲神加破发用', 'source' => '《六壬大全》正文标准课例', 'detail' => '子日冲神午发用，午加卯，卯为午之破；三传午酉子。'],
+                ],
+            ],
         ];
     }
 

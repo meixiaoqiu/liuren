@@ -915,6 +915,22 @@ test('frontend shows zhuixu stem path for the daquan bing-shen example', functio
         ->assertSee('干临支发用');
 });
 
+test('frontend shows chongpo reasoning for the modern reproduction of the daquan example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2056-04-18T13:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('冲破课')
+        ->assertSee('夬卦')
+        ->assertSee('䷪')
+        ->assertSee('冲破判断')
+        ->assertSee('日支一路')
+        ->assertSee('日支子之冲神为午')
+        ->assertSee('午实际临地盘卯')
+        ->assertSee('卯为午之破');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')

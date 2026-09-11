@@ -11,6 +11,7 @@
             <x-menu horizontal activate-by-route active-bg-color="text-primary">
                 <x-menu-item title="排盘" route="pan.create" />
                 <x-menu-item title="课经" route="kejing" />
+                <x-menu-item title="速查" route="reference" />
             </x-menu>
         </div>
     </div>

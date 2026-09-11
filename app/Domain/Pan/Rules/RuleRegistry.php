@@ -67,6 +67,7 @@ final class RuleRegistry
             new YouziRule,
             new SanjiaoRule,
             new ZhuixuRule,
+            new ChongpoRule,
             new YixunZhoubianRule,
         ];
     }
