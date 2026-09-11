@@ -97,6 +97,17 @@ test('wuyin checks raw positions before deduplication', function () {
         ->and($match->evidence['has_ke'])->toBeTrue();
 });
 
+test('wuyin keeps stem lodging in canonical lesson but names the day stem in first raw relation', function () {
+    [, $match] = wuyin_production('2000-03-08 15:00:00');
+
+    expect($match->evidence['canonical_lessons'][0]['lower'])->toBe(4)
+        ->and($match->evidence['raw_lesson_relations'][0]['lower'])->toBe(1)
+        ->and($match->evidence['raw_lesson_relations'][0]['display'])->toStartWith('乙木')
+        ->and($match->evidence['raw_lesson_relations'][0]['display'])->not->toContain('辰木')
+        ->and($match->evidence['foundations'][0]['detail'])->toContain('乙木')
+        ->and($match->evidence['foundations'][0]['detail'])->not->toContain('辰木');
+});
+
 test('wuyin returns null when necessary facts are missing', function (array $data) {
     expect((new WuyinRule)->match(PanFacts::from(new PanResult($data))))->toBeNull();
 })->with([

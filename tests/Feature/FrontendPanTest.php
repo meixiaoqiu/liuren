@@ -971,6 +971,14 @@ test('frontend shows wuyin reasoning for the corrected yi-hai example', function
         ->assertSee('三课不备且有克')->assertSee('阴不备');
 });
 
+test('frontend shows due subtype and concrete raw restraint facts', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-06-19T01:00')->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('度厄课')->assertSee('剥卦')->assertSee('䷖')->assertSee('度厄判断')
+        ->assertSee('幼度厄')->assertSee('甲木受酉金克')->assertSee('子水受未土克')->assertSee('未土受寅木克');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')

@@ -67,7 +67,7 @@ final class WuyinRule implements PanRule
         }
 
         $raw = [
-            $this->relation($facts, '干阳', $stemGround, $sike[1], $shengke[0], $facts->stemElement($stem), $facts->branchElement($sike[1])),
+            $this->relation($facts, '干阳', $stem, $sike[1], $shengke[0], $facts->stemElement($stem), $facts->branchElement($sike[1]), true),
             $this->relation($facts, '干阴', $sike[2], $sike[3], $shengke[1]),
             $this->relation($facts, '支阳', $branch, $sike[5], $shengke[2]),
             $this->relation($facts, '支阴', $sike[6], $sike[7], $shengke[3]),
@@ -130,7 +130,7 @@ final class WuyinRule implements PanRule
         );
     }
 
-    private function relation(PanFacts $facts, string $position, int $lower, int $upper, int $shengke, ?int $lowerElement = null, ?int $upperElement = null): array
+    private function relation(PanFacts $facts, string $position, int $lower, int $upper, int $shengke, ?int $lowerElement = null, ?int $upperElement = null, bool $lowerIsStem = false): array
     {
         $lowerElement ??= $facts->branchElement($lower);
         $upperElement ??= $facts->branchElement($upper);
@@ -144,9 +144,11 @@ final class WuyinRule implements PanRule
             },
         };
 
+        $lowerName = $lowerIsStem ? (PanCalculator::$tiangan[$lower] ?? '?') : $this->branchName($lower);
+
         return ['position' => $position, 'lower' => $lower, 'upper' => $upper, 'relation' => $relation,
             'shengke' => $shengke, 'has_ke' => in_array($shengke, [1, -1], true),
-            'display' => $this->branchName($lower).$this->elementName($lowerElement).$relation.$this->branchName($upper).$this->elementName($upperElement)];
+            'display' => $lowerName.$this->elementName($lowerElement).$relation.$this->branchName($upper).$this->elementName($upperElement)];
     }
 
     private function restrains(?int $source, ?int $target): bool
