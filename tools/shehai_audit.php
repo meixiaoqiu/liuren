@@ -6,6 +6,7 @@
  * 此工具不修改 PanCalculator，不写入回归夹具，不作为基线批准依据。
  */
 
+use App\Domain\Pan\BranchRelations;
 use App\Services\PanCalculator;
 use App\Support\PanCreationData;
 use App\Support\PanRegression;
@@ -358,8 +359,10 @@ function applyEvaluation(array $pan, array $evaluation): array
     $isFanyin = in_array('fanyin', $pan['calculationTrace']['plate_patterns'] ?? [], true);
 
     if ($isFanyin) {
-        $pan['sanchuan1'] = PanCalculator::$chong[$pan['sanchuan0']];
-        $pan['sanchuan2'] = PanCalculator::$chong[$pan['sanchuan1']];
+        $pan['sanchuan1'] = BranchRelations::clashOf($pan['sanchuan0'])
+            ?? throw new RuntimeException('涉害审计无法取得初传冲支');
+        $pan['sanchuan2'] = BranchRelations::clashOf($pan['sanchuan1'])
+            ?? throw new RuntimeException('涉害审计无法取得中传冲支');
     } else {
         $pan['sanchuan1'] = $pan['tianpan'][$pan['sanchuan0']];
         $pan['sanchuan2'] = $pan['tianpan'][$pan['sanchuan1']];

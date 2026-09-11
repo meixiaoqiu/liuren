@@ -48,9 +48,6 @@ class PanResource extends Resource
     // 地支的刑
     public static ?array $xing = [3, 10, 5, 0, 4, 8, 6, 1, 2, 9, 7, 11];
 
-    // 地支的相冲
-    public static ?array $chong = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
-
     // 定义月将
     public static ?array $yuejiang = [
         0 => '子/神后/大寒到雨水',

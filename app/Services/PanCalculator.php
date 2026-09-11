@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\PanResult;
+use App\Domain\Pan\BranchRelations;
 use com\tyme\culture\Element;
 use com\tyme\solar\SolarTime;
 use DateTimeImmutable;
@@ -40,9 +41,6 @@ class PanCalculator
 
     // 地支的刑
     public static ?array $xing = [3, 10, 5, 0, 4, 8, 6, 1, 2, 9, 7, 11];
-
-    // 地支的相冲
-    public static ?array $chong = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
 
     // 定义月将
     public static ?array $yuejiang = [
@@ -692,8 +690,8 @@ class PanCalculator
             // 除丁未、己未，均为反吟
             $jiuZongMen = 20; // 反吟无依
             $calculationTrace['lesson_patterns'][] = 'fanyin_wuyi';
-            $pan['sanchuan1'] = self::$chong[$pan['sanchuan0']];
-            $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
+            $pan['sanchuan1'] = self::clashBranch($pan['sanchuan0']);
+            $pan['sanchuan2'] = self::clashBranch($pan['sanchuan1']);
             $calculationTrace['middle_transmission'] = [
                 'recorded' => true,
                 'method' => 'chong',
@@ -946,7 +944,7 @@ class PanCalculator
                     $pan['sanchuan1'] = $pan['sike'][5];
                     $pan['sanchuan2'] = self::$xing[$pan['sanchuan1']];
                     if (in_array($pan['sanchuan1'], [4, 6, 9, 11])) { // 中传自刑
-                        $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
+                        $pan['sanchuan2'] = self::clashBranch($pan['sanchuan1']);
                     }
                 }
                 if (count($xiaZeiShangIndex) == 0 && count($shangKeXiaIndex) == 0) {
@@ -968,9 +966,9 @@ class PanCalculator
                         $pan['sanchuan1'] = self::$xing[$pan['sanchuan0']];
                     }
                     if ($pan['sanchuan0'] === 3 && $pan['sanchuan1'] === 0) { // 子卯互刑不复再传，以子冲午为末传
-                        $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
+                        $pan['sanchuan2'] = self::clashBranch($pan['sanchuan1']);
                     } elseif (in_array($pan['sanchuan1'], [4, 6, 9, 11])) { // 中传自刑
-                        $pan['sanchuan2'] = self::$chong[$pan['sanchuan1']];
+                        $pan['sanchuan2'] = self::clashBranch($pan['sanchuan1']);
                     } else {
                         $pan['sanchuan2'] = self::$xing[$pan['sanchuan1']];
                     }
@@ -1057,5 +1055,12 @@ class PanCalculator
         $pan['calculationTrace'] = $calculationTrace;
 
         return new PanResult($pan);
+    }
+
+    /** 取得规范冲支；核心算法传入的地支必须始终在 0..11。 */
+    private static function clashBranch(int $branch): int
+    {
+        return BranchRelations::clashOf($branch)
+            ?? throw new RuntimeException("无法取得地支索引 {$branch} 的冲支");
     }
 }
