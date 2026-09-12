@@ -21,6 +21,6 @@
     },
     "devDependencies": {
         "astronomy-engine": "2.1.19",
-        "daisyui": "^5.7.22"
+        "daisyui": "^5.7.32"
     }
 }
