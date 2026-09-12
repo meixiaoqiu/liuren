@@ -270,6 +270,60 @@ final readonly class PanFacts
         ];
     }
 
+    /**
+     * 返回起课日期命中的四立节气；只比较交节所在公历日期，不比较交节时刻。
+     *
+     * @return array{key: string, name: string, term_time: string, date: string}|null
+     */
+    public function fourLiDay(): ?array
+    {
+        /** @var array<int, array<string, array{key: string, name: string, term_time: string, date: string}>> $yearCache */
+        static $yearCache = [];
+        $value = $this->get('calculationTime');
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $parts = date_parse($value);
+        if (($parts['error_count'] ?? 1) !== 0) {
+            return null;
+        }
+
+        $year = $parts['year'];
+        $date = sprintf('%04d-%02d-%02d', $year, $parts['month'], $parts['day']);
+        if (isset($yearCache[$year])) {
+            return $yearCache[$year][$date] ?? null;
+        }
+
+        $term = SolarTime::fromYmdHms($year, 1, 1, 0, 0, 0)->getTerm();
+        $fourLi = [
+            3 => ['key' => 'lichun', 'name' => '立春'],
+            9 => ['key' => 'lixia', 'name' => '立夏'],
+            15 => ['key' => 'liqiu', 'name' => '立秋'],
+            21 => ['key' => 'lidong', 'name' => '立冬'],
+        ];
+
+        $yearCache[$year] = [];
+        for ($offset = 0; $offset <= 24; $offset++) {
+            $candidate = $term->next($offset);
+            $meta = $fourLi[$candidate->getIndex()] ?? null;
+            if ($meta === null) {
+                continue;
+            }
+
+            $time = $candidate->getJulianDay()->getSolarTime();
+            if ($time->getYear() !== $year) {
+                continue;
+            }
+
+            $termDate = sprintf('%04d-%02d-%02d', $time->getYear(), $time->getMonth(), $time->getDay());
+            $yearCache[$year][$termDate] = [...$meta, 'term_time' => self::formatSolarTime($time), 'date' => $termDate];
+        }
+
+        return $yearCache[$year][$date] ?? null;
+    }
+
     public function generalRidingBranch(int $branch): ?int
     {
         $tianpan = $this->get('tianpan');

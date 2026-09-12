@@ -902,3 +902,23 @@ test('xingshang follows zhunfu and its program-verified case executes through pr
     expect($match)->not->toBeNull()->and($match['evidence']['matched_routes'])->toBe(['stem'])
         ->and($match['evidence']['initial'])->toBe(4)->and($match['evidence']['punished_branch'])->toBe(4);
 });
+
+test('tianhuo is lesson 44 after xingshang and both catalog directions execute through production rules', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.tianhuo');
+
+    expect(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.xingshang', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('天祸课')->and($lesson['gua'])->toBe('噬嗑')->and($lesson['guaSymbol'])->toBe('䷔')
+        ->and($lesson['summary'])->toBe('四立日，今日干支临昨日干支，或昨日干支临今日干支。')
+        ->and($lesson['summary'])->not->toContain('只看干')->and($lesson['cases'])->toHaveCount(2);
+
+    foreach ($lesson['cases'] as $case) {
+        expect($case['status'])->toBe('executable');
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+            ->call('calculate')->assertHasNoErrors();
+        $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.tianhuo');
+        expect($match)->not->toBeNull()->and($match['evidence']['matched_directions'])->toHaveCount(1);
+    }
+});

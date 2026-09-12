@@ -78,6 +78,7 @@ final class RuleRegistry
             new QinhaiRule,
             new ZhunfuRule,
             new XingshangRule,
+            new TianhuoRule,
             new YixunZhoubianRule,
         ];
     }

@@ -408,6 +408,10 @@
                                         @if ($interpretation['code'] === 'lesson.xingshang')
                                             @include('livewire.pan.partials.xingshang-trace', ['trace' => $interpretation['evidence']])
                                         @endif
+
+                                        @if ($interpretation['code'] === 'lesson.tianhuo')
+                                            @include('livewire.pan.partials.tianhuo-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
                                         @if ($interpretation['code'] === 'structure.yixun_zhoubian')
                                             @include('livewire.pan.partials.yixun-zhoubian-trace', ['trace' => $interpretation['evidence']])
                                         @endif

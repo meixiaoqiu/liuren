@@ -1050,6 +1050,22 @@ test('frontend shows xingshang direction evidence and context boundary', functio
         ->assertSee('中传、末传及四课任意相刑不参与判断');
 });
 
+test('frontend shows tianhuo four-li and strict stem-branch evidence', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2004-05-05T15:00')
+        ->set('birthDatetime', '1900-01-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('天祸课')->assertSee('噬嗑卦')->assertSee('䷔')->assertSee('天祸判断')
+        ->assertSee('立夏日')->assertSee('今日甲申')->assertSee('昨日癸未')
+        ->assertSee('甲寄寅')->assertSee('癸寄丑')
+        ->assertSee('地盘丑位上神为寅')->assertSee('地盘未位上神为申')
+        ->assertSee('今日干支同时临昨日干支')
+        ->assertSee('只看日干的异说未纳入正式规则')
+        ->assertSee('“又发用”等只作增强描述，不是基础成立条件');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
