@@ -33,8 +33,11 @@ final class ZhunfuRule implements ContextAwareRule
 
     /** 四德表，与德庆课既有口径保持一致。 */
     private const STEM_VIRTUES = [2, 8, 5, 11, 5, 2, 8, 5, 11, 5];
+
     private const BRANCH_VIRTUES = [5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4];
+
     private const HEAVENLY_VIRTUES = [5, 8, 7, 8, 11, 10, 11, 2, 1, 2, 5, 4];
+
     private const MONTHLY_VIRTUES = [11, 8, 5, 2, 11, 8, 5, 2, 11, 8, 5, 2];
 
     public function code(): string
@@ -271,7 +274,7 @@ final class ZhunfuRule implements ContextAwareRule
         $routes = [];
 
         if ((self::STEM_PUNISHMENTS[$dayStem] ?? null) === $initial) {
-            $routes[] = ['type' => 'xing', 'source' => 'day_stem', 'branch' => $initial, 'label' => '日干刑初传'];
+            $routes[] = ['type' => 'xing', 'source' => 'day_stem', 'branch' => $initial, 'label' => (PanCalculator::$tiangan[$dayStem] ?? '?').'刑'.(PanCalculator::$dizhi[$initial] ?? '?')];
         }
 
         $related = [
@@ -306,11 +309,11 @@ final class ZhunfuRule implements ContextAwareRule
 
             if ((self::BRANCH_PUNISHMENTS[$initial] ?? null) === $branch
                 || (self::BRANCH_PUNISHMENTS[$branch] ?? null) === $initial) {
-                $routes[] = ['type' => 'xing', 'source' => $source, 'branch' => $branch, 'label' => $sourceLabel.'与初传相刑'];
+                $routes[] = ['type' => 'xing', 'source' => $source, 'branch' => $branch, 'label' => (PanCalculator::$dizhi[$branch] ?? '?').(PanCalculator::$dizhi[$initial] ?? '?').'相刑（'.$sourceLabel.'）'];
             }
 
             if (BranchRelations::isHai($initial, $branch)) {
-                $routes[] = ['type' => 'hai', 'source' => $source, 'branch' => $branch, 'label' => $sourceLabel.'与初传六害'];
+                $routes[] = ['type' => 'hai', 'source' => $source, 'branch' => $branch, 'label' => (PanCalculator::$dizhi[$branch] ?? '?').(PanCalculator::$dizhi[$initial] ?? '?').'六害（'.$sourceLabel.'）'];
             }
         }
 

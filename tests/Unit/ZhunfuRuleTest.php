@@ -63,6 +63,7 @@ test('sixth zhun records both stem punishment and transmission harm routes in th
 
     expect($routes->contains(fn (array $route): bool => $route['type'] === 'xing' && $route['source'] === 'day_stem'))->toBeTrue()
         ->and($routes->contains(fn (array $route): bool => $route['type'] === 'hai' && $route['source'] === 'middle_transmission'))->toBeTrue()
+        ->and($routes->pluck('label'))->toContain('癸刑未', '子未六害（中传）')
         ->and($match->evidence['transmission_hits_grave'])->toBeTrue();
 });
 

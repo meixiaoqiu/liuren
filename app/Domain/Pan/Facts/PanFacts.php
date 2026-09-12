@@ -170,6 +170,22 @@ final readonly class PanFacts
         return $element === null ? null : $this->seasonalStrength($element);
     }
 
+    /** 返回地支五行在当前四立/土旺十八日周期中的完整旺相休囚死状态。 */
+    public function branchSeasonalState(int $branch): ?string
+    {
+        $element = $this->branchElement($branch);
+
+        return $element === null ? null : $this->seasonalState($element);
+    }
+
+    /** 返回天干五行在当前四立/土旺十八日周期中的完整旺相休囚死状态。 */
+    public function stemSeasonalState(int $stem): ?string
+    {
+        $element = $this->stemElement($stem);
+
+        return $element === null ? null : $this->seasonalState($element);
+    }
+
     /** @return array{wang: int, xiang: int}|null */
     public function wangXiangElements(): ?array
     {
@@ -360,6 +376,24 @@ final readonly class PanFacts
             $wangXiang['wang'] ?? null => '旺',
             $wangXiang['xiang'] ?? null => '相',
             default => null,
+        };
+    }
+
+    private function seasonalState(int $element): ?string
+    {
+        $period = $this->seasonalPeriod();
+        $wang = $period['wang'] ?? null;
+
+        if (! is_int($wang)) {
+            return null;
+        }
+
+        return match ($element) {
+            $wang => '旺',
+            ($wang + 1) % 5 => '相',
+            ($wang + 4) % 5 => '休',
+            ($wang + 3) % 5 => '囚',
+            ($wang + 2) % 5 => '死',
         };
     }
 

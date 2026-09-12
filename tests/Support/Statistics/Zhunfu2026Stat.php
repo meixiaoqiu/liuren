@@ -8,8 +8,8 @@
 require dirname(__DIR__, 3).'/vendor/autoload.php';
 
 use App\Data\PanResult;
-use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Facts\PanFacts;
+use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\ZhunfuRule;
 use App\Services\PanCalculator;
 

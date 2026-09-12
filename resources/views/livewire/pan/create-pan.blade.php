@@ -1,4 +1,38 @@
-<div class="pan-classical-shell">
+<div
+    class="pan-classical-shell"
+    x-data="{
+        storageKey: 'liuren.pan.inputs.v1',
+        ready: false,
+        init() {
+            if (! new URLSearchParams(window.location.search).has('datetime')) {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(this.storageKey) || 'null');
+                    if (saved && typeof saved === 'object') {
+                        if (typeof saved.datetime === 'string') $wire.set('datetime', saved.datetime, false);
+                        if (typeof saved.birthDatetime === 'string') $wire.set('birthDatetime', saved.birthDatetime, false);
+                        if (['male', 'female'].includes(saved.gender)) $wire.set('gender', saved.gender, false);
+                        if (Array.isArray(saved.people)) $wire.set('people', saved.people.slice(0, 10), false);
+                    }
+                } catch (error) {
+                    localStorage.removeItem(this.storageKey);
+                }
+            }
+            this.ready = true;
+        },
+        persist() {
+            if (! this.ready) return;
+            queueMicrotask(() => localStorage.setItem(this.storageKey, JSON.stringify({
+                datetime: $wire.datetime,
+                birthDatetime: $wire.birthDatetime,
+                gender: $wire.gender,
+                people: $wire.people,
+            })));
+        },
+    }"
+    x-on:input.debounce.300ms="persist()"
+    x-on:change="persist()"
+    x-on:click.debounce.50ms="persist()"
+>
     @include('partials.pan-header')
 
     <main class="mx-auto max-w-7xl px-0 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
@@ -21,7 +55,7 @@
                             wire:model="birthDatetime"
                             type="datetime-local"
                             icon="o-cake"
-                            hint="出生时间会写入当前网址，请谨慎分享"
+                            hint="出生时间会写入当前网址并保存在此浏览器，请谨慎分享"
                             required
                         />
 
@@ -367,6 +401,9 @@
                                         @endif
                                         @if ($interpretation['code'] === 'lesson.qinhai')
                                             @include('livewire.pan.partials.qinhai-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['code'] === 'lesson.zhunfu')
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => '迍福判断', 'trace' => $interpretation['evidence']])
                                         @endif
                                         @if ($interpretation['code'] === 'structure.yixun_zhoubian')
                                             @include('livewire.pan.partials.yixun-zhoubian-trace', ['trace' => $interpretation['evidence']])

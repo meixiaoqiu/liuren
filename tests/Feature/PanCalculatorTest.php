@@ -264,6 +264,34 @@ test('seasonal strength changes to earth eighteen exact days before each four-li
     'before 2000 start of winter' => ['2000-10-20 10:48:03', '2000-10-20 10:48:04', '2000-11-07 10:48:04'],
 ]);
 
+test('complete seasonal states cover all five states in spring and the earth-prosperous period', function () {
+    $calculator = app(PanCalculator::class);
+    $spring = PanFacts::from($calculator->calculate('2026-02-28 11:00:00'));
+    $soil = PanFacts::from($calculator->calculate('2000-01-17 20:40:24'));
+
+    expect([
+        $spring->branchSeasonalState(2), // 寅木
+        $spring->branchSeasonalState(5), // 巳火
+        $spring->branchSeasonalState(0), // 子水
+        $spring->branchSeasonalState(8), // 申金
+        $spring->branchSeasonalState(4), // 辰土
+    ])->toBe(['旺', '相', '休', '囚', '死'])
+        ->and([
+            $spring->stemSeasonalState(0),
+            $spring->stemSeasonalState(2),
+            $spring->stemSeasonalState(8),
+            $spring->stemSeasonalState(6),
+            $spring->stemSeasonalState(4),
+        ])->toBe(['旺', '相', '休', '囚', '死'])
+        ->and([
+            $soil->branchSeasonalState(4), // 土旺
+            $soil->branchSeasonalState(8), // 金相
+            $soil->branchSeasonalState(5), // 火休
+            $soil->branchSeasonalState(2), // 木囚
+            $soil->branchSeasonalState(0), // 水死
+        ])->toBe(['旺', '相', '休', '囚', '死']);
+});
+
 test('sanyang requires forward nobleman day and branch riding its five front generals and prosperous initial transmission', function () {
     $result = app(PanCalculator::class)->calculate('2004-04-16 18:00:00');
     $pan = $result->toArray();

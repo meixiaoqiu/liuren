@@ -71,6 +71,14 @@ test('frontend rejects an invalid datetime', function () {
         ->assertSet('pan', null);
 });
 
+test('frontend persists reusable pan inputs in browser local storage', function () {
+    Livewire::test(CreatePan::class)
+        ->assertSee('liuren.pan.inputs.v1', false)
+        ->assertSee('localStorage.setItem', false)
+        ->assertSee('localStorage.getItem', false)
+        ->assertSee('并保存在此浏览器');
+});
+
 test('frontend keeps the form available when get parameters are invalid', function () {
     Livewire::withQueryParams([
         'datetime' => 'not-a-date',
@@ -1020,6 +1028,17 @@ test('frontend shows qinhai lower-deity route and frozen exclusions', function (
         ->assertSee('支路')->assertSee('子上见未')->assertSee('初传子为该组下神')
         ->assertSee('年命发用、临行年等增强条件尚未实现')
         ->assertSee('二者的精确程序语义仍待后续研究');
+});
+
+test('frontend shows zhunfu lesson and all frozen reasoning for the standard example', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-02-28T11:00')->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('迍福课')->assertSee('屯卦')->assertSee('䷂')->assertSee('迍福判断')
+        ->assertSee('一迍·死气发用')->assertSee('六迍·带刑害、传逢坟墓')
+        ->assertSee('癸刑未')->assertSee('子未六害')
+        ->assertSee('一福·初死终旺')->assertSee('四福·年命制初')
+        ->assertSee('八迍五福十三项俱备');
 });
 
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {

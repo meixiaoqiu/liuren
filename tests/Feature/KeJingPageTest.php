@@ -852,3 +852,32 @@ test('qinhai follows wulu-juesi and its daquan case executes through production 
     expect($match)->not->toBeNull()->and($match['evidence']['matched_routes'])->toBe(['branch'])
         ->and($match['evidence']['routes'][0]['initial_role'])->toBe('lower');
 });
+
+test('zhunfu follows qinhai and its supplemented daquan case executes through production rules', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.zhunfu');
+
+    expect(array_search('lesson.zhunfu', $codes, true))->toBe(array_search('lesson.qinhai', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('迍福课')->and($lesson['gua'])->toBe('屯')->and($lesson['guaSymbol'])->toBe('䷂')
+        ->and($lesson['cases'])->toHaveCount(1);
+
+    $case = $lesson['cases'][0];
+    expect($case['status'])->toBe('executable')
+        ->and($case['case_id'])->toBe('lesson.zhunfu.gui_you_wu_shi_hai_jiang')
+        ->and($case['datetime'])->toBe('2026-02-28T11:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.zhunfu');
+
+    expect($match)->not->toBeNull()
+        ->and([$pan['rigan'], $pan['rizhi']])->toBe([9, 9])
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([7, 0, 5])
+        ->and($match['evidence']['conditions'])->toHaveCount(13)
+        ->and(in_array(false, array_values($match['evidence']['conditions']), true))->toBeFalse()
+        ->and($match['evidence']['zhun_count'])->toBe(8)
+        ->and($match['evidence']['fu_count'])->toBe(5);
+});
