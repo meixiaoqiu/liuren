@@ -7,6 +7,7 @@ interface ContextAwareRule extends PanRule
 {
     /**
      * 规则成课所需的上下文标识列表，如 ['people.querent', 'people.spouse']。
+     * 同一人物的备选字段可以“|”表示 OR，如 people.querent.nianming|xingnian。
      *
      * @return list<string>
      */

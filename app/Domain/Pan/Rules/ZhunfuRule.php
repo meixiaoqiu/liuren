@@ -47,14 +47,14 @@ final class ZhunfuRule implements ContextAwareRule
 
     public function requiredContext(): array
     {
-        return ['people.querent.nianming', 'people.querent.xingnian'];
+        return ['people.querent.nianming|xingnian'];
     }
 
     public function notEvaluatedInfo(): array
     {
         return [
             'name' => '迍福课',
-            'notice' => '第四福需要占人本命与行年信息（出生时间与性别），当前未进行判断。',
+            'notice' => '第四福需要占人本命或行年信息（出生时间与性别），当前未进行判断。',
         ];
     }
 

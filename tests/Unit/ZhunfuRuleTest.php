@@ -3,6 +3,7 @@
 use App\Data\PanResult;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
+use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Domain\Pan\Rules\ZhunfuRule;
 use App\Services\PanCalculator;
 
@@ -73,6 +74,27 @@ test('fourth fu accepts the querent year-life branch itself restraining the init
 
     expect($pan->get('context')['people'][0]['nianming'])->toBe(2)
         ->and($match->evidence['year_ming_rescues']['matched_via'])->toContain('nianming_ground');
+});
+
+test('context gate accepts either nianming or xingnian and skips only when both are absent', function () {
+    $base = zhunfu_pan_with_querent()->toArray();
+    $engine = new PanRuleEngine;
+
+    $nianmingOnly = $base;
+    $nianmingOnly['context']['people'][0]['xingnian'] = null;
+    $xingnianOnly = $base;
+    $xingnianOnly['context']['people'][0]['nianming'] = null;
+    $xingnianOnly['context']['people'][0]['xingnian'] = 2;
+    $neither = $base;
+    $neither['context']['people'][0]['nianming'] = null;
+    $neither['context']['people'][0]['xingnian'] = null;
+
+    expect((new ZhunfuRule)->requiredContext())->toBe(['people.querent.nianming|xingnian'])
+        ->and(collect($engine->evaluate(new PanResult($nianmingOnly)))->pluck('code'))->toContain('lesson.zhunfu')
+        ->and(collect($engine->evaluate(new PanResult($xingnianOnly)))->pluck('code'))->toContain('lesson.zhunfu')
+        ->and(collect($engine->notEvaluated(new PanResult($nianmingOnly)))->pluck('code'))->not->toContain('lesson.zhunfu')
+        ->and(collect($engine->notEvaluated(new PanResult($xingnianOnly)))->pluck('code'))->not->toContain('lesson.zhunfu')
+        ->and(collect($engine->notEvaluated(new PanResult($neither)))->pluck('code'))->toContain('lesson.zhunfu');
 });
 
 test('fourth fu fails when neither year-life nor xingnian nor their upper gods restrain the initial transmission', function () {

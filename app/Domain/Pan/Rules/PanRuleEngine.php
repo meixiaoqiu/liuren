@@ -86,7 +86,13 @@ final readonly class PanRuleEngine
 
             // 三段式路径：people.<role>.<field>，要求字段存在且非 null
             if (isset($parts[2])) {
-                if (! array_key_exists($parts[2], $person) || $person[$parts[2]] === null) {
+                $alternativeFields = explode('|', $parts[2]);
+                $hasAnyField = array_any(
+                    $alternativeFields,
+                    fn (string $field): bool => array_key_exists($field, $person) && $person[$field] !== null,
+                );
+
+                if (! $hasAnyField) {
                     $missing[] = $path;
                 }
             }
