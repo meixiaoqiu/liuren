@@ -20,11 +20,15 @@
                     @foreach ($lessons as $lesson)
                         <x-card shadow class="pan-data-card">
                             <article class="flow-root">
-                                <span class="float-right ml-4 mb-2 grid size-20 place-items-center bg-primary/10 text-4xl leading-none text-primary" aria-label="{{ $lesson['gua'] }}卦卦符">{{ $lesson['guaSymbol'] }}</span>
+                                @if ($lesson['guaSymbol'] !== null)
+                                    <span class="float-right ml-4 mb-2 grid size-20 place-items-center bg-primary/10 text-4xl leading-none text-primary" aria-label="{{ $lesson['gua'] }}卦卦符">{{ $lesson['guaSymbol'] }}</span>
+                                @endif
                                 <div class="flex items-center gap-3">
                                     <div class="flex h-9 shrink-0 items-stretch">
                                         <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">课</span>
-                                        <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $lesson['gua'] }}卦</span>
+                                        @if ($lesson['gua'] !== null)
+                                            <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $lesson['gua'] }}卦</span>
+                                        @endif
                                     </div>
                                     <div>
                                         <span class="text-xs text-base-content/45">六十四课</span>

@@ -72,6 +72,7 @@ final class RuleRegistry
             new JiaotongRule,
             new YinvRule,
             new WuyinRule,
+            new JieliRule,
             new DueRule,
             new YixunZhoubianRule,
         ];

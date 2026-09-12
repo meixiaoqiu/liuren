@@ -769,11 +769,44 @@ test('wuyin follows yinyi and all three daquan cases execute through production 
     }
 });
 
-test('due follows wuyin and both daquan cases execute through production rules', function () {
+test('jieli follows wuyin and its daquan structure reproduction is executable without a hexagram', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.jieli');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.jieli', $codes, true))->toBe(array_search('lesson.wuyin', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('解离课')
+        ->and($lesson['gua'])->toBeNull()
+        ->and($lesson['guaSymbol'])->toBeNull()
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2026-03-01T05:00')
+        ->and($case['people'])->toHaveCount(1)
+        ->and($case['people'][0]['role'])->toBe('spouse');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->set('people', $case['people'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.jieli');
+
+    expect([$pan['shizhi'], $pan['yuejiang']])->toBe([3, 11])
+        ->and($pan['tianpan'])->toBe([8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7])
+        ->and($match)->not->toBeNull()
+        ->and([$match['evidence']['fu_xingnian'], $match['evidence']['qi_xingnian']])->toBe([6, 0])
+        ->and([$match['evidence']['fu_upper'], $match['evidence']['qi_upper']])->toBe([2, 8]);
+});
+
+test('due follows jieli and both daquan cases execute through production rules', function () {
     $lessons = collect(KeJingCatalog::lessons());
     $codes = $lessons->pluck('code')->all();
     $lesson = $lessons->firstWhere('code', 'lesson.due');
-    expect(array_search('lesson.due', $codes, true))->toBe(array_search('lesson.wuyin', $codes, true) + 1)
+    expect(array_search('lesson.due', $codes, true))->toBe(array_search('lesson.jieli', $codes, true) + 1)
         ->and($lesson['name'])->toBe('度厄课')->and($lesson['gua'])->toBe('剥')->and($lesson['guaSymbol'])->toBe('䷖')
         ->and($lesson['summary'])->toContain('恰有三课')->and(count($lesson['cases']))->toBe(2);
 

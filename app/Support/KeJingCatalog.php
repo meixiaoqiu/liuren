@@ -22,8 +22,8 @@ final class KeJingCatalog
      * @return list<array{
      *     name: string,
      *     code: string,
-     *     gua: string,
-     *     guaSymbol: string,
+     *     gua: ?string,
+     *     guaSymbol: ?string,
      *     summary: string,
      *     cases: list<array{label: string, reason: string, datetime: string, birth: string, gender: string, people: list<array{role: string, birth_datetime: string, gender: string}>, status: string}>
      * }>
@@ -658,6 +658,29 @@ final class KeJingCatalog
                 ],
             ],
             [
+                'name' => '解离课',
+                'code' => 'lesson.jieli',
+                'gua' => null,
+                'guaSymbol' => null,
+                'summary' => '夫妻行年相冲或相克，且夫下与妻上、夫上与妻下两条交叉关系中至少一处有克贼。',
+                'cases' => [
+                    self::case(
+                        'lesson.jieli.fu_wu_qi_zi',
+                        '夫午上寅·妻子上申（《大全》正文结构现代复现）',
+                        '夫妻行年子午冲克；夫行年午与妻行年上神申相克，按当前“上下神交叉克贼”暂定口径命中。',
+                        '2026-03-01T05:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [
+                            ['role' => 'spouse', 'birth_datetime' => '1994-08-01T00:00', 'gender' => 'female'],
+                        ],
+                    ),
+                ],
+                'source_examples' => [
+                    ['label' => '夫年午上寅、妻年子上申', 'path' => '夫妻行年冲克 + 上下神交叉克贼', 'source' => '《六壬大全》正文', 'detail' => '子午冲且水克火；午火克申金满足当前第二条件。正文另有申金克寅木，项目暂作增强关系，不列为必要条件。'],
+                ],
+            ],
+            [
                 'name' => '度厄课',
                 'code' => 'lesson.due',
                 'gua' => '剥',
@@ -679,7 +702,7 @@ final class KeJingCatalog
      * 白名单查找：根据 case_id 在全部课例中定位案例。
      * 排盘页只能基于本方法的结果展示"原文参考盘"提示，不得直接信任查询参数中的 status 或文案。
      *
-     * @return array{case: array{label: string, reason: string, datetime: string, birth: string, gender: string, people: list<array{role: string, birth_datetime: string, gender: string}>, status: string, case_id: string}, lesson: array{name: string, code: string, gua: string, guaSymbol: string, summary: string, cases: list<mixed>}}|null
+     * @return array{case: array{label: string, reason: string, datetime: string, birth: string, gender: string, people: list<array{role: string, birth_datetime: string, gender: string}>, status: string, case_id: string}, lesson: array{name: string, code: string, gua: ?string, guaSymbol: ?string, summary: string, cases: list<mixed>}}|null
      */
     public static function findCase(string $caseId): ?array
     {

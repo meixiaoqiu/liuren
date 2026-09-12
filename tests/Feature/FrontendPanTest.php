@@ -971,6 +971,26 @@ test('frontend shows wuyin reasoning for the corrected yi-hai example', function
         ->assertSee('三课不备且有克')->assertSee('阴不备');
 });
 
+test('frontend shows jieli reasoning and omits an unfrozen hexagram badge', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-03-01T05:00')
+        ->set('birthDatetime', '1986-08-01T00:00')
+        ->set('gender', 'male')
+        ->set('people', [
+            ['role' => 'spouse', 'birth_datetime' => '1994-08-01T00:00', 'gender' => 'female'],
+        ])
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('解离课')
+        ->assertSee('解离判断')
+        ->assertSee('夫妻行年冲克')
+        ->assertSee('上下神交叉克贼')
+        ->assertSee('子午六冲')
+        ->assertSee('午火克申金')
+        ->assertSee('双方行年上神另见克贼')
+        ->assertDontSee('解离卦');
+});
+
 test('frontend shows due subtype and concrete raw restraint facts', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2026-06-19T01:00')->set('birthDatetime', '2000-01-01T00:00')
