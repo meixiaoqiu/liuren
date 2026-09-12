@@ -881,3 +881,22 @@ test('zhunfu follows qinhai and its supplemented daquan case executes through pr
         ->and($match['evidence']['zhun_count'])->toBe(8)
         ->and($match['evidence']['fu_count'])->toBe(5);
 });
+
+test('xingshang follows zhunfu and its program-verified case executes through production rules', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.xingshang');
+
+    expect(array_search('lesson.xingshang', $codes, true))->toBe(array_search('lesson.zhunfu', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('刑伤课')->and($lesson['gua'])->toBe('讼')->and($lesson['guaSymbol'])->toBe('䷅')
+        ->and($lesson['cases'])->toHaveCount(1)->and($lesson['cases'][0]['status'])->toBe('executable')
+        ->and($lesson['cases'][0]['label'])->toContain('程序验证样本');
+
+    $case = $lesson['cases'][0];
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.xingshang');
+    expect($match)->not->toBeNull()->and($match['evidence']['matched_routes'])->toContain('stem')
+        ->and($match['evidence']['initial'])->toBe(4)->and($match['evidence']['punished_branch'])->toBe(4);
+});

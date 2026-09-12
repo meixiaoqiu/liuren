@@ -1041,6 +1041,15 @@ test('frontend shows zhunfu lesson and all frozen reasoning for the standard exa
         ->assertSee('八迍五福十三项俱备');
 });
 
+test('frontend shows xingshang direction evidence and context boundary', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2000-07-06T13:00')->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('刑伤课')->assertSee('讼卦')->assertSee('䷅')->assertSee('刑伤判断')
+        ->assertSee('初传辰刑辰')->assertSee('辰为日干寄宫')->assertSee('命中刑干')
+        ->assertSee('中传、末传及四课任意相刑不参与判断');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
