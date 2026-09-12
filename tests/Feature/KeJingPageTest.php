@@ -818,3 +818,20 @@ test('due follows jieli and both daquan cases execute through production rules',
             ->and(collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.due'))->not->toBeNull();
     }
 });
+
+test('wulu-juesi follows due and both daquan cases execute through production rules', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.wulu_juesi');
+    expect(array_search('lesson.wulu_juesi', $codes, true))->toBe(array_search('lesson.due', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('无禄绝嗣课')->and($lesson['gua'])->toBe('需')->and($lesson['guaSymbol'])->toBe('䷄')
+        ->and($lesson['summary'])->toBe('四上俱克下为无禄，四下俱贼上为绝嗣。')->and(count($lesson['cases']))->toBe(2);
+
+    foreach ($lesson['cases'] as $case) {
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+            ->call('calculate')->assertHasNoErrors();
+        expect($case['status'])->toBe('executable')
+            ->and(collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.wulu_juesi'))->not->toBeNull();
+    }
+});

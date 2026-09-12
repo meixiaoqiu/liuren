@@ -695,6 +695,21 @@ final class KeJingCatalog
                     ['label' => '壬申日子时未将', 'path' => '长度厄', 'source' => '《六壬大全》正文', 'detail' => '四课依次为下贼上、下生上、下贼上、下贼上；三传午丑申。'],
                 ],
             ],
+            [
+                'name' => '无禄绝嗣课',
+                'code' => 'lesson.wulu_juesi',
+                'gua' => '需',
+                'guaSymbol' => '䷄',
+                'summary' => '四上俱克下为无禄，四下俱贼上为绝嗣。',
+                'cases' => [
+                    self::case('lesson.wulu_juesi.ji_si_yin_shi_you_jiang', '己巳日·寅时·酉将（《大全》正文课例）', '四个原始课位全部上克下，成立无禄。', '2026-04-25T03:00'),
+                    self::case('lesson.wulu_juesi.geng_chen_chen_shi_hai_jiang', '庚辰日·辰时·亥将（《大全》正文课例）', '四个原始课位全部下贼上，成立绝嗣。', '2026-03-07T07:00'),
+                ],
+                'source_examples' => [
+                    ['label' => '己巳日寅时酉将', 'path' => '无禄', 'source' => '《六壬大全》正文', 'detail' => '四个原始课位依次均为上克下。'],
+                    ['label' => '庚辰日辰时亥将', 'path' => '绝嗣', 'source' => '《六壬大全》正文', 'detail' => '四个原始课位依次均为下贼上。'],
+                ],
+            ],
         ];
     }
 

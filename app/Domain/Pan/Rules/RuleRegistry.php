@@ -74,6 +74,7 @@ final class RuleRegistry
             new WuyinRule,
             new JieliRule,
             new DueRule,
+            new WuluJuesiRule,
             new YixunZhoubianRule,
         ];
     }

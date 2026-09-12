@@ -73,3 +73,21 @@ test('all 720 normalized core pan cases match their approved baseline', function
 
     expect($changedCases)->toBeEmpty();
 });
+
+test('wulu-juesi classification preserves the frozen 720 distribution', function () {
+    $calculator = app(PanCalculator::class);
+    $fixture = PanRegression::loadFixture();
+    $counts = ['wulu' => 0, 'juesi' => 0, 'union' => 0];
+
+    foreach ($fixture['cases'] as $case) {
+        $pan = $calculator->calculate($case['input']);
+        $relations = array_map(fn (int $index): int => $pan->get('wuxingShengke'.$index)[0], range(0, 3));
+        $wulu = count(array_filter($relations, fn (int $value): bool => $value === 1)) === 4;
+        $juesi = count(array_filter($relations, fn (int $value): bool => $value === -1)) === 4;
+        $counts['wulu'] += (int) $wulu;
+        $counts['juesi'] += (int) $juesi;
+        $counts['union'] += (int) ($wulu || $juesi);
+    }
+
+    expect($counts)->toBe(['wulu' => 5, 'juesi' => 7, 'union' => 12]);
+});
