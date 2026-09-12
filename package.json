@@ -7,7 +7,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test:moon-palace": "node --test tests/Tools/moon_palace.test.mjs"
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.3.3",
@@ -19,6 +20,7 @@
         "vite": "^8.1.4"
     },
     "devDependencies": {
+        "astronomy-engine": "2.1.19",
         "daisyui": "^5.7.22"
     }
 }
