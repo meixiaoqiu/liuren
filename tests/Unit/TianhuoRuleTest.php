@@ -69,7 +69,7 @@ test('tianhuo exposes stable evidence and is registered exactly once after xings
     $codes = array_map(fn ($rule): string => $rule->code(), (new RuleRegistry)->rules());
 
     expect($match?->code)->toBe('lesson.tianhuo')->and($match?->name)->toBe('天祸课')
-        ->and($match?->gua)->toBe('噬嗑')->and($match?->guaSymbol)->toBe('䷔')
+        ->and($match?->gua)->toBe('大过')->and($match?->guaSymbol)->toBe('䷛')
         ->and($match?->evidence)->toHaveKeys([
             'four_li', 'today', 'yesterday', 'today_stem_lodge', 'yesterday_stem_lodge',
             'today_stem_on_yesterday_stem', 'today_branch_on_yesterday_branch',

@@ -766,8 +766,8 @@ final class KeJingCatalog
             [
                 'name' => '天祸课',
                 'code' => 'lesson.tianhuo',
-                'gua' => '噬嗑',
-                'guaSymbol' => '䷔',
+                'gua' => '大过',
+                'guaSymbol' => '䷛',
                 'summary' => '四立日，今日干支临昨日干支，或昨日干支临今日干支。',
                 'cases' => [
                     self::case('lesson.tianhuo.jia_shen_today_on_yesterday', '甲申日·立夏·今日干支临昨日干支', '2004年立夏日，今日甲申、昨日癸未；甲寄寅、癸寄丑，地盘丑位上神寅，地盘未位上神申，严格同向干支条件成立。', '2004-05-05T15:00'),

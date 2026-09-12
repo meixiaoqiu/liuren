@@ -64,8 +64,8 @@ final class TianhuoRule implements PanRule
         return new RuleMatch(
             code: $this->code(), name: '天祸课', group: '六十四课',
             description: '四立日，今日干支临昨日干支，或昨日干支临今日干支。',
-            gua: '噬嗑', guaSymbol: '䷔',
-            xiang: '新故相干，灾祸发动。又发用等后续条件只作凶应增强，不进入基础成课条件。',
+            gua: '大过', guaSymbol: '䷛',
+            xiang: '以新易旧，天有灾祸。咎事莫为，身宜谨守。战斗流血，造死丧偶。出行死亡，干谒空走。',
             evidence: [
                 'four_li' => $fourLi,
                 'calculation_date' => substr((string) $facts->get('calculationTime'), 0, 10),

@@ -909,7 +909,7 @@ test('tianhuo is lesson 44 after xingshang and both catalog directions execute t
     $lesson = $lessons->firstWhere('code', 'lesson.tianhuo');
 
     expect(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.xingshang', $codes, true) + 1)
-        ->and($lesson['name'])->toBe('天祸课')->and($lesson['gua'])->toBe('噬嗑')->and($lesson['guaSymbol'])->toBe('䷔')
+        ->and($lesson['name'])->toBe('天祸课')->and($lesson['gua'])->toBe('大过')->and($lesson['guaSymbol'])->toBe('䷛')
         ->and($lesson['summary'])->toBe('四立日，今日干支临昨日干支，或昨日干支临今日干支。')
         ->and($lesson['summary'])->not->toContain('只看干')->and($lesson['cases'])->toHaveCount(2);
 
