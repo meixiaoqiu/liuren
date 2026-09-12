@@ -9,6 +9,7 @@ use App\Domain\Pan\Rules\TianyuRule;
 use App\Services\PanCalculator;
 
 $calculator = new PanCalculator;
+$productionRule = new TianyuRule;
 $startYear = (int) ($argv[1] ?? 2000);
 $endYear = (int) ($argv[2] ?? $startYear);
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
@@ -39,13 +40,20 @@ for ($year = $startYear; $year <= $endYear; $year++) {
             $dou = ($tianpan[TianyuRule::DAY_ORIGIN[$dayStem]] ?? null) === 4;
             $qiuSi = $state === '囚' || $state === '死';
             $grave = $initial === TianyuRule::DAY_GRAVE[$dayStem];
+            $productionA = $productionRule->match($facts) !== null;
+            $candidateA = $dou && ($qiuSi || $grave);
+
+            if ($productionA !== $candidateA) {
+                throw new RuntimeException("生产规则与候选 A 不一致：{$datetime}");
+            }
+
             $routeKey = implode('+', array_filter([
                 $state === '囚' ? '囚' : null,
                 $state === '死' ? '死' : null,
                 $grave ? '墓' : null,
             ]));
             $matches = [
-                'A' => $dou && ($qiuSi || $grave),
+                'A' => $productionA,
                 'B' => $dou && $qiuSi,
                 'C' => $dou && $qiuSi && $grave,
             ];
