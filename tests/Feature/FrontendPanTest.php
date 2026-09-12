@@ -1012,6 +1012,15 @@ test('frontend shows wulu-juesi subtype and concrete raw restraint facts', funct
         ->assertSee('无禄绝嗣课')->assertSee('绝嗣');
 });
 
+test('frontend shows qinhai lower-deity route and frozen exclusions', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2025-11-03T15:00')->set('birthDatetime', '2000-01-01T00:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('侵害课')->assertSee('损卦')->assertSee('䷨')->assertSee('侵害判断')
+        ->assertSee('支路')->assertSee('子上见未')->assertSee('初传子为该组下神')
+        ->assertSee('年命发用、初传临行年只作课义增强');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')

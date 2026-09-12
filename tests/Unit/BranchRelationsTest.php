@@ -2,6 +2,25 @@
 
 use App\Domain\Pan\BranchRelations;
 
+test('six-harm pairs are complete symmetric and canonical', function () {
+    expect(BranchRelations::HAI_PAIRS)->toBe([
+        [0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10],
+    ]);
+
+    foreach (BranchRelations::HAI_PAIRS as $pair) {
+        expect(BranchRelations::isHai($pair[0], $pair[1]))->toBeTrue()
+            ->and(BranchRelations::isHai($pair[1], $pair[0]))->toBeTrue()
+            ->and(BranchRelations::haiPair($pair[1], $pair[0]))->toBe($pair);
+    }
+});
+
+test('six-harm rejects self and unrelated branches', function () {
+    expect(BranchRelations::isHai(0, 0))->toBeFalse()
+        ->and(BranchRelations::isHai(0, 6))->toBeFalse()
+        ->and(BranchRelations::haiPair(-1, 7))->toBeNull()
+        ->and(BranchRelations::haiPair(0, 12))->toBeNull();
+});
+
 test('chong and po mappings contain all twelve canonical relations', function () {
     expect(BranchRelations::CHONG)->toBe([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5])
         ->and(BranchRelations::PO)->toBe([9, 4, 11, 6, 1, 8, 3, 10, 5, 0, 7, 2]);

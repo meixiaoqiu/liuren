@@ -710,6 +710,19 @@ final class KeJingCatalog
                     ['label' => '庚辰日辰时亥将', 'path' => '绝嗣', 'source' => '《六壬大全》正文', 'detail' => '四个原始课位依次均为下贼上。'],
                 ],
             ],
+            [
+                'name' => '侵害课',
+                'code' => 'lesson.qinhai',
+                'gua' => '损',
+                'guaSymbol' => '䷨',
+                'summary' => '日干寄宫或日支与各自直接上神作六害，且初传为该组上下二神之一。',
+                'cases' => [
+                    self::case('lesson.qinhai.bing_zi_shen_shi_mao_jiang', '丙子日·申时·卯将（《大全》正文课例）', '支路子上未作六害，初传子为六害下神。', '2025-11-03T15:00'),
+                ],
+                'source_examples' => [
+                    ['label' => '丙子日申时卯将', 'path' => '支路下神发用', 'source' => '《六壬大全》正文', 'detail' => '子上未，子未六害；三传子未寅，初传子为下神。'],
+                ],
+            ],
         ];
     }
 

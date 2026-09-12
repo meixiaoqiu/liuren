@@ -835,3 +835,20 @@ test('wulu-juesi follows due and both daquan cases execute through production ru
             ->and(collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.wulu_juesi'))->not->toBeNull();
     }
 });
+
+test('qinhai follows wulu-juesi and its daquan case executes through production rules', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.qinhai');
+    expect(array_search('lesson.qinhai', $codes, true))->toBe(array_search('lesson.wulu_juesi', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('侵害课')->and($lesson['gua'])->toBe('损')->and($lesson['guaSymbol'])->toBe('䷨')
+        ->and($lesson['cases'])->toHaveCount(1)->and($lesson['cases'][0]['status'])->toBe('executable');
+
+    $case = $lesson['cases'][0];
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.qinhai');
+    expect($match)->not->toBeNull()->and($match['evidence']['matched_routes'])->toBe(['branch'])
+        ->and($match['evidence']['routes'][0]['initial_role'])->toBe('lower');
+});

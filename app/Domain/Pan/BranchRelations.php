@@ -3,7 +3,7 @@
 namespace App\Domain\Pan;
 
 /**
- * 文件作用：集中维护地支六冲、六破、六合与三合关系，供排盘规则和展示共同使用。
+ * 文件作用：集中维护地支六冲、六破、六合、六害与三合关系，供排盘规则和展示共同使用。
  * 地支均采用子=0、丑=1、……、亥=11的项目统一索引。
  */
 final class BranchRelations
@@ -17,6 +17,11 @@ final class BranchRelations
     /** @var list<array{0:int,1:int}> 规范六合对。 */
     public const LIUHE_PAIRS = [
         [0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7],
+    ];
+
+    /** @var list<array{0:int,1:int}> 规范六害对。 */
+    public const HAI_PAIRS = [
+        [0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10],
     ];
 
     /** @var list<list<int>> 规范升序三合局。 */
@@ -43,6 +48,23 @@ final class BranchRelations
     public static function liuhePair(int $a, int $b): ?array
     {
         foreach (self::LIUHE_PAIRS as $pair) {
+            if (($a === $pair[0] && $b === $pair[1]) || ($a === $pair[1] && $b === $pair[0])) {
+                return $pair;
+            }
+        }
+
+        return null;
+    }
+
+    public static function isHai(int $a, int $b): bool
+    {
+        return self::haiPair($a, $b) !== null;
+    }
+
+    /** @return array{0:int,1:int}|null 返回规范顺序的六害对。 */
+    public static function haiPair(int $a, int $b): ?array
+    {
+        foreach (self::HAI_PAIRS as $pair) {
             if (($a === $pair[0] && $b === $pair[1]) || ($a === $pair[1] && $b === $pair[0])) {
                 return $pair;
             }
