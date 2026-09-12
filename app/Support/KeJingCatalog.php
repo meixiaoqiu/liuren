@@ -698,8 +698,8 @@ final class KeJingCatalog
             [
                 'name' => '无禄绝嗣课',
                 'code' => 'lesson.wulu_juesi',
-                'gua' => '需',
-                'guaSymbol' => '䷄',
+                'gua' => '否',
+                'guaSymbol' => '䷋',
                 'summary' => '四上俱克下为无禄，四下俱贼上为绝嗣。',
                 'cases' => [
                     self::case('lesson.wulu_juesi.ji_si_yin_shi_you_jiang', '己巳日·寅时·酉将（《大全》正文课例）', '四个原始课位全部上克下，成立无禄。', '2026-04-25T03:00'),

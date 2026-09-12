@@ -64,7 +64,7 @@ test('wulu-juesi returns null when a necessary shengke fact is missing', functio
 test('wulu-juesi evidence uses the real day stem and exposes frozen keys', function () {
     $match = (new WuluJuesiRule)->match(wulu_juesi_fixture([1, 1, 1, 1]));
     expect($match->code)->toBe('lesson.wulu_juesi')->and($match->name)->toBe('无禄绝嗣课')
-        ->and($match->gua)->toBe('需')->and($match->guaSymbol)->toBe('䷄')
+        ->and($match->gua)->toBe('否')->and($match->guaSymbol)->toBe('䷋')
         ->and($match->evidence)->toHaveKeys([
             'raw_lesson_relations', 'up_restrain_count', 'down_restrain_count', 'is_wulu', 'is_juesi',
             'subtype', 'foundations', 'judgments', 'uncovered',

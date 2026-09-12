@@ -824,7 +824,7 @@ test('wulu-juesi follows due and both daquan cases execute through production ru
     $codes = $lessons->pluck('code')->all();
     $lesson = $lessons->firstWhere('code', 'lesson.wulu_juesi');
     expect(array_search('lesson.wulu_juesi', $codes, true))->toBe(array_search('lesson.due', $codes, true) + 1)
-        ->and($lesson['name'])->toBe('无禄绝嗣课')->and($lesson['gua'])->toBe('需')->and($lesson['guaSymbol'])->toBe('䷄')
+        ->and($lesson['name'])->toBe('无禄绝嗣课')->and($lesson['gua'])->toBe('否')->and($lesson['guaSymbol'])->toBe('䷋')
         ->and($lesson['summary'])->toBe('四上俱克下为无禄，四下俱贼上为绝嗣。')->and(count($lesson['cases']))->toBe(2);
 
     foreach ($lesson['cases'] as $case) {

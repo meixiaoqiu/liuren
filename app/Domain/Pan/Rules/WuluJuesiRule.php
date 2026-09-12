@@ -61,7 +61,7 @@ final class WuluJuesiRule implements PanRule
         return new RuleMatch(
             code: $this->code(), name: '无禄绝嗣课', group: '六十四课',
             description: '四个原始课位全部上克下为无禄，全部下贼上为绝嗣。',
-            gua: '需', guaSymbol: '䷄',
+            gua: '否', guaSymbol: '䷋',
             evidence: [
                 'raw_lesson_relations' => $raw,
                 'up_restrain_count' => $upCount,
