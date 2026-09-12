@@ -85,8 +85,10 @@ test('due evidence distinguishes young and long due and names the real day stem'
     $young = (new DueRule)->match(due_fixture([1, 1, 0, 1]));
     $long = (new DueRule)->match(due_fixture([-1, -1, 0, -1]));
     expect($young->evidence['subtype'])->toBe('幼度厄')
+        ->and($young->evidence['judgments'])->toBe([])
         ->and($young->evidence['foundations'][0]['detail'])->toContain('甲木受酉金克')
         ->and($young->evidence['foundations'][0]['detail'])->not->toContain('寅木受酉金克')
         ->and($long->evidence['subtype'])->toBe('长度厄')
+        ->and($long->evidence['judgments'])->toBe([])
         ->and($long->evidence['is_you_due'])->toBeFalse()->and($long->evidence['is_chang_due'])->toBeTrue();
 });

@@ -31,7 +31,8 @@ test('wuyin reproduces the daquan yi-mao path A yang-bubei example', function ()
         ->and($match->evidence['bubei_type'])->toBe('阳不备')
         ->and($match->evidence['has_ke'])->toBeTrue()
         ->and($match->evidence['bubei_path'])->toBeTrue()
-        ->and($match->evidence['cross_path'])->toBeFalse();
+        ->and($match->evidence['cross_path'])->toBeFalse()
+        ->and($match->evidence['judgments'])->toBe([]);
 });
 
 test('wuyin reproduces the corrected daquan yi-hai path A yin-bubei example', function () {

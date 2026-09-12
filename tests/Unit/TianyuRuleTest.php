@@ -30,7 +30,8 @@ test('tianyu matches qiu si and independent grave routes', function (int $stem, 
         ->and($match->gua)->toBe('噬嗑')
         ->and($match->guaSymbol)->toBe('䷔')
         ->and($match->evidence['dou_xi_ri_ben'])->toBeTrue()
-        ->and($match->evidence['matched_initial_routes'])->toBe($routes);
+        ->and($match->evidence['matched_initial_routes'])->toBe($routes)
+        ->and($match->evidence['judgments'])->toBe([]);
 })->with([
     '囚 + 斗系日本' => [0, 8, '2026-03-01 12:00:00', ['seasonal_qiu']],
     '死 + 斗系日本' => [2, 7, '2026-03-01 12:00:00', ['seasonal_si']],

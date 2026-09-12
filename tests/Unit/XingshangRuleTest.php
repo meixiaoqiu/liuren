@@ -76,7 +76,8 @@ test('xingshang exposes frozen identity and evidence', function () {
     $match = (new XingshangRule)->match(xingshang_facts(0, 0, 8));
     expect($match?->code)->toBe('lesson.xingshang')->and($match?->name)->toBe('刑伤课')
         ->and($match?->gua)->toBe('讼')->and($match?->guaSymbol)->toBe('䷅')
-        ->and($match?->evidence)->toHaveKeys(['initial', 'punished_branch', 'matched_routes', 'routes', 'foundations', 'judgments', 'uncovered']);
+        ->and($match?->evidence)->toHaveKeys(['initial', 'punished_branch', 'matched_routes', 'routes', 'foundations', 'judgments', 'uncovered'])
+        ->and($match?->evidence['judgments'])->toBe([]);
 });
 
 test('xingshang is registered exactly once', function () {

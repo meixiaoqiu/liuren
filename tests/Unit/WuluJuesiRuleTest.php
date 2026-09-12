@@ -77,5 +77,6 @@ test('wulu-juesi evidence uses the real day stem and exposes frozen keys', funct
 test('wulu-juesi subtype distinguishes both paths', function () {
     $wulu = (new WuluJuesiRule)->match(wulu_juesi_fixture([1, 1, 1, 1]));
     $juesi = (new WuluJuesiRule)->match(wulu_juesi_fixture([-1, -1, -1, -1]));
-    expect($wulu->evidence['subtype'])->toBe('无禄')->and($juesi->evidence['subtype'])->toBe('绝嗣');
+    expect($wulu->evidence['subtype'])->toBe('无禄')->and($juesi->evidence['subtype'])->toBe('绝嗣')
+        ->and($wulu->evidence['judgments'])->toBe([])->and($juesi->evidence['judgments'])->toBe([]);
 });

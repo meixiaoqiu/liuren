@@ -78,7 +78,7 @@ final class XingshangRule implements PanRule
                 'initial' => $initial, 'punished_branch' => $punished,
                 'matched_routes' => array_column($routes, 'route'), 'routes' => $routes,
                 'foundations' => $foundations,
-                'judgments' => [['label' => '刑伤课成立', 'evidence' => implode('；', array_column($foundations, 'detail'))]],
+                'judgments' => [],
                 'uncovered' => $uncovered,
             ],
         );

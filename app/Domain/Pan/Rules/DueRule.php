@@ -74,10 +74,7 @@ final class DueRule implements PanRule
                     'title' => $subtype,
                     'detail' => "四个原始课位中3课{$direction}：{$details}。",
                 ]],
-                'judgments' => [[
-                    'label' => $subtype,
-                    'evidence' => "逐位统计原始四课，{$direction}数量恰为3，判为{$subtype}。",
-                ]],
+                'judgments' => [],
                 'uncovered' => [
                     '《观月经》《袖中金》等文献所载异名不进入正式代码命名',
                     '四上俱克下、四下俱贼上属于下一课“无禄绝嗣课”的范围',

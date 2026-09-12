@@ -73,10 +73,7 @@ final class WuluJuesiRule implements PanRule
                     'title' => $subtype,
                     'detail' => "四个原始课位全部{$direction}：{$details}。",
                 ]],
-                'judgments' => [[
-                    'label' => $subtype,
-                    'evidence' => "逐位统计原始四课，{$direction}数量为4，判为{$subtype}。",
-                ]],
+                'judgments' => [],
                 'uncovered' => [
                     '有水救无禄、有救免绝嗣属于成课后的吉凶修正，不参与本课判断',
                     '《订讹》及部分后世文献的反向命名只作研究记录',

@@ -1,4 +1,5 @@
 @php
+    $hasJudgments = ! empty($trace['judgments'] ?? []);
     $effectMeta = [
         'increase' => ['label' => '增强', 'class' => 'badge-success badge-soft'],
         'reduce' => ['label' => '减损', 'class' => 'badge-warning badge-soft'],
@@ -12,8 +13,8 @@
         <h3 class="px-4 pt-4 font-semibold sm:px-5">{{ $title }}</h3>
     </div>
 
-    <div class="mt-4 grid lg:grid-cols-2">
-        <div class="px-4 py-4 sm:px-5 lg:border-r lg:border-base-300/70">
+    <div class="mt-4 grid {{ $hasJudgments ? 'lg:grid-cols-2' : '' }}">
+        <div class="px-4 py-4 sm:px-5 {{ $hasJudgments ? 'lg:border-r lg:border-base-300/70' : '' }}">
             <h4 class="text-sm font-semibold tracking-wide text-base-content/70">成课条件</h4>
             <ol class="mt-4 space-y-4">
                 @foreach ($trace['foundations'] ?? [] as $index => $foundation)
@@ -28,11 +29,9 @@
             </ol>
         </div>
 
-        <div class="border-t border-base-300/70 px-4 py-4 sm:px-5 lg:border-t-0">
-            <h4 class="text-sm font-semibold tracking-wide text-base-content/70">吉凶判断</h4>
-            @if (empty($trace['judgments'] ?? []))
-                <p class="mt-3 text-sm leading-6 text-base-content/55">当前未命中附加吉凶条件。</p>
-            @else
+        @if ($hasJudgments)
+            <div class="border-t border-base-300/70 px-4 py-4 sm:px-5 lg:border-t-0">
+                <h4 class="text-sm font-semibold tracking-wide text-base-content/70">吉凶判断</h4>
                 <div class="mt-3 space-y-3">
                     @foreach ($trace['judgments'] as $judgment)
                         <div class="border-l-2 border-primary/35 pl-4">
@@ -44,7 +43,7 @@
                         </div>
                     @endforeach
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 </section>

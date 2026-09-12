@@ -88,7 +88,7 @@ final class WuyinRule implements PanRule
             $paths[] = '三课不备且有克';
             $ke = collect($raw)->firstWhere('has_ke', true);
             $foundations[] = [
-                'title' => '三课不备且有克',
+                'title' => $bubeiType === null ? '三课不备且有克' : $bubeiType.'：三课不备且有克',
                 'detail' => "四个规范课结构中有一组重复，去重后仅三课；原始四课中{$ke['position']}课{$ke['display']}，故“不备有克”成立。",
             ];
         }
@@ -115,10 +115,7 @@ final class WuyinRule implements PanRule
                 'branch_upper_cross_restrains_stem' => $branchUpperCross,
                 'bubei_path' => $bubeiPath, 'cross_path' => $crossPath, 'paths' => $paths,
                 'foundations' => $foundations,
-                'judgments' => $bubeiType === null ? [] : [[
-                    'label' => $bubeiType,
-                    'evidence' => '三个独立课按'.($stem % 2 === 0 ? '刚日干阳起' : '柔日支阳起').'顺序认课，判为'.$bubeiType.'。',
-                ]],
+                'judgments' => [],
                 'uncovered' => [
                     '“各自相生”及甲子例申子相生所引出的夫妻私情象义未作为主体条件程序化',
                     '阳不备利主、阴不备利客等兵占尚未动态程序化',

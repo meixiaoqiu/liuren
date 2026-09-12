@@ -587,7 +587,7 @@ test('frontend shows zhuyin lesson with ding hexagram and its reasoning', functi
         ->assertSee('成课条件')
         ->assertSee('戌入传')
         ->assertSee('巳入传')
-        ->assertSee('吉凶判断')
+        ->assertDontSee('吉凶判断')
         ->assertSee('顽金铸篆，藉火功全')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -604,7 +604,7 @@ test('frontend shows zhuolun lesson with yi hexagram and its reasoning', functio
         ->assertSee('成课条件')
         ->assertSee('卯加庚辛')
         ->assertSee('卯为用')
-        ->assertSee('吉凶判断')
+        ->assertDontSee('吉凶判断')
         ->assertSee('木欲成器，须假金斫')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -620,7 +620,7 @@ test('frontend shows yincong lesson with huan hexagram and its reasoning', funct
         ->assertSee('引从判断')
         ->assertSee('成课条件')
         ->assertSee('拱天干')
-        ->assertSee('吉凶判断')
+        ->assertDontSee('吉凶判断')
         ->assertSee('拱夹支干，仕人佳兆')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -651,7 +651,7 @@ test('frontend shows hengtong lesson with jian hexagram and its grids', function
         ->assertSee('递生格')
         ->assertSee('递生格依据')
         ->assertSee('三传申、亥、寅')
-        ->assertSee('吉凶判断')
+        ->assertDontSee('吉凶判断')
         ->assertDontSee('规则尚未覆盖');
 });
 
@@ -976,7 +976,23 @@ test('frontend shows wuyin reasoning for the corrected yi-hai example', function
         ->set('birthDatetime', '2000-01-01T00:00')
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('芜淫课')->assertSee('小畜卦')->assertSee('䷈')->assertSee('芜淫判断')
-        ->assertSee('三课不备且有克')->assertSee('阴不备');
+        ->assertSee('三课不备且有克')->assertSee('阴不备')
+        ->assertDontSee('判为阴不备');
+});
+
+test('shared lesson trace hides the entire judgment column when no independent judgment matched', function () {
+    $html = view('livewire.pan.partials.lesson-trace', [
+        'title' => '测试判断',
+        'trace' => [
+            'foundations' => [['title' => '主体条件', 'detail' => '主体分类依据。']],
+            'judgments' => [],
+        ],
+    ])->render();
+
+    expect($html)->toContain('成课条件')->toContain('主体条件')
+        ->not->toContain('吉凶判断')
+        ->not->toContain('当前未命中附加吉凶条件')
+        ->not->toContain('lg:grid-cols-2');
 });
 
 test('frontend shows jieli reasoning and omits an unfrozen hexagram badge', function () {
@@ -996,6 +1012,7 @@ test('frontend shows jieli reasoning and omits an unfrozen hexagram badge', func
         ->assertSee('子午六冲')
         ->assertSee('午火克申金')
         ->assertSee('双方行年上神另见克贼')
+        ->assertSee('吉凶判断')
         ->assertDontSee('解离卦');
 });
 
@@ -1004,7 +1021,8 @@ test('frontend shows due subtype and concrete raw restraint facts', function () 
         ->set('datetime', '2026-06-19T01:00')->set('birthDatetime', '2000-01-01T00:00')
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('度厄课')->assertSee('剥卦')->assertSee('䷖')->assertSee('度厄判断')
-        ->assertSee('幼度厄')->assertSee('甲木受酉金克')->assertSee('子水受未土克')->assertSee('未土受寅木克');
+        ->assertSee('幼度厄')->assertSee('甲木受酉金克')->assertSee('子水受未土克')->assertSee('未土受寅木克')
+        ->assertDontSee('判为幼度厄');
 });
 
 test('frontend shows wulu-juesi subtype and concrete raw restraint facts', function () {
@@ -1012,12 +1030,13 @@ test('frontend shows wulu-juesi subtype and concrete raw restraint facts', funct
         ->set('datetime', '2026-04-25T03:00')->set('birthDatetime', '2000-01-01T00:00')
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('无禄绝嗣课')->assertSee('否卦')->assertSee('䷋')->assertSee('无禄绝嗣判断')
-        ->assertSee('无禄')->assertSee('己土受寅木克')->assertDontSee('巳土受寅木克');
+        ->assertSee('无禄')->assertSee('己土受寅木克')->assertDontSee('巳土受寅木克')
+        ->assertDontSee('判为无禄');
 
     Livewire::test(CreatePan::class)
         ->set('datetime', '2026-03-07T07:00')->set('birthDatetime', '2000-01-01T00:00')
         ->call('calculate')->assertHasNoErrors()
-        ->assertSee('无禄绝嗣课')->assertSee('绝嗣');
+        ->assertSee('无禄绝嗣课')->assertSee('绝嗣')->assertDontSee('判为绝嗣');
 });
 
 test('frontend shows qinhai lower-deity route and frozen exclusions', function () {
@@ -1027,7 +1046,8 @@ test('frontend shows qinhai lower-deity route and frozen exclusions', function (
         ->assertSee('侵害课')->assertSee('损卦')->assertSee('䷨')->assertSee('侵害判断')
         ->assertSee('支路')->assertSee('子上见未')->assertSee('初传子为该组下神')
         ->assertSee('年命发用、临行年等增强条件尚未实现')
-        ->assertSee('二者的精确程序语义仍待后续研究');
+        ->assertSee('二者的精确程序语义仍待后续研究')
+        ->assertDontSee('侵害课成立');
 });
 
 test('frontend shows zhunfu lesson and all frozen reasoning for the standard example', function () {
@@ -1038,7 +1058,8 @@ test('frontend shows zhunfu lesson and all frozen reasoning for the standard exa
         ->assertSee('一迍·死气发用')->assertSee('六迍·带刑害、传逢坟墓')
         ->assertSee('癸刑未')->assertSee('子未六害')
         ->assertSee('一福·初死终旺')->assertSee('四福·年命制初')
-        ->assertSee('八迍五福十三项俱备');
+        ->assertSee('八迍五福十三项俱备')
+        ->assertDontSee('迍福课成立')->assertDontSee('八迍8/8、五福5/5全部成立');
 });
 
 test('frontend shows xingshang direction evidence and context boundary', function () {
@@ -1047,7 +1068,8 @@ test('frontend shows xingshang direction evidence and context boundary', functio
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('刑伤课')->assertSee('讼卦')->assertSee('䷅')->assertSee('刑伤判断')
         ->assertSee('初传辰刑辰')->assertSee('辰为日干寄宫')->assertSee('命中刑干')
-        ->assertSee('中传、末传及四课任意相刑不参与判断');
+        ->assertSee('中传、末传及四课任意相刑不参与判断')
+        ->assertDontSee('刑伤课成立');
 });
 
 test('frontend shows tianhuo four-li and strict stem-branch evidence', function () {
@@ -1061,10 +1083,10 @@ test('frontend shows tianhuo four-li and strict stem-branch evidence', function 
         ->assertSee('以新易旧，天有灾祸')->assertSee('出行死亡，干谒空走')
         ->assertSee('立夏日')->assertSee('今日甲申')->assertSee('昨日癸未')
         ->assertSee('甲寄寅')->assertSee('癸寄丑')
-        ->assertSee('地盘丑位上神为寅')->assertSee('地盘未位上神为申')
-        ->assertSee('今日干支同时临昨日干支')
+        ->assertSee('地盘丑位上神为寅')->assertSee('地盘未位上神为申')->assertSee('本方向成立')
         ->assertSee('只看日干的异说未纳入正式规则')
-        ->assertSee('“又发用”等只作增强描述，不是基础成立条件');
+        ->assertSee('“又发用”等只作增强描述，不是基础成立条件')
+        ->assertDontSee('天祸课成立');
 });
 
 test('frontend shows tianyu dou xi ri ben and multiple initial routes', function () {
@@ -1074,7 +1096,7 @@ test('frontend shows tianyu dou xi ri ben and multiple initial routes', function
         ->assertSee('天狱课')->assertSee('噬嗑卦')->assertSee('䷔')->assertSee('天狱判断')
         ->assertSee('乙日长生在亥')->assertSee('地盘亥上见辰')->assertSee('天罡辰临日本成立')
         ->assertSee('初传未')->assertSee('当前时令为死')->assertSee('乙日日墓为未')
-        ->assertSee('死气发用、墓神发用');
+        ->assertSee('死气发用、墓神发用')->assertDontSee('天狱课成立');
 });
 
 test('frontend shows tianyu grave-only route without expanding rest into matcher', function () {
@@ -1083,7 +1105,7 @@ test('frontend shows tianyu grave-only route without expanding rest into matcher
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('天狱课')->assertSee('初传未')->assertSee('当前时令为相')
         ->assertSee('本盘命中墓神发用')->assertDontSee('本盘命中相气发用')
-        ->assertSee('真天狱')->assertSee('尚未实现');
+        ->assertSee('真天狱')->assertSee('尚未实现')->assertDontSee('天狱课成立');
 });
 
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {

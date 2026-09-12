@@ -75,6 +75,7 @@ test('tianhuo exposes stable evidence and is registered exactly once after xings
             'today_stem_on_yesterday_stem', 'today_branch_on_yesterday_branch',
             'yesterday_stem_on_today_stem', 'yesterday_branch_on_today_branch',
         ])
+        ->and($match?->evidence['judgments'])->toBe([])
         ->and(array_values(array_filter($codes, fn (string $code): bool => $code === 'lesson.tianhuo')))->toHaveCount(1)
         ->and(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.xingshang', $codes, true) + 1);
 });

@@ -72,5 +72,6 @@ test('qinhai exposes its frozen identity and evidence keys', function () {
     $match = (new QinhaiRule)->match(qinhai_fixture(0, 0, $tianpan, 0));
     expect($match->code)->toBe('lesson.qinhai')->and($match->name)->toBe('侵害课')
         ->and($match->gua)->toBe('损')->and($match->guaSymbol)->toBe('䷨')
-        ->and($match->evidence)->toHaveKeys(['matched_routes', 'routes', 'initial', 'foundations', 'judgments', 'uncovered']);
+        ->and($match->evidence)->toHaveKeys(['matched_routes', 'routes', 'initial', 'foundations', 'judgments', 'uncovered'])
+        ->and($match->evidence['judgments'])->toBe([]);
 });

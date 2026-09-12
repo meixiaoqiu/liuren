@@ -244,10 +244,7 @@ final class ZhunfuRule implements ContextAwareRule
                 'mother_candidates' => $motherCandidates,
                 'year_ming_rescues' => $yearMingRescues,
                 'foundations' => $foundations,
-                'judgments' => [[
-                    'label' => '迍福课成立',
-                    'evidence' => '八迍8/8、五福5/5全部成立，按屯卦先难后解。',
-                ]],
+                'judgments' => [],
                 'interpretation_policy' => '单项宽判、整体严判：原文未限定且古籍存在多个可辩护解释时取并集，十三项仍全部成立方成课。',
                 'uncovered' => [
                     '四库本注明“此课不明姑存之”；本实现不宣称消除了古籍歧义。',

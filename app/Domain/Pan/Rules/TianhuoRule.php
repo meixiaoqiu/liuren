@@ -90,10 +90,7 @@ final class TianhuoRule implements PanRule
                     ['title' => '方向一：今日干支临昨日干支', 'detail' => "地盘{$branch($yesterdayStemLodge)}位上神为{$branch($todayStemUpper)}，今日干相临{$mark($todayStemOnYesterdayStem)}；地盘{$branch($yesterdayBranch)}位上神为{$branch($todayBranchUpper)}，今日支相临{$mark($todayBranchOnYesterdayBranch)}；本方向{$mark($todayOnYesterday)}。"],
                     ['title' => '方向二：昨日干支临今日干支', 'detail' => "地盘{$branch($todayStemLodge)}位上神为{$branch($yesterdayStemUpper)}，昨日干相临{$mark($yesterdayStemOnTodayStem)}；地盘{$branch($todayBranch)}位上神为{$branch($yesterdayBranchUpper)}，昨日支相临{$mark($yesterdayBranchOnTodayBranch)}；本方向{$mark($yesterdayOnToday)}。"],
                 ],
-                'judgments' => [[
-                    'label' => '天祸课成立',
-                    'evidence' => $todayOnYesterday ? '今日干支同时临昨日干支。' : '昨日干支同时临今日干支。',
-                ]],
+                'judgments' => [],
                 'uncovered' => ['《观月经》《心镜》等只看日干的异说未纳入正式规则。', '“又发用”等只作增强描述，不是基础成立条件。'],
             ],
         );

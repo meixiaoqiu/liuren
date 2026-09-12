@@ -90,10 +90,7 @@ final class TianyuRule implements PanRule
                     ['title' => '斗系日本', 'detail' => "{$stemName}日长生在{$originName}，地盘{$originName}上见{$originUpperName}；天罡辰临日本成立。"],
                     ['title' => '囚死墓神发用', 'detail' => "初传{$initialName}，当前时令为{$initialState}；{$stemName}日日墓为{$graveName}。本盘命中".implode('、', $routeLabels).'。'],
                 ],
-                'judgments' => [[
-                    'label' => '天狱课成立',
-                    'evidence' => '斗系日本成立，且初传通过'.implode('、', $routeLabels).'入口。',
-                ]],
+                'judgments' => [],
                 'uncovered' => self::UNCOVERED,
             ],
         );

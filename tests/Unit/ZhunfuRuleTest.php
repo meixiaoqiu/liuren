@@ -55,6 +55,7 @@ test('daquan gui-you spring example satisfies all eight zhun and five fu', funct
         ->and($match->guaSymbol)->toBe('䷂')
         ->and($match->evidence['zhun_count'])->toBe(8)
         ->and($match->evidence['fu_count'])->toBe(5)
+        ->and($match->evidence['judgments'])->toBe([])
         ->and(in_array(false, array_values($match->evidence['conditions']), true))->toBeFalse();
 });
 
