@@ -922,3 +922,30 @@ test('tianhuo is lesson 44 after xingshang and both catalog directions execute t
         expect($match)->not->toBeNull()->and($match['evidence']['matched_directions'])->toHaveCount(1);
     }
 });
+
+test('tianyu is lesson 45 after tianhuo and both frozen routes execute through production rules', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.tianyu');
+
+    expect(array_search('lesson.tianyu', $codes, true))->toBe(array_search('lesson.tianhuo', $codes, true) + 1)
+        ->and($lesson['name'])->toBe('天狱课')->and($lesson['gua'])->toBe('噬嗑')->and($lesson['guaSymbol'])->toBe('䷔')
+        ->and($lesson['summary'])->toBe('初传为时令囚、死或日墓，且天罡辰临日干长生位。')
+        ->and($lesson['summary'])->not->toContain('休囚死')->and($lesson['cases'])->toHaveCount(2);
+
+    foreach ($lesson['cases'] as $index => $case) {
+        expect($case['status'])->toBe('executable');
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+            ->call('calculate')->assertHasNoErrors();
+        $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.tianyu');
+        expect($match)->not->toBeNull()->and($match['evidence']['dou_xi_ri_ben'])->toBeTrue();
+
+        if ($index === 0) {
+            expect($match['evidence']['matched_initial_routes'])->toBe(['seasonal_si', 'day_grave']);
+        } else {
+            expect($match['evidence']['matched_initial_routes'])->toBe(['day_grave'])
+                ->and($match['evidence']['initial_seasonal_state'])->toBe('相');
+        }
+    }
+});

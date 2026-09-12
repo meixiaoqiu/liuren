@@ -1067,6 +1067,25 @@ test('frontend shows tianhuo four-li and strict stem-branch evidence', function 
         ->assertSee('“又发用”等只作增强描述，不是基础成立条件');
 });
 
+test('frontend shows tianyu dou xi ri ben and multiple initial routes', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-03-12T11:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('天狱课')->assertSee('噬嗑卦')->assertSee('䷔')->assertSee('天狱判断')
+        ->assertSee('乙日长生在亥')->assertSee('地盘亥上见辰')->assertSee('天罡辰临日本成立')
+        ->assertSee('初传未')->assertSee('当前时令为死')->assertSee('乙日日墓为未')
+        ->assertSee('死气发用、墓神发用');
+});
+
+test('frontend shows tianyu grave-only route without expanding rest into matcher', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-05-11T07:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('天狱课')->assertSee('初传未')->assertSee('当前时令为相')
+        ->assertSee('本盘命中墓神发用')->assertDontSee('本盘命中相气发用')
+        ->assertSee('真天狱')->assertSee('尚未实现');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
