@@ -1018,7 +1018,8 @@ test('frontend shows qinhai lower-deity route and frozen exclusions', function (
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('侵害课')->assertSee('损卦')->assertSee('䷨')->assertSee('侵害判断')
         ->assertSee('支路')->assertSee('子上见未')->assertSee('初传子为该组下神')
-        ->assertSee('年命发用、初传临行年只作课义增强');
+        ->assertSee('年命发用、临行年等增强条件尚未实现')
+        ->assertSee('二者的精确程序语义仍待后续研究');
 });
 
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {

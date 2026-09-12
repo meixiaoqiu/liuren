@@ -82,7 +82,7 @@ final class QinhaiRule implements PanRule
                     'evidence' => implode('；', array_column($foundations, 'detail')),
                 ]],
                 'uncovered' => [
-                    '年命发用、初传临行年只作课义增强，不参与主体判断',
+                    '年命发用、临行年等增强条件尚未实现；二者的精确程序语义仍待后续研究，不参与当前主体判断',
                     '交车六害、四课或三传中任意六害不属于本课入口',
                 ],
             ],
