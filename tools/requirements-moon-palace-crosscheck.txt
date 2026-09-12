@@ -1,0 +1,2 @@
+# 仅用于 moonPalace 独立研究验证，不属于 Laravel/Composer 生产依赖。
+pyerfa==2.0.1.5
