@@ -85,6 +85,7 @@ final class RuleRegistry
             new TianwangRule,
             new PohuaRule,
             new SanyinRule,
+            new LongzhanRule,
             new YixunZhoubianRule,
         ];
     }

@@ -1075,3 +1075,28 @@ test('sanyin is lesson 49 with executable modern case and reference-only classic
     $this->get(route('kejing'))->assertOk()
         ->assertSee('三阴课')->assertSee('原文参考盘·尚未覆盖')->assertSee('古例卯时取昼贵');
 });
+
+test('longzhan is lesson 50 and its daquan ding-mao case is executable', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.longzhan');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.longzhan', $codes, true))->toBe(array_search('lesson.sanyin', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['龙战课', '离', '䷝'])
+        ->and($lesson['summary'])->toBe('卯日卯发用且行年立卯，或酉日酉发用且行年立酉。')
+        ->and($case)->toMatchArray([
+            'case_id' => 'lesson.longzhan.ding_mao_chen_time_xu_general',
+            'datetime' => '2027-04-18T08:00', 'birth' => '2002-06-01T12:00',
+            'gender' => 'male', 'status' => 'executable',
+        ]);
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('龙战课')->assertSee('三者同位于卯，龙战课成立。');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.longzhan');
+    expect($match['evidence'])->toMatchArray([
+        'day_branch' => 3, 'initial' => 3, 'querent_xingnian' => 3, 'matched_branch' => 3,
+    ])->and(collect($match['evidence']['uncovered'])->implode(' '))->toContain('未程序化');
+});

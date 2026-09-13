@@ -1209,6 +1209,29 @@ test('frontend marks sanyin not evaluated without querent xingnian', function ()
         ->assertDontSee('三阴判断');
 });
 
+test('frontend shows longzhan strict same-position trace from the executable classic case', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2027-04-18T08:00')
+        ->set('birthDatetime', '2002-06-01T12:00')
+        ->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('龙战课')->assertSee('离卦')->assertSee('䷝')->assertSee('龙战判断')
+        ->assertSee('当前日支')->assertSee('当前初传')->assertSee('当前占者行年')
+        ->assertSee('三者同位于卯，龙战课成立。')
+        ->assertDontSee('其余日卯酉上发用者，亦是龙战卦');
+});
+
+test('frontend can mark longzhan not evaluated without querent xingnian', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2027-04-18T08:00')->set('birthDatetime', '2002-06-01T12:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->set('notEvaluated', [[
+            'code' => 'lesson.longzhan', 'name' => '龙战课',
+            'notice' => '龙战课需要占者出生信息以计算行年，当前未进行判断。',
+        ]])
+        ->assertSee('龙战课需要占者出生信息以计算行年，当前未进行判断。');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
