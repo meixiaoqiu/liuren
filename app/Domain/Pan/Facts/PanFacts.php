@@ -500,11 +500,22 @@ final readonly class PanFacts
     {
         $generals = $this->get('tianjiang');
 
-        return is_array($generals)
-            && isset($generals[0], $generals[1])
-            && is_int($generals[0])
-            && is_int($generals[1])
-            && ($generals[0] + 11) % 12 === $generals[1];
+        if (! is_array($generals)
+            || ! array_is_list($generals)
+            || count($generals) !== 12) {
+            return false;
+        }
+
+        foreach ($generals as $index => $general) {
+            if (! is_int($general)
+                || $general < 0
+                || $general > 11
+                || $general !== ($generals[0] - $index + 12) % 12) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function noblemanGroundPosition(): ?int

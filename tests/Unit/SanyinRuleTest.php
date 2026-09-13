@@ -91,7 +91,9 @@ test('missing or malformed general direction is not treated as backward', functi
 })->with([
     'missing generals' => [[]],
     'one general only' => [[0]],
+    'truncated backward prefix' => [[8, 7]],
     'duplicate generals' => [[0, 0]],
+    'damaged backward sequence' => [[8, 7, 7, 5, 4, 3, 2, 1, 0, 11, 10, 9]],
     'unrelated order' => [[0, 5]],
 ]);
 
