@@ -3,12 +3,14 @@
 /** 文件作用：统计 720 基础结构、全部60出生年柱状态下的2026男女严格龙战及宽集合对照。 */
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
+require dirname(__DIR__, 3).'/bootstrap/app.php';
 
 use App\Data\PanResult;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\LongzhanRule;
 use App\Services\PanCalculator;
+use App\Support\PanRegression;
 
 $calculator = new PanCalculator;
 $fateCalculator = new FateCalculator;
@@ -28,17 +30,29 @@ if (array_keys($births) !== range(0, 59)) {
 }
 
 $counts = ['total_720' => 0, 'mao_structure' => 0, 'you_structure' => 0, 'structure_total' => 0];
-for ($day = 0; $day < 60; $day++) {
-    for ($shift = 0; $shift < 12; $shift++) {
-        $date = (new DateTimeImmutable('2026-01-01'))->modify("+{$day} days");
-        $pan = $calculator->calculate($date->format('Y-m-d').' '.sprintf('%02d:00:00', $hours[$shift]));
-        $counts['total_720']++;
-        if ($pan->get('rizhi') === 3 && $pan->get('sanchuan0') === 3) {
-            $counts['mao_structure']++;
-        }
-        if ($pan->get('rizhi') === 9 && $pan->get('sanchuan0') === 9) {
-            $counts['you_structure']++;
-        }
+$fixture = PanRegression::loadFixture();
+if (count($fixture['cases'] ?? []) !== PanRegression::CASE_COUNT) {
+    throw new RuntimeException('冻结720核心盘 fixture 数量不等于720。');
+}
+$seenCoreStates = [];
+foreach ($fixture['cases'] as $caseId => $case) {
+    if (preg_match('/^pointer-(\d{2})_day-(\d{2})$/', $caseId, $matches) !== 1) {
+        throw new RuntimeException("无法解析冻结核心盘 case ID：{$caseId}");
+    }
+    $pointer = (int) $matches[1];
+    $dayIndex = (int) $matches[2];
+    if ($pointer > 11 || $dayIndex > 59 || isset($seenCoreStates[$caseId])) {
+        throw new RuntimeException("冻结核心盘 case ID 越界或重复：{$caseId}");
+    }
+    $seenCoreStates[$caseId] = true;
+    $dayBranch = PanCalculator::$jiazi2Ganzhi[$dayIndex][1];
+    $initial = $case['expected']['sanchuan0'];
+    $counts['total_720']++;
+    if ($dayBranch === 3 && $initial === 3) {
+        $counts['mao_structure']++;
+    }
+    if ($dayBranch === 9 && $initial === 9) {
+        $counts['you_structure']++;
     }
 }
 $counts['structure_total'] = $counts['mao_structure'] + $counts['you_structure'];
