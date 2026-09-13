@@ -64,7 +64,7 @@ test('four-li fact includes the whole term date but not adjacent dates', functio
         ->and(PanFacts::from($calculator->calculate('2026-02-05 00:00:00'))->fourLiDay())->toBeNull();
 });
 
-test('tianhuo exposes stable evidence and is registered exactly once after xingshang', function () {
+test('tianhuo exposes stable evidence and is registered exactly once after erfan', function () {
     $match = (new TianhuoRule)->match(PanFacts::from((new PanCalculator)->calculate('2004-05-05 15:00:00')));
     $codes = array_map(fn ($rule): string => $rule->code(), (new RuleRegistry)->rules());
 
@@ -77,5 +77,5 @@ test('tianhuo exposes stable evidence and is registered exactly once after xings
         ])
         ->and($match?->evidence['judgments'])->toBe([])
         ->and(array_values(array_filter($codes, fn (string $code): bool => $code === 'lesson.tianhuo')))->toHaveCount(1)
-        ->and(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.xingshang', $codes, true) + 1);
+        ->and(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.erfan', $codes, true) + 1);
 });

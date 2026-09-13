@@ -903,12 +903,12 @@ test('xingshang follows zhunfu and its program-verified case executes through pr
         ->and($match['evidence']['initial'])->toBe(4)->and($match['evidence']['punished_branch'])->toBe(4);
 });
 
-test('tianhuo is lesson 44 after xingshang and both catalog directions execute through production rules', function () {
+test('tianhuo is lesson 44 after erfan and both catalog directions execute through production rules', function () {
     $lessons = collect(KeJingCatalog::lessons());
     $codes = $lessons->pluck('code')->all();
     $lesson = $lessons->firstWhere('code', 'lesson.tianhuo');
 
-    expect(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.xingshang', $codes, true) + 1)
+    expect(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.erfan', $codes, true) + 1)
         ->and($lesson['name'])->toBe('天祸课')->and($lesson['gua'])->toBe('大过')->and($lesson['guaSymbol'])->toBe('䷛')
         ->and($lesson['summary'])->toBe('四立日，今日干支临昨日干支，或昨日干支临今日干支。')
         ->and($lesson['summary'])->not->toContain('只看干')->and($lesson['cases'])->toHaveCount(2);
@@ -921,6 +921,29 @@ test('tianhuo is lesson 44 after xingshang and both catalog directions execute t
         $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.tianhuo');
         expect($match)->not->toBeNull()->and($match['evidence']['matched_directions'])->toHaveCount(1);
     }
+});
+
+test('erfan is lesson 43 with a real executable four-ping case', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.erfan');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.erfan', $codes, true))->toBe(array_search('lesson.xingshang', $codes, true) + 1)
+        ->and(array_search('lesson.tianhuo', $codes, true))->toBe(array_search('lesson.erfan', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['二烦课', '明夷', '䷣'])
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2026-04-20T11:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.erfan');
+
+    expect($match)->not->toBeNull()
+        ->and($match['evidence']['four_ping'])->toBeTrue()
+        ->and($match['evidence']['four_zheng'])->toBeFalse()
+        ->and([$match['evidence']['day_lodge_ground'], $match['evidence']['moon_lodge'], $match['evidence']['moon_lodge_ground'], $match['evidence']['dougang_ground']])->toBe([6, 9, 6, 1]);
 });
 
 test('tianyu is lesson 45 after tianhuo and both frozen routes execute through production rules', function () {

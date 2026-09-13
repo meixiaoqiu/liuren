@@ -14,7 +14,7 @@ use RuntimeException;
  *
  * 本类只负责 UTC 时间、世纪分片和二分查找，不包含天文算法，也不访问进程或网络。
  */
-final class MoonPalaceTable
+final class MoonPalaceTable implements MoonPalaceLookup
 {
     /** @var array<string, mixed>|null */
     private ?array $manifest = null;
@@ -69,6 +69,9 @@ final class MoonPalaceTable
         }
 
         $manifest = $this->decodeJson($this->directory().DIRECTORY_SEPARATOR.'manifest.json');
+        if (($manifest['schema_version'] ?? null) !== 1) {
+            throw new RuntimeException('月宿交宫表仅支持 schema_version 1。');
+        }
         foreach (['start_utc', 'end_utc_exclusive', 'shards'] as $field) {
             if (! array_key_exists($field, $manifest)) {
                 throw new RuntimeException("月宿交宫表 manifest 缺少字段：{$field}");

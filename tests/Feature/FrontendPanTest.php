@@ -1072,6 +1072,24 @@ test('frontend shows xingshang direction evidence and context boundary', functio
         ->assertDontSee('刑伤课成立');
 });
 
+test('frontend shows erfan calendar and heaven-earth lodge evidence', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-04-20T11:00')
+        ->set('birthDatetime', '2000-01-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('二烦课')
+        ->assertSee('明夷卦')
+        ->assertSee('䷣')
+        ->assertSee('四仲月将')
+        ->assertSee('日宿临仲')
+        ->assertSee('月宿临仲')
+        ->assertSee('斗罡系丑未')
+        ->assertSee('天地二烦')
+        ->assertSee('静态交宫表所得月宿酉');
+});
+
 test('frontend shows tianhuo four-li and strict stem-branch evidence', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2004-05-05T15:00')

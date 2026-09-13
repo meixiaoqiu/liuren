@@ -72,3 +72,22 @@ test('交宫瞬间遵守前一毫秒旧宫和当毫秒新宫', function () {
         ->and($table->palaceAt(moonPalaceDateFromMilliseconds($boundary[0] - 1)))->toBe(5)
         ->and($table->palaceAt(moonPalaceDateFromMilliseconds($boundary[0])))->toBe(4);
 });
+
+test('PHP 拒绝不支持的 manifest schema', function () {
+    $directory = sys_get_temp_dir().'/moon-palace-schema-'.bin2hex(random_bytes(8));
+    mkdir($directory);
+    file_put_contents($directory.'/manifest.json', json_encode([
+        'schema_version' => 2,
+        'start_utc' => '1600-01-01T00:00:00Z',
+        'end_utc_exclusive' => '2500-01-01T00:00:00Z',
+        'shards' => [],
+    ], JSON_THROW_ON_ERROR));
+
+    try {
+        expect(fn () => (new MoonPalaceTable($directory))->palaceAt(new DateTimeImmutable('2026-01-01T00:00:00Z')))
+            ->toThrow(RuntimeException::class, 'schema_version 1');
+    } finally {
+        unlink($directory.'/manifest.json');
+        rmdir($directory);
+    }
+});

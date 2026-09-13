@@ -66,13 +66,30 @@ export async function verifyMoonPalaceTable({ randomCount = 5000, checkAllBounda
     let boundaryCount = 0;
     const intervals = [];
 
+    if (manifest.schema_version !== 1) throw new Error(`不支持的月宿表 schema_version：${manifest.schema_version}`);
+    if (!Number.isSafeInteger(manifest.boundary_count)) throw new Error('manifest.boundary_count 必须是安全整数');
+    if (!expectedOrder.every((value, index) => manifest.palace_index_order_increasing_ra[index] === value)) {
+        throw new Error('manifest 的赤经递增宫序不符合冻结顺序');
+    }
+
     for (const filename of manifest.shards) {
         const shard = shards.get(filename);
+        const match = /^(\d{4})\.json$/.exec(filename);
+        if (!match) throw new Error(`分片文件名不符合世纪格式：${filename}`);
+        const year = Number(match[1]);
+        const expectedStart = Date.UTC(year, 0, 1);
+        const expectedEnd = Date.UTC(year + 100, 0, 1);
+        if (shard.start_ms !== expectedStart || shard.end_ms_exclusive !== expectedEnd) {
+            throw new Error(`${filename} 的时间范围错误：${shard.start_ms}–${shard.end_ms_exclusive}`);
+        }
         if (previousPalace !== null && shard.start_palace_index !== previousPalace) {
             throw new Error(`${filename} 的世纪起始状态与前一分片末状态不连续`);
         }
         let state = shard.start_palace_index;
         for (const [timestamp, palace] of shard.boundaries) {
+            if (timestamp < shard.start_ms || timestamp >= shard.end_ms_exclusive) {
+                throw new Error(`${filename} 包含范围外边界：${timestamp}`);
+            }
             if (!Number.isSafeInteger(timestamp) || (previousTimestamp !== null && timestamp <= previousTimestamp)) {
                 throw new Error(`交宫时间不严格递增：${timestamp}`);
             }
@@ -96,6 +113,10 @@ export async function verifyMoonPalaceTable({ randomCount = 5000, checkAllBounda
         if (state !== previousPalace) previousPalace = state;
     }
 
+    if (boundaryCount !== manifest.boundary_count) {
+        throw new Error(`交宫数量与 manifest 不一致：实际 ${boundaryCount}，声明 ${manifest.boundary_count}`);
+    }
+
     const rng = mulberry32(4302);
     const start = Date.parse(manifest.start_utc);
     const duration = Date.parse(manifest.end_utc_exclusive) - start;
@@ -113,7 +134,7 @@ export async function verifyMoonPalaceTable({ randomCount = 5000, checkAllBounda
         random_seed: 4302,
         random_samples_checked: randomCount,
         boundary_samples_checked: checkAllBoundaries ? boundaryCount * 5 : 0,
-        palace_order_valid: expectedOrder.every((value, index) => manifest.palace_index_order_increasing_ra[index] === value),
+        palace_order_valid: true,
         shards_continuous: true,
         shortest_interval_ms: sorted[0],
         longest_interval_ms: sorted.at(-1),

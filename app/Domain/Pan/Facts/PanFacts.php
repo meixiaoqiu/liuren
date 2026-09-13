@@ -3,6 +3,7 @@
 namespace App\Domain\Pan\Facts;
 
 use App\Data\PanResult;
+use com\tyme\lunar\LunarDay;
 use com\tyme\solar\SolarTime;
 
 final readonly class PanFacts
@@ -324,6 +325,29 @@ final readonly class PanFacts
         return $yearCache[$year][$date] ?? null;
     }
 
+    /** 返回天盘支当前加临的地盘支位置。 */
+    public function heavenBranchGroundPosition(int $heavenBranch): ?int
+    {
+        $tianpan = $this->get('tianpan');
+        if (! is_array($tianpan)) {
+            return null;
+        }
+
+        $position = array_search($heavenBranch, $tianpan, true);
+
+        return is_int($position) ? $position : null;
+    }
+
+    public function lunarDayNumber(): ?int
+    {
+        return $this->lunarDay()?->getDay();
+    }
+
+    public function lunarMonthDayCount(): ?int
+    {
+        return $this->lunarDay()?->getLunarMonth()->getDayCount();
+    }
+
     public function generalRidingBranch(int $branch): ?int
     {
         $tianpan = $this->get('tianpan');
@@ -462,5 +486,23 @@ final readonly class PanFacts
             $time->getMinute(),
             $time->getSecond(),
         );
+    }
+
+    private function lunarDay(): ?LunarDay
+    {
+        $value = $this->get('calculationTime');
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $parts = date_parse_from_format('Y-m-d H:i:s', $value);
+        if (($parts['error_count'] ?? 1) !== 0 || ($parts['warning_count'] ?? 1) !== 0) {
+            return null;
+        }
+
+        return SolarTime::fromYmdHms(
+            $parts['year'], $parts['month'], $parts['day'],
+            $parts['hour'], $parts['minute'], $parts['second'],
+        )->getSolarDay()->getLunarDay();
     }
 }

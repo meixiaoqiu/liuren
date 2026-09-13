@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
+import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
-import { loadMoonPalaceTable, tablePalaceAt, verifyMoonPalaceTable } from '../../tools/moon_palace_table.mjs';
+import { loadMoonPalaceTable, tablePalaceAt, TABLE_DIRECTORY, verifyMoonPalaceTable } from '../../tools/moon_palace_table.mjs';
 
 test('1600–2499 静态表通过5000随机点和全部边界邻近点核验', async () => {
     const report = await verifyMoonPalaceTable();
     assert.equal(report.random_samples_checked, 5000);
     assert.equal(report.palace_order_valid, true);
     assert.equal(report.shards_continuous, true);
-    assert.ok(report.boundary_count > 140000);
+    assert.equal(report.boundary_count, 144377);
 });
 
 test('范围采用开始包含、结束排除的半开区间', async () => {
@@ -32,5 +35,33 @@ test('2026 已独立验证的四次交宫保持在100ms范围内', async () => {
         assert.ok(Math.abs(boundary[0] - target) <= 100, `${new Date(target).toISOString()} 相差 ${boundary[0] - target}ms`);
         assert.equal(tablePalaceAt(table, new Date(boundary[0] - 1)), before);
         assert.equal(tablePalaceAt(table, new Date(boundary[0])), after);
+    }
+});
+
+test('完整校验拒绝 manifest 数量和世纪分片范围损坏', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'moon-palace-table-'));
+    try {
+        await cp(TABLE_DIRECTORY, directory, { recursive: true });
+        const manifestPath = path.join(directory, 'manifest.json');
+        const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+        manifest.boundary_count++;
+        await writeFile(manifestPath, JSON.stringify(manifest));
+        await assert.rejects(
+            verifyMoonPalaceTable({ randomCount: 0, checkAllBoundaries: false, directory }),
+            /交宫数量与 manifest 不一致/,
+        );
+
+        manifest.boundary_count--;
+        await writeFile(manifestPath, JSON.stringify(manifest));
+        const shardPath = path.join(directory, '1600.json');
+        const shard = JSON.parse(await readFile(shardPath, 'utf8'));
+        shard.start_ms++;
+        await writeFile(shardPath, JSON.stringify(shard));
+        await assert.rejects(
+            verifyMoonPalaceTable({ randomCount: 0, checkAllBoundaries: false, directory }),
+            /1600\.json 的时间范围错误/,
+        );
+    } finally {
+        await rm(directory, { recursive: true, force: true });
     }
 });

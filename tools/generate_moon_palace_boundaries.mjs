@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /** 基于冻结的 Astronomy Engine 核心离线生成 1600–2499 月宿十二宫交宫事件。 */
 import { mkdir, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { calculateMoonPalace, XU_STAR, ANCIENT_CIRCLE_DEG } from './moon_palace_core.mjs';
 import { TABLE_DIRECTORY, verifyMoonPalaceTable } from './moon_palace_table.mjs';
@@ -10,6 +12,13 @@ const END_MS = Date.UTC(2500, 0, 1);
 const STEP_MS = 6 * 60 * 60 * 1000;
 const PRECISION_MS = 1;
 const SHARD_YEARS = 100;
+const DATASET_VERSION = 'moon-palace-1600-2499-v1';
+const require = createRequire(import.meta.url);
+const astronomyEnginePackage = path.join(path.dirname(require.resolve('astronomy-engine')), 'package.json');
+const astronomyEngineVersion = JSON.parse(readFileSync(astronomyEnginePackage, 'utf8')).version;
+if (astronomyEngineVersion !== '2.1.19') {
+    throw new Error(`静态月宿表仅允许 Astronomy Engine 2.1.19，当前安装版本为 ${astronomyEngineVersion}`);
+}
 
 function mulberry32(seed) {
     return () => {
@@ -98,7 +107,7 @@ async function generate() {
         start_utc: '1600-01-01T00:00:00Z',
         end_utc_exclusive: '2500-01-01T00:00:00Z',
         generator: 'astronomy-engine',
-        astronomy_engine_version: '2.1.19',
+        astronomy_engine_version: astronomyEngineVersion,
         coordinate_frame: 'EQD',
         proper_motion_applied: false,
         ancient_circle_degrees: ANCIENT_CIRCLE_DEG,
@@ -109,7 +118,7 @@ async function generate() {
         palace_index_order_increasing_ra: [0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
         xu_star: XU_STAR,
         generator_file: 'tools/generate_moon_palace_boundaries.mjs',
-        generated_on: '2026-09-13',
+        dataset_version: DATASET_VERSION,
         research_document: 'docs/课经/43-二烦课-moonPalace天文基础研究.md',
         boundary_count: boundaryCount,
         shards: filenames,
@@ -128,7 +137,7 @@ async function generate() {
     ]);
     await writeFile(
         path.join(TABLE_DIRECTORY, '..', '..', '..', 'tests', 'Fixtures', 'moon_palace_table_samples.json'),
-        JSON.stringify({ schema_version: 1, generator: 'astronomy-engine 2.1.19', random_seed: 4303, samples }, null, 2) + '\n',
+        JSON.stringify({ schema_version: 1, generator: `astronomy-engine ${astronomyEngineVersion}`, random_seed: 4303, samples }, null, 2) + '\n',
         'utf8',
     );
     return { boundary_count: boundaryCount, generation_duration_ms: Date.now() - started };

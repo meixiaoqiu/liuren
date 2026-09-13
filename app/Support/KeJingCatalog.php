@@ -764,6 +764,25 @@ final class KeJingCatalog
                 ],
             ],
             [
+                'name' => '二烦课',
+                'code' => 'lesson.erfan',
+                'gua' => '明夷',
+                'guaSymbol' => '䷣',
+                'summary' => '四仲月将，逢四正或四平日，日月宿俱临四仲，斗罡系丑未。',
+                'cases' => [
+                    self::case(
+                        'lesson.erfan.you_jiang_zi_ri_four_ping',
+                        '酉将·甲子日·四平路径（现代生产盘）',
+                        '2026年4月20日11时生产盘：农历三月初四，酉将平子日；日宿酉、月宿酉均临地盘午，斗罡辰临丑，天地二烦俱备。',
+                        '2026-04-20T11:00',
+                    ),
+                ],
+                'source_examples' => [
+                    ['label' => '九月初三丙午日午时卯将', 'path' => '四平', 'source' => '《六壬大全》正文', 'detail' => '卯将临午，月宿卯临午，辰临未；原文未给年份，仅作语义例。'],
+                    ['label' => '三月十五己卯日子时酉将', 'path' => '四正', 'source' => '《六壬大全》正文', 'detail' => '酉日宿临子，卯月宿临午，辰临未；原文未给年份，仅作语义例。'],
+                ],
+            ],
+            [
                 'name' => '天祸课',
                 'code' => 'lesson.tianhuo',
                 'gua' => '大过',

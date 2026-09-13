@@ -51,5 +51,11 @@ jobs:
       - name: Build Assets
         run: npm run build
 
+      - name: Test Moon Palace Astronomy
+        run: npm run test:moon-palace
+
+      - name: Test Moon Palace Boundary Table
+        run: npm run test:moon-palace-table
+
       - name: Run Tests
         run: ./vendor/bin/pest
