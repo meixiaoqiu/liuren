@@ -448,6 +448,28 @@ final readonly class PanFacts
         return null;
     }
 
+    /**
+     * 返回当前公历日期对应的日干支序号。
+     *
+     * 生产八字 provider 以晚子时（23:00）换日；需要按公历日期判断的规则在 23 时回退一日，
+     * 从而与同一公历日的节气事实保持一致。
+     */
+    public function civilDaySexagenaryDayIndex(): ?int
+    {
+        $dayIndex = $this->sexagenaryDayIndex();
+        $value = $this->get('calculationTime');
+        if ($dayIndex === null || ! is_string($value)) {
+            return null;
+        }
+
+        $parts = date_parse_from_format('Y-m-d H:i:s', $value);
+        if (($parts['error_count'] ?? 1) !== 0 || ($parts['warning_count'] ?? 1) !== 0) {
+            return null;
+        }
+
+        return $parts['hour'] === 23 ? ($dayIndex + 59) % 60 : $dayIndex;
+    }
+
     public function dayXunIndex(): ?int
     {
         $dayIndex = $this->sexagenaryDayIndex();

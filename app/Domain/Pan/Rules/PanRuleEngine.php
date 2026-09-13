@@ -56,6 +56,13 @@ final readonly class PanRuleEngine
                     ...$rule->notEvaluatedInfo(),
                 ];
             }
+
+            if ($rule instanceof ConditionalEvaluationRule && ($issue = $rule->evaluationIssue($facts)) !== null) {
+                $notEvaluated[] = [
+                    'code' => $rule->code(),
+                    ...$issue,
+                ];
+            }
         }
 
         return $notEvaluated;

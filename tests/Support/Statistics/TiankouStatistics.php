@@ -108,7 +108,8 @@ foreach ($dates as $date => $meta) {
         $facts = PanFacts::from($calculator->calculate($datetime));
         $moonPalace = $table->palaceAt(new DateTimeImmutable($datetime, new DateTimeZone('+08:00')));
         $moonGround = $facts->heavenBranchGroundPosition($moonPalace);
-        $dayBranch = $facts->get('rizhi');
+        $civilDayIndex = $facts->civilDaySexagenaryDayIndex();
+        $dayBranch = is_int($civilDayIndex) ? $civilDayIndex % 12 : null;
         $candidateA = $meta['type'] === 'A' && is_int($dayBranch) && $moonGround === $dayBranch;
         $match = $rule->match($facts);
         $candidateB = $match !== null;

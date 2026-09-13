@@ -5,6 +5,7 @@
 use App\Data\PanResult;
 use App\Domain\Astronomy\MoonPalaceLookup;
 use App\Domain\Pan\Facts\PanFacts;
+use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Domain\Pan\Rules\RuleRegistry;
 use App\Domain\Pan\Rules\TiankouRule;
 use App\Services\PanCalculator;
@@ -101,11 +102,50 @@ test('calculation time is passed to moon lookup as fixed UTC plus eight', functi
         ->and($lookup->lastTime?->format('Y-m-d H:i:s P'))->toBe('2026-03-20 00:01:02 +08:00');
 });
 
+test('civil fen-zhi day and li-chen stay stable across the late-rat-hour rollover', function (string $datetime) {
+    $facts = PanFacts::from((new PanCalculator)->calculate($datetime));
+    $civilDayIndex = $facts->civilDaySexagenaryDayIndex();
+    $liBranch = (($civilDayIndex + 59) % 60) % 12;
+    $tianpan = $facts->get('tianpan');
+    $lookup = tiankou_lookup($tianpan[$liBranch]);
+    $match = (new TiankouRule($lookup))->match($facts);
+
+    expect($match)->not->toBeNull()
+        ->and($civilDayIndex)->toBe(29)
+        ->and($match->evidence['day'])->toBe('癸巳')
+        ->and($match->evidence['previous_day'])->toBe('壬辰')
+        ->and($match->evidence['li_branch'])->toBe(4);
+})->with([
+    'before late-rat rollover' => ['2026-03-20 22:59:59'],
+    'after late-rat rollover' => ['2026-03-20 23:00:00'],
+]);
+
+test('production day pillar rolls at 23 while civil day fact remains on the fen-zhi date', function () {
+    $calculator = new PanCalculator;
+    $before = PanFacts::from($calculator->calculate('2026-03-20 22:59:59'));
+    $after = PanFacts::from($calculator->calculate('2026-03-20 23:00:00'));
+
+    expect($before->sexagenaryDayIndex())->toBe(29)
+        ->and($after->sexagenaryDayIndex())->toBe(30)
+        ->and($before->civilDaySexagenaryDayIndex())->toBe(29)
+        ->and($after->civilDaySexagenaryDayIndex())->toBe(29);
+});
+
 test('missing facts safely reject and moon table range errors degrade to no match', function () {
     expect((new TiankouRule(tiankou_lookup()))->match(tiankou_facts('2026-03-20 12:00:00', ['rigan' => null])))->toBeNull()
         ->and((new TiankouRule(tiankou_lookup(failure: new OutOfRangeException('outside table'))))->match(
             tiankou_facts('2026-03-20 12:00:00')
         ))->toBeNull();
+});
+
+test('moon table range errors are reported as not evaluated by the rule engine', function () {
+    $pan = new PanResult(['calculationTime' => '1500-03-11 12:00:00']);
+    $pending = collect((new PanRuleEngine)->notEvaluated($pan))->firstWhere('code', 'lesson.tiankou');
+
+    expect($pending)->not->toBeNull()
+        ->and($pending['name'])->toBe('天寇课')
+        ->and($pending['notice'])->toContain('月宿交宫表超出支持范围')
+        ->and($pending['notice'])->toContain('未进行判断');
 });
 
 test('fen-zhi fact uses the whole precise-term date and excludes adjacent dates', function (string $before, string $term, string $after, string $name) {

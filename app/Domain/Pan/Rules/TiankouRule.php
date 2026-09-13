@@ -11,7 +11,7 @@ use DateTimeZone;
 use OutOfRangeException;
 
 /** 文件作用：按“分至日 AND 月宿临前一日支（离辰）”冻结口径判断天寇课；发用不参与基础成立条件。 */
-final class TiankouRule implements PanRule
+final class TiankouRule implements ConditionalEvaluationRule, PanRule
 {
     public function __construct(private MoonPalaceLookup $moonPalace = new MoonPalaceTable) {}
 
@@ -23,17 +23,16 @@ final class TiankouRule implements PanRule
     public function match(PanFacts $facts): ?RuleMatch
     {
         $fenZhi = $facts->fenZhiDay();
-        $dayIndex = $facts->sexagenaryDayIndex();
-        $dayStem = $facts->get('rigan');
-        $dayBranch = $facts->get('rizhi');
+        $dayIndex = $facts->civilDaySexagenaryDayIndex();
         $calculationTime = $facts->get('calculationTime');
         $tianpan = $facts->get('tianpan');
 
-        if ($fenZhi === null || $dayIndex === null || ! is_int($dayStem) || ! is_int($dayBranch)
-            || ! is_string($calculationTime) || ! is_array($tianpan)) {
+        if ($fenZhi === null || $dayIndex === null || ! is_string($calculationTime) || ! is_array($tianpan)) {
             return null;
         }
 
+        $dayStem = $dayIndex % 10;
+        $dayBranch = $dayIndex % 12;
         $previousDayIndex = ($dayIndex + 59) % 60;
         $previousDayStem = $previousDayIndex % 10;
         $previousDayBranch = $previousDayIndex % 12;
@@ -96,5 +95,34 @@ final class TiankouRule implements PanRule
                 ],
             ],
         );
+    }
+
+    public function evaluationIssue(PanFacts $facts): ?array
+    {
+        if ($facts->fenZhiDay() === null) {
+            return null;
+        }
+
+        $calculationTime = $facts->get('calculationTime');
+        if (! is_string($calculationTime)) {
+            return null;
+        }
+
+        $time = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $calculationTime, new DateTimeZone('+08:00'));
+        $errors = DateTimeImmutable::getLastErrors();
+        if ($time === false || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+            return null;
+        }
+
+        try {
+            $this->moonPalace->palaceAt($time);
+        } catch (OutOfRangeException $exception) {
+            return [
+                'name' => '天寇课',
+                'notice' => '月宿交宫表超出支持范围，天寇课未进行判断。'.$exception->getMessage(),
+            ];
+        }
+
+        return null;
     }
 }

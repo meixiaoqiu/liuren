@@ -1137,6 +1137,13 @@ test('frontend shows tiankou fen-zhi li-chen and moon-palace evidence', function
         ->assertSee('月宿发用、入三传与否只作凶应增强')->assertDontSee('天寇课成立');
 });
 
+test('frontend reports tiankou as not evaluated when fen-zhi moon data is out of range', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1500-03-11T12:00')->set('birthDatetime', '1400-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('天寇课')->assertSee('月宿交宫表超出支持范围')->assertSee('未进行判断');
+});
+
 test('frontend shows tianwang evidence when different time and initial branches both restrain day', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2026-01-07T09:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
