@@ -307,7 +307,7 @@ test('kejing page renders the not-covered badge for the declared reference-only 
         }
     }
 
-    expect($referenceCases)->toBe(['lesson.sanyin.classic_gui_chou_mao_time']);
+    expect($referenceCases)->toBe(['lesson.sanyin.classic_gui_chou_mao_time', 'lesson.siqi.classic_jia_zi_chou_time_si_general']);
     $response->assertSee('原文参考盘·尚未覆盖');
 });
 

@@ -1265,3 +1265,35 @@ test('recent lesson explanations do not expose implementation notation', functio
     '闭口课' => ['1904-02-20T05:00', '1900-01-01T00:00', 'male'],
     '一旬周遍格' => ['1905-12-22T05:00', '1900-01-01T00:00', 'male'],
 ]);
+
+test('frontend shows siqi multi-route evidence and never asserts siqi established', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-01T01:00')
+        ->set('birthDatetime', '1986-08-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('死奇课')->assertSee('未济卦')->assertSee('䷿')->assertSee('死奇判断')
+        ->assertSee('初传即辰（天罡辰发用）')
+        ->assertSee('第1课（日阳）')
+        ->assertSee('第2课（日阴）')
+        ->assertSee('天罡所临地盘')
+        ->assertSee('天罡临日')
+        ->assertSee('天罡临季')
+        ->assertDontSee('死奇课成立');
+});
+
+test('frontend shows siqi uncovered and never bundles san-si label', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-01T01:00')
+        ->set('birthDatetime', '1986-08-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('日鬼')
+        ->assertSee('日墓')
+        ->assertSee('灾煞')
+        ->assertSee('三死课')
+        ->assertSee('组合公式')
+        ->assertDontSee('三死课成立');
+});
