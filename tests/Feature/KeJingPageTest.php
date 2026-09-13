@@ -1024,3 +1024,25 @@ test('tianwang is lesson 47 after tiankou with a different-branch executable pro
         ->and($match['evidence']['time_equals_initial'])->toBeFalse()
         ->and([$match['evidence']['day_stem'], $match['evidence']['time_branch'], $match['evidence']['initial']])->toBe([7, 5, 6]);
 });
+
+test('pohua is lesson 48 after tianwang and both production cases execute through the frozen routes', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.pohua');
+
+    expect(array_search('lesson.pohua', $codes, true))->toBe(array_search('lesson.tianwang', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['魄化课', '蛊', '䷑'])
+        ->and($lesson['summary'])->toBe('白虎乘月神死神或死气，并临日、辰、行年或发用之一。')
+        ->and($lesson['cases'])->toHaveCount(2)
+        ->and($lesson['source_examples'][1]['detail'])->toContain('未发用')->toContain('不克戌土')->toContain('研究参考');
+
+    foreach ($lesson['cases'] as $index => $case) {
+        expect($case['status'])->toBe('executable');
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+            ->call('calculate')->assertHasNoErrors();
+        $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.pohua');
+        expect($match)->not->toBeNull()->and($match['evidence']['tiger_type'])->toBe('death_spirit');
+        expect($match['evidence']['matched_routes'])->toBe($index === 0 ? ['day', 'initial'] : ['branch']);
+    }
+});

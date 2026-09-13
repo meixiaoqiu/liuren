@@ -1162,6 +1162,27 @@ test('frontend does not show tianwang when only the time branch restrains day', 
         ->assertDontSee('天网课')->assertDontSee('天网判断');
 });
 
+test('frontend shows pohua foundations and judgments for the reproduced june renxu case', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1982-08-07T13:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('魄化课')->assertSee('蛊卦')->assertSee('䷑')->assertSee('魄化判断')
+        ->assertSee('月神与白虎')->assertSee('月建未')->assertSee('死神在戌、死气在亥')->assertSee('白虎乘戌')
+        ->assertSee('成立位置')->assertSee('命中“临日、发用”多路')
+        ->assertSee('吉凶判断')->assertSee('白虎死神/死气克日干')->assertSee('戌属土')->assertSee('日干壬之水')
+        ->assertSee('上克下')->assertSee('古籍断为“外丧”')->assertSee('虎在阳忧男')
+        ->assertDontSee('谋而招祸，切莫远行。谋而招祸');
+});
+
+test('frontend explicitly shows branch-only pohua despite no initial transmission', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1982-08-07T11:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('魄化课')->assertSee('白虎死神戌位于地盘戌')
+        ->assertSee('虽未发用，仍符合魄化课')
+        ->assertDontSee('白虎死神/死气克辰');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
