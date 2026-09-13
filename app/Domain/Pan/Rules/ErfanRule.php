@@ -73,7 +73,7 @@ final class ErfanRule implements PanRule
             return null;
         }
 
-        $time = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $calculationTime, new DateTimeZone('Asia/Shanghai'));
+        $time = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $calculationTime, new DateTimeZone('+08:00'));
         $errors = DateTimeImmutable::getLastErrors();
         if ($time === false || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
             return null;

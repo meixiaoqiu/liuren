@@ -13,11 +13,14 @@ function erfan_lookup(int $palace = 3, ?Throwable $failure = null): MoonPalaceLo
     {
         public int $calls = 0;
 
+        public ?DateTimeInterface $lastTime = null;
+
         public function __construct(private int $palace, private ?Throwable $failure) {}
 
         public function palaceAt(DateTimeInterface $time): int
         {
             $this->calls++;
+            $this->lastTime = $time;
             if ($this->failure !== null) {
                 throw $this->failure;
             }
@@ -120,11 +123,25 @@ test('只有天烦而无地烦不得命中', function () {
         ->and($lookup->calls)->toBe(1);
 });
 
-test('只有地烦而无天烦不得命中且被廉价条件短路', function () {
+test('天烦前置不成立时无需计算地烦', function () {
     $lookup = erfan_lookup(6);
     expect((new ErfanRule($lookup))->match(erfan_facts(['tianpan' => range(0, 11)])))->toBeNull()
         ->and($lookup->calls)->toBe(0);
 });
+
+test('传给月宿查询器的起课时间始终解释为固定东八区', function (string $calculationTime) {
+    $lookup = erfan_lookup();
+    $match = (new ErfanRule($lookup))->match(erfan_facts(['calculationTime' => $calculationTime]));
+
+    expect($match)->not->toBeNull()
+        ->and($lookup->calls)->toBe(1)
+        ->and($lookup->lastTime)->not->toBeNull()
+        ->and($lookup->lastTime->format('Y-m-d H:i:s P'))->toBe($calculationTime.' +08:00');
+})->with([
+    '上海采用地方平时的年代' => ['1800-07-15 12:00:00'],
+    '中国夏令时期间' => ['1988-07-15 12:00:00'],
+    '现代日期' => ['2026-07-15 12:00:00'],
+]);
 
 test('需要月宿时只查询一次且范围异常原样抛出', function () {
     $lookup = erfan_lookup();
