@@ -8,7 +8,10 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "test:moon-palace": "node --test tests/Tools/moon_palace.test.mjs"
+        "test:moon-palace": "node --test tests/Tools/moon_palace.test.mjs",
+        "test:moon-palace-table": "node --test tests/Tools/moon_palace_table.test.mjs",
+        "generate:moon-palace-table": "node tools/generate_moon_palace_boundaries.mjs",
+        "verify:moon-palace-table": "node tools/generate_moon_palace_boundaries.mjs --verify"
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.3.3",
