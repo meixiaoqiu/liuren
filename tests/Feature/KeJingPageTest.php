@@ -997,3 +997,30 @@ test('tiankou is lesson 46 after tianyu with a real executable production case',
         ->and($match['evidence']['previous_day'])->toBe('壬辰')
         ->and([$match['evidence']['moon_palace'], $match['evidence']['moon_palace_ground'], $match['evidence']['li_branch']])->toBe([11, 4, 4]);
 });
+
+test('tianwang is lesson 47 after tiankou with a different-branch executable production case', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.tianwang');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.tianwang', $codes, true))->toBe(array_search('lesson.tiankou', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['天网课', '蒙', '䷃'])
+        ->and($lesson['summary'])->toBe('占时支与初传分别克日干。')
+        ->and($lesson['summary'])->not->toContain('相同')
+        ->and($case['case_id'])->toBe('lesson.tianwang.xin_si_si_time_wu_initial')
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2026-01-07T09:00')
+        ->and($case['reason'])->toContain('真实生产盘')
+        ->and($lesson['source_examples'][0]['detail'])->toContain('现代候选')
+        ->and($lesson['source_examples'][0]['detail'])->not->toContain('古籍原日期');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.tianwang');
+
+    expect($match)->not->toBeNull()
+        ->and($match['evidence']['time_equals_initial'])->toBeFalse()
+        ->and([$match['evidence']['day_stem'], $match['evidence']['time_branch'], $match['evidence']['initial']])->toBe([7, 5, 6]);
+});

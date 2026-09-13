@@ -1137,6 +1137,24 @@ test('frontend shows tiankou fen-zhi li-chen and moon-palace evidence', function
         ->assertSee('月宿发用、入三传与否只作凶应增强')->assertDontSee('天寇课成立');
 });
 
+test('frontend shows tianwang evidence when different time and initial branches both restrain day', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-07T09:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('天网课')->assertSee('蒙卦')->assertSee('䷃')->assertSee('天网判断')
+        ->assertSee('占时克日')->assertSee('占时巳属火')->assertSee('日干辛属金')->assertSee('火克金')
+        ->assertSee('用神克日')->assertSee('初传午属火')->assertSee('占时与初传是否同支不影响成立')
+        ->assertSee('解网属于天网成立后的救解判断')->assertSee('罗网格属于独立格')
+        ->assertDontSee('天网课成立');
+});
+
+test('frontend does not show tianwang when only the time branch restrains day', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2028-10-22T11:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertDontSee('天网课')->assertDontSee('天网判断');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
