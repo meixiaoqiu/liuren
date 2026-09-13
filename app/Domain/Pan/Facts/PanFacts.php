@@ -325,6 +325,60 @@ final readonly class PanFacts
         return $yearCache[$year][$date] ?? null;
     }
 
+    /**
+     * 返回起课日期命中的分至节气；只比较交节所在公历日期，不比较交节时刻。
+     *
+     * @return array{key: string, name: string, term_time: string, date: string}|null
+     */
+    public function fenZhiDay(): ?array
+    {
+        /** @var array<int, array<string, array{key: string, name: string, term_time: string, date: string}>> $yearCache */
+        static $yearCache = [];
+        $value = $this->get('calculationTime');
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $parts = date_parse($value);
+        if (($parts['error_count'] ?? 1) !== 0) {
+            return null;
+        }
+
+        $year = $parts['year'];
+        $date = sprintf('%04d-%02d-%02d', $year, $parts['month'], $parts['day']);
+        if (isset($yearCache[$year])) {
+            return $yearCache[$year][$date] ?? null;
+        }
+
+        $term = SolarTime::fromYmdHms($year, 1, 1, 0, 0, 0)->getTerm();
+        $fenZhi = [
+            6 => ['key' => 'chunfen', 'name' => '春分'],
+            12 => ['key' => 'xiazhi', 'name' => '夏至'],
+            18 => ['key' => 'qiufen', 'name' => '秋分'],
+            0 => ['key' => 'dongzhi', 'name' => '冬至'],
+        ];
+
+        $yearCache[$year] = [];
+        for ($offset = 0; $offset <= 24; $offset++) {
+            $candidate = $term->next($offset);
+            $meta = $fenZhi[$candidate->getIndex()] ?? null;
+            if ($meta === null) {
+                continue;
+            }
+
+            $time = $candidate->getJulianDay()->getSolarTime();
+            if ($time->getYear() !== $year) {
+                continue;
+            }
+
+            $termDate = sprintf('%04d-%02d-%02d', $time->getYear(), $time->getMonth(), $time->getDay());
+            $yearCache[$year][$termDate] = [...$meta, 'term_time' => self::formatSolarTime($time), 'date' => $termDate];
+        }
+
+        return $yearCache[$year][$date] ?? null;
+    }
+
     /** 返回天盘支当前加临的地盘支位置。 */
     public function heavenBranchGroundPosition(int $heavenBranch): ?int
     {

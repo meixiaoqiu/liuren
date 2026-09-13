@@ -972,3 +972,28 @@ test('tianyu is lesson 45 after tianhuo and both frozen routes execute through p
         }
     }
 });
+
+test('tiankou is lesson 46 after tianyu with a real executable production case', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.tiankou');
+    $case = $lesson['cases'][0];
+
+    expect(array_search('lesson.tiankou', $codes, true))->toBe(array_search('lesson.tianyu', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['天寇课', '蹇', '䷦'])
+        ->and($lesson['summary'])->toBe('春分、夏至、秋分或冬至日，月宿加临前一日地支（离辰）。')
+        ->and($lesson['summary'])->not->toContain('四离日前一日')
+        ->and($case['status'])->toBe('executable')
+        ->and($case['datetime'])->toBe('2026-03-20T07:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.tiankou');
+
+    expect($match)->not->toBeNull()
+        ->and($match['evidence']['fen_zhi_name'])->toBe('春分')
+        ->and($match['evidence']['day'])->toBe('癸巳')
+        ->and($match['evidence']['previous_day'])->toBe('壬辰')
+        ->and([$match['evidence']['moon_palace'], $match['evidence']['moon_palace_ground'], $match['evidence']['li_branch']])->toBe([11, 4, 4]);
+});

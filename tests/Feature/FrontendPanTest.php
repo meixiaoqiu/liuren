@@ -1126,6 +1126,17 @@ test('frontend shows tianyu grave-only route without expanding rest into matcher
         ->assertSee('真天狱')->assertSee('尚未实现')->assertDontSee('天狱课成立');
 });
 
+test('frontend shows tiankou fen-zhi li-chen and moon-palace evidence', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-03-20T07:00')->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('天寇课')->assertSee('蹇卦')->assertSee('䷦')->assertSee('天寇判断')
+        ->assertSee('本日为春分日')->assertSee('春分精确交节时间为2026-03-20 22:45:59')
+        ->assertSee('本日癸巳')->assertSee('前一日壬辰')->assertSee('离辰为辰')
+        ->assertSee('当前月宿为亥')->assertSee('天盘月宿亥加临地盘辰')->assertSee('与离辰同为辰')
+        ->assertSee('月宿发用、入三传与否只作凶应增强')->assertDontSee('天寇课成立');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')
