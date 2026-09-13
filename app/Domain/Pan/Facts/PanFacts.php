@@ -495,6 +495,18 @@ final readonly class PanFacts
             && ($generals[0] + 1) % 12 === $generals[1];
     }
 
+    /** 明确验证十二天将从地盘子到丑按固定序列逆行；异常或缺失数组不得视作逆行。 */
+    public function isNoblemanMovingBackward(): bool
+    {
+        $generals = $this->get('tianjiang');
+
+        return is_array($generals)
+            && isset($generals[0], $generals[1])
+            && is_int($generals[0])
+            && is_int($generals[1])
+            && ($generals[0] + 11) % 12 === $generals[1];
+    }
+
     public function noblemanGroundPosition(): ?int
     {
         $generals = $this->get('tianjiang');

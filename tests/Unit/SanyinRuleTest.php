@@ -49,7 +49,7 @@ test('rear general boundaries are fixed sky through heaven queen', function () {
         ->and($queen->noblemanFrontGeneralRankAtGroundPosition(1))->toBeNull();
 });
 
-test('classic guichou plate structure closes every frozen matcher condition', function () {
+test('synthetic guichou boundary fixture closes every frozen matcher condition', function () {
     $match = sanyin_match();
     expect($match)->not->toBeNull()
         ->and($match->evidence['nobleman_forward'])->toBeFalse()
@@ -59,6 +59,41 @@ test('classic guichou plate structure closes every frozen matcher condition', fu
         ->and($match->evidence['initial_transmission'])->toMatchArray(['branch' => 5, 'seasonal_state' => '死', 'general' => 7])
         ->and($match->evidence['time_restrains_xingnian'])->toBeTrue();
 });
+
+test('classic guichou mao-time zi-general plate closes all six textual conditions', function () {
+    $pan = new PanResult([
+        'calculationTime' => '2025-02-13 05:00:00',
+        'rigan' => 9, 'rizhi' => 1, 'shizhi' => 3,
+        'tianpan' => [9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8],
+        'tianjiang' => [8, 7, 6, 5, 4, 3, 2, 1, 0, 11, 10, 9],
+        'sanchuan0' => 10, 'sanchuan1' => 7, 'sanchuan2' => 4,
+        'context' => ['people' => [['role' => 'querent', 'xingnian' => 1]]],
+    ]);
+    $facts = PanFacts::from($pan);
+    $match = (new SanyinRule)->match($facts);
+
+    expect($match)->not->toBeNull()
+        ->and($facts->isNoblemanMovingBackward())->toBeTrue()
+        ->and($match->evidence['nobleman'])->toBe(5)
+        ->and($match->evidence['nobleman_ground'])->toBe(8)
+        ->and($match->evidence['day_stem'])->toMatchArray(['stem' => 9, 'lodging_branch' => 1, 'general' => 7, 'rear_general_rank' => 7])
+        ->and($match->evidence['day_branch'])->toMatchArray(['branch' => 1, 'general' => 7, 'rear_general_rank' => 7])
+        ->and($match->evidence['initial_transmission'])->toMatchArray(['branch' => 10, 'seasonal_state' => '死', 'general' => 7])
+        ->and($match->evidence['time'])->toMatchArray(['branch' => 3, 'element' => 0])
+        ->and($match->evidence['xingnian'])->toMatchArray(['branch' => 1, 'element' => 2])
+        ->and($match->evidence['time_restrains_xingnian'])->toBeTrue();
+});
+
+test('missing or malformed general direction is not treated as backward', function (array $generals) {
+    $facts = PanFacts::from(sanyin_pan(['tianjiang' => $generals]));
+    expect($facts->isNoblemanMovingBackward())->toBeFalse()
+        ->and((new SanyinRule)->match($facts))->toBeNull();
+})->with([
+    'missing generals' => [[]],
+    'one general only' => [[0]],
+    'duplicate generals' => [[0, 0]],
+    'unrelated order' => [[0, 5]],
+]);
 
 test('each directional and day-or-branch rear condition is independently necessary', function (array $changes) {
     expect(sanyin_match($changes))->toBeNull();
@@ -114,6 +149,7 @@ test('production candidate reproduces the complete modern executable case', func
         ->and($pan->get('sike'))->toBe([9, 10, 10, 7, 1, 10, 10, 7])
         ->and([$pan->get('sanchuan0'), $pan->get('sanchuan1'), $pan->get('sanchuan2')])->toBe([10, 7, 4])
         ->and($facts->isNoblemanMovingForward())->toBeFalse()
+        ->and($facts->isNoblemanMovingBackward())->toBeTrue()
         ->and($pan->get('tianjiang'))->toBe([8, 7, 6, 5, 4, 3, 2, 1, 0, 11, 10, 9])
         ->and($match)->not->toBeNull()
         ->and($match->evidence['nobleman'])->toBe(5)->and($match->evidence['nobleman_ground'])->toBe(8)

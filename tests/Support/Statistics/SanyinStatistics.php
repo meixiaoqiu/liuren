@@ -41,7 +41,7 @@ for ($date = new DateTimeImmutable("{$year}-01-01"), $end = $date->modify('+1 ye
         $initial = $facts->get('sanchuan0');
         $time = $facts->get('shizhi');
         $lodging = is_int($stem) ? $facts->stemLodgingBranch($stem) : null;
-        $reverse = ! $facts->isNoblemanMovingForward();
+        $reverse = $facts->isNoblemanMovingBackward();
         $stemRear = is_int($lodging) && $facts->isGroundPositionRidingNoblemanRearGeneral($lodging);
         $branchRear = is_int($branch) && $facts->isGroundPositionRidingNoblemanRearGeneral($branch);
         $state = is_int($initial) ? $facts->branchSeasonalState($initial) : null;

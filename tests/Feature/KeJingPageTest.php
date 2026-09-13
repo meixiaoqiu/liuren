@@ -1061,7 +1061,8 @@ test('sanyin is lesson 49 with executable modern case and reference-only classic
         ->and($lesson['summary'])->toBe('贵人逆行，日干寄宫与日支均乘贵后六将，初传囚死且乘玄武或白虎，占时支又克占人行年。')
         ->and($modern['status'])->toBe('executable')->and($modern['datetime'])->toBe('2025-12-10T09:00')
         ->and($modern['birth'])->toBe('1959-08-01T00:00')->and($modern['gender'])->toBe('male')
-        ->and($classic['status'])->toBe('reference_only')->and($classic['reason'])->toContain('古例卯时取昼贵')->toContain('北京实际日出/日落')
+        ->and($classic['status'])->toBe('reference_only')->and($classic['datetime'])->toBe('2025-02-13T05:00')
+        ->and($classic['reason'])->toContain('古例卯时取昼贵')->toContain('北京实际日出/日落')
         ->and($lesson['summary'])->not->toContain('大旺克初')->not->toContain('发用传终');
 
     $component = Livewire::test(CreatePan::class)
@@ -1074,6 +1075,21 @@ test('sanyin is lesson 49 with executable modern case and reference-only classic
 
     $this->get(route('kejing'))->assertOk()
         ->assertSee('三阴课')->assertSee('原文参考盘·尚未覆盖')->assertSee('古例卯时取昼贵');
+});
+
+test('clicking the sanyin reference-only URL shows lesson-specific reason and preserves only the day-night nobleman difference', function () {
+    $case = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanyin')['cases'][1];
+    $component = Livewire::withQueryParams([
+        'datetime' => $case['datetime'], 'birth' => $case['birth'], 'gender' => $case['gender'],
+        'reference_case' => $case['case_id'],
+    ])->test(CreatePan::class)->call('calculate')->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    expect([$pan['rigan'], $pan['rizhi'], $pan['yuejiang'], $pan['shizhi']])->toBe([9, 1, 0, 3]);
+    $component->assertSee('原文参考盘·尚未覆盖（三阴课）')
+        ->assertSee('古例卯时取昼贵')
+        ->assertSee('北京实际日出/日落')
+        ->assertDontSee('繁昌课·本命五行口径未定');
 });
 
 test('longzhan is lesson 50 and its daquan ding-mao case is executable', function () {

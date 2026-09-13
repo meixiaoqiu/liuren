@@ -894,7 +894,7 @@ final class KeJingCatalog
                         'lesson.sanyin.classic_gui_chou_mao_time',
                         '正月癸丑日·卯时·子将（古籍原文参考盘）',
                         '古籍原文参考盘；因古例卯时取昼贵，与项目当前北京实际日出/日落的昼夜贵口径不同，不能直接作为现代 executable 案例。',
-                        '2025-12-10T05:00',
+                        '2025-02-13T05:00',
                         '1959-08-01T00:00',
                         'male',
                         [],

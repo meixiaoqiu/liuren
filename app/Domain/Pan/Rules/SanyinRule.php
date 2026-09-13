@@ -70,7 +70,7 @@ final class SanyinRule implements ContextAwareRule
             && $xingnianElement === ($timeElement + 2) % 5;
 
         if (! is_int($lodging)
-            || $facts->isNoblemanMovingForward()
+            || ! $facts->isNoblemanMovingBackward()
             || ! $facts->isGroundPositionRidingNoblemanRearGeneral($lodging)
             || ! $facts->isGroundPositionRidingNoblemanRearGeneral($branch)
             || ! in_array($state, ['囚', '死'], true)
@@ -90,6 +90,7 @@ final class SanyinRule implements ContextAwareRule
                 'nobleman' => $nobleman,
                 'nobleman_ground' => $noblemanGround,
                 'nobleman_forward' => false,
+                'nobleman_backward' => true,
                 'day_stem' => ['stem' => $stem, 'lodging_branch' => $lodging, 'general' => $facts->generalAtGroundPosition($lodging), 'rear_general_rank' => $facts->noblemanRearGeneralRankAtGroundPosition($lodging)],
                 'day_branch' => ['branch' => $branch, 'general' => $facts->generalAtGroundPosition($branch), 'rear_general_rank' => $facts->noblemanRearGeneralRankAtGroundPosition($branch)],
                 'initial_transmission' => ['branch' => $initial, 'element' => $facts->branchElement($initial), 'seasonal_state' => $state, 'general' => $initialGeneral],
