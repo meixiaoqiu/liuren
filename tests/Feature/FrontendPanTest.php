@@ -1221,7 +1221,7 @@ test('frontend shows longzhan strict same-position trace from the executable cla
         ->assertDontSee('其余日卯酉上发用者，亦是龙战卦');
 });
 
-test('frontend can mark longzhan not evaluated without querent xingnian', function () {
+test('frontend renders longzhan not-evaluated notice', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2027-04-18T08:00')->set('birthDatetime', '2002-06-01T12:00')
         ->call('calculate')->assertHasNoErrors()

@@ -1,6 +1,6 @@
 <?php
 
-/** 文件作用：统计 720 基础结构、2026 男女合法出生组合下的严格龙战及宽集合对照。 */
+/** 文件作用：统计 720 基础结构、全部60出生年柱状态下的2026男女严格龙战及宽集合对照。 */
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
 
@@ -15,9 +15,16 @@ $fateCalculator = new FateCalculator;
 $rule = new LongzhanRule;
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
 $births = [];
-foreach (range(1950, 2025) as $year) {
+foreach (range(1900, 2025) as $year) {
     $birth = "{$year}-06-01 12:00:00";
-    $births[] = ['datetime' => $birth, 'year_index' => $calculator->calculate($birth)->get('nian_index')];
+    $yearIndex = $calculator->calculate($birth)->get('nian_index');
+    if (is_int($yearIndex) && ! isset($births[$yearIndex])) {
+        $births[$yearIndex] = ['datetime' => $birth, 'year_index' => $yearIndex];
+    }
+}
+ksort($births);
+if (array_keys($births) !== range(0, 59)) {
+    throw new RuntimeException('无法为全部60个出生年柱状态找到唯一真实出生日期。');
 }
 
 $counts = ['total_720' => 0, 'mao_structure' => 0, 'you_structure' => 0, 'structure_total' => 0];
@@ -64,8 +71,26 @@ foreach (['male', 'female'] as $gender) {
     $people[$gender] = compact('samples', 'strict', 'wide', 'wideOnly');
 }
 
+$expectedSamples = 60 * 365 * 12;
+if ($people['male']['samples'] !== $expectedSamples || $people['female']['samples'] !== $expectedSamples) {
+    throw new RuntimeException('人物组合统计分母不等于60×365×12。');
+}
+foreach (['male', 'female'] as $gender) {
+    if ($people[$gender]['wideOnly'] !== $people[$gender]['wide'] - $people[$gender]['strict']) {
+        throw new RuntimeException("{$gender} 的宽口径差集统计不闭合。");
+    }
+}
+if ($people['male'] !== $people['female']) {
+    throw new RuntimeException('完整60年柱状态枚举后，男女统计应完全相等。');
+}
+
 echo json_encode([
     'timezone' => 'Asia/Shanghai / 北京固定 UTC+8', 'hours' => $hours,
     '720_structure' => $counts,
-    'people_sampling' => ['births' => '1950-2025 每年6月1日12:00（76个合法出生样本）', 'year' => 2026, 'by_gender' => $people],
+    'people_sampling' => [
+        'birth_year_indexes' => array_keys($births),
+        'representative_births' => array_values($births),
+        'year' => 2026,
+        'by_gender' => $people,
+    ],
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT).PHP_EOL;
