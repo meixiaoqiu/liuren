@@ -295,17 +295,20 @@ test('every kejing case status is executable or reference_only', function () {
     }
 });
 
-test('kejing page never renders the not-covered badge when no reference_only case exists', function () {
-    // 当前所有课例均为 executable；reference_case 机制保留供未来争议课例使用。
+test('kejing page renders the not-covered badge for the declared reference-only case', function () {
     $response = $this->get(route('kejing'))->assertOk();
 
+    $referenceCases = [];
     foreach (KeJingCatalog::lessons() as $lesson) {
         foreach ($lesson['cases'] as $case) {
-            expect(($case['status'] ?? 'executable'))->toBe('executable');
+            if (($case['status'] ?? 'executable') === 'reference_only') {
+                $referenceCases[] = $case['case_id'];
+            }
         }
     }
 
-    $response->assertDontSee('原文参考盘·尚未覆盖');
+    expect($referenceCases)->toBe(['lesson.sanyin.classic_gui_chou_mao_time']);
+    $response->assertSee('原文参考盘·尚未覆盖');
 });
 
 test('fanchang de-yun executable case never exposes the not-covered banner on the pan page', function () {
@@ -1045,4 +1048,30 @@ test('pohua is lesson 48 after tianwang and both production cases execute throug
         expect($match)->not->toBeNull()->and($match['evidence']['tiger_type'])->toBe('death_spirit');
         expect($match['evidence']['matched_routes'])->toBe($index === 0 ? ['day', 'initial'] : ['branch']);
     }
+});
+
+test('sanyin is lesson 49 with executable modern case and reference-only classic case', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.sanyin');
+    [$modern, $classic] = $lesson['cases'];
+
+    expect(array_search('lesson.sanyin', $codes, true))->toBe(array_search('lesson.pohua', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['三阴课', '中孚', '䷼'])
+        ->and($lesson['summary'])->toBe('贵人逆行，日干寄宫与日支均乘贵后六将，初传囚死且乘玄武或白虎，占时支又克占人行年。')
+        ->and($modern['status'])->toBe('executable')->and($modern['datetime'])->toBe('2025-12-10T09:00')
+        ->and($modern['birth'])->toBe('1959-08-01T00:00')->and($modern['gender'])->toBe('male')
+        ->and($classic['status'])->toBe('reference_only')->and($classic['reason'])->toContain('古例卯时取昼贵')->toContain('北京实际日出/日落')
+        ->and($lesson['summary'])->not->toContain('大旺克初')->not->toContain('发用传终');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $modern['datetime'])->set('birthDatetime', $modern['birth'])->set('gender', $modern['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.sanyin');
+    expect($match)->not->toBeNull()
+        ->and($match['evidence']['initial_transmission'])->toMatchArray(['branch' => 10, 'seasonal_state' => '囚', 'general' => 7])
+        ->and($match['evidence']['xingnian']['branch'])->toBe(8);
+
+    $this->get(route('kejing'))->assertOk()
+        ->assertSee('三阴课')->assertSee('原文参考盘·尚未覆盖')->assertSee('古例卯时取昼贵');
 });

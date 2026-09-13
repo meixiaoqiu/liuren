@@ -1183,6 +1183,32 @@ test('frontend explicitly shows branch-only pohua despite no initial transmissio
         ->assertDontSee('白虎死神/死气克辰');
 });
 
+test('frontend shows sanyin three groups with concrete modern production evidence', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2025-12-10T09:00')->set('birthDatetime', '1959-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('三阴课')->assertSee('中孚卦')->assertSee('䷼')->assertSee('三阴判断')
+        ->assertSee('第一阴')->assertSee('贵人巳临地盘申')->assertSee('十二天将逆行')
+        ->assertSee('日干癸寄丑')->assertSee('日支丑乘白虎')
+        ->assertSee('第二阴')->assertSee('初传戌属土为囚')
+        ->assertSee('第三阴')->assertSee('初传戌乘白虎')->assertSee('巳火克申金')
+        ->assertDontSee('发用传终各带囚死，故成三阴课')
+        ->assertDontSee('大旺克初，故成三阴课');
+});
+
+test('frontend marks sanyin not evaluated without querent xingnian', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2025-12-10T11:00')->set('birthDatetime', '1959-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->set('notEvaluated', [[
+            'code' => 'lesson.sanyin',
+            'name' => '三阴课',
+            'notice' => '需要占人行年信息（出生时间与性别），当前未进行三阴课判断。',
+        ]])
+        ->assertSee('需要占人行年信息（出生时间与性别），当前未进行三阴课判断。')
+        ->assertDontSee('三阴判断');
+});
+
 test('frontend shows independent yixun zhoubian grid without bikou lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '1905-12-22T05:00')

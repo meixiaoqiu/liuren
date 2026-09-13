@@ -517,6 +517,22 @@ final readonly class PanFacts
             : null;
     }
 
+    /** 贵后六将固定指天将序号 6..11（天空、白虎、太常、玄武、太阴、天后）。 */
+    public function isGroundPositionRidingNoblemanRearGeneral(int $ground): bool
+    {
+        return $this->noblemanRearGeneralRankAtGroundPosition($ground) !== null;
+    }
+
+    /** 返回地盘宫位所乘贵后天将在固定天将序列中的序号（6..11），不按地支距离推算。 */
+    public function noblemanRearGeneralRankAtGroundPosition(int $ground): ?int
+    {
+        $general = $this->generalAtGroundPosition($ground);
+
+        return is_int($general) && $general >= 6 && $general <= 11
+            ? $general
+            : null;
+    }
+
     private function isElementWangOrXiang(int $element): bool
     {
         return in_array($this->seasonalStrength($element), ['旺', '相'], true);
