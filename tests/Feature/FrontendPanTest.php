@@ -1331,3 +1331,28 @@ test('frontend does not expose zaie implementation notation in the recent lesson
         ->assertDontSee('matched_keys')
         ->assertDontSee('shensha =');
 });
+
+test('frontend shows all yangjiu routes and concrete evidence for a multi-route plate', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-01T15:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('殃咎课')->assertSee('解卦')->assertSee('䷧')->assertSee('殃咎判断')
+        ->assertSee('递克')->assertSee('初传夹克')->assertSee('三传外战')->assertSee('三传内战')
+        ->assertSee('干支乘墓')->assertSee('干支坐墓')
+        ->assertSee('将克神')->assertSee('成立')->assertSee('不成立')
+        ->assertDontSee('forward_recursive_overcoming')
+        ->assertDontSee('all_three_external_battle=true');
+});
+
+test('frontend shows riding and sitting tomb evidence in classical executable cases', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-02-21T11:00')->set('birthDatetime', '1900-01-01T00:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('日干丙墓在戌，干上神为戌')->assertSee('日支寅墓在未，支上神为未');
+
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-02-27T07:00')->set('birthDatetime', '1900-01-01T00:00')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('壬寄亥，壬墓辰：天盘亥加地盘辰')->assertSee('日支申墓丑：天盘申加地盘丑');
+});

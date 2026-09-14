@@ -307,7 +307,12 @@ test('kejing page renders the not-covered badge for the declared reference-only 
         }
     }
 
-    expect($referenceCases)->toBe(['lesson.sanyin.classic_gui_chou_mao_time', 'lesson.siqi.classic_jia_zi_chou_time_si_general']);
+    expect($referenceCases)->toBe([
+        'lesson.sanyin.classic_gui_chou_mao_time',
+        'lesson.siqi.classic_jia_zi_chou_time_si_general',
+        'lesson.yangjiu.geng_wu_external_reference',
+        'lesson.yangjiu.ji_you_internal_reference',
+    ]);
     $response->assertSee('原文参考盘·尚未覆盖');
 });
 
@@ -1115,4 +1120,20 @@ test('longzhan is lesson 50 and its daquan ding-mao case is executable', functio
     expect($match['evidence'])->toMatchArray([
         'day_branch' => 3, 'initial' => 3, 'querent_xingnian' => 3, 'matched_branch' => 3,
     ])->and(collect($match['evidence']['uncovered'])->implode(' '))->toContain('未程序化');
+});
+
+test('yangjiu is lesson 53 and five classic structures are executable', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $lesson = $lessons->firstWhere('code', 'lesson.yangjiu');
+    expect([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['殃咎课', '解', '䷧'])
+        ->and($lesson['summary'])->toBe('递克、夹克、三传内外战、干支乘墓或坐墓之一成立。')
+        ->and($lesson['cases'])->toHaveCount(7);
+
+    foreach (array_slice($lesson['cases'], 0, 5) as $case) {
+        expect($case['status'])->toBe('executable');
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+            ->call('calculate')->assertHasNoErrors();
+        expect(collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.yangjiu'))->not->toBeNull();
+    }
 });

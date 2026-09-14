@@ -17,6 +17,9 @@ final readonly class PanFacts
     /** @var array<int, int> */
     private const STEM_LODGING_BRANCHES = [2, 4, 5, 7, 5, 7, 8, 10, 11, 1];
 
+    /** 十二天将固定五行：贵土、蛇火、雀火、合木、勾土、龙木、空土、虎金、常土、武水、阴金、后水。 */
+    private const GENERAL_ELEMENTS = [2, 1, 1, 0, 2, 0, 2, 3, 2, 4, 3, 4];
+
     /** @var array<int, list<int>> */
     private const SEASON_WANG_XIANG_ELEMENTS = [
         0 => [4, 0],
@@ -144,6 +147,12 @@ final readonly class PanFacts
     public function branchElement(int $branch): ?int
     {
         return self::BRANCH_ELEMENTS[$branch] ?? null;
+    }
+
+    /** 返回天将自身的固定五行；不随该将当前所临地支改变。 */
+    public function generalElement(int $general): ?int
+    {
+        return self::GENERAL_ELEMENTS[$general] ?? null;
     }
 
     public function isDayWealthBranch(int $branch): bool
