@@ -4,18 +4,57 @@ use App\Livewire\Pan\CreatePan;
 use App\Support\KeJingCatalog;
 use Livewire\Livewire;
 
-test('kejing page lists every lesson with its hexagram', function () {
+test('kejing index lists every lesson with its hexagram and detail link', function () {
     $response = $this->get(route('kejing'))
         ->assertOk()
         ->assertSee('课经');
 
-    foreach (KeJingCatalog::lessons() as $lesson) {
-        $response
-            ->assertSee($lesson['name'])
-            ->assertSee($lesson['gua'].'卦');
+    $lessons = KeJingCatalog::lessons();
+
+    foreach ($lessons as $lesson) {
+        $slug = str_replace('_', '-', substr($lesson['code'], strlen('lesson.')));
+
+        $response->assertSee($lesson['name']);
+
+        if ($lesson['gua'] !== null) {
+            $response->assertSee($lesson['gua'].'卦');
+        }
+
+        if ($lesson['guaSymbol'] !== null) {
+            $response->assertSee($lesson['guaSymbol']);
+        }
+
+        $response->assertSee(route('kejing.show', ['lesson' => $slug]), false);
 
         expect($lesson['cases'])->not->toBeEmpty();
     }
+
+    $response
+        ->assertDontSee($lessons[0]['summary'])
+        ->assertDontSee($lessons[0]['cases'][0]['reason'])
+        ->assertDontSee('古籍相关课例与旁证');
+});
+
+test('kejing detail page shows the product summary executable cases and research record', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
+    $case = $lesson['cases'][0];
+
+    $this->get(route('kejing.show', ['lesson' => 'sanguang']))
+        ->assertOk()
+        ->assertSee('三光课')
+        ->assertSee('䷕')
+        ->assertSee('贲卦')
+        ->assertSee($lesson['summary'])
+        ->assertSee($case['label'])
+        ->assertSee($case['reason'])
+        ->assertSee('完整研究记录')
+        ->assertSee('11-%E4%B8%89%E5%85%89%E8%AF%BE.md', false)
+        ->assertSee('三阳课 · 下一课 →')
+        ->assertDontSee('上一课 ·');
+});
+
+test('unknown kejing detail slug returns 404', function () {
+    $this->get('/kejing/not-a-real-lesson')->assertNotFound();
 });
 
 test('kejing page does not expose implementation names or internal numeric notation', function () {
@@ -151,7 +190,7 @@ test('rong-hua catalog contains the daquan bing-yin and ren-shen executable case
         ->toContain('丙寅日正文结构', '壬申日正文结构');
 });
 
-test('rong-hua catalog and kejing page preserve every named daquan example', function () {
+test('rong-hua catalog and detail page preserve every named daquan example', function () {
     $rongHua = collect(KeJingCatalog::lessons())
         ->firstWhere('code', 'lesson.rong_hua');
     $labels = array_column($rongHua['source_examples'], 'label');
@@ -163,7 +202,7 @@ test('rong-hua catalog and kejing page preserve every named daquan example', fun
             '丙申日卯时子将', '庚辰日亥加寅',
         );
 
-    $this->get(route('kejing'))
+    $this->get(route('kejing.show', ['lesson' => 'rong-hua']))
         ->assertOk()
         ->assertSee('古籍相关课例与旁证')
         ->assertSee('壬申日')
@@ -238,13 +277,13 @@ test('rong-hua bing-yin case is executable and reproduces the lesson on the pan 
         ->assertSee('干支吉神，入宅俱利');
 });
 
-test('kejing page fanchang case links carry the spouse context', function () {
+test('kejing fanchang detail links carry the spouse context', function () {
     $fanchang = collect(KeJingCatalog::lessons())
         ->firstWhere('code', 'lesson.fanchang');
 
     $case = $fanchang['cases'][0];
 
-    $this->get(route('kejing'))
+    $this->get(route('kejing.show', ['lesson' => 'fanchang']))
         ->assertOk()
         ->assertSee('people%5B0%5D%5Brole%5D=spouse', false)
         ->assertSee(rawurlencode($case['people'][0]['birth_datetime']), false);
@@ -296,8 +335,6 @@ test('every kejing case status is executable or reference_only', function () {
 });
 
 test('kejing page renders the not-covered badge for the declared reference-only case', function () {
-    $response = $this->get(route('kejing'))->assertOk();
-
     $referenceCases = [];
     foreach (KeJingCatalog::lessons() as $lesson) {
         foreach ($lesson['cases'] as $case) {
@@ -313,6 +350,10 @@ test('kejing page renders the not-covered badge for the declared reference-only 
         'lesson.yangjiu.geng_wu_external_reference',
         'lesson.yangjiu.ji_you_internal_reference',
     ]);
+
+    $response = $this->get(route('kejing.show', ['lesson' => 'sanyin']))
+        ->assertOk();
+
     $response->assertSee('原文参考盘·尚未覆盖');
 });
 
@@ -345,19 +386,17 @@ test('fanchang de-yun executable case never exposes the not-covered banner on th
     $component->assertSee('德孕格');
 });
 
-test('kejing page executable links never carry the reference_case query', function () {
-    $response = $this->get(route('kejing'))->assertOk();
+test('kejing executable detail links never carry the reference_case query', function () {
+    $lesson = collect(KeJingCatalog::lessons())
+        ->firstWhere('code', 'lesson.fanchang');
+
+    $response = $this->get(route('kejing.show', ['lesson' => 'fanchang']))->assertOk();
     $body = $response->getContent();
 
-    foreach (KeJingCatalog::lessons() as $lesson) {
-        foreach ($lesson['cases'] as $case) {
-            if (($case['status'] ?? 'executable') !== 'executable') {
-                continue;
-            }
-
-            expect($case)->not->toHaveKey('case_id_reference_only');
-            expect($body)->not->toContain('reference_case='.rawurlencode($case['case_id'] ?? '___nope___'));
-        }
+    foreach ($lesson['cases'] as $case) {
+        expect($case['status'])->toBe('executable');
+        expect($case)->not->toHaveKey('case_id_reference_only');
+        expect($body)->not->toContain('reference_case='.rawurlencode($case['case_id'] ?? '___nope___'));
     }
 });
 
