@@ -128,21 +128,35 @@ test('riding tomb requires both stem and branch upper gods', function () {
         ->and(yangjiu_route(['rigan' => 2, 'rizhi' => 2, 'sike' => [5, 9, 0, 3, 2, 7, 0, 6]], 'stem_branch_riding_tombs'))->toBeFalse();
 });
 
-test('yin stem tombs do not collapse to five element tombs', function (int $stem, int $correctTomb, int $wrongElementTomb) {
+test('riding tomb uses stem five element tomb rather than ten stem tomb', function (int $stem, int $correctTomb, int $wrongTenStemTomb) {
     $correct = [0, $correctTomb, 0, 3, 2, 7, 0, 6];
-    $wrong = [0, $wrongElementTomb, 0, 3, 2, 7, 0, 6];
+    $wrong = [0, $wrongTenStemTomb, 0, 3, 2, 7, 0, 6];
     expect(yangjiu_route(['rigan' => $stem, 'rizhi' => 2, 'sike' => $correct], 'stem_branch_riding_tombs'))->toBeTrue()
         ->and(yangjiu_route(['rigan' => $stem, 'rizhi' => 2, 'sike' => $wrong], 'stem_branch_riding_tombs'))->toBeFalse();
 })->with([
-    '乙墓戌非未' => [1, 10, 7], '丁墓丑非戌' => [3, 1, 10],
-    '辛墓辰非丑' => [7, 4, 1], '癸墓未非辰' => [9, 7, 4],
+    '乙木墓未非十干墓戌' => [1, 7, 10], '丁火墓戌非十干墓丑' => [3, 10, 1],
+    '戊土墓辰非十干墓戌' => [4, 4, 10], '己土墓辰非十干墓丑' => [5, 4, 1],
+    '辛金墓丑非十干墓辰' => [7, 1, 4], '癸水墓辰非十干墓未' => [9, 4, 7],
 ]);
+
+test('daquan ji-wei stem and branch both riding chen tomb matches', function () {
+    $analysis = (new YangjiuRule)->analyze(yangjiu_facts([
+        'rigan' => 5, 'rizhi' => 7, 'sike' => [7, 4, 0, 3, 7, 4, 0, 6],
+    ]));
+    expect($analysis['routes']['stem_branch_riding_tombs']['matched'])->toBeTrue();
+});
 
 test('sitting tomb requires both heaven branches on their tomb ground palaces', function () {
     $plate = yangjiu_swap_tianpan([[4, 11], [1, 8]]);
     expect(yangjiu_route(['rigan' => 8, 'rizhi' => 8, 'tianpan' => $plate], 'stem_branch_sitting_on_tombs'))->toBeTrue()
         ->and(yangjiu_route(['rigan' => 8, 'rizhi' => 8, 'tianpan' => yangjiu_swap_tianpan([[4, 11]])], 'stem_branch_sitting_on_tombs'))->toBeFalse()
         ->and(yangjiu_route(['rigan' => 8, 'rizhi' => 8, 'tianpan' => yangjiu_swap_tianpan([[1, 8]])], 'stem_branch_sitting_on_tombs'))->toBeFalse();
+});
+
+test('daquan ding-chou wei on xu and chou on chen sitting tomb matches', function () {
+    $plate = yangjiu_swap_tianpan([[10, 7], [4, 1]]);
+    $analysis = (new YangjiuRule)->analyze(yangjiu_facts(['rigan' => 3, 'rizhi' => 1, 'tianpan' => $plate]));
+    expect($analysis['routes']['stem_branch_sitting_on_tombs']['matched'])->toBeTrue();
 });
 
 test('riding and sitting tombs cannot be confused', function () {

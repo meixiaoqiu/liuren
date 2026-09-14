@@ -13,7 +13,8 @@ use App\Services\PanCalculator;
  */
 final class YangjiuRule implements PanRule
 {
-    private const STEM_TOMBS = [7, 10, 10, 1, 10, 1, 1, 4, 4, 7];
+    /** 干支乘墓、坐墓专名采用日干五行墓：木未、火戌、土辰、金丑、水辰。 */
+    private const STEM_ELEMENT_TOMBS = [7, 7, 10, 10, 4, 4, 1, 1, 4, 4];
 
     private const BRANCH_TOMBS = [4, 4, 7, 7, 4, 10, 10, 4, 1, 1, 4, 4];
 
@@ -69,7 +70,7 @@ final class YangjiuRule implements PanRule
         $transmissions = [$facts->get('sanchuan0'), $facts->get('sanchuan1'), $facts->get('sanchuan2')];
         $generals = [$facts->get('sanchuan0tianjiang'), $facts->get('sanchuan1tianjiang'), $facts->get('sanchuan2tianjiang')];
 
-        if (! is_int($stem) || ! isset(self::STEM_TOMBS[$stem]) || ! is_int($branch) || ! isset(self::BRANCH_TOMBS[$branch])
+        if (! is_int($stem) || ! isset(self::STEM_ELEMENT_TOMBS[$stem]) || ! is_int($branch) || ! isset(self::BRANCH_TOMBS[$branch])
             || ! is_array($sike) || count($sike) < 8 || ! is_array($tianpan) || count($tianpan) < 12
             || count(array_filter($transmissions, 'is_int')) !== 3 || count(array_filter($generals, 'is_int')) !== 3) {
             return null;
@@ -113,7 +114,7 @@ final class YangjiuRule implements PanRule
         $groundRestrainsInitial = $this->branchRestrainsBranch($facts, $initialGround, $initial);
         $generalRestrainsInitial = $transmissionEvidence[0]['external'];
 
-        $stemTomb = self::STEM_TOMBS[$stem];
+        $stemTomb = self::STEM_ELEMENT_TOMBS[$stem];
         $branchTomb = self::BRANCH_TOMBS[$branch];
         $stemUpper = $sike[1] ?? null;
         $branchUpper = $sike[5] ?? null;

@@ -2,15 +2,15 @@
 
 /** 文件作用：只读扫描 2026 年 4380 个北京代表时刻，统计殃咎七路、交集及神将克战严格/宽/混合候选。 */
 
-require dirname(__DIR__, 3).'/vendor/autoload.php';
-
-$app = require dirname(__DIR__, 3).'/bootstrap/app.php';
-$app->make(Kernel::class)->bootstrap();
-
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\Rules\YangjiuRule;
 use App\Services\PanCalculator;
 use Illuminate\Contracts\Console\Kernel;
+
+require dirname(__DIR__, 3).'/vendor/autoload.php';
+
+$app = require dirname(__DIR__, 3).'/bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
 
 $year = (int) ($argv[1] ?? 2026);
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
@@ -21,6 +21,7 @@ $routeKeys = [
     'initial_transmission_sandwiched_overcoming', 'all_three_external_battle',
     'all_three_internal_battle', 'stem_branch_riding_tombs', 'stem_branch_sitting_on_tombs',
 ];
+$total = (($year % 4 === 0 && ($year % 100 !== 0 || $year % 400 === 0)) ? 366 : 365) * count($hours);
 $counts = array_fill_keys($routeKeys, 0);
 $exclusive = array_fill_keys($routeKeys, 0);
 $intersections = [];
@@ -100,10 +101,10 @@ for ($date = new DateTimeImmutable("{$year}-01-01"), $end = $date->modify('+1 ye
 ksort($intersections);
 echo json_encode([
     'year' => $year, 'timezone' => 'Asia/Shanghai / 北京固定 UTC+8', 'hours' => $hours,
-    'total' => (($year % 4 === 0 && ($year % 100 !== 0 || $year % 400 === 0)) ? 366 : 365) * 12,
+    'total' => $total,
     'routes' => $counts, 'exclusive' => $exclusive, 'intersections' => $intersections,
     'multi_route' => $multiRoute, 'matched' => $totalMatched,
-    'matched_ratio' => $totalMatched / 4380,
+    'matched_ratio' => $totalMatched / $total,
     'battle_candidates' => ['strict' => $strict, 'broad' => $broad, 'mixed_all_three' => $mixed],
     'first_by_route' => $firstByRoute, 'classic_examples_found_in_year' => $classic,
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT).PHP_EOL;

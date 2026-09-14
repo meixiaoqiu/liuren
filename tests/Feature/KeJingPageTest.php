@@ -1129,11 +1129,20 @@ test('yangjiu is lesson 53 and five classic structures are executable', function
         ->and($lesson['summary'])->toBe('递克、夹克、三传内外战、干支乘墓或坐墓之一成立。')
         ->and($lesson['cases'])->toHaveCount(7);
 
+    $expectedRoutes = [
+        'lesson.yangjiu.ji_si_forward' => 'forward_recursive_overcoming',
+        'lesson.yangjiu.bing_zi_reverse' => 'reverse_recursive_overcoming',
+        'lesson.yangjiu.ren_zi_sandwiched' => 'initial_transmission_sandwiched_overcoming',
+        'lesson.yangjiu.bing_yin_riding_tombs' => 'stem_branch_riding_tombs',
+        'lesson.yangjiu.ren_shen_sitting_tombs' => 'stem_branch_sitting_on_tombs',
+    ];
     foreach (array_slice($lesson['cases'], 0, 5) as $case) {
         expect($case['status'])->toBe('executable');
         $component = Livewire::test(CreatePan::class)
             ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
             ->call('calculate')->assertHasNoErrors();
-        expect(collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.yangjiu'))->not->toBeNull();
+        $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.yangjiu');
+        expect($match)->not->toBeNull()
+            ->and($match['evidence']['matched_routes'])->toContain($expectedRoutes[$case['case_id']]);
     }
 });

@@ -2,13 +2,13 @@
 
 /** 文件作用：只读搜索指定年份范围内《灵觉经》庚午外战、己酉内战完整生产盘；只在目标干支日展开十二时辰。 */
 
-require dirname(__DIR__, 3).'/vendor/autoload.php';
-$app = require dirname(__DIR__, 3).'/bootstrap/app.php';
-$app->make(Kernel::class)->bootstrap();
-
 use App\Domain\Pan\Facts\PanFacts;
 use App\Services\PanCalculator;
 use Illuminate\Contracts\Console\Kernel;
+
+require dirname(__DIR__, 3).'/vendor/autoload.php';
+$app = require dirname(__DIR__, 3).'/bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
 
 $startYear = (int) ($argv[1] ?? 1900);
 $endYear = (int) ($argv[2] ?? 2100);
