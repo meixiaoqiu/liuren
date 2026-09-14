@@ -97,7 +97,8 @@ test('four simultaneous sike upper routes are all recorded', function () {
 });
 
 test('gang ground position uses tianpan lookup', function () {
-    // 把 tianpan 旋转让辰(4) 实际临地盘 2（寅）。
+    // tianpan[地盘] = 天盘支；array_search(4, tianpan, true) 即天罡辰所临地盘。
+    // 在 [4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3] 中，辰(4) 位于 index 0（地盘子）。
     $tianpan = [4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3];
     $match = (new SiqiRule)->match(siqi_facts(['tianpan' => $tianpan]));
     expect($match)->not->toBeNull();
@@ -185,10 +186,43 @@ test('yuejiang not equal to gang does not fire huiguang', function () {
         ->pluck('code'))->not->toContain('siqi_huiguang');
 });
 
-test('judgments do not affect matcher: every judgment is optional', function () {
-    // 不带任何 judgment 触发条件：纯命中。
-    $match = (new SiqiRule)->match(siqi_facts());
-    expect($match)->not->toBeNull()->and($match->code)->toBe('lesson.siqi');
+test('additive ominous/auspicious conditions do not change matcher', function () {
+    // 死奇课 matcher 仅依赖"初传=辰"与"辰为四课上神"；
+    // 白虎、临日辰岁、回光等附加凶吉条件全部不参与 matcher。
+    // 任何在 siqi_facts() 默认基础上附加触发 judgment 的字段，都不应改变"命中 + code"。
+
+    $baseline = (new SiqiRule)->match(siqi_facts());
+    expect($baseline)->not->toBeNull();
+    expect($baseline->code)->toBe('lesson.siqi');
+
+    // 关闭白虎的版本不应改变 matcher。
+    $tianjiangNoTiger = array_fill(0, 12, 5); // 全部青龙，无白虎
+    $matchNoTiger = (new SiqiRule)->match(siqi_facts(['tianjiang' => $tianjiangNoTiger]));
+    expect($matchNoTiger?->code)->toBe('lesson.siqi');
+    $codesNoTiger = array_map(fn ($j) => $j['code'], $matchNoTiger->evidence['judgments'] ?? []);
+    expect($codesNoTiger)->not->toContain('gang_rides_white_tiger');
+
+    // 临日 / 临辰 / 临岁触发与否都不影响 matcher。
+    // rigan=甲(0) 寄寅(2)；让辰临地盘寅 → 临日。
+    $tianpanAtDay = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1];
+    $matchAtDay = (new SiqiRule)->match(siqi_facts(['tianpan' => $tianpanAtDay, 'rigan' => 0]));
+    expect($matchAtDay?->code)->toBe('lesson.siqi');
+    $codesAtDay = array_map(fn ($j) => $j['code'], $matchAtDay->evidence['judgments'] ?? []);
+    expect($codesAtDay)->toContain('gang_at_day');
+
+    // 月将=辰 触发回光，但 matcher 仍只检查"初传=辰 + 辰为四课上神"。
+    $matchHuiguang = (new SiqiRule)->match(siqi_facts(['yuejiang' => 4]));
+    expect($matchHuiguang?->code)->toBe('lesson.siqi');
+    $codesHuiguang = array_map(fn ($j) => $j['code'], $matchHuiguang->evidence['judgments'] ?? []);
+    expect($codesHuiguang)->toContain('siqi_huiguang');
+
+    // 移除白虎 + 月将不变回光 → 仅 phase judgment 必然存在。
+    $matchOnly = (new SiqiRule)->match(siqi_facts(['tianjiang' => $tianjiangNoTiger, 'yuejiang' => 0]));
+    expect($matchOnly?->code)->toBe('lesson.siqi');
+    // 任何合法死奇盘必含一个 phase judgment（孟仲季覆盖十二支）
+    $phaseCodes = ['gang_phase_孟', 'gang_phase_仲', 'gang_phase_季'];
+    $codesOnly = array_map(fn ($j) => $j['code'], $matchOnly->evidence['judgments'] ?? []);
+    expect(array_intersect($phaseCodes, $codesOnly))->not->toBeEmpty();
 });
 
 test('evidence structure includes all required keys', function () {
@@ -198,10 +232,13 @@ test('evidence structure includes all required keys', function () {
     ]);
 });
 
-test('production calculator reproduces daquan jia_zi_chou_si_si_general case', function () {
+test('production calculator can locate classic calendar prerequisites', function () {
     $calculator = new PanCalculator;
     $rule = new SiqiRule;
-    // 寻找 2000-2026 期间真正满足"甲子日、丑时、月将=辰"的可执行现代日期。
+    // 寻找 2000-2026 期间真正同时满足"甲子日 + 丑时 + 月将=辰"的可执行现代日期；
+    // 仅证明古例干支 + 节气组合可被生产算法定位到。
+    // 由于生产盘不一定命中死奇课（《大全》古例为"辰加子为用、三传辰申子"，本测试不强求逐位一致），
+    // 因此 Catalog 已将该 case 标为 reference_only，本测试不复现"古例三传"。
     $found = null;
     for ($year = 2000; $year <= 2026 && $found === null; $year++) {
         for ($month = 9; $month <= 10 && $found === null; $month++) {
@@ -220,7 +257,9 @@ test('production calculator reproduces daquan jia_zi_chou_si_si_general case', f
         }
     }
     expect($found)->not->toBeNull();
-    expect($found['match'] !== null || true)->toBeTrue(); // 至少证明古例干支 + 节气组合可被生产算法定位
+    // 只验证：日历前提（甲子日、丑时、月将=辰）真实可达。
+    // 不再断言"古例三传辰申子"已复现；那需要专门校勘并独立加 executable 测试。
+    expect($found)->toHaveKeys(['datetime', 'match']);
 });
 
 test('production calculator reproduces lesson 2 route via authentic pan', function () {

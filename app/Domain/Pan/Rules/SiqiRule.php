@@ -149,7 +149,6 @@ final class SiqiRule implements PanRule
     }
 
     /**
-     * @param  list<array{lesson: int, polarity: string}>  $routes
      * @return list<array{code: string, effect: string, label: string, evidence: string}>
      */
     private function judgments(PanFacts $facts, int $gangGround): array
