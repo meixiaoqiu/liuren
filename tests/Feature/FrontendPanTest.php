@@ -1377,7 +1377,7 @@ test('frontend shows guimu three-entry trace and ghost-tomb combined judgment', 
         ->assertSee('鬼墓课')->assertSee('困卦')->assertSee('䷮')->assertSee('鬼墓判断')
         ->assertSee('日鬼发用')->assertSee('日干墓具备')->assertSee('日支墓具备')
         ->assertSee('鬼墓兼见（鬼墓俱见）')
-        ->assertSee('命中路线：day_ghost、stem_tomb')
+        ->assertSee('命中路线：日鬼、日干墓')
         ->assertSee('→ 鬼墓课成立');
 });
 
@@ -1388,7 +1388,7 @@ test('frontend shows guimu ghost and branch tomb combined trace', function () {
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('鬼墓课')->assertSee('日鬼发用')->assertSee('日干墓具备')
         ->assertSee('日支墓具备')
-        ->assertSee('命中路线：day_ghost、branch_tomb')
+        ->assertSee('命中路线：日鬼、日支墓')
         ->assertSee('→ 鬼墓课成立');
 });
 
