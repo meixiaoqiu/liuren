@@ -1183,3 +1183,30 @@ test('jiuchou is lesson 54 and its non strict executable case really matches', f
         'hour_branch' => 0, 'initial' => 11, 'chou_fayong' => false, 'strict_daquan_form' => false,
     ]);
 });
+
+test('guimu is lesson 55 and its three executable cases really match', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.guimu');
+    expect(array_search('lesson.guimu', $codes, true))->toBe(array_search('lesson.jiuchou', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['鬼墓课', '困', '䷮'])
+        ->and($lesson['summary'])->toContain('日鬼')->toContain('日干墓')->toContain('日支墓')
+        ->and($lesson['cases'])->toHaveCount(3);
+
+    $expectedRoutes = [
+        'lesson.guimu.ghost_tomb_combined' => ['day_ghost', 'stem_tomb'],
+        'lesson.guimu.ghost_branch_tomb' => ['day_ghost', 'branch_tomb'],
+        'lesson.guimu.all_three' => ['day_ghost', 'stem_tomb', 'branch_tomb'],
+    ];
+    foreach ($lesson['cases'] as $case) {
+        expect($case['status'])->toBe('executable');
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+            ->call('calculate')->assertHasNoErrors();
+        $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.guimu');
+        expect($match)->not->toBeNull()
+            ->and($match['evidence']['matched_routes'])->toBe($expectedRoutes[$case['case_id']]);
+    }
+
+    $this->get(route('kejing'))->assertOk()->assertSee('鬼墓课')->assertSee('困卦')->assertSee('䷮');
+});

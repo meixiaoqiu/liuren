@@ -90,6 +90,7 @@ final class RuleRegistry
             new ZaieRule,
             new YangjiuRule,
             new JiuchouRule,
+            new GuimuRule,
             new YixunZhoubianRule,
         ];
     }
