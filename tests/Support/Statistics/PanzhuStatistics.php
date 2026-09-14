@@ -1,6 +1,6 @@
 <?php
 
-/** 文件作用：按真实年月日时扫描盘珠课、天心格、回还格命中规模；本课依赖四建，不使用脱离真实时间的720静态盘作主体统计。 */
+/** 文件作用：按真实年月日时扫描盘珠课、天心格、回还格命中规模，并输出三者包含关系与独立命中规模。 */
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
 
@@ -16,6 +16,7 @@ use Illuminate\Contracts\Console\Kernel;
 
 $year = (int) ($argv[1] ?? 2031);
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
+$timezone = new DateTimeZone('Asia/Shanghai');
 $calculator = new PanCalculator;
 $panzhu = new PanzhuRule;
 $tianxin = new TianxinRule;
@@ -27,15 +28,25 @@ $counts = array_fill_keys([
     'tianxin',
     'tianxin_four_lessons',
     'tianxin_transmissions',
+    'tianxin_four_lessons_only',
+    'tianxin_transmissions_only',
+    'tianxin_both_routes',
     'huihuan',
     'huihuan_without_panzhu',
     'tianxin_without_panzhu',
+    'panzhu_without_tianxin',
+    'panzhu_without_huihuan',
 ], 0);
-$firstMatches = [];
+$firstPanzhuMatches = [];
+$firstTianxinOnlyMatches = [];
+$firstHuihuanOnlyMatches = [];
 
-for ($date = new DateTimeImmutable("{$year}-01-01"), $end = $date->modify('+1 year'); $date < $end; $date = $date->modify('+1 day')) {
+$start = new DateTimeImmutable("{$year}-01-01 00:00:00", $timezone);
+$end = $start->modify('+1 year');
+
+for ($date = $start; $date < $end; $date = $date->modify('+1 day')) {
     foreach ($hours as $hour) {
-        $datetime = sprintf('%s %02d:00:00', $date->format('Y-m-d'), $hour);
+        $datetime = $date->setTime($hour, 0)->format('Y-m-d H:i:s');
         $facts = PanFacts::from($calculator->calculate($datetime));
         $counts['total']++;
 
@@ -45,8 +56,14 @@ for ($date = new DateTimeImmutable("{$year}-01-01"), $end = $date->modify('+1 ye
 
         if ($panzhuMatch !== null) {
             $counts['panzhu']++;
-            if (count($firstMatches) < 10) {
-                $firstMatches[] = [
+            if ($tianxinMatch === null) {
+                $counts['panzhu_without_tianxin']++;
+            }
+            if ($huihuanMatch === null) {
+                $counts['panzhu_without_huihuan']++;
+            }
+            if (count($firstPanzhuMatches) < 10) {
+                $firstPanzhuMatches[] = [
                     'datetime' => $datetime,
                     'four_establishments' => $panzhuMatch->evidence['four_establishments'],
                     'lesson_branches' => $panzhuMatch->evidence['lesson_branches'],
@@ -57,14 +74,34 @@ for ($date = new DateTimeImmutable("{$year}-01-01"), $end = $date->modify('+1 ye
 
         if ($tianxinMatch !== null) {
             $counts['tianxin']++;
-            if (($tianxinMatch->evidence['four_establishments_in_lessons'] ?? false) === true) {
+            $inLessons = ($tianxinMatch->evidence['four_establishments_in_lessons'] ?? false) === true;
+            $inTransmissions = ($tianxinMatch->evidence['four_establishments_in_transmissions'] ?? false) === true;
+
+            if ($inLessons) {
                 $counts['tianxin_four_lessons']++;
             }
-            if (($tianxinMatch->evidence['four_establishments_in_transmissions'] ?? false) === true) {
+            if ($inTransmissions) {
                 $counts['tianxin_transmissions']++;
             }
+            if ($inLessons && $inTransmissions) {
+                $counts['tianxin_both_routes']++;
+            } elseif ($inLessons) {
+                $counts['tianxin_four_lessons_only']++;
+            } elseif ($inTransmissions) {
+                $counts['tianxin_transmissions_only']++;
+            }
+
             if ($panzhuMatch === null) {
                 $counts['tianxin_without_panzhu']++;
+                if (count($firstTianxinOnlyMatches) < 10) {
+                    $firstTianxinOnlyMatches[] = [
+                        'datetime' => $datetime,
+                        'routes' => $tianxinMatch->evidence['matched_routes'] ?? [],
+                        'four_establishments' => $tianxinMatch->evidence['four_establishments'],
+                        'lesson_branches' => $tianxinMatch->evidence['lesson_branches'],
+                        'transmissions' => $tianxinMatch->evidence['transmissions'],
+                    ];
+                }
             }
         }
 
@@ -72,15 +109,45 @@ for ($date = new DateTimeImmutable("{$year}-01-01"), $end = $date->modify('+1 ye
             $counts['huihuan']++;
             if ($panzhuMatch === null) {
                 $counts['huihuan_without_panzhu']++;
+                if (count($firstHuihuanOnlyMatches) < 10) {
+                    $firstHuihuanOnlyMatches[] = [
+                        'datetime' => $datetime,
+                        'lesson_branches' => $huihuanMatch->evidence['lesson_branches'],
+                        'transmissions' => $huihuanMatch->evidence['transmissions'],
+                    ];
+                }
             }
         }
     }
 }
 
-echo json_encode([
+$ratio = static fn (int $count): float => $counts['total'] === 0 ? 0.0 : $count / $counts['total'];
+
+$result = [
     'year' => $year,
-    'timezone' => 'Asia/Shanghai / 项目生产排盘口径',
-    'hours' => $hours,
+    'timezone' => 'Asia/Shanghai',
+    'representative_hours' => $hours,
+    'denominator' => $counts['total'],
     'counts' => $counts,
-    'first_panzhu_matches' => $firstMatches,
-], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT).PHP_EOL;
+    'ratios' => [
+        'panzhu' => $ratio($counts['panzhu']),
+        'tianxin' => $ratio($counts['tianxin']),
+        'huihuan' => $ratio($counts['huihuan']),
+        'tianxin_without_panzhu' => $ratio($counts['tianxin_without_panzhu']),
+        'huihuan_without_panzhu' => $ratio($counts['huihuan_without_panzhu']),
+    ],
+    'relations' => [
+        'panzhu_implies_tianxin' => $counts['panzhu_without_tianxin'] === 0,
+        'panzhu_implies_huihuan' => $counts['panzhu_without_huihuan'] === 0,
+    ],
+    'first_panzhu_matches' => $firstPanzhuMatches,
+    'first_tianxin_without_panzhu' => $firstTianxinOnlyMatches,
+    'first_huihuan_without_panzhu' => $firstHuihuanOnlyMatches,
+];
+
+echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT).PHP_EOL;
+
+if (! $result['relations']['panzhu_implies_tianxin'] || ! $result['relations']['panzhu_implies_huihuan']) {
+    fwrite(STDERR, "Invariant failed: every Panzhu match must also match Tianxin and Huihuan.\n");
+    exit(1);
+}

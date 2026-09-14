@@ -457,7 +457,7 @@
                                             @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
                                         @endif
                                         @if ($interpretation['code'] === 'lesson.panzhu')
-                                            @include('livewire.pan.partials.lesson-trace', ['title' => '盘珠判断', 'trace' => $interpretation['evidence']])
+                                            @include('livewire.pan.partials.panzhu-trace', ['trace' => $interpretation['evidence']])
                                         @endif
                                         @if ($interpretation['group'] === '盘珠课体')
                                             @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])

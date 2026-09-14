@@ -29,6 +29,8 @@ test('panzhu catalog production case reproduces the classic combined structure',
         ->assertSee('大壮卦')
         ->assertSee('䷡')
         ->assertSee('盘珠判断')
+        ->assertSee('尚未覆盖')
+        ->assertSee('日用旺相与神将吉凶尚未作为盘珠课课内 judgment 程序化')
         ->assertSee('天心格')
         ->assertSee('回还格');
 
@@ -49,13 +51,14 @@ test('panzhu catalog production case reproduces the classic combined structure',
         ->and($huihuan)->not->toBeNull();
 });
 
-test('kejing page exposes panzhu source evidence without exposing internal indices', function () {
-    $this->get(route('kejing'))
+test('kejing detail page exposes panzhu source evidence without exposing internal indices', function () {
+    $this->get(route('kejing.show', ['lesson' => 'panzhu']))
         ->assertOk()
         ->assertSee('盘珠课')
         ->assertSee('庚戌年·丑月·甲子日·丑时·子将')
         ->assertSee('天心格')
         ->assertSee('回还格')
+        ->assertSee('戊子日·子时·未将')
         ->assertDontSee('sike[0]')
         ->assertDontSee('sanchuan0');
 });
