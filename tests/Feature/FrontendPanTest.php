@@ -1368,3 +1368,41 @@ test('frontend separates jiuchou matcher from daquan strict form', function () {
         ->assertSee('《大全》正文严格形态：否')
         ->assertDontSee('完全符合《六壬大全》正文严格形态');
 });
+
+test('frontend shows guimu three-entry trace and ghost-tomb combined judgment', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-08T15:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('鬼墓课')->assertSee('困卦')->assertSee('䷮')->assertSee('鬼墓判断')
+        ->assertSee('日鬼发用')->assertSee('日干墓发用')->assertSee('日支墓发用')
+        ->assertSee('鬼墓兼见（鬼墓俱见）')
+        ->assertSee('命中路线：day_ghost、stem_tomb')
+        ->assertSee('→ 鬼墓课成立');
+});
+
+test('frontend shows guimu only-stem-tomb or only-branch-tomb traces', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-01T09:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('鬼墓课')->assertSee('日干墓发用')
+        ->assertSee('命中路线：stem_tomb')
+        ->assertSee('→ 鬼墓课成立');
+
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-01T01:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('鬼墓课')->assertSee('日支墓发用')
+        ->assertSee('命中路线：branch_tomb')
+        ->assertSee('→ 鬼墓课成立');
+});
+
+test('frontend keeps guimu matcher independent of non-initial ghosts and tombs', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2024-08-11T14:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertDontSee('鬼墓课');
+});
