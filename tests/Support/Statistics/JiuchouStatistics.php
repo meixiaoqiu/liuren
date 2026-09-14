@@ -1,6 +1,6 @@
 <?php
 
-/** 文件作用：只读统计九丑正式 matcher、正文严格型及两个严格元素，并搜索真实生产案例。 */
+/** 文件作用：只读统计九丑正式 matcher、丑发用及 2026 真实时间中的正文严格元素。 */
 
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\Rules\JiuchouRule;
@@ -42,15 +42,13 @@ $scan = static function (DateTimeImmutable $start, DateTimeImmutable $end) use (
 };
 
 // 720 核心口径严格复用冻结 fixture 的 12 种天地盘关系 × 60 日干支生产输入。
-$core = ['total' => 0, 'matched' => 0, 'four_zhong_time' => 0, 'chou_fayong' => 0, 'strict' => 0];
+$core = ['total' => 0, 'matched' => 0, 'chou_fayong' => 0];
 foreach (PanRegression::loadFixture()['cases'] as $case) {
     $core['total']++;
     $match = $rule->match(PanFacts::from($calculator->calculate($case['input'])));
     if ($match !== null) {
         $core['matched']++;
-        $core['four_zhong_time'] += (int) $match->evidence['four_zhong_time'];
         $core['chou_fayong'] += (int) $match->evidence['chou_fayong'];
-        $core['strict'] += (int) $match->evidence['strict_daquan_form'];
     }
 }
 

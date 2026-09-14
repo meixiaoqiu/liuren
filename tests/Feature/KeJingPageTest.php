@@ -312,6 +312,7 @@ test('kejing page renders the not-covered badge for the declared reference-only 
         'lesson.siqi.classic_jia_zi_chou_time_si_general',
         'lesson.yangjiu.geng_wu_external_reference',
         'lesson.yangjiu.ji_you_internal_reference',
+        'lesson.jiuchou.daquan_yi_mao_reference',
     ]);
     $response->assertSee('原文参考盘·尚未覆盖');
 });
@@ -1154,7 +1155,7 @@ test('jiuchou is lesson 54 and its non strict executable case really matches', f
     expect(array_search('lesson.jiuchou', $codes, true))->toBe(array_search('lesson.yangjiu', $codes, true) + 1)
         ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['九丑课', '小过', '䷽'])
         ->and($lesson['summary'])->toContain('九丑十日')->toContain('丑加临日支')
-        ->and($lesson['cases'])->toHaveCount(1);
+        ->and($lesson['cases'])->toHaveCount(2);
 
     $case = $lesson['cases'][0];
     expect($case)->toMatchArray(['case_id' => 'lesson.jiuchou.ji_mao_non_strict_2026', 'status' => 'executable']);
@@ -1165,5 +1166,21 @@ test('jiuchou is lesson 54 and its non strict executable case really matches', f
     expect($match)->not->toBeNull()->and($match['evidence'])->toMatchArray([
         'day_ganzhi' => '己卯', 'chou_ground' => 3, 'day_branch' => 3,
         'four_zhong_time' => true, 'chou_fayong' => false, 'strict_daquan_form' => false,
+    ]);
+
+    $classic = $lesson['cases'][1];
+    expect($classic)->toMatchArray([
+        'case_id' => 'lesson.jiuchou.daquan_yi_mao_reference',
+        'datetime' => '2026-04-11T00:00',
+        'status' => 'reference_only',
+    ])->and($classic['reason'])->toContain('当前程序初传亥')->toContain('涉害取传专项研究');
+
+    $referenceComponent = Livewire::test(CreatePan::class)
+        ->set('datetime', $classic['datetime'])->set('birthDatetime', $classic['birth'])->set('gender', $classic['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $referenceMatch = collect($referenceComponent->get('ruleMatches'))->firstWhere('code', 'lesson.jiuchou');
+    expect($referenceMatch)->not->toBeNull()->and($referenceMatch['evidence'])->toMatchArray([
+        'day_ganzhi' => '乙卯', 'chou_ground' => 3, 'day_branch' => 3,
+        'hour_branch' => 0, 'initial' => 11, 'chou_fayong' => false, 'strict_daquan_form' => false,
     ]);
 });
