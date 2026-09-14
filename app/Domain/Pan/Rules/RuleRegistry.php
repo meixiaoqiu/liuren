@@ -91,6 +91,9 @@ final class RuleRegistry
             new YangjiuRule,
             new JiuchouRule,
             new GuimuRule,
+            new LideRule,
+            new WeifuRule,
+            new CuotuoRule,
             new YixunZhoubianRule,
         ];
     }

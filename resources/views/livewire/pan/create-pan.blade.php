@@ -450,6 +450,12 @@
                                         @if ($interpretation['code'] === 'lesson.guimu')
                                             @include('livewire.pan.partials.guimu-trace', ['trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.lide')
+                                            @include('livewire.pan.partials.lide-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
+                                        @if ($interpretation['group'] === '励德课体')
+                                            @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
+                                        @endif
                                         @if ($interpretation['code'] === 'structure.yixun_zhoubian')
                                             @include('livewire.pan.partials.yixun-zhoubian-trace', ['trace' => $interpretation['evidence']])
                                         @endif

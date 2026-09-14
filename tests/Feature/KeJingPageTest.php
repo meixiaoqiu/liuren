@@ -1210,3 +1210,50 @@ test('guimu is lesson 55 and its three executable cases really match', function 
 
     $this->get(route('kejing'))->assertOk()->assertSee('鬼墓课')->assertSee('困卦')->assertSee('䷮');
 });
+
+test('lide is lesson 56 and all three executable cases reproduce the frozen lesson and grid paths', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.lide');
+
+    expect(array_search('lesson.lide', $codes, true))->toBe(array_search('lesson.guimu', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['励德课', '随', '䷐'])
+        ->and($lesson['summary'])->toContain('贵人临地盘卯或酉')->toContain('只用于分型')
+        ->and($lesson['cases'])->toHaveCount(3);
+
+    $expected = [
+        'lesson.lide.wu_zi_shen_time_wu_general' => ['ground' => 3, 'pattern' => 'mixed', 'grid' => null],
+        'lesson.lide.weifu_xin_chou' => ['ground' => 3, 'pattern' => 'weifu', 'grid' => 'structure.weifu'],
+        'lesson.lide.cuotuo_geng_shen' => ['ground' => 9, 'pattern' => 'cuotuo', 'grid' => 'structure.cuotuo'],
+    ];
+
+    foreach ($lesson['cases'] as $case) {
+        expect($case['status'])->toBe('executable');
+
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])
+            ->set('birthDatetime', $case['birth'])
+            ->set('gender', $case['gender'])
+            ->call('calculate')
+            ->assertHasNoErrors();
+
+        $matches = collect($component->get('ruleMatches'));
+        $match = $matches->firstWhere('code', 'lesson.lide');
+        $want = $expected[$case['case_id']];
+
+        expect($match)->not->toBeNull()
+            ->and($match['evidence']['nobleman_ground'])->toBe($want['ground'])
+            ->and($match['evidence']['pattern'])->toBe($want['pattern']);
+
+        if ($want['grid'] === null) {
+            expect($matches->firstWhere('code', 'structure.weifu'))->toBeNull()
+                ->and($matches->firstWhere('code', 'structure.cuotuo'))->toBeNull();
+        } else {
+            expect($matches->firstWhere('code', $want['grid']))->not->toBeNull();
+        }
+    }
+
+    $this->get(route('kejing'))->assertOk()
+        ->assertSee('励德课')->assertSee('随卦')->assertSee('䷐')
+        ->assertSee('微服格')->assertSee('蹉跎格');
+});
