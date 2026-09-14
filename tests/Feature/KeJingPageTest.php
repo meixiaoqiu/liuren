@@ -1185,20 +1185,18 @@ test('jiuchou is lesson 54 and its non strict executable case really matches', f
     ]);
 });
 
-test('guimu is lesson 55 and its four executable cases really match', function () {
+test('guimu is lesson 55 and its three executable cases really match', function () {
     $lessons = collect(KeJingCatalog::lessons());
     $codes = $lessons->pluck('code')->all();
     $lesson = $lessons->firstWhere('code', 'lesson.guimu');
     expect(array_search('lesson.guimu', $codes, true))->toBe(array_search('lesson.jiuchou', $codes, true) + 1)
         ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['鬼墓课', '困', '䷮'])
         ->and($lesson['summary'])->toContain('日鬼')->toContain('日干墓')->toContain('日支墓')
-        ->and($lesson['cases'])->toHaveCount(5);
+        ->and($lesson['cases'])->toHaveCount(3);
 
     $expectedRoutes = [
-        'lesson.guimu.day_ghost_only' => ['day_ghost'],
-        'lesson.guimu.stem_tomb_only' => ['stem_tomb'],
-        'lesson.guimu.branch_tomb_only' => ['branch_tomb'],
         'lesson.guimu.ghost_tomb_combined' => ['day_ghost', 'stem_tomb'],
+        'lesson.guimu.ghost_branch_tomb' => ['day_ghost', 'branch_tomb'],
         'lesson.guimu.all_three' => ['day_ghost', 'stem_tomb', 'branch_tomb'],
     ];
     foreach ($lesson['cases'] as $case) {

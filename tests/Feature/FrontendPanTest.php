@@ -1375,28 +1375,41 @@ test('frontend shows guimu three-entry trace and ghost-tomb combined judgment', 
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('鬼墓课')->assertSee('困卦')->assertSee('䷮')->assertSee('鬼墓判断')
-        ->assertSee('日鬼发用')->assertSee('日干墓发用')->assertSee('日支墓发用')
+        ->assertSee('日鬼发用')->assertSee('日干墓具备')->assertSee('日支墓具备')
         ->assertSee('鬼墓兼见（鬼墓俱见）')
         ->assertSee('命中路线：day_ghost、stem_tomb')
         ->assertSee('→ 鬼墓课成立');
 });
 
-test('frontend shows guimu only-stem-tomb or only-branch-tomb traces', function () {
+test('frontend shows guimu ghost and branch tomb combined trace', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-08T03:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('鬼墓课')->assertSee('日鬼发用')->assertSee('日干墓具备')
+        ->assertSee('日支墓具备')
+        ->assertSee('命中路线：day_ghost、branch_tomb')
+        ->assertSee('→ 鬼墓课成立');
+});
+
+test('frontend rejects ghost-only or tomb-only pans as not guimu', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-01T05:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertDontSee('鬼墓课');
+
     Livewire::test(CreatePan::class)
         ->set('datetime', '2026-01-01T09:00')
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
-        ->assertSee('鬼墓课')->assertSee('日干墓发用')
-        ->assertSee('命中路线：stem_tomb')
-        ->assertSee('→ 鬼墓课成立');
+        ->assertDontSee('鬼墓课');
 
     Livewire::test(CreatePan::class)
         ->set('datetime', '2026-01-01T01:00')
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
-        ->assertSee('鬼墓课')->assertSee('日支墓发用')
-        ->assertSee('命中路线：branch_tomb')
-        ->assertSee('→ 鬼墓课成立');
+        ->assertDontSee('鬼墓课');
 });
 
 test('frontend keeps guimu matcher independent of non-initial ghosts and tombs', function () {
