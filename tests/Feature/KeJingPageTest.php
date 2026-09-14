@@ -1146,3 +1146,24 @@ test('yangjiu is lesson 53 and five classic structures are executable', function
             ->and($match['evidence']['matched_routes'])->toContain($expectedRoutes[$case['case_id']]);
     }
 });
+
+test('jiuchou is lesson 54 and its non strict executable case really matches', function () {
+    $lessons = collect(KeJingCatalog::lessons());
+    $codes = $lessons->pluck('code')->all();
+    $lesson = $lessons->firstWhere('code', 'lesson.jiuchou');
+    expect(array_search('lesson.jiuchou', $codes, true))->toBe(array_search('lesson.yangjiu', $codes, true) + 1)
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['九丑课', '小过', '䷽'])
+        ->and($lesson['summary'])->toContain('九丑十日')->toContain('丑加临日支')
+        ->and($lesson['cases'])->toHaveCount(1);
+
+    $case = $lesson['cases'][0];
+    expect($case)->toMatchArray(['case_id' => 'lesson.jiuchou.ji_mao_non_strict_2026', 'status' => 'executable']);
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])->set('birthDatetime', $case['birth'])->set('gender', $case['gender'])
+        ->call('calculate')->assertHasNoErrors();
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.jiuchou');
+    expect($match)->not->toBeNull()->and($match['evidence'])->toMatchArray([
+        'day_ganzhi' => '己卯', 'chou_ground' => 3, 'day_branch' => 3,
+        'four_zhong_time' => true, 'chou_fayong' => false, 'strict_daquan_form' => false,
+    ]);
+});

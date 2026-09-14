@@ -89,6 +89,7 @@ final class RuleRegistry
             new SiqiRule,
             new ZaieRule,
             new YangjiuRule,
+            new JiuchouRule,
             new YixunZhoubianRule,
         ];
     }

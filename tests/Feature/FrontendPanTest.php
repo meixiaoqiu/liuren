@@ -1356,3 +1356,15 @@ test('frontend shows riding and sitting tomb evidence in classical executable ca
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('壬寄亥，壬墓辰：天盘亥加地盘辰')->assertSee('日支申墓丑：天盘申加地盘丑');
 });
+
+test('frontend separates jiuchou matcher from daquan strict form', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2026-01-05T05:00')
+        ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('九丑课')->assertSee('小过卦')->assertSee('䷽')->assertSee('九丑判断')
+        ->assertSee('九丑日：己卯')->assertSee('丑所临地盘：卯')->assertSee('日支：卯')
+        ->assertSee('→ 丑临日支，主体成课')->assertSee('四仲时：是')->assertSee('丑发用：否')
+        ->assertSee('《大全》正文严格形态：否')
+        ->assertDontSee('完全符合《六壬大全》正文严格形态');
+});
