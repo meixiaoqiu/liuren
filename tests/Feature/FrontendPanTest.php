@@ -1420,17 +1420,19 @@ test('frontend keeps guimu matcher independent of non-initial ghosts and tombs',
         ->assertDontSee('鬼墓课');
 });
 
-test('frontend shows lide wide matcher and keeps the classic mixed example inside the lesson', function () {
+test('frontend shows lide condition and keeps the classic mixed example inside the lesson', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2022-08-03T16:00')
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('励德课')->assertSee('随卦')->assertSee('䷐')->assertSee('励德判断')
-        ->assertSee('课级 matcher：贵人临卯酉')->assertSee('天乙贵人临地盘卯')
+        ->assertSee('成课条件')->assertSee('天乙贵人临卯酉')
+        ->assertSee('天乙贵人临地盘卯，符合卯、酉之一')
         ->assertSee('日阳')->assertSee('上神卯，乘朱雀，位置：贵前')
         ->assertSee('日阴')->assertSee('上神丑，乘贵人，位置：贵人居中')
-        ->assertSee('完整分型：未落入四种完整分型')
-        ->assertSee('仍然是励德课')
+        ->assertSee('课体分型：未落入四种完整分型')
+        ->assertSee('但励德课仍然成立')
+        ->assertDontSee('课级 matcher')
         ->assertDontSee('微服格依据')->assertDontSee('蹉跎格依据');
 });
 
@@ -1439,7 +1441,7 @@ test('frontend shows weifu as an independent lide grid', function () {
         ->set('datetime', '2019-12-30T04:00')
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
-        ->assertSee('励德课')->assertSee('完整分型：微服格')
+        ->assertSee('励德课')->assertSee('课体分型：微服格')
         ->assertSee('微服格')->assertSee('励德课体')->assertSee('微服格依据')
         ->assertSee('酉乘白虎（贵后）')->assertSee('申乘天空（贵后）')
         ->assertSee('子乘太阴（贵后）')->assertSee('亥乘玄武（贵后）')
@@ -1451,7 +1453,7 @@ test('frontend shows cuotuo as an independent lide grid', function () {
         ->set('datetime', '2019-01-23T04:00')
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
-        ->assertSee('励德课')->assertSee('完整分型：蹉跎格')
+        ->assertSee('励德课')->assertSee('课体分型：蹉跎格')
         ->assertSee('蹉跎格')->assertSee('励德课体')->assertSee('蹉跎格依据')
         ->assertSee('午乘螣蛇（贵前）')->assertSee('辰乘六合（贵前）')
         ->assertDontSee('微服格依据');

@@ -9,7 +9,7 @@ use App\Services\PanCalculator;
  * 文件作用：判断第56课励德课。
  *
  * 冻结口径：天乙贵人临地盘卯或酉即成课。四课阴阳神在贵前、贵后或居中的关系只用于分型与吉凶，
- * 不得反向收紧课级 matcher；微服、蹉跎分别由独立格规则判断。
+ * 不得反向收紧成课条件；微服、蹉跎分别由独立格规则判断。
  */
 final class LideRule implements PanRule
 {
@@ -79,7 +79,7 @@ final class LideRule implements PanRule
                 'pattern' => $pattern,
                 'pattern_label' => LideSupport::patternLabel($pattern),
                 'judgments' => $judgments,
-                'matcher_detail' => "天乙贵人临地盘{$groundName}，属于卯酉二门之一；课级 matcher 已成立。",
+                'condition_detail' => "天乙贵人临地盘{$groundName}，符合卯、酉之一，励德课成课条件成立。",
             ],
         );
     }
