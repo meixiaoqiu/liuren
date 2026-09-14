@@ -100,6 +100,17 @@ test('missing or malformed plate data cannot match', function (array $changes) {
     expect((new JiuchouRule)->match(jiuchou_facts($changes)))->toBeNull();
 })->with([
     'missing plate' => [['tianpan' => null]], 'short plate' => [['tianpan' => [1, 2]]],
-    'string branch' => [['rizhi' => '3']], 'missing hour' => [['shizhi' => null]],
-    'bad initial' => [['sanchuan0' => 12]],
+    'string branch' => [['rizhi' => '3']],
+]);
+
+test('missing or invalid judgment inputs do not suppress the subject matcher', function (array $changes, string $message) {
+    $match = (new JiuchouRule)->match(jiuchou_facts($changes));
+    expect($match)->not->toBeNull()
+        ->and($match?->evidence['strict_daquan_form'])->toBeFalse()
+        ->and(collect($match?->evidence['judgments'])->pluck('evidence')->implode(' '))->toContain($message);
+})->with([
+    'missing hour' => [['shizhi' => null], '占时资料缺失或异常'],
+    'invalid hour' => [['shizhi' => 12], '占时资料缺失或异常'],
+    'missing initial' => [['sanchuan0' => null], '初传资料缺失或异常'],
+    'invalid initial' => [['sanchuan0' => 12], '初传资料缺失或异常'],
 ]);

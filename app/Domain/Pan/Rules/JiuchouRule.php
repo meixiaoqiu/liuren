@@ -46,10 +46,8 @@ final class JiuchouRule implements PanRule
         $initial = $facts->get('sanchuan0');
         $tianpan = $facts->get('tianpan');
 
-        if (! is_int($stem) || ! is_int($branch) || ! is_int($hour) || ! is_int($initial)
-            || ! is_array($tianpan) || count($tianpan) !== 12
-            || ! in_array($stem, range(0, 9), true) || ! in_array($branch, range(0, 11), true)
-            || ! in_array($hour, range(0, 11), true) || ! in_array($initial, range(0, 11), true)) {
+        if (! is_int($stem) || ! is_int($branch) || ! is_array($tianpan) || count($tianpan) !== 12
+            || ! in_array($stem, range(0, 9), true) || ! in_array($branch, range(0, 11), true)) {
             return null;
         }
 
@@ -60,13 +58,15 @@ final class JiuchouRule implements PanRule
             return null;
         }
 
-        $fourZhongTime = in_array($hour, self::FOUR_ZHONG, true);
-        $chouFayong = $initial === self::CHOU;
+        $validHour = is_int($hour) && in_array($hour, range(0, 11), true);
+        $validInitial = is_int($initial) && in_array($initial, range(0, 11), true);
+        $fourZhongTime = $validHour && in_array($hour, self::FOUR_ZHONG, true);
+        $chouFayong = $validInitial && $initial === self::CHOU;
         $strict = $fourZhongTime && $chouFayong;
         $dayGanzhi = (PanCalculator::$tiangan[$stem] ?? '?').(PanCalculator::$dizhi[$branch] ?? '?');
         $judgments = [
-            ['code' => 'four_zhong_time', 'effect' => 'neutral', 'label' => '四仲时占', 'evidence' => '占时'.(PanCalculator::$dizhi[$hour] ?? '?').($fourZhongTime ? '属于' : '不属于').'子、卯、午、酉四仲。', 'matched' => $fourZhongTime],
-            ['code' => 'chou_fayong', 'effect' => 'neutral', 'label' => '丑发用', 'evidence' => '初传为'.(PanCalculator::$dizhi[$initial] ?? '?').($chouFayong ? '，丑发用。' : '，丑未发用。'), 'matched' => $chouFayong],
+            ['code' => 'four_zhong_time', 'effect' => 'neutral', 'label' => '四仲时占', 'evidence' => $validHour ? '占时'.(PanCalculator::$dizhi[$hour] ?? '?').($fourZhongTime ? '属于' : '不属于').'子、卯、午、酉四仲。' : '占时资料缺失或异常，无法判断是否为四仲时。', 'matched' => $fourZhongTime],
+            ['code' => 'chou_fayong', 'effect' => 'neutral', 'label' => '丑发用', 'evidence' => $validInitial ? '初传为'.(PanCalculator::$dizhi[$initial] ?? '?').($chouFayong ? '，丑发用。' : '，丑未发用。') : '初传资料缺失或异常，无法判断丑是否发用。', 'matched' => $chouFayong],
         ];
         if ($strict) {
             $judgments[] = ['code' => 'strict_daquan_form', 'effect' => 'increase', 'label' => '完全符合《六壬大全》正文严格形态', 'evidence' => '主体已成课，且四仲时占、丑发用同时成立。', 'matched' => true];

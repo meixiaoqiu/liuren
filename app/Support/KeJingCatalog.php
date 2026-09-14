@@ -1011,14 +1011,14 @@ final class KeJingCatalog
                         '2026-01-05T05:00',
                     ),
                     self::case(
-                        'lesson.jiuchou.daquan_yi_mao_reference',
-                        '乙卯日·子时·戌将（《大全》正文参考盘）',
+                        'lesson.jiuchou.daquan_yi_mao_subject_reproduction',
+                        '乙卯日·子时·戌将（主体复现，三传冲突）',
                         '《六壬大全》记载此盘丑临日支卯并由丑发用。2026-04-11 00:00 的生产盘可复现乙卯日、子时、戌将和丑临卯，主体九丑能够识别；但当前程序初传亥，古籍三传尚不能由当前生产取传复原，原因待涉害取传专项研究。',
                         '2026-04-11T00:00',
                         self::DEFAULT_BIRTH,
                         self::DEFAULT_GENDER,
                         [],
-                        'reference_only',
+                        'executable',
                     ),
                 ],
                 'source_examples' => [
