@@ -18,7 +18,7 @@
                 </header>
 
                 <nav class="mb-8 flex flex-wrap gap-2" aria-label="页面内导航">
-                    @foreach (['分类' => 'categories', '干支' => 'stems-branches', '五行' => 'elements', '寄宫' => 'lodgings', '地支关系' => 'relations', '旺衰' => 'prosperity', '旬空' => 'voids', '月将' => 'month-generals', '天将' => 'heavenly-generals'] as $label => $anchor)
+                    @foreach (['分类' => 'categories', '干支' => 'stems-branches', '五行' => 'elements', '寄宫' => 'lodgings', '地支关系' => 'relations', '旺衰' => 'prosperity', '旬空' => 'voids', '月将' => 'month-generals', '天将' => 'heavenly-generals', '神煞' => 'shensha'] as $label => $anchor)
                         <a href="#{{ $anchor }}" class="rounded-lg bg-base-100 px-3 py-2 text-sm font-medium shadow-sm transition hover:text-primary">{{ $label }}</a>
                     @endforeach
                 </nav>
@@ -81,6 +81,56 @@
 
                     <section id="heavenly-generals" class="scroll-mt-24">
                         <x-card title="十二天将顺序" shadow class="pan-data-card"><div class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">@foreach ($reference::heavenlyGenerals() as $general)<div class="bg-base-200/45 px-3 py-2 text-center font-semibold text-primary">{{ $general }}</div>@endforeach</div></x-card>
+                    </section>
+
+                    <section id="shensha" class="scroll-mt-24">
+                        <h2 class="mb-3 text-xl font-semibold">神煞</h2>
+                        <p class="mb-4 text-sm leading-6 text-base-content/55">本表记录项目已经冻结并投入程序使用的神煞口径。同名神煞在不同古籍、不同章节可能存在异法，不自动视为同一算法。</p>
+                        <div class="grid items-start gap-4 lg:grid-cols-2">
+                            <x-card title="灾厄课·月神（按月建）" shadow class="pan-data-card">
+                                <p class="mb-3 text-xs leading-5 text-base-content/55">丧车又名丧魂；伏殃又名天鬼煞。三丘与五墓按月建所属季节查表，与日干墓无关。</p>
+                                <div class="overflow-x-auto"><table class="table table-sm"><thead><tr><th>月建</th><th>丧车</th><th>游魂</th><th>伏殃</th><th>三丘</th><th>五墓</th><th>季节</th></tr></thead><tbody>
+                                    @foreach ($reference::zaieMonthly() as $row)
+                                        <tr>
+                                            <th class="text-primary">{{ $row['month_name'] }}</th>
+                                            <td>{{ $row['sangche'] }}</td>
+                                            <td>{{ $row['youhun'] }}</td>
+                                            <td>{{ $row['fuyang'] }}</td>
+                                            <td>{{ $row['sanqiu'] }}</td>
+                                            <td>{{ $row['wumu'] }}</td>
+                                            <td class="text-base-content/60">{{ $row['season'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody></table></div>
+                            </x-card>
+                            <x-card title="灾厄课·岁神（按太岁）" shadow class="pan-data-card">
+                                <p class="mb-3 text-xs leading-5 text-base-content/55">病符 = 旧太岁 = 岁后一辰；丧门 = 岁前二辰；吊客 = 岁后二辰；岁虎 = 岁后四辰。</p>
+                                <div class="overflow-x-auto"><table class="table table-sm"><thead><tr><th>太岁</th><th>病符</th><th>丧门</th><th>吊客</th><th>岁虎</th></tr></thead><tbody>
+                                    @foreach ($reference::zaieYearly() as $row)
+                                        <tr>
+                                            <th class="text-primary">{{ $row['year_name'] }}</th>
+                                            <td>{{ $row['bingfu'] }}</td>
+                                            <td>{{ $row['sangmen'] }}</td>
+                                            <td>{{ $row['diaoke'] }}</td>
+                                            <td>{{ $row['suihu'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody></table></div>
+                            </x-card>
+                            <x-card title="三丘五墓（季节）" shadow class="pan-data-card">
+                                <p class="mb-3 text-xs leading-5 text-base-content/55">五墓为三丘冲位；本表采用《灾厄课》当前冻结的季煞口径，不使用日干墓，也不进入四季土旺十八日。</p>
+                                <div class="overflow-x-auto"><table class="table table-sm"><thead><tr><th>季节</th><th>月建</th><th>三丘</th><th>五墓</th></tr></thead><tbody>
+                                    @foreach ($reference::zaieQiuMu() as $row)
+                                        <tr>
+                                            <th class="text-primary">{{ $row['season'] }}</th>
+                                            <td>{{ $row['month_set'] }}</td>
+                                            <td>{{ $row['sanqiu'] }}</td>
+                                            <td>{{ $row['wumu'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody></table></div>
+                            </x-card>
+                        </div>
                     </section>
                 </div>
             </main>

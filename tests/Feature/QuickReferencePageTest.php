@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Pan\BranchRelations;
+use App\Domain\Pan\Shensha\ZaieShensha;
 use App\Services\PanCalculator;
 use App\Support\QuickReferenceCatalog;
 
@@ -36,7 +37,11 @@ test('quick reference page contains the required foundation tables', function ()
         ->assertSee('旺相休囚死')
         ->assertSee('旬空')
         ->assertSee('十二月将')
-        ->assertSee('十二天将');
+        ->assertSee('十二天将')
+        ->assertSee('神煞')
+        ->assertSee('灾厄课·月神')
+        ->assertSee('灾厄课·岁神')
+        ->assertSee('三丘五墓');
 });
 
 test('catalog display data follows the existing domain definitions', function () {
@@ -95,6 +100,49 @@ test('catalog display data follows the existing domain definitions', function ()
         ->and($catalogSanheSets)->toBe($domainSanheSets)
         ->and(QuickReferenceCatalog::monthGenerals())->toBe($expectedMonthGenerals)
         ->and(QuickReferenceCatalog::heavenlyGenerals())->toBe(PanCalculator::$tianjiang);
+});
+
+test('quick reference shensha data shares the same algorithm as ZaieShensha', function () {
+    expect(QuickReferenceCatalog::zaieMonthly())->toBe(ZaieShensha::monthlyTable())
+        ->and(QuickReferenceCatalog::zaieYearly())->toBe(ZaieShensha::yearlyTable())
+        ->and(QuickReferenceCatalog::zaieQiuMu())->toBe(ZaieShensha::qiuMuTable());
+});
+
+test('quick reference locks representative shensha values for yin month and hai year', function () {
+    $branches = PanCalculator::$dizhi;
+
+    // 寅月代表值：丧车=未、游魂=亥、伏殃=酉、三丘=丑、五墓=未
+    $yinRow = collect(QuickReferenceCatalog::zaieMonthly())
+        ->firstWhere('month_name', '寅');
+    expect($yinRow)->not->toBeNull()
+        ->and($yinRow['sangche'])->toBe('未')
+        ->and($yinRow['youhun'])->toBe('亥')
+        ->and($yinRow['fuyang'])->toBe('酉')
+        ->and($yinRow['sanqiu'])->toBe('丑')
+        ->and($yinRow['wumu'])->toBe('未');
+
+    // 亥年代表值：病符=戌、丧门=丑、吊客=酉、岁虎=未
+    $haiRow = collect(QuickReferenceCatalog::zaieYearly())
+        ->firstWhere('year_name', '亥');
+    expect($haiRow)->not->toBeNull()
+        ->and($haiRow['bingfu'])->toBe('戌')
+        ->and($haiRow['sangmen'])->toBe('丑')
+        ->and($haiRow['diaoke'])->toBe('酉')
+        ->and($haiRow['suihu'])->toBe('未');
+
+    // 周期边界：四月（巳）丧车=戌、伏殃=子；五月（午）丧车=未、伏殃=酉
+    $siRow = collect(QuickReferenceCatalog::zaieMonthly())->firstWhere('month_name', '巳');
+    $wuRow = collect(QuickReferenceCatalog::zaieMonthly())->firstWhere('month_name', '午');
+    expect($siRow['sangche'])->toBe('戌')->and($siRow['fuyang'])->toBe('子')
+        ->and($wuRow['sangche'])->toBe('未')->and($wuRow['fuyang'])->toBe('酉');
+
+    // 三丘五墓季节表内容
+    expect(QuickReferenceCatalog::zaieQiuMu())->toBe([
+        ['season' => '春', 'month_set' => '寅卯辰', 'sanqiu' => '丑', 'wumu' => '未'],
+        ['season' => '夏', 'month_set' => '巳午未', 'sanqiu' => '辰', 'wumu' => '戌'],
+        ['season' => '秋', 'month_set' => '申酉戌', 'sanqiu' => '未', 'wumu' => '丑'],
+        ['season' => '冬', 'month_set' => '亥子丑', 'sanqiu' => '戌', 'wumu' => '辰'],
+    ]);
 });
 
 test('quick reference page does not expose internal representations', function () {

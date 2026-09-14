@@ -1297,3 +1297,37 @@ test('frontend shows siqi uncovered and never bundles san-si label', function ()
         ->assertSee('组合公式')
         ->assertDontSee('三死课成立');
 });
+
+test('frontend shows zaie multi-key trace from the classic executable case', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1923-03-03T06:00')
+        ->set('birthDatetime', '1900-01-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('灾厄课')
+        ->assertSee('归妹卦')
+        ->assertSee('䷵')
+        ->assertSee('灾厄判断')
+        ->assertSee('月建')
+        ->assertSee('太岁')
+        ->assertSee('初传')
+        ->assertSee('九煞定位')
+        ->assertSee('丧车')
+        ->assertSee('岁虎')
+        ->assertSee('未发用')
+        ->assertSee('病符临支克支')
+        ->assertDontSee('灾厄课成立');
+});
+
+test('frontend does not expose zaie implementation notation in the recent lesson explanations', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1923-03-03T06:00')
+        ->set('birthDatetime', '1900-01-01T00:00')
+        ->set('gender', 'male')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertDontSee('sanchuan0')
+        ->assertDontSee('matched_keys')
+        ->assertDontSee('shensha =');
+});

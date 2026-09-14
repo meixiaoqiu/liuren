@@ -87,6 +87,7 @@ final class RuleRegistry
             new SanyinRule,
             new LongzhanRule,
             new SiqiRule,
+            new ZaieRule,
             new YixunZhoubianRule,
         ];
     }

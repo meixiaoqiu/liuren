@@ -3,12 +3,14 @@
 namespace App\Support;
 
 use App\Domain\Pan\BranchRelations;
+use App\Domain\Pan\Shensha\ZaieShensha;
 use App\Services\PanCalculator;
 
 /**
  * 文件作用：为前台速查页整理干支、五行和常用关系的只读展示数据。
  *
  * 边界：关系值复用生产领域定义，不在本目录内另建六冲、六破、六合或三合规则来源。
+ *      神煞数据复用 App\Domain\Pan\Shensha\ZaieShensha，不在本目录内另写一份神煞算法。
  */
 final class QuickReferenceCatalog
 {
@@ -156,6 +158,24 @@ final class QuickReferenceCatalog
     public static function heavenlyGenerals(): array
     {
         return PanCalculator::$tianjiang;
+    }
+
+    /** 速查页「神煞」一级区块下"灾厄课·月神"逐月表。 */
+    public static function zaieMonthly(): array
+    {
+        return ZaieShensha::monthlyTable();
+    }
+
+    /** 速查页「神煞」一级区块下"灾厄课·岁神"逐年表。 */
+    public static function zaieYearly(): array
+    {
+        return ZaieShensha::yearlyTable();
+    }
+
+    /** 速查页「神煞」一级区块下"三丘五墓"季节表。 */
+    public static function zaieQiuMu(): array
+    {
+        return ZaieShensha::qiuMuTable();
     }
 
     private static function branchGroups(array $groups): array
