@@ -1,4 +1,5 @@
 @php
+    use App\Domain\Pan\Shensha\ZaieShensha;
     $monthBranch = $trace['month_branch'] ?? null;
     $yearBranch = $trace['year_branch'] ?? null;
     $initial = $trace['initial'] ?? null;
@@ -29,9 +30,10 @@
         <div class="mt-2 overflow-x-auto"><table class="table table-sm">
             <thead><tr><th>神煞</th><th>所在地支</th><th>是否发用</th></tr></thead>
             <tbody>
-                @foreach (['sangche' => '丧车（又名丧魂）', 'youhun' => '游魂', 'fuyang' => '伏殃（又名天鬼煞）', 'bingfu' => '病符', 'sangmen' => '丧门', 'diaoke' => '吊客', 'sanqiu' => '三丘', 'wumu' => '五墓', 'suihu' => '岁虎'] as $key => $label)
+                @foreach (ZaieShensha::nameTable() as $row)
+                    @php $key = $row['key']; @endphp
                     <tr class="{{ in_array($key, $matchedKeys, true) ? 'text-primary font-semibold' : 'text-base-content/55' }}">
-                        <th>{{ $label }}</th>
+                        <th>{{ ZaieShensha::displayName($key) }}</th>
                         <td>{{ is_int($shensha[$key] ?? null) ? ($dizhi[$shensha[$key]] ?? '?') : '?' }}</td>
                         <td>{{ in_array($key, $matchedKeys, true) ? '发用' : '未发用' }}</td>
                     </tr>

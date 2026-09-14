@@ -191,3 +191,81 @@ test('foundations describe only matched shensha not all nine', function () {
         }
     }
 });
+
+test('zaie xiang follows the daquan original exactly and never drifts silently', function () {
+    $reflection = new ReflectionClass(ZaieRule::class);
+    $xiang = $reflection->getReflectionConstant('XIANG')->getValue();
+
+    // 锁定象曰：仅当修改了 ZaieRule::XIANG 或该常量被删除时该测试才会失败。
+    expect($xiang)
+        ->toBe('家门厄会，妖孽为害。疾病死亡，财喜破坏。婚孕多凶，征战大败。行人不归，访人不在。')
+        ->and($xiang)->not->toContain('小悔亡')
+        ->and($xiang)->not->toContain('祸来肘腋')
+        ->and($xiang)->toContain('家门厄会')
+        ->and($xiang)->toContain('疾病死亡')
+        ->and($xiang)->toContain('行人不归');
+
+    $match = (new ZaieRule)->match(zaie_facts());
+    expect($match?->xiang)->toBe('家门厄会，妖孽为害。疾病死亡，财喜破坏。婚孕多凶，征战大败。行人不归，访人不在。');
+});
+
+test('qiu mu and seasonOf share a single source so future edits cannot drift apart', function () {
+    $source = new ReflectionClass(ZaieShensha::class);
+    $source->getReflectionConstant('SEASONS'); // 让 SEASONS 不被错误"裁掉"。
+
+    // 对每个 yuezhi 验证：sanqiu/wumu/seasonOf/qiuMuTable 全部一致。
+    foreach (ZaieShensha::monthBranchOrder() as $monthBranch) {
+        $season = ZaieShensha::seasonOf($monthBranch);
+        $qiu = PanCalculator::$dizhi[ZaieShensha::sanqiu($monthBranch)];
+        $mu = PanCalculator::$dizhi[ZaieShensha::wumu($monthBranch)];
+
+        $row = collect(ZaieShensha::qiuMuTable())->firstWhere('season', $season);
+        expect($row)->not->toBeNull("season {$season} missing from qiuMuTable");
+        expect($row['sanqiu'])->toBe($qiu, "yuezhi={$monthBranch} sanqiu drift between wumu()/qiuMuTable()")
+            ->and($row['wumu'])->toBe($mu, "yuezhi={$monthBranch} wumu drift between wumu()/qiuMuTable()");
+    }
+});
+
+test('shensha displayName and nameTable stay in sync with the rule output', function () {
+    // 任何对 ZaieShensha::NAMES 的修改都必须同步在 ZaieRule 的 foundations 标题上得到反映。
+    $match = (new ZaieRule)->match(zaie_facts());
+    $titles = array_column($match?->evidence['foundations'] ?? [], 'title');
+
+    foreach (ZaieShensha::nameTable() as $row) {
+        // 仅断言顺序与前缀：每条"发用"标题必须以 ZaieShensha::displayName() 开头。
+        // 锁定这一关系后，前台 partial 与 Rule 共用同一份 displayName 输出。
+        if (! in_array($row['key'], $match?->evidence['matched_keys'] ?? [], true)) {
+            continue;
+        }
+        expect(collect($titles)->first(function (string $title) use ($row) {
+            return str_starts_with($title, ZaieShensha::displayName($row['key']).'发用');
+        }))->not->toBeNull("missing foundation title for {$row['key']} using shared displayName()");
+    }
+});
+
+test('classic daquan case 1923-03-03 06:47 reproduces hai year yin month yi-hai day mao-time wei initial riding white tiger', function () {
+    $pan = app(PanCalculator::class)->calculate('1923-03-03 06:47:00');
+    $facts = PanFacts::from($pan);
+
+    // 教科书古例要求：
+    //   - 亥年（nianzhi=11）= 癸亥年
+    //   - 正月（yuezhi=2）= 甲寅月
+    //   - 乙亥日（rigan=1, rizhi=11）
+    //   - 卯时（shizhi=3）——05:00-07:00
+    //   - 初传未（sanchuan0=7）
+    //   - 初传乘白虎（sanchuan0tianjiang=7）
+    expect(PanCalculator::$dizhi[$facts->get('nianzhi')])->toBe('亥')
+        ->and(PanCalculator::$dizhi[$facts->get('yuezhi')])->toBe('寅')
+        ->and(PanCalculator::$tiangan[$facts->get('rigan')])->toBe('乙')
+        ->and(PanCalculator::$dizhi[$facts->get('rizhi')])->toBe('亥')
+        ->and(PanCalculator::$dizhi[$facts->get('shizhi')])->toBe('卯')
+        ->and(PanCalculator::$dizhi[$facts->get('sanchuan0')])->toBe('未')
+        ->and(PanCalculator::$tianjiang[$facts->get('sanchuan0tianjiang')])->toBe('白虎');
+
+    $match = (new ZaieRule)->match($facts);
+    expect($match)->not->toBeNull();
+    // 期望"丧车 + 五墓 + 岁虎"三路同时命中。
+    expect($match->evidence['matched_keys'])->toContain('sangche')
+        ->and($match->evidence['matched_keys'])->toContain('wumu')
+        ->and($match->evidence['matched_keys'])->toContain('suihu');
+});

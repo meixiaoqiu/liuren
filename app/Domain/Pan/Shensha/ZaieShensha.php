@@ -13,11 +13,26 @@ use App\Services\PanCalculator;
  *  - 月份基准统一使用生产排盘的 yuezhi（month branch，寅=2 卯=3 ... 丑=1），不使用 yuejiang。
  *  - 岁神基准统一使用生产排盘的 nianzhi（year branch）。
  *  - 三丘五墓按 yuezhi 所属季节查表，不使用日干墓，也不使用 PanFacts::seasonalPeriod() 的土旺十八日。
+ *  - 季节 → 三丘五墓 → seasonOf → qiuMuTable 必须共享同一份 SEASONS 数据源，禁
+ *    止在多个位置分别手写四季对应表。
  *
  * 本类为只读函数集合；不会执行任何 I/O 也不会写 PanFacts。
  */
 final class ZaieShensha
 {
+    /**
+     * 季节 → (本季月建序列, 三丘, 五墓) 的单一数据源。
+     *
+     * 任何对"三丘五墓"的修改都必须只在此处进行；sanqiu / wumu / seasonOf /
+     * qiuMuTable / monthlyTable 全部从此处推导。
+     */
+    private const SEASONS = [
+        '春' => ['months' => [2, 3, 4], 'month_set' => '寅卯辰', 'sanqiu' => 1, 'wumu' => 7],
+        '夏' => ['months' => [5, 6, 7], 'month_set' => '巳午未', 'sanqiu' => 4, 'wumu' => 10],
+        '秋' => ['months' => [8, 9, 10], 'month_set' => '申酉戌', 'sanqiu' => 7, 'wumu' => 1],
+        '冬' => ['months' => [11, 0, 1], 'month_set' => '亥子丑', 'sanqiu' => 10, 'wumu' => 4],
+    ];
+
     /** 全部神煞中文名（含别名前缀）。用于 rules 与速查页共享。 */
     public const NAMES = [
         'sangche' => ['primary' => '丧车', 'aliases' => ['丧魂']],
@@ -110,40 +125,16 @@ final class ZaieShensha
         return ($yearBranch + 10) % 12;
     }
 
-    /**
-     * 三丘：按月建所属季节查表。
-     *
-     * 春（寅卯辰 = 2,3,4）→ 丑
-     * 夏（巳午未 = 5,6,7）→ 辰
-     * 秋（申酉戌 = 8,9,10）→ 未
-     * 冬（亥子丑 = 11,0,1）→ 戌
-     */
+    /** 三丘：按 SEASONS 数据源中本季 sanqiu 给出。 */
     public static function sanqiu(int $monthBranch): int
     {
-        return match (true) {
-            $monthBranch === 2 || $monthBranch === 3 || $monthBranch === 4 => 1,
-            $monthBranch === 5 || $monthBranch === 6 || $monthBranch === 7 => 4,
-            $monthBranch === 8 || $monthBranch === 9 || $monthBranch === 10 => 7,
-            default => 10,
-        };
+        return self::seasonEntry($monthBranch)['sanqiu'];
     }
 
-    /**
-     * 五墓：与三丘互为冲位。
-     *
-     * 春 → 未
-     * 夏 → 戌
-     * 秋 → 丑
-     * 冬 → 辰
-     */
+    /** 五墓：按 SEASONS 数据源中本季 wumu 给出（与三丘互为冲位）。 */
     public static function wumu(int $monthBranch): int
     {
-        return match (true) {
-            $monthBranch === 2 || $monthBranch === 3 || $monthBranch === 4 => 7,
-            $monthBranch === 5 || $monthBranch === 6 || $monthBranch === 7 => 10,
-            $monthBranch === 8 || $monthBranch === 9 || $monthBranch === 10 => 1,
-            default => 4,
-        };
+        return self::seasonEntry($monthBranch)['wumu'];
     }
 
     /** 岁虎：岁后四辰。 */
@@ -173,6 +164,21 @@ final class ZaieShensha
     public static function orderedKeys(): array
     {
         return ['sangche', 'youhun', 'fuyang', 'bingfu', 'sangmen', 'diaoke', 'sanqiu', 'wumu', 'suihu'];
+    }
+
+    /** @return list<array{key: string, primary: string, aliases: list<string>}> */
+    public static function nameTable(): array
+    {
+        $rows = [];
+        foreach (self::orderedKeys() as $key) {
+            $rows[] = [
+                'key' => $key,
+                'primary' => self::NAMES[$key]['primary'],
+                'aliases' => self::NAMES[$key]['aliases'],
+            ];
+        }
+
+        return $rows;
     }
 
     /**
@@ -240,18 +246,23 @@ final class ZaieShensha
     }
 
     /**
-     * 速查页所需的"三丘五墓"季节表。
+     * 速查页所需的"三丘五墓"季节表（从 SEASONS 单一数据源直接生成）。
      *
      * @return list<array{season: string, month_set: string, sanqiu: string, wumu: string}>
      */
     public static function qiuMuTable(): array
     {
-        return [
-            ['season' => '春', 'month_set' => '寅卯辰', 'sanqiu' => '丑', 'wumu' => '未'],
-            ['season' => '夏', 'month_set' => '巳午未', 'sanqiu' => '辰', 'wumu' => '戌'],
-            ['season' => '秋', 'month_set' => '申酉戌', 'sanqiu' => '未', 'wumu' => '丑'],
-            ['season' => '冬', 'month_set' => '亥子丑', 'sanqiu' => '戌', 'wumu' => '辰'],
-        ];
+        $rows = [];
+        foreach (self::SEASONS as $season => $entry) {
+            $rows[] = [
+                'season' => $season,
+                'month_set' => $entry['month_set'],
+                'sanqiu' => PanCalculator::$dizhi[$entry['sanqiu']],
+                'wumu' => PanCalculator::$dizhi[$entry['wumu']],
+            ];
+        }
+
+        return $rows;
     }
 
     /** @return list<int> 按正月→十二月顺序的月建地支序列：[2,3,4,5,6,7,8,9,10,11,0,1] */
@@ -262,11 +273,23 @@ final class ZaieShensha
 
     public static function seasonOf(int $monthBranch): string
     {
-        return match (true) {
-            $monthBranch === 2 || $monthBranch === 3 || $monthBranch === 4 => '春',
-            $monthBranch === 5 || $monthBranch === 6 || $monthBranch === 7 => '夏',
-            $monthBranch === 8 || $monthBranch === 9 || $monthBranch === 10 => '秋',
-            default => '冬',
-        };
+        return self::seasonEntry($monthBranch)['_season_name'] ?? array_key_first(self::SEASONS);
+    }
+
+    /**
+     * 给定月建地支，返回所在季节的完整 SEASONS 记录（包含 _season_name）。
+     *
+     * @return array{months: list<int>, month_set: string, sanqiu: int, wumu: int, _season_name: string}
+     */
+    private static function seasonEntry(int $monthBranch): array
+    {
+        foreach (self::SEASONS as $season => $entry) {
+            if (in_array($monthBranch, $entry['months'], true)) {
+                return $entry + ['_season_name' => $season];
+            }
+        }
+
+        // 不会到达：SEASONS 已覆盖 12 个月。
+        return self::SEASONS['冬'] + ['_season_name' => '冬'];
     }
 }

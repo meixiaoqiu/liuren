@@ -1300,7 +1300,7 @@ test('frontend shows siqi uncovered and never bundles san-si label', function ()
 
 test('frontend shows zaie multi-key trace from the classic executable case', function () {
     Livewire::test(CreatePan::class)
-        ->set('datetime', '1923-03-03T06:00')
+        ->set('datetime', '1923-03-03T06:47')
         ->set('birthDatetime', '1900-01-01T00:00')
         ->set('gender', 'male')
         ->call('calculate')
@@ -1322,7 +1322,7 @@ test('frontend shows zaie multi-key trace from the classic executable case', fun
 
 test('frontend does not expose zaie implementation notation in the recent lesson explanations', function () {
     Livewire::test(CreatePan::class)
-        ->set('datetime', '1923-03-03T06:00')
+        ->set('datetime', '1923-03-03T06:47')
         ->set('birthDatetime', '1900-01-01T00:00')
         ->set('gender', 'male')
         ->call('calculate')

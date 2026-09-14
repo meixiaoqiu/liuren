@@ -32,7 +32,7 @@ final class ZaieRule implements PanRule
 
     protected const GUA_SYMBOL = '䷵';
 
-    protected const XIANG = '小悔亡，大迷乱。疾难丧亡，祸来肘腋。慎防闺门，犹恐反覆。';
+    protected const XIANG = '家门厄会，妖孽为害。疾病死亡，财喜破坏。婚孕多凶，征战大败。行人不归，访人不在。';
 
     /** @var list<string> */
     private const UNCOVERED = [
