@@ -312,7 +312,6 @@ test('kejing page renders the not-covered badge for the declared reference-only 
         'lesson.siqi.classic_jia_zi_chou_time_si_general',
         'lesson.yangjiu.geng_wu_external_reference',
         'lesson.yangjiu.ji_you_internal_reference',
-        'lesson.jiuchou.daquan_yi_mao_reference',
     ]);
     $response->assertSee('原文参考盘·尚未覆盖');
 });
@@ -1170,9 +1169,9 @@ test('jiuchou is lesson 54 and its non strict executable case really matches', f
 
     $classic = $lesson['cases'][1];
     expect($classic)->toMatchArray([
-        'case_id' => 'lesson.jiuchou.daquan_yi_mao_reference',
+        'case_id' => 'lesson.jiuchou.daquan_yi_mao_subject_reproduction',
         'datetime' => '2026-04-11T00:00',
-        'status' => 'reference_only',
+        'status' => 'executable',
     ])->and($classic['reason'])->toContain('当前程序初传亥')->toContain('涉害取传专项研究');
 
     $referenceComponent = Livewire::test(CreatePan::class)

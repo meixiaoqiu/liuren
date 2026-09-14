@@ -26,14 +26,14 @@ test('metadata and registry order are stable', function () {
 
 test('only day ghost cannot establish the lesson', function () {
     $match = (new GuimuRule)->match(guimu_facts([
-        'rigan' => 1, 'rizhi' => 5, 'sanchuan0' => 9, // 乙 -> 酉，己巳日（巳火墓戌，不是 9）
+        'rigan' => 1, 'rizhi' => 5, 'sanchuan0' => 9, // 乙 -> 酉；乙巳日的巳火墓戌，不是酉
     ]));
     expect($match)->toBeNull();
 });
 
 test('only stem tomb cannot establish the lesson', function () {
     $match = (new GuimuRule)->match(guimu_facts([
-        'rigan' => 1, 'rizhi' => 0, 'sanchuan0' => 7, // 乙木墓未，壬日非壬
+        'rigan' => 1, 'rizhi' => 0, 'sanchuan0' => 7, // 乙木墓未，但未不是乙日鬼
     ]));
     expect($match)->toBeNull();
 });

@@ -4,6 +4,12 @@
     $element = fn ($value) => is_int($value) ? (\App\Services\PanCalculator::$wuxing[$value] ?? '?') : '?';
     $dayGhosts = $trace['day_ghosts'] ?? [];
     $matched = $trace['matched_routes'] ?? [];
+    $routeLabels = [
+        'day_ghost' => '日鬼',
+        'stem_tomb' => '日干墓',
+        'branch_tomb' => '日支墓',
+    ];
+    $matchedLabels = array_map(fn ($route) => $routeLabels[$route] ?? $route, $matched);
 @endphp
 <section class="pan-block mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="鬼墓判断过程">
     <h3 class="font-semibold">鬼墓判断</h3>
@@ -45,7 +51,7 @@
         </div>
     </div>
     <div class="mt-4 pan-block bg-base-100/75 px-4 py-3 text-sm leading-6">
-        <p>命中路线：{{ $matched === [] ? '（无）' : implode('、', $matched) }}</p>
+        <p>命中路线：{{ $matchedLabels === [] ? '（无）' : implode('、', $matchedLabels) }}</p>
         <p class="font-medium text-primary">→ 鬼墓课成立</p>
     </div>
     @if (! empty($trace['judgments']))
