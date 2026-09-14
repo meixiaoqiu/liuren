@@ -94,6 +94,9 @@ final class RuleRegistry
             new LideRule,
             new WeifuRule,
             new CuotuoRule,
+            new PanzhuRule,
+            new TianxinRule,
+            new HuihuanRule,
             new YixunZhoubianRule,
         ];
     }
