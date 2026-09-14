@@ -50,7 +50,7 @@
     </div>
     @if (! empty($trace['judgments']))
         <div class="mt-4 pan-block bg-base-100/75 px-4 py-3 text-sm leading-6">
-            <p class="font-semibold">增强判断</p>
+            <p class="font-semibold">附加判断</p>
             <ul class="mt-2 space-y-1">
                 @foreach ($trace['judgments'] as $judgment)
                     <li>

@@ -145,14 +145,7 @@ final class GuimuRule implements PanRule
                 $matched,
             )).'。',
         ];
-        $foundations[] = [
-            'title' => '主体成课',
-            'detail' => '日鬼发用且兼为日干墓或日支墓，符合《六壬大全》「凡日辰墓神及日鬼发用，为鬼墓课」原文，鬼墓课成立。',
-        ];
-
-        $judgments = [];
-
-        // ghost_tomb_combined：初传同时是日鬼、日干墓与日支墓。
+        // ghost_tomb_combined：初传同时是日鬼与至少一种墓，是 A' 的主体成立标志。
         $combinedTargets = [];
         if ($isStemTomb) {
             $combinedTargets[] = "日干墓{$stemTombName}";
@@ -160,13 +153,21 @@ final class GuimuRule implements PanRule
         if ($isBranchTomb) {
             $combinedTargets[] = "日支墓{$branchTombName}";
         }
-        $judgments[] = [
+        if ($isStemTomb) {
+            $combinedEvidence = '初传'.$initialName.'同时是日鬼与'.implode('、', $combinedTargets).'；《订讹》壬日辰例称「既作日鬼，又作日墓，故名鬼墓」。';
+            if ($isBranchTomb) {
+                $combinedEvidence .= '本盘兼具日支墓身份。';
+            }
+        } else {
+            $combinedEvidence = '初传'.$initialName.'同时是日鬼与日支墓'.$branchTombName.'，符合《六壬大全》「凡日辰墓神及日鬼发用，为鬼墓课」；这是本项目对「日辰墓神」采用 A\' 的程序解释，不以《订讹》壬日辰例直接证明此子路线。';
+        }
+        $foundations[] = [
             'code' => 'ghost_tomb_combined',
-            'effect' => 'increase',
-            'label' => '鬼墓兼见（鬼墓俱见）',
-            'evidence' => '初传'.$initialName.'同时是日鬼与'.implode('、', $combinedTargets).'，对应《订讹》「既作日鬼，又作日墓，故名鬼墓」原文。',
-            'matched' => true,
+            'title' => '主体成课（鬼墓兼见）',
+            'detail' => $combinedEvidence.'鬼墓课成立。',
         ];
+
+        $judgments = [];
 
         // 多路线同时命中时，给出汇总式描述，便于前台展示。
         if (count($matched) >= 3) {

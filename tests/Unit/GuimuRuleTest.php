@@ -65,7 +65,10 @@ test('ghost and branch tomb together establish the lesson', function () {
         ->and($match?->evidence['matched_routes'])->toBe(['day_ghost', 'branch_tomb'])
         ->and($match?->evidence['day_ghost_fayong'])->toBeTrue()
         ->and($match?->evidence['branch_tomb_fayong'])->toBeTrue()
-        ->and($match?->evidence['stem_tomb_fayong'])->toBeFalse();
+        ->and($match?->evidence['stem_tomb_fayong'])->toBeFalse()
+        ->and(collect($match?->evidence['foundations'])->firstWhere('code', 'ghost_tomb_combined')['detail'])
+        ->toContain('《六壬大全》', '本项目对「日辰墓神」采用 A\' 的程序解释')
+        ->not->toContain('既作日鬼，又作日墓');
 });
 
 test('all three routes together establish the lesson with triple judgment', function () {
@@ -74,7 +77,8 @@ test('all three routes together establish the lesson with triple judgment', func
     ]));
     expect($match)->not->toBeNull()
         ->and($match?->evidence['matched_routes'])->toBe(['day_ghost', 'stem_tomb', 'branch_tomb'])
-        ->and(collect($match?->evidence['judgments'])->pluck('code')->all())->toContain('ghost_tomb_combined', 'triple_ghost_and_tombs');
+        ->and(collect($match?->evidence['foundations'])->pluck('code')->all())->toContain('ghost_tomb_combined')
+        ->and(collect($match?->evidence['judgments'])->pluck('code')->all())->toBe(['triple_ghost_and_tombs']);
 });
 
 test('stem tomb and branch tomb without ghost never establish the lesson', function () {
@@ -92,85 +96,38 @@ test('middle or final ghosts and tombs do not establish the lesson', function ()
         ->and($rule->match($finalTomb))->toBeNull();
 });
 
-test('same element but wrong yin-yang branch is not a day ghost', function (int $stem, int $branch, int $hostStem, int $hostBranch) {
+test('same element but wrong yin-yang branch is not a day ghost', function (int $stem, int $dayBranch, int $initial) {
     expect((new GuimuRule)->match(guimu_facts([
-        'rigan' => $hostStem, 'rizhi' => $hostBranch, 'sanchuan0' => $branch,
+        'rigan' => $stem, 'rizhi' => $dayBranch, 'sanchuan0' => $initial,
     ])))->toBeNull();
 })->with([
-    // 壬日丑（异阴阳土克水）：用 甲 卯（卯木墓未）避开 host 墓与日鬼。
-    '壬日丑（异阴阳土克水）' => [8, 1, 0, 3],
-    // 壬日未（异阴阳土克水）：用 戊 申（申金墓丑）避开。
-    '壬日未（异阴阳土克水）' => [8, 7, 4, 8],
-    // 癸日戌（异阴阳土克水）：用 戊 酉（酉金墓丑）避开。
-    '癸日戌（异阴阳土克水）' => [9, 10, 4, 9],
-    '甲日寅（同阴阳木克木？）' => [0, 2, 1, 5],
-    '甲日巳（同阴阳火克金）' => [0, 5, 1, 3],
-    '丙日午（异阴阳火克金）' => [2, 6, 3, 9],
-    '庚日子（异阴阳水克火）' => [6, 0, 0, 9],
+    // 三盘的初传都是日支墓；若错误地把普通五行相克当日鬼，就会误命中 A'。
+    '壬申日丑发用' => [8, 8, 1],
+    '壬寅日未发用' => [8, 2, 7],
+    '癸午日戌发用' => [9, 6, 10],
 ]);
 
-test('each stem tomb and branch tomb table is locked against the ten stem tomb', function (int $stem, int $correctTomb, int $wrongTenStemTomb, int $hostStem, int $hostBranch) {
-    // 仅验证 wrong 十干墓 不能 充当 stem_tomb 让规则误成课。
-    // 用一个 host 使得 wrong 既不是 host 日鬼、也不是 host 日干/日支墓。
-    $wrong = (new GuimuRule)->match(guimu_facts([
-        'rigan' => $hostStem, 'rizhi' => $hostBranch, 'sanchuan0' => $wrongTenStemTomb,
-    ]));
-    if ($wrong !== null) {
-        // 若仍命中，必须不是通过 stem_tomb 路线。
-        expect($wrong->evidence['stem_tomb_fayong'] ?? false)->toBeFalse();
-    }
-    expect(true)->toBeTrue(); // placeholder
-
-    // 正向断言：把 $correctTomb 当作「日鬼 + 日干墓」输入。
-    // 找一个日鬼表里恰好是 $correctTomb 的 stem。
-    $dayGhosts = [
-        0 => [8], 1 => [9], 2 => [0], 3 => [11], 4 => [2], 5 => [3],
-        6 => [6], 7 => [5], 8 => [4, 10], 9 => [1, 7],
-    ];
-    foreach ($dayGhosts as $rigan => $ghosts) {
-        if (in_array($correctTomb, $ghosts, true)) {
-            // 同时 $correctTomb 必须是这个 rigan 的 stem_tomb (五元素墓) 才算数。
-            $stemTomb = [7, 7, 10, 10, 4, 4, 1, 1, 4, 4];
-            if ($stemTomb[$rigan] === $correctTomb) {
-                $hit = (new GuimuRule)->match(guimu_facts([
-                    'rigan' => $rigan, 'rizhi' => $hostBranch, 'sanchuan0' => $correctTomb,
-                ]));
-                expect($hit?->evidence['stem_tomb_fayong'] ?? false)->toBeTrue();
-            }
-        }
-    }
+test('each stem element tomb is locked against the ten-stem lifecycle tomb', function (int $stem, int $correctTomb, int $wrongTenStemTomb) {
+    $table = (new ReflectionClass(GuimuRule::class))->getConstant('STEM_ELEMENT_TOMBS');
+    expect($table[$stem])->toBe($correctTomb)
+        ->and($table[$stem])->not->toBe($wrongTenStemTomb);
 })->with([
-    '丁火墓戌非十干墓丑' => [3, 10, 1, 2, 3],
-    '戊土墓辰非十干墓戌' => [4, 4, 10, 1, 5],
-    '己土墓辰非十干墓丑' => [5, 4, 1, 1, 5],
-    '辛金墓丑非十干墓辰' => [7, 1, 4, 1, 6],
-    '癸水墓辰非十干墓未' => [9, 4, 7, 3, 8],
+    '丁火墓戌非十干墓丑' => [3, 10, 1],
+    '戊土墓辰非十干墓戌' => [4, 4, 10],
+    '己土墓辰非十干墓丑' => [5, 4, 1],
+    '辛金墓丑非十干墓辰' => [7, 1, 4],
+    '癸水墓辰非十干墓未' => [9, 4, 7],
 ]);
 
-test('branch tomb locks for the four cardinal branches', function (int $branch, int $correctTomb, int $wrongTomb, int $hostStem, int $hostBranch) {
-    // 正向：日鬼表中是否有恰好等于 $correctTomb 的 stem，使得此组合（鬼 + 支墓）成立。
-    $dayGhosts = [
-        0 => [8], 1 => [9], 2 => [0], 3 => [11], 4 => [2], 5 => [3],
-        6 => [6], 7 => [5], 8 => [4, 10], 9 => [1, 7],
-    ];
-    $has = false;
-    foreach ($dayGhosts as $rigan => $ghosts) {
-        if (in_array($correctTomb, $ghosts, true)) {
-            $hit = (new GuimuRule)->match(guimu_facts([
-                'rigan' => $rigan, 'rizhi' => $branch, 'sanchuan0' => $correctTomb,
-            ]));
-            if ($hit !== null) {
-                expect($hit->evidence['branch_tomb_fayong'])->toBeTrue();
-                $has = true;
-            }
-        }
-    }
-    expect($has)->toBeTrue();
+test('branch element tombs are locked for the four cardinal branches', function (int $branch, int $correctTomb, int $wrongTomb) {
+    $table = (new ReflectionClass(GuimuRule::class))->getConstant('BRANCH_ELEMENT_TOMBS');
+    expect($table[$branch])->toBe($correctTomb)
+        ->and($table[$branch])->not->toBe($wrongTomb);
 })->with([
-    '卯木墓未不是戌' => [3, 7, 10, 1, 5],
-    '酉金墓丑不是辰' => [9, 1, 4, 2, 5],
-    '午火墓戌不是辰' => [6, 10, 4, 0, 5],
-    '子水墓辰不是丑' => [0, 4, 1, 3, 5],
+    '卯木墓未不是戌' => [3, 7, 10],
+    '酉金墓丑不是辰' => [9, 1, 4],
+    '午火墓戌不是辰' => [6, 10, 4],
+    '子水墓辰不是丑' => [0, 4, 1],
 ]);
 
 test('multiple matched routes are all preserved and ordered', function (int $stem, int $branch, int $initial, array $expected) {
@@ -191,7 +148,7 @@ test('foundations always shows every evidence route or the non-established outco
     $match = (new GuimuRule)->match(guimu_facts(['rigan' => 8, 'rizhi' => 0, 'sanchuan0' => 4]));
     expect($match?->evidence['foundations'])->toHaveCount(6)
         ->and(collect($match?->evidence['foundations'])->pluck('title')->all())->toContain(
-            '日干支与初传', '正文日鬼集合', '日干五行及其墓', '日支五行及其墓', '命中入口', '主体成课',
+            '日干支与初传', '正文日鬼集合', '日干五行及其墓', '日支五行及其墓', '命中入口', '主体成课（鬼墓兼见）',
         );
 });
 
