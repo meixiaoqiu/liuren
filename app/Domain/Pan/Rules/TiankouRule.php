@@ -13,6 +13,8 @@ use OutOfRangeException;
 /** 文件作用：按“分至日 AND 月宿临前一日支（离辰）”冻结口径判断天寇课；发用不参与基础成立条件。 */
 final class TiankouRule implements ConditionalEvaluationRule, PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function __construct(private MoonPalaceLookup $moonPalace = new MoonPalaceTable) {}
 
     public function code(): string
