@@ -2,6 +2,8 @@
 
 /** 文件作用：按真实年月日时扫描盘珠课、天心格、回还格命中规模，并输出三者包含关系与独立命中规模。 */
 
+use Illuminate\Contracts\Console\Kernel;
+
 require dirname(__DIR__, 3).'/vendor/autoload.php';
 
 $app = require dirname(__DIR__, 3).'/bootstrap/app.php';
@@ -12,7 +14,6 @@ use App\Domain\Pan\Rules\HuihuanRule;
 use App\Domain\Pan\Rules\PanzhuRule;
 use App\Domain\Pan\Rules\TianxinRule;
 use App\Services\PanCalculator;
-use Illuminate\Contracts\Console\Kernel;
 
 $year = (int) ($argv[1] ?? 2031);
 $hours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
