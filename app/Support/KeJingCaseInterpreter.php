@@ -4,15 +4,18 @@ namespace App\Support;
 
 use App\Data\PanResult;
 use App\Domain\Pan\FateCalculator;
+use App\Domain\Pan\Rules\PanRule;
 use App\Domain\Pan\Rules\PanRuleEngine;
+use App\Domain\Pan\Rules\RuleRegistry;
 use App\Services\PanCalculator;
 use Carbon\CarbonImmutable;
 
 /**
  * 文件作用：用 KeJingCatalog 的真实 executable 课例经过正式 PanCalculator + RuleEngine 生成课经详情展示数据。
  *
- * 详情页因此不另抄一套现代描述、象曰或命中证据；这些内容与排盘“解盘信息”共用 RuleMatch 数据。
- * 多个 executable 课例的 judgments 会合并，用于详情页尽可能完整地列出当前已实现的增益、减损、例外与修证。
+ * 详情页不另抄一套现代描述、象曰或命中证据；这些内容与排盘“解盘信息”共用 RuleMatch 数据。
+ * 详情页的完整静态课义（成课条件、增益减损例外条件）来自 PanRule::definition() 的结构化输出，
+ * 不再通过“多个 executable 课例的 judgments 并集”反推完整定义。
  */
 final readonly class KeJingCaseInterpreter
 {
@@ -20,6 +23,7 @@ final readonly class KeJingCaseInterpreter
         private PanCalculator $calculator,
         private PanRuleEngine $ruleEngine,
         private FateCalculator $fateCalculator,
+        private RuleRegistry $registry,
     ) {}
 
     /** @return array<string, mixed> */
@@ -54,11 +58,38 @@ final readonly class KeJingCaseInterpreter
 
         return [
             'interpretation' => $interpretation,
+            'staticDefinition' => $this->resolveStaticDefinition((string) $lesson['code']),
             'pan' => $canonical['pan'] ?? null,
             'canonicalCase' => $canonical['case'] ?? null,
             'xundunLabels' => $canonical['xundunLabels'] ?? [],
-            'judgments' => $this->collectJudgments($evaluated),
             'uncovered' => $this->collectUncovered($evaluated),
+        ];
+    }
+
+    /**
+     * 通过 RuleRegistry 找到对应 code 的 PanRule 并调用其 definition()。
+     * 找不到对应 Rule 时返回空骨架，详情页会显示“尚未结构化录入”提示。
+     *
+     * @return array{
+     *     description: string,
+     *     xiang: ?string,
+     *     foundations: list<array{code: string, title: string, description: string}>,
+     *     judgments: list<array{code: string, effect: string, label: string, description: string}>
+     * }
+     */
+    private function resolveStaticDefinition(string $lessonCode): array
+    {
+        foreach ($this->registry->rules() as $rule) {
+            if ($rule->code() === $lessonCode) {
+                return $rule->definition();
+            }
+        }
+
+        return [
+            'description' => '',
+            'xiang' => null,
+            'foundations' => [],
+            'judgments' => [],
         ];
     }
 
@@ -125,35 +156,6 @@ final readonly class KeJingCaseInterpreter
             'pan' => $pan,
             'xundunLabels' => $this->xundunLabels($pan),
         ];
-    }
-
-    /** @param list<array<string, mixed>> $evaluated @return list<array<string, mixed>> */
-    private function collectJudgments(array $evaluated): array
-    {
-        $judgments = [];
-
-        foreach ($evaluated as $evaluation) {
-            foreach ($evaluation['interpretation']['evidence']['judgments'] ?? [] as $judgment) {
-                $key = (string) ($judgment['code'] ?? (($judgment['effect'] ?? 'neutral').'|'.($judgment['label'] ?? '')));
-                if ($key === '|') {
-                    continue;
-                }
-
-                if (! isset($judgments[$key])) {
-                    $judgments[$key] = [
-                        ...$judgment,
-                        'examples' => [],
-                    ];
-                }
-
-                $label = (string) ($evaluation['case']['label'] ?? '目录课例');
-                if (! in_array($label, $judgments[$key]['examples'], true)) {
-                    $judgments[$key]['examples'][] = $label;
-                }
-            }
-        }
-
-        return array_values($judgments);
     }
 
     /** @param list<array<string, mixed>> $evaluated @return list<string> */

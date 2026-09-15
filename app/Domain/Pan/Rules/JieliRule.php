@@ -15,6 +15,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class JieliRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     private const BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
@@ -24,6 +26,34 @@ final class JieliRule implements PanRule
     public function code(): string
     {
         return 'lesson.jieli';
+    }
+
+    public function definition(): array
+    {
+        return [
+            'description' => '夫妻行年相冲或相克，且夫下与妻上、夫上与妻下两条交叉关系中至少一处有克贼。',
+            'xiang' => null,
+            'foundations' => [
+                [
+                    'code' => 'spouse_xingnian_clash_ke',
+                    'title' => '夫妻行年冲克',
+                    'description' => '夫妻行年相冲或相克（满足任一即成立）。',
+                ],
+                [
+                    'code' => 'cross_upper_lower_ke',
+                    'title' => '上下神交叉克贼',
+                    'description' => '夫下与妻上、或夫上与妻下两条十字关系中至少一处有克贼。',
+                ],
+            ],
+            'judgments' => [
+                [
+                    'code' => 'upper_upper_ke',
+                    'effect' => 'increase',
+                    'label' => '双方行年上神另见克贼',
+                    'description' => '夫上与妻上另有克贼关系；项目当前仅作正文例增强关系展示，不参与解离成课条件。',
+                ],
+            ],
+        ];
     }
 
     public function match(PanFacts $facts): ?RuleMatch
@@ -82,11 +112,31 @@ final class JieliRule implements PanRule
             $crossParts[] = '夫上'.self::BRANCH_NAMES[$fuUpper].'与妻下'.self::BRANCH_NAMES[$qiDown].'：'.$this->describeKe($facts, $fuUpper, $qiDown);
         }
 
+        $foundations = [
+            [
+                'code' => 'spouse_xingnian_clash_ke',
+                'title' => '夫妻行年冲克',
+                'description' => '夫妻行年相冲或相克（满足任一即成立）。',
+                'matched' => true,
+                'evidence' => '夫行年'.self::BRANCH_NAMES[$fuDown].'、妻行年'.self::BRANCH_NAMES[$qiDown].'；'.implode('，', $condition1Parts).'，第一条件成立。',
+            ],
+            [
+                'code' => 'cross_upper_lower_ke',
+                'title' => '上下神交叉克贼',
+                'description' => '夫下与妻上、或夫上与妻下两条十字关系中至少一处有克贼。',
+                'matched' => true,
+                'evidence' => implode('；', $crossParts).'。两条十字任一成立，第二条件成立。',
+            ],
+        ];
+
         $judgments = [];
         if ($upperUpperKe) {
             $judgments[] = [
+                'code' => 'upper_upper_ke',
                 'effect' => 'increase',
                 'label' => '双方行年上神另见克贼',
+                'description' => '夫上与妻上另有克贼关系；项目当前仅作正文例增强关系展示，不参与解离成课条件。',
+                'matched' => true,
                 'evidence' => '夫上'.self::BRANCH_NAMES[$fuUpper].'、妻上'.self::BRANCH_NAMES[$qiUpper].'另有'.$this->describeKe($facts, $fuUpper, $qiUpper).'；项目当前仅作正文例增强关系展示，不参与解离成课条件。',
             ];
         }
@@ -97,6 +147,7 @@ final class JieliRule implements PanRule
             group: '六十四课',
             description: '夫妻行年相冲或相克，且夫下与妻上、夫上与妻下两条交叉关系中至少一处有克贼。',
             evidence: [
+                'foundations' => $foundations,
                 'fu_xingnian' => $fuDown,
                 'qi_xingnian' => $qiDown,
                 'fu_upper' => $fuUpper,
@@ -108,23 +159,13 @@ final class JieliRule implements PanRule
                 'upper_upper_ke' => $upperUpperKe,
                 'condition1' => $condition1,
                 'condition2' => $condition2,
-                'foundations' => [
-                    [
-                        'title' => '夫妻行年冲克',
-                        'detail' => '夫行年'.self::BRANCH_NAMES[$fuDown].'、妻行年'.self::BRANCH_NAMES[$qiDown].'；'.implode('，', $condition1Parts).'，第一条件成立。',
-                    ],
-                    [
-                        'title' => '上下神交叉克贼',
-                        'detail' => implode('；', $crossParts).'。两条十字任一成立，第二条件成立。',
-                    ],
-                ],
                 'judgments' => $judgments,
                 'uncovered' => [
-                    '“上下神互相克贼”当前暂按夫下↔妻上或夫上↔妻下实现；正文只有一个主体标准例，未来可重新裁决',
-                    '正文“午上寅怕申克”所见上神↔上神相克当前仅作增强关系，不作为成课必要条件',
-                    '“冲克”当前按相冲 OR 相克解释；若后续发现必须兼具的直接证据，再收紧',
-                    '课目“日辰互克上”暂未程序化，不借《毕法》补写主体 Boolean',
-                    '课目“年命互克”中的本命 nianming 是否应参与尚未裁决，本轮只落实夫妻行年',
+                    '"上下神互相克贼"当前暂按夫下↔妻上或夫上↔妻下实现；正文只有一个主体标准例，未来可重新裁决',
+                    '正文"午上寅怕申克"所见上神↔上神相克当前仅作增强关系，不作为成课必要条件',
+                    '"冲克"当前按相冲 OR 相克解释；若后续发现必须兼具的直接证据，再收紧',
+                    '课目"日辰互克上"暂未程序化，不借《毕法》补写主体 Boolean',
+                    '课目"年命互克"中的本命 nianming 是否应参与尚未裁决，本轮只落实夫妻行年',
                     '解离课未见固定卦属直接依据，gua 与 guaSymbol 均留空',
                 ],
             ],

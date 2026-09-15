@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：判断《六壬大全》闭口课篇所附一旬周遍格；本格独立成立，不要求闭口课先成立。 */
 final class YixunZhoubianRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'structure.yixun_zhoubian';

@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：按冻结口径判断刑伤课；方向固定为 xingOf(initial) == target。 */
 final class XingshangRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'lesson.xingshang';

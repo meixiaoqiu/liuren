@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义六十四课伏吟课，并覆盖伏吟三传的取法。 */
 final class FuyinRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const PLATE_PATTERN = 'fuyin';
 
     protected const RULE_CODE = 'plate.fuyin';

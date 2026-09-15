@@ -16,6 +16,8 @@ use App\Services\PanCalculator;
  */
 final class ZhunfuRule implements ContextAwareRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<int> 六凶将：蛇、雀、勾、空、虎、武。 */
     private const OMINOUS_GENERALS = [1, 2, 4, 6, 7, 9];
 

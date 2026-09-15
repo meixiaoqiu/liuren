@@ -8,6 +8,7 @@ use App\Domain\Pan\Facts\PanFacts;
 abstract class HengtongGridRule implements PanRule
 {
     use HengtongSupport;
+    use LessonDefinitionDefaults;
 
     protected const SLUG = '';
 

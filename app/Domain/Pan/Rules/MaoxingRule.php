@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义六十四课昴星课，涵盖虎视格与冬蛇掩目格。 */
 final class MaoxingRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     protected const METHODS = ['hushi', 'dongshe_yanmu'];
 

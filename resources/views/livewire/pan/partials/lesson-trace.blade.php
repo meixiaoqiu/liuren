@@ -22,7 +22,7 @@
                         <span class="grid size-7 place-items-center rounded-full bg-primary/12 text-xs font-semibold text-primary">{{ $index + 1 }}</span>
                         <div>
                             <strong>{{ $foundation['title'] }}</strong>
-                            <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $foundation['detail'] }}</p>
+                            <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $foundation['description'] ?? $foundation['detail'] ?? '' }}</p>
                         </div>
                     </li>
                 @endforeach

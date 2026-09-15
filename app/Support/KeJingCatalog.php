@@ -374,13 +374,13 @@ final class KeJingCatalog
                         'lesson.rong_hua.bing_yin',
                         '丙寅日正文结构',
                         '干上申为寅日驿马，支上巳为丙日禄；申以相气发用，中传亥为昼贵，复现《六壬大全》正文结构。',
-                        '2001-05-03T11:00',
+                        '2001-05-03T11:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                     self::case(
                         'lesson.rong_hua.ren_shen',
                         '壬申日正文结构',
                         '干上寅马、支上亥禄；三传巳申亥，巳为昼贵并以旺相气发用，覆盖《大全》“壬申日干上寅之类亦然”。',
-                        '2000-03-15T15:00',
+                        '2000-03-15T15:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -463,7 +463,7 @@ final class KeJingCatalog
                         'lesson.he_mei.ren_wu_si_shi_chou_jiang',
                         '壬午日巳时丑将（《大全》正文课例）',
                         '《六壬大全》正文课例的完整结构：日干壬寄亥，支上神寅，寅亥六合；日支午，干上神未，午未六合。两组交互六合同时成立。',
-                        '2026-01-08T09:00',
+                        '2026-01-08T09:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -523,7 +523,7 @@ final class KeJingCatalog
                         '甲申日·卯时·子将（《大全》正文课例）',
                         '旬首申，旬尾巳；天盘巳加地盘申，初传巳，为旬尾加旬首发用。',
                         '1904-02-20T05:00',
-                        '1900-01-01T00:00',
+                        '1900-01-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                     self::case(
                         'lesson.bikou.jia_zi_chen_jia_zi_fa_yong',
@@ -551,7 +551,7 @@ final class KeJingCatalog
                         'lesson.youzi.yi_si_san_yue_wu_shi',
                         '乙巳日·午时·酉将（《大全》正文课例）',
                         '三传未戌丑皆为四季土神；乙巳属甲辰旬，旬丁未发用；辰月月内天马为戌，位于中传。按项目严格口径由旬丁发用成立游子课。',
-                        '2022-04-22T11:00',
+                        '2022-04-22T11:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -569,7 +569,7 @@ final class KeJingCatalog
                         'lesson.sanjiao.wu_zi_wu_shi_you_jiang',
                         '戊子日·午时·酉将（《大全》正文标准课例）',
                         '戊子为四仲日；支阳卯、支阴午皆为四仲；三传卯午酉皆仲；四课上神与初传所见的卯乘太阴，三交俱备。',
-                        '2026-05-14T11:00',
+                        '2026-05-14T11:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -587,13 +587,13 @@ final class KeJingCatalog
                         'lesson.zhuixu.jia_xu_mao_shi_hai_jiang',
                         '甲戌日·卯时·亥将（《大全》正文课例）',
                         '甲木克戌土；干上神为戌，即日支戌临日干；初传亦为戌，构成支临干并由日支发用。',
-                        '2024-03-11T05:00',
+                        '2024-03-11T05:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                     self::case(
                         'lesson.zhuixu.bing_shen_chen_shi_chou_jiang',
                         '丙申日·辰时·丑将（《大全》正文课例）',
                         '丙火克申金；丙寄宫巳，日支申上神为巳，即日干临日支；初传亦为巳，构成干临支并由日干寄宫之神发用。',
-                        '2019-12-25T07:00',
+                        '2019-12-25T07:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -613,7 +613,7 @@ final class KeJingCatalog
                         'lesson.chongpo.zi_nian_geng_zi_wei_shi_xu_jiang',
                         '子年庚子日·正文盘式与《订讹》时将合参',
                         '正文给出子年庚子日、午加卯及午酉子盘式；《订讹》补足未时戌将。此现代时间同时复现二者。',
-                        '2056-04-18T13:00',
+                        '2056-04-18T13:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -632,7 +632,7 @@ final class KeJingCatalog
                         'lesson.yinyi.xin_wei_shen_shi_chen_jiang',
                         '辛未日·申时·辰将（《大全》正文课例）',
                         '初传卯发用并乘六合，符合淫泆课；初传六合、末传天后，同时成狡童格。',
-                        '2020-09-25T15:00',
+                        '2020-09-25T15:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -648,8 +648,20 @@ final class KeJingCatalog
                 'summary' => '四课有克而缺一成三课，或日干、日支之上神交互克对方干支。',
                 'cases' => [
                     self::case('lesson.wuyin.yi_mao_wu_shi_wei_jiang', '乙卯日·午时·未将（《大全》正文课例）', '三课不备、阳不备，原始四课有克，由第一入口命中。', '2019-07-17T11:00'),
-                    self::case('lesson.wuyin.yi_hai_si_shi_zi_jiang', '乙亥日·巳时·子将（《大全》正文课例）', '三课不备、阴不备，重复课位仍保留克贼检查，由第一入口命中。', '2020-02-02T09:00'),
-                    self::case('lesson.wuyin.jia_zi_mao_shi_hai_jiang', '甲子日·卯时·亥将（《大全》正文课例）', '四课完整；戌土克日支子水、申金克日干甲木，由第二入口命中。', '2023-03-07T05:00'),
+                    self::case('lesson.wuyin.yi_hai_si_shi_zi_jiang', '乙亥日·巳时·子将（《大全》正文课例）', '三课不备、阴不备，重复课位仍保留克贼检查，由第一入口命中。', '2020-02-02T09:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
+                    self::case('lesson.wuyin.jia_zi_mao_shi_hai_jiang', '甲子日·卯时·亥将（《大全》正文课例）', '四课完整；戌土克日支子水、申金克日干甲木，由第二入口命中。', '2023-03-07T05:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
                 ],
                 'source_examples' => [
                     ['label' => '乙卯日午时未将', 'path' => '三课不备且有克·阳不备', 'source' => '《六壬大全》正文', 'detail' => '四课辰巳、巳午、卯辰、辰巳，三传辰巳午。'],
@@ -687,8 +699,20 @@ final class KeJingCatalog
                 'guaSymbol' => '䷖',
                 'summary' => '四个原始课位中恰有三课上克下为幼度厄，恰有三课下贼上为长度厄。',
                 'cases' => [
-                    self::case('lesson.due.jia_zi_chou_shi_shen_jiang', '甲子日·丑时·申将（《大全》正文课例）', '四个原始课位恰有三课上克下，成立幼度厄；三传寅酉辰。', '2026-06-19T01:00'),
-                    self::case('lesson.due.ren_shen_zi_shi_wei_jiang', '壬申日·子时·未将（《大全》正文课例）', '四个原始课位恰有三课下贼上，成立长度厄；三传午丑申。', '2026-06-27T00:00'),
+                    self::case('lesson.due.jia_zi_chou_shi_shen_jiang', '甲子日·丑时·申将（《大全》正文课例）', '四个原始课位恰有三课上克下，成立幼度厄；三传寅酉辰。', '2026-06-19T01:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
+                    self::case('lesson.due.ren_shen_zi_shi_wei_jiang', '壬申日·子时·未将（《大全》正文课例）', '四个原始课位恰有三课下贼上，成立长度厄；三传午丑申。', '2026-06-27T00:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
                 ],
                 'source_examples' => [
                     ['label' => '甲子日丑时申将', 'path' => '幼度厄', 'source' => '《六壬大全》正文', 'detail' => '四课依次为上克下、上生下、上克下、上克下；三传寅酉辰。'],
@@ -702,8 +726,20 @@ final class KeJingCatalog
                 'guaSymbol' => '䷋',
                 'summary' => '四上俱克下为无禄，四下俱贼上为绝嗣。',
                 'cases' => [
-                    self::case('lesson.wulu_juesi.ji_si_yin_shi_you_jiang', '己巳日·寅时·酉将（《大全》正文课例）', '四个原始课位全部上克下，成立无禄。', '2026-04-25T03:00'),
-                    self::case('lesson.wulu_juesi.geng_chen_chen_shi_hai_jiang', '庚辰日·辰时·亥将（《大全》正文课例）', '四个原始课位全部下贼上，成立绝嗣。', '2026-03-07T07:00'),
+                    self::case('lesson.wulu_juesi.ji_si_yin_shi_you_jiang', '己巳日·寅时·酉将（《大全》正文课例）', '四个原始课位全部上克下，成立无禄。', '2026-04-25T03:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
+                    self::case('lesson.wulu_juesi.geng_chen_chen_shi_hai_jiang', '庚辰日·辰时·亥将（《大全》正文课例）', '四个原始课位全部下贼上，成立绝嗣。', '2026-03-07T07:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
                 ],
                 'source_examples' => [
                     ['label' => '己巳日寅时酉将', 'path' => '无禄', 'source' => '《六壬大全》正文', 'detail' => '四个原始课位依次均为上克下。'],
@@ -717,7 +753,7 @@ final class KeJingCatalog
                 'guaSymbol' => '䷨',
                 'summary' => '日干寄宫或日支与各自直接上神作六害，且初传为该组上下二神之一。',
                 'cases' => [
-                    self::case('lesson.qinhai.bing_zi_shen_shi_mao_jiang', '丙子日·申时·卯将（《大全》正文课例）', '支路子上未作六害，初传子为六害下神。', '2025-11-03T15:00'),
+                    self::case('lesson.qinhai.bing_zi_shen_shi_mao_jiang', '丙子日·申时·卯将（《大全》正文课例）', '支路子上未作六害，初传子为六害下神。', '2025-11-03T15:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan'),
                 ],
                 'source_examples' => [
                     ['label' => '丙子日申时卯将', 'path' => '支路下神发用', 'source' => '《六壬大全》正文', 'detail' => '子上未，子未六害；三传子未寅，初传子为下神。'],
@@ -737,6 +773,9 @@ final class KeJingCatalog
                         '2026-02-28T11:00',
                         '1986-08-01T00:00',
                         'male',
+                        [],
+                        'executable',
+                        'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -860,7 +899,7 @@ final class KeJingCatalog
                         '六月壬戌日·死神戌临日发用（正文结构复现）',
                         '1982年真实生产盘完整复现《六壬大全》结构：六月未月，死神戌乘白虎，加临壬干寄宫亥并发用，三传戌酉申。',
                         '1982-08-07T13:00',
-                        '1900-01-01T00:00',
+                        '1900-01-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                     self::case(
                         'lesson.pohua.ren_xu_branch_only',
@@ -919,6 +958,9 @@ final class KeJingCatalog
                         '2027-04-18T08:00',
                         '2002-06-01T12:00',
                         'male',
+                        [],
+                        'executable',
+                        'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -1018,7 +1060,7 @@ final class KeJingCatalog
                         self::DEFAULT_BIRTH,
                         self::DEFAULT_GENDER,
                         [],
-                        'executable',
+                        'executable', 'daquan',
                     ),
                 ],
                 'source_examples' => [
@@ -1042,7 +1084,7 @@ final class KeJingCatalog
                         'lesson.guimu.ghost_branch_tomb',
                         '壬午日·寅时·丑将（日鬼 + 日支墓）',
                         '日干壬对应正文日鬼为辰、戌；日支午属火，五行墓在戌。初传戌同时是日鬼与日支墓；此路线是本项目对《六壬大全》「日辰墓神及日鬼发用」采用 A-prime 的程序解释，不直接套用《订讹》壬日辰例。',
-                        '2026-01-08T03:00',
+                        '2026-01-08T03:00', '1986-08-01T00:00', 'male', [], 'executable', 'daquan',
                     ),
                     self::case(
                         'lesson.guimu.all_three',
@@ -1069,6 +1111,11 @@ final class KeJingCatalog
                         '戊子日·申时·午将·丑贵加卯（正文标准例现代复现）',
                         '2022 年真实生产盘完整复现《六壬大全》戊子例：昼贵丑加地盘卯，励德课成立。四课为卯、丑、戌、申，分别乘朱雀、贵人、玄武、白虎；日阴正乘贵人居中，不属于四种完整分型，仍然是励德课。',
                         '2022-08-03T16:00',
+                        '1986-08-01T00:00',
+                        'male',
+                        [],
+                        'executable',
+                        'daquan',
                     ),
                     self::case(
                         'lesson.lide.weifu_xin_chou',
@@ -1141,11 +1188,9 @@ final class KeJingCatalog
     public static function findReferenceCase(string $caseId): ?array
     {
         $found = self::findCase($caseId);
-
         if ($found === null) {
             return null;
         }
-
         if (($found['case']['status'] ?? 'executable') !== 'reference_only') {
             return null;
         }
@@ -1154,9 +1199,18 @@ final class KeJingCatalog
     }
 
     /**
+     * 把每条 case 标记成结构化来源字段。
+     *
+     * 该分类在 catalog 层一次性写入，运行期不再通过 label / reason 文案临时推断；
+     * KeJingPageCatalog 直接读取 case['source_type'] 决定是否归入《六壬大全》正文课例。
+     *
+     * 允许值：
+     *   - 'daquan'：原文属于《六壬大全》正文课例（不论是“标准课例”还是可执行复现）。
+     *   - 'other' ：非正文课例，包括程序验证样本、现代生产盘、古籍旁证、研究用案例等。
+     *
      * @param  list<array{role: string, birth_datetime: string, gender: string}>  $people
      * @param  'executable'|'reference_only'  $status
-     * @return array{case_id: string, label: string, reason: string, datetime: string, birth: string, gender: string, people: list<array{role: string, birth_datetime: string, gender: string}>, status: string}
+     * @return array{case_id: string, label: string, reason: string, datetime: string, birth: string, gender: string, people: list<array{role: string, birth_datetime: string, gender: string}>, status: string, source_type: string}
      */
     private static function case(
         string $caseId,
@@ -1167,6 +1221,7 @@ final class KeJingCatalog
         string $gender = self::DEFAULT_GENDER,
         array $people = [],
         string $status = 'executable',
+        string $sourceType = 'other',
     ): array {
         return [
             'case_id' => $caseId,
@@ -1177,6 +1232,7 @@ final class KeJingCatalog
             'gender' => $gender,
             'people' => $people,
             'status' => $status,
+            'source_type' => $sourceType,
         ];
     }
 }

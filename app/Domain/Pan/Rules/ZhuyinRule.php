@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》判断天魁戌、太乙巳同入三传所成的铸印课。 */
 final class ZhuyinRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.zhuyin';
 
     protected const NAME = '铸印课';

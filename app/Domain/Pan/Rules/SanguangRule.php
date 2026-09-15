@@ -3,10 +3,13 @@
 namespace App\Domain\Pan\Rules;
 
 use App\Domain\Pan\Facts\PanFacts;
+use App\Services\PanCalculator;
 
 /** 文件作用：判断日、辰、用神旺相且三处乘吉将所成的三光课。 */
 final class SanguangRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<int> */
     protected const AUSPICIOUS_GENERALS = [0, 3, 5, 8, 10, 11];
 
@@ -27,6 +30,47 @@ final class SanguangRule implements PanRule
     public function code(): string
     {
         return self::RULE_CODE;
+    }
+
+    public function definition(): array
+    {
+        return [
+            'description' => self::DESCRIPTION,
+            'xiang' => self::XIANG,
+            'foundations' => [
+                [
+                    'code' => 'day_stem_wang_xiang',
+                    'title' => '日干得旺相',
+                    'description' => '日干按本日所在月令得旺或相。',
+                ],
+                [
+                    'code' => 'day_branch_wang_xiang',
+                    'title' => '日支得旺相',
+                    'description' => '日支按本日所在月令得旺或相。',
+                ],
+                [
+                    'code' => 'initial_wang_xiang',
+                    'title' => '初传得旺相',
+                    'description' => '初传（发用）按本日所在月令得旺或相。',
+                ],
+                [
+                    'code' => 'day_upper_auspicious_general',
+                    'title' => '日上神乘吉将',
+                    'description' => '日干寄宫上神乘贵人、六合、青龙、太常、太阴、天后六吉将之一。',
+                ],
+                [
+                    'code' => 'branch_upper_auspicious_general',
+                    'title' => '辰上神乘吉将',
+                    'description' => '日支上神乘贵人、六合、青龙、太常、太阴、天后六吉将之一。',
+                ],
+                [
+                    'code' => 'initial_auspicious_general',
+                    'title' => '初传乘吉将',
+                    'description' => '初传所乘天将属于贵人、六合、青龙、太常、太阴、天后六吉将之一。',
+                ],
+            ],
+            'judgments' => [],
+        ];
     }
 
     public function match(PanFacts $facts): ?RuleMatch
@@ -53,15 +97,73 @@ final class SanguangRule implements PanRule
             'initial' => $facts->generalRidingBranch($initial),
         ];
 
-        if (! $facts->isStemWangOrXiang($stem)
-            || ! $facts->isBranchWangOrXiang($branch)
-            || ! $facts->isBranchWangOrXiang($initial)
-            || array_filter(
-                $generals,
-                fn (?int $general): bool => in_array($general, self::AUSPICIOUS_GENERALS, true),
-            ) !== $generals) {
+        $dayStemWang = $facts->isStemWangOrXiang($stem);
+        $dayBranchWang = $facts->isBranchWangOrXiang($branch);
+        $initialWang = $facts->isBranchWangOrXiang($initial);
+        $dayUpperAuspicious = in_array($generals['day_upper'], self::AUSPICIOUS_GENERALS, true);
+        $branchUpperAuspicious = in_array($generals['branch_upper'], self::AUSPICIOUS_GENERALS, true);
+        $initialAuspicious = in_array($generals['initial'], self::AUSPICIOUS_GENERALS, true);
+
+        if (! $dayStemWang || ! $dayBranchWang || ! $initialWang
+            || ! $dayUpperAuspicious || ! $branchUpperAuspicious || ! $initialAuspicious) {
             return null;
         }
+
+        $stemName = PanCalculator::$tiangan[$stem] ?? '?';
+        $branchName = PanCalculator::$dizhi[$branch] ?? '?';
+        $initialName = PanCalculator::$dizhi[$initial] ?? '?';
+        $dayUpperName = PanCalculator::$dizhi[$dayUpper] ?? '?';
+        $branchUpperName = PanCalculator::$dizhi[$branchUpper] ?? '?';
+        $generalNames = [
+            'day_upper' => PanCalculator::$tianjiang[$generals['day_upper']] ?? '?',
+            'branch_upper' => PanCalculator::$tianjiang[$generals['branch_upper']] ?? '?',
+            'initial' => PanCalculator::$tianjiang[$generals['initial']] ?? '?',
+        ];
+
+        $foundations = [
+            [
+                'code' => 'day_stem_wang_xiang',
+                'title' => '日干得旺相',
+                'description' => '日干按本日所在月令得旺或相。',
+                'matched' => true,
+                'evidence' => '日干'.$stemName.'得季节'.$facts->stemSeasonalStrength($stem).'。',
+            ],
+            [
+                'code' => 'day_branch_wang_xiang',
+                'title' => '日支得旺相',
+                'description' => '日支按本日所在月令得旺或相。',
+                'matched' => true,
+                'evidence' => '日支'.$branchName.'得季节'.$facts->branchSeasonalStrength($branch).'。',
+            ],
+            [
+                'code' => 'initial_wang_xiang',
+                'title' => '初传得旺相',
+                'description' => '初传（发用）按本日所在月令得旺或相。',
+                'matched' => true,
+                'evidence' => '初传'.$initialName.'得季节'.$facts->branchSeasonalStrength($initial).'。',
+            ],
+            [
+                'code' => 'day_upper_auspicious_general',
+                'title' => '日上神乘吉将',
+                'description' => '日干寄宫上神乘贵人、六合、青龙、太常、太阴、天后六吉将之一。',
+                'matched' => true,
+                'evidence' => '日上神'.$dayUpperName.'乘'.$generalNames['day_upper'].'。',
+            ],
+            [
+                'code' => 'branch_upper_auspicious_general',
+                'title' => '辰上神乘吉将',
+                'description' => '日支上神乘贵人、六合、青龙、太常、太阴、天后六吉将之一。',
+                'matched' => true,
+                'evidence' => '辰上神'.$branchUpperName.'乘'.$generalNames['branch_upper'].'。',
+            ],
+            [
+                'code' => 'initial_auspicious_general',
+                'title' => '初传乘吉将',
+                'description' => '初传所乘天将属于贵人、六合、青龙、太常、太阴、天后六吉将之一。',
+                'matched' => true,
+                'evidence' => '初传'.$initialName.'乘'.$generalNames['initial'].'。',
+            ],
+        ];
 
         return new RuleMatch(
             code: $this->code(),
@@ -72,6 +174,8 @@ final class SanguangRule implements PanRule
             guaSymbol: self::GUA_SYMBOL,
             xiang: self::XIANG,
             evidence: [
+                'foundations' => $foundations,
+                'judgments' => [],
                 'month_branch' => $facts->get('yuezhi'),
                 'day_stem' => $stem,
                 'day_branch' => $branch,

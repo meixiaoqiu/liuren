@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class YouziRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 月建地支到月内天马的固定映射。 */
     private const MONTH_TIANMA_BY_MONTH_BRANCH = [
         0 => 2,

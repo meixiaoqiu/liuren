@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：判断八专课是否同时构成三传皆同的独足格。 */
 final class DuzuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const CHUCHUAN_METHOD = 'bazhuan';
 
     protected const RULE_CODE = 'structure.duzu';

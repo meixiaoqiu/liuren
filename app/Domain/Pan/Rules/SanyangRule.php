@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：判断贵人顺行、日辰乘贵前五将且发用旺相所成的三阳课。 */
 final class SanyangRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.sanyang';
 
     protected const NAME = '三阳课';

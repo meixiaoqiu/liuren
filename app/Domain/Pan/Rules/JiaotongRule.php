@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：独立判断淫泆课篇所附狡童格，不以前置命中淫泆课为条件。 */
 final class JiaotongRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'structure.jiaotong';

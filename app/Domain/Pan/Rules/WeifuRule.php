@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：判断励德课下「日辰阴阳俱在天乙后」的微服格。 */
 final class WeifuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'structure.weifu';

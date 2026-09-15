@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》判断前后夹拱干支、两贵、年命、日禄、昼夜贵所成的引从课。 */
 final class YinCongRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.yincong';
 
     protected const NAME = '引从课';
@@ -42,6 +44,47 @@ final class YinCongRule implements PanRule
     public function code(): string
     {
         return self::RULE_CODE;
+    }
+
+    public function definition(): array
+    {
+        return [
+            'description' => self::DESCRIPTION,
+            'xiang' => self::XIANG,
+            'foundations' => [
+                [
+                    'code' => 'gang_tian_gan',
+                    'title' => '拱天干',
+                    'description' => '日干寄宫前一宫上神发用作初传，后一宫上神作末传，前后夹拱天干。',
+                ],
+                [
+                    'code' => 'gang_di_zhi',
+                    'title' => '拱地支',
+                    'description' => '日支前一宫上神发用作初传，后一宫上神作末传，前后夹拱地支。',
+                ],
+                [
+                    'code' => 'gui_lin_gan_zhi_gang_nian_ming',
+                    'title' => '贵临干支拱年命',
+                    'description' => '昼夜二贵分别加临日干寄宫与日支（方向不限），且干支前后夹拱占人年命。',
+                ],
+                [
+                    'code' => 'gang_ri_lu',
+                    'title' => '干支拱日禄',
+                    'description' => '日干寄宫与日支前后夹拱日禄（伏吟盘适用）。',
+                ],
+                [
+                    'code' => 'gang_ye_gui',
+                    'title' => '干支拱夜贵',
+                    'description' => '日干寄宫与日支前后夹拱夜贵（伏吟盘适用）。',
+                ],
+                [
+                    'code' => 'gang_zhou_gui',
+                    'title' => '干支拱昼贵',
+                    'description' => '日干寄宫与日支前后夹拱昼贵（伏吟盘适用）。',
+                ],
+            ],
+            'judgments' => [],
+        ];
     }
 
     public function match(PanFacts $facts): ?RuleMatch
@@ -94,69 +137,60 @@ final class YinCongRule implements PanRule
             return null;
         }
 
+        $matchedRoutes = [
+            'gang_tian_gan' => $gongGan,
+            'gang_di_zhi' => $gongZhi,
+            'gui_lin_gan_zhi_gang_nian_ming' => $gongNianming,
+            'gang_ri_lu' => $gongLu,
+            'gang_ye_gui' => $gongNightNoble,
+            'gang_zhou_gui' => $gongDayNoble,
+        ];
+
         $foundations = [];
 
+        $twoNobles = $initial === $dayNoble && $final === $nightNoble;
+        $stemCarriesNoble = ($tianpan[$lodging] ?? null) === $dayNoble || ($tianpan[$lodging] ?? null) === $nightNoble;
+        $branchCarriesNoble = ($tianpan[$rizhi] ?? null) === $dayNoble || ($tianpan[$rizhi] ?? null) === $nightNoble;
+
         if ($gongGan) {
-            // 两贵引从：拱天干的同时，初末传又恰好分别为昼夜二贵。
-            $twoNobles = is_int($dayNoble) && is_int($nightNoble)
-                && $initial === $dayNoble
-                && $final === $nightNoble;
-
-            // 拱贵：拱天干的同时，日干寄宫上神又乘昼夜贵。
-            $stemCarriesNoble = self::isNoble($tianpan[$lodging] ?? null, $dayNoble, $nightNoble);
-
-            $foundations[] = [
-                'title' => '拱天干',
-                'detail' => '日干寄宫'.self::BRANCH_NAMES[$lodging].'前一宫'.self::BRANCH_NAMES[($lodging + 1) % 12].'之上神'.self::BRANCH_NAMES[$initial].'发用作初传，后一宫'.self::BRANCH_NAMES[($lodging + 11) % 12].'之上神'.self::BRANCH_NAMES[$final].'作末传，前后夹拱天干。'
-                    .($twoNobles ? '又为两贵引从：初末传恰为昼夜二贵。' : '')
-                    .($stemCarriesNoble ? '又为拱贵：日干寄宫'.self::BRANCH_NAMES[$lodging].'上乘'.self::BRANCH_NAMES[$tianpan[$lodging]].'为贵。' : ''),
-            ];
+            $detail = '日干寄宫'.self::BRANCH_NAMES[$lodging].'前一宫'.self::BRANCH_NAMES[($lodging + 1) % 12].'之上神'.self::BRANCH_NAMES[$initial].'发用作初传，后一宫'.self::BRANCH_NAMES[($lodging + 11) % 12].'之上神'.self::BRANCH_NAMES[$final].'作末传，前后夹拱天干。'
+                .($twoNobles ? '又为两贵引从：初末传恰为昼夜二贵。' : '')
+                .($stemCarriesNoble ? '又为拱贵：日干寄宫'.self::BRANCH_NAMES[$lodging].'上乘'.self::BRANCH_NAMES[$tianpan[$lodging]].'为贵。' : '');
+            $foundations[] = self::foundationDefinition('gang_tian_gan', '拱天干', $detail, $gongGan);
         }
 
         if ($gongZhi) {
-            // 拱贵：拱地支的同时，日支上神又乘昼夜贵。
-            $branchCarriesNoble = self::isNoble($tianpan[$rizhi] ?? null, $dayNoble, $nightNoble);
-
-            $foundations[] = [
-                'title' => '拱地支',
-                'detail' => '日支'.self::BRANCH_NAMES[$rizhi].'前一宫'.self::BRANCH_NAMES[($rizhi + 1) % 12].'之上神'.self::BRANCH_NAMES[$initial].'发用作初传，后一宫'.self::BRANCH_NAMES[($rizhi + 11) % 12].'之上神'.self::BRANCH_NAMES[$final].'作末传，前后夹拱地支。'
-                    .($branchCarriesNoble ? '又为拱贵：日支'.self::BRANCH_NAMES[$rizhi].'上乘'.self::BRANCH_NAMES[$tianpan[$rizhi]].'为贵。' : ''),
-            ];
+            $detail = '日支'.self::BRANCH_NAMES[$rizhi].'前一宫'.self::BRANCH_NAMES[($rizhi + 1) % 12].'之上神'.self::BRANCH_NAMES[$initial].'发用作初传，后一宫'.self::BRANCH_NAMES[($rizhi + 11) % 12].'之上神'.self::BRANCH_NAMES[$final].'作末传，前后夹拱地支。'
+                .($branchCarriesNoble ? '又为拱贵：日支'.self::BRANCH_NAMES[$rizhi].'上乘'.self::BRANCH_NAMES[$tianpan[$rizhi]].'为贵。' : '');
+            $foundations[] = self::foundationDefinition('gang_di_zhi', '拱地支', $detail, $gongZhi);
         }
 
         if ($gongNianming) {
-            // 两贵方向：夜贵临干、昼贵临支，或昼贵临干、夜贵临支。
-            $nightOnStem = ($tianpan[$lodging] ?? null) === $nightNoble;
-            $stemNoble = $nightOnStem ? $nightNoble : $dayNoble;
-            $branchNoble = $nightOnStem ? $dayNoble : $nightNoble;
-            $stemLabel = $nightOnStem ? '夜贵' : '昼贵';
-            $branchLabel = $nightOnStem ? '昼贵' : '夜贵';
-
-            $foundations[] = [
-                'title' => '贵临干支拱年命',
-                'detail' => $stemLabel.self::BRANCH_NAMES[$stemNoble].'加临日干寄宫'.self::BRANCH_NAMES[$lodging].'，'.$branchLabel.self::BRANCH_NAMES[$branchNoble].'加临日支'.self::BRANCH_NAMES[$rizhi].'，干支前后夹拱年命'.self::BRANCH_NAMES[$nianming].'。',
-            ];
+            $foundations[] = self::foundationDefinition('gui_lin_gan_zhi_gang_nian_ming', '贵临干支拱年命',
+                self::buildGuiLinGanZhiGangNianmingDetail($lodging, $rizhi, $nianming, $tianpan, $dayNoble, $nightNoble),
+                $gongNianming,
+            );
         }
 
         if ($gongLu) {
-            $foundations[] = [
-                'title' => '干支拱日禄',
-                'detail' => '日干寄宫'.self::BRANCH_NAMES[$lodging].'与日支'.self::BRANCH_NAMES[$rizhi].'前后夹拱日禄'.self::BRANCH_NAMES[$lu].'。',
-            ];
+            $foundations[] = self::foundationDefinition('gang_ri_lu', '干支拱日禄',
+                '日干寄宫'.self::BRANCH_NAMES[$lodging].'与日支'.self::BRANCH_NAMES[$rizhi].'前后夹拱日禄'.self::BRANCH_NAMES[$lu].'。',
+                $gongLu,
+            );
         }
 
         if ($gongNightNoble) {
-            $foundations[] = [
-                'title' => '干支拱夜贵',
-                'detail' => '日干寄宫'.self::BRANCH_NAMES[$lodging].'与日支'.self::BRANCH_NAMES[$rizhi].'前后夹拱夜贵'.self::BRANCH_NAMES[$nightNoble].'。',
-            ];
+            $foundations[] = self::foundationDefinition('gang_ye_gui', '干支拱夜贵',
+                '日干寄宫'.self::BRANCH_NAMES[$lodging].'与日支'.self::BRANCH_NAMES[$rizhi].'前后夹拱夜贵'.self::BRANCH_NAMES[$nightNoble].'。',
+                $gongNightNoble,
+            );
         }
 
         if ($gongDayNoble) {
-            $foundations[] = [
-                'title' => '干支拱昼贵',
-                'detail' => '日干寄宫'.self::BRANCH_NAMES[$lodging].'与日支'.self::BRANCH_NAMES[$rizhi].'前后夹拱昼贵'.self::BRANCH_NAMES[$dayNoble].'。',
-            ];
+            $foundations[] = self::foundationDefinition('gang_zhou_gui', '干支拱昼贵',
+                '日干寄宫'.self::BRANCH_NAMES[$lodging].'与日支'.self::BRANCH_NAMES[$rizhi].'前后夹拱昼贵'.self::BRANCH_NAMES[$dayNoble].'。',
+                $gongDayNoble,
+            );
         }
 
         return new RuleMatch(
@@ -169,10 +203,59 @@ final class YinCongRule implements PanRule
             xiang: self::XIANG,
             evidence: [
                 'foundations' => $foundations,
+                'matched_routes' => array_keys(array_filter($matchedRoutes)),
                 'judgments' => [],
                 'uncovered' => self::UNCOVERED,
             ],
         );
+    }
+
+    /**
+     * @return array{code: string, title: string, description: string, matched: bool, evidence: ?string, detail: string}
+     */
+    private static function foundationDefinition(string $code, string $title, string $evidence, bool $matched): array
+    {
+        return [
+            'code' => $code,
+            'title' => $title,
+            'description' => self::staticFoundationDescription($code),
+            'matched' => $matched,
+            'evidence' => $matched ? $evidence : null,
+            'detail' => $matched ? $evidence : '',
+        ];
+    }
+
+    private static function staticFoundationDescription(string $code): string
+    {
+        return match ($code) {
+            'gang_tian_gan' => '日干寄宫前一宫上神发用作初传，后一宫上神作末传，前后夹拱天干。',
+            'gang_di_zhi' => '日支前一宫上神发用作初传，后一宫上神作末传，前后夹拱地支。',
+            'gui_lin_gan_zhi_gang_nian_ming' => '昼夜二贵分别加临日干寄宫与日支（方向不限），且干支前后夹拱占人年命。',
+            'gang_ri_lu' => '日干寄宫与日支前后夹拱日禄（伏吟盘适用）。',
+            'gang_ye_gui' => '日干寄宫与日支前后夹拱夜贵（伏吟盘适用）。',
+            'gang_zhou_gui' => '日干寄宫与日支前后夹拱昼贵（伏吟盘适用）。',
+            default => '',
+        };
+    }
+
+    /**
+     * @param  array<int, int>  $tianpan
+     */
+    private static function buildGuiLinGanZhiGangNianmingDetail(
+        int $lodging,
+        int $rizhi,
+        int $nianming,
+        array $tianpan,
+        int $dayNoble,
+        int $nightNoble,
+    ): string {
+        $nightOnStem = ($tianpan[$lodging] ?? null) === $nightNoble;
+        $stemNoble = $nightOnStem ? $nightNoble : $dayNoble;
+        $branchNoble = $nightOnStem ? $dayNoble : $nightNoble;
+        $stemLabel = $nightOnStem ? '夜贵' : '昼贵';
+        $branchLabel = $nightOnStem ? '昼贵' : '夜贵';
+
+        return $stemLabel.self::BRANCH_NAMES[$stemNoble].'加临日干寄宫'.self::BRANCH_NAMES[$lodging].'，'.$branchLabel.self::BRANCH_NAMES[$branchNoble].'加临日支'.self::BRANCH_NAMES[$rizhi].'，干支前后夹拱年命'.self::BRANCH_NAMES[$nianming].'。';
     }
 
     /** 判断某上神是否为昼夜贵之一。 */

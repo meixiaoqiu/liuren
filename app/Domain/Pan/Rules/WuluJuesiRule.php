@@ -11,6 +11,8 @@ use App\Services\PanCalculator;
  */
 final class WuluJuesiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'lesson.wulu_juesi';

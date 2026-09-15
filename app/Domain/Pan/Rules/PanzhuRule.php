@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class PanzhuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public const RULE_CODE = 'lesson.panzhu';
 
     public const NAME = '盘珠课';

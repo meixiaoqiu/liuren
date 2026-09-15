@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class SanjiaoRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<int> */
     private const ZHONG_BRANCHES = [0, 3, 6, 9];
 

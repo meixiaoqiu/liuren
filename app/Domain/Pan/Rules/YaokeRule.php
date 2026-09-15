@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义六十四课遥克课，涵盖蒿矢格与弹射格。 */
 final class YaokeRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     protected const METHODS = ['haoshi', 'tanshe'];
 

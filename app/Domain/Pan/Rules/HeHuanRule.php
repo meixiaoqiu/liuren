@@ -43,6 +43,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class HeHuanRule implements ContextAwareRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<int> 六吉将：贵、合、龙、常、阴、后。 */
     private const AUSPICIOUS_GENERALS = [0, 3, 5, 8, 10, 11];
 

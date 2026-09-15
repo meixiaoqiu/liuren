@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义六十四课返吟课，并覆盖返吟三传的取法。 */
 final class FanyinRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const PLATE_PATTERN = 'fanyin';
 
     protected const RULE_CODE = 'plate.fanyin';

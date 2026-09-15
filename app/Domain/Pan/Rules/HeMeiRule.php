@@ -11,6 +11,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class HeMeiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.he_mei';
 
     protected const NAME = '和美课';

@@ -8,6 +8,7 @@ use App\Domain\Pan\Facts\PanFacts;
 final class FanchangRule implements ContextAwareRule
 {
     use FanchangSupport;
+    use LessonDefinitionDefaults;
 
     protected const RULE_CODE = 'lesson.fanchang';
 

@@ -12,6 +12,8 @@ use App\Services\PanCalculator;
  */
 final class LongzhanRule implements ContextAwareRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.longzhan';
 
     protected const NAME = '龙战课';

@@ -12,6 +12,8 @@ use DateTimeZone;
 /** 文件作用：按《大全》四仲月将、四正或四平、天地二烦并见的主体定义判断二烦课。 */
 final class ErfanRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<int> */
     public const FOUR_ZHONG = [0, 3, 6, 9];
 

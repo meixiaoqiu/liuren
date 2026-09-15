@@ -7,9 +7,15 @@ namespace App\Support;
  *
  * 课序优先读取 docs/课经/NN-课名.md 的 NN，并按该编号排序；因此页面顺序跟随《六壬大全》研究文档的正式课序，
  * 不依赖 Blade 中的循环位置。KeJingCatalog 仍是课名、卦名、课例与旁证的唯一目录数据源。
+ *
+ * 是否属于《六壬大全》正文课例的判断一律读取 KeJingCatalog 已写入的结构化 source_type 字段，
+ * 不再通过 label / reason / source 等文案临时推断。
  */
 final class KeJingPageCatalog
 {
+    /** @var list<array<string, mixed>> */
+    private const ?array NONE = null;
+
     /** @return list<array<string, mixed>> */
     public static function lessons(): array
     {
@@ -80,19 +86,31 @@ final class KeJingPageCatalog
         return str_replace('_', '-', $raw);
     }
 
+    /**
+     * 直接读取 KeJingCatalog 已写入的结构化 source_type 字段。
+     *
+     * 允许值：
+     *   - 'daquan'：原文属于《六壬大全》正文课例。
+     *   - 其他     ：非正文课例，包括程序验证样本、现代生产盘、古籍旁证等。
+     *
+     * 该判断在 catalog 层一次性写入，运行期不再通过 label / reason 文案临时推断。
+     */
     private static function isDaquanCase(array $case): bool
     {
-        $text = ($case['label'] ?? '').' '.($case['reason'] ?? '');
-
-        if (str_contains($text, '非正文')) {
-            return false;
-        }
-
-        return str_contains($text, '《六壬大全》') || str_contains($text, '正文');
+        return ($case['source_type'] ?? 'other') === 'daquan';
     }
 
+    /**
+     * source_examples 的来源字段同样采用结构化判断；保持与 case 的 source_type 命名一致。
+     */
     private static function isDaquanSource(array $example): bool
     {
+        if (isset($example['source_type'])) {
+            return $example['source_type'] === 'daquan';
+        }
+
+        // 旧版 source_examples 仅通过 'source' 文案标注；为保留向后兼容，
+        // 未带新字段时回退到包含“《六壬大全》”的判断（仅一次性迁移期使用）。
         return str_contains((string) ($example['source'] ?? ''), '六壬大全');
     }
 

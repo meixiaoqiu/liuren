@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class LideRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public const RULE_CODE = 'lesson.lide';
 
     public const NAME = '励德课';
@@ -32,6 +34,35 @@ final class LideRule implements PanRule
         return self::RULE_CODE;
     }
 
+    public function definition(): array
+    {
+        return [
+            'description' => self::DESCRIPTION,
+            'xiang' => self::XIANG,
+            'foundations' => [
+                [
+                    'code' => 'nobleman_on_mao_you',
+                    'title' => '天乙贵人临卯酉',
+                    'description' => '天乙贵人临地盘卯或酉，励德课成课条件成立。',
+                ],
+            ],
+            'judgments' => [
+                [
+                    'code' => 'yang_front_yin_rear',
+                    'effect' => 'increase',
+                    'label' => '阳前阴后',
+                    'description' => '两阳神（日阳、辰阳）在贵前、两阴神（日阴、辰阴）在贵后，按《象曰》为「君子则吉，小人则危」。',
+                ],
+                [
+                    'code' => 'yin_front_yang_rear',
+                    'effect' => 'reduce',
+                    'label' => '阴前阳后',
+                    'description' => '两阴神在贵前、两阳神在贵后，按《象曰》为「小人得意，君子失机」。',
+                ],
+            ],
+        ];
+    }
+
     public function match(PanFacts $facts): ?RuleMatch
     {
         $noblemanGround = LideSupport::noblemanGround($facts);
@@ -42,13 +73,26 @@ final class LideRule implements PanRule
 
         $fourGods = LideSupport::fourGods($facts);
         $pattern = $fourGods === null ? null : LideSupport::pattern($fourGods);
+        $foundations = [];
         $judgments = [];
+
+        $groundName = PanCalculator::$dizhi[$noblemanGround] ?? '?';
+
+        $foundations[] = [
+            'code' => 'nobleman_on_mao_you',
+            'title' => '天乙贵人临卯酉',
+            'description' => '天乙贵人临地盘卯或酉，励德课成课条件成立。',
+            'matched' => true,
+            'evidence' => '天乙贵人临地盘'.$groundName.'，符合卯、酉之一，励德课成课条件成立。',
+        ];
 
         if ($pattern === 'yang_front_yin_rear') {
             $judgments[] = [
                 'code' => 'yang_front_yin_rear',
                 'effect' => 'increase',
                 'label' => '阳前阴后',
+                'description' => '两阳神（日阳、辰阳）在贵前、两阴神（日阴、辰阴）在贵后，按《象曰》为「君子则吉，小人则危」。',
+                'matched' => true,
                 'evidence' => LideSupport::describe($fourGods).'。两阳神在贵前、两阴神在贵后，按《象曰》为「君子则吉，小人则危」。',
             ];
         }
@@ -58,11 +102,11 @@ final class LideRule implements PanRule
                 'code' => 'yin_front_yang_rear',
                 'effect' => 'reduce',
                 'label' => '阴前阳后',
+                'description' => '两阴神在贵前、两阳神在贵后，按《象曰》为「小人得意，君子失机」。',
+                'matched' => true,
                 'evidence' => LideSupport::describe($fourGods).'。两阴神在贵前、两阳神在贵后，按《象曰》为「小人得意，君子失机」。',
             ];
         }
-
-        $groundName = PanCalculator::$dizhi[$noblemanGround] ?? '?';
 
         return new RuleMatch(
             code: self::RULE_CODE,
@@ -73,6 +117,7 @@ final class LideRule implements PanRule
             guaSymbol: self::GUA_SYMBOL,
             xiang: self::XIANG,
             evidence: [
+                'foundations' => $foundations,
                 'nobleman_ground' => $noblemanGround,
                 'nobleman_ground_name' => $groundName,
                 'four_gods' => $fourGods,

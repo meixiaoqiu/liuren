@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 按《六壬大全》严格口径判断：三课不备而原始四课有克，或日干、日支之上神交互克对方干支。 */
 final class WuyinRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'lesson.wuyin';

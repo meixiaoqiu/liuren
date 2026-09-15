@@ -8,6 +8,7 @@ use App\Domain\Pan\Facts\PanFacts;
 abstract class FanchangGridRule implements PanRule
 {
     use FanchangSupport;
+    use LessonDefinitionDefaults;
 
     protected const SLUG = '';
 

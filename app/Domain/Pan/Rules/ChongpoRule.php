@@ -14,6 +14,8 @@ use App\Services\PanCalculator;
  */
 final class ChongpoRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.chongpo';
 
     protected const NAME = '冲破课';

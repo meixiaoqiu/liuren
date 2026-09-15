@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》判断太岁乘贵人发用且月将入传所成的龙德课。 */
 final class LongdeRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.longde';
 
     protected const NAME = '龙德课';

@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：严格按四立日两组同向“干支同时相临”判断天祸课；发用不参与基础成立条件。 */
 final class TianhuoRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'lesson.tianhuo';

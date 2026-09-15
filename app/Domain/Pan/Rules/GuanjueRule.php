@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》课经正文判断驿马发用且魁常入传所成的官爵课。 */
 final class GuanjueRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.guanjue';
 
     protected const NAME = '官爵课';

@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：独立判断盘珠课篇所附回还格；三传俱在四课即可，不以前置命中盘珠课为条件。 */
 final class HuihuanRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'structure.huihuan';

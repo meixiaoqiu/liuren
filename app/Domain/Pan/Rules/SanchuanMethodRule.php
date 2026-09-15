@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：为中传、末传采用同一方法标识的具体三传规则提供公共机制。 */
 abstract readonly class SanchuanMethodRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const METHOD = '';
 
     protected const RULE_CODE = '';

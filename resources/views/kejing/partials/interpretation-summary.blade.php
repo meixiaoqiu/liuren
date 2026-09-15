@@ -1,20 +1,36 @@
 @php
     $mode = $mode ?? 'pan';
     $lessonPage = $lessonPage ?? \App\Support\KeJingPageCatalog::findByCode((string) ($interpretation['code'] ?? ''));
-    $foundations = $conditions ?? ($interpretation['evidence']['foundations'] ?? []);
-    if ($foundations === []) {
-        $foundations = [[
-            'title' => '主体成课条件',
-            'detail' => $interpretation['description'],
-        ]];
-    }
+    $staticDefinition = $staticDefinition ?? null;
 
-    $displayJudgments = $judgments ?? ($interpretation['evidence']['judgments'] ?? []);
-    if ($mode === 'pan') {
+    /**
+     * 详情页与排盘页共用同一份结构化数据：
+     *  - detail 模式使用 PanRule::definition() 的完整静态定义；
+     *  - pan 模式使用当前盘 RuleMatch.evidence 中只保留 matched=true 的项。
+     */
+    if ($mode === 'detail') {
+        $foundations = $foundations ?? ($staticDefinition['foundations'] ?? []);
+        $displayJudgments = $judgments ?? ($staticDefinition['judgments'] ?? []);
+        $staticDescription = (string) ($staticDefinition['description'] ?? '');
+        $xiangSource = $interpretation['xiang'] ?? ($staticDefinition['xiang'] ?? null);
+    } else {
+        $foundations = $foundations ?? ($interpretation['evidence']['foundations'] ?? []);
+        $foundations = array_values(array_filter(
+            $foundations,
+            static fn (array $foundation): bool => array_key_exists('matched', $foundation)
+                ? $foundation['matched'] === true
+                : true,
+        ));
+
+        $displayJudgments = $judgments ?? ($interpretation['evidence']['judgments'] ?? []);
         $displayJudgments = array_values(array_filter(
             $displayJudgments,
-            static fn (array $judgment): bool => ($judgment['matched'] ?? true) !== false,
+            static fn (array $judgment): bool => array_key_exists('matched', $judgment)
+                ? $judgment['matched'] === true
+                : true,
         ));
+        $staticDescription = '';
+        $xiangSource = $interpretation['xiang'] ?? null;
     }
 
     $effectMeta = [
@@ -54,8 +70,8 @@
 
         <section class="mt-5">
             <h3 class="text-sm font-semibold tracking-wide text-base-content/70">象曰</h3>
-            @if ($interpretation['xiang'] !== null)
-                <p class="mt-2 italic leading-7 text-base-content/55">{{ $interpretation['xiang'] }}</p>
+            @if ($xiangSource !== null)
+                <p class="mt-2 italic leading-7 text-base-content/55">{{ $xiangSource }}</p>
             @else
                 <p class="mt-2 text-sm leading-6 text-base-content/45">当前正式规则尚未结构化录入本课《象曰》，页面不自行补写。</p>
             @endif
@@ -70,35 +86,95 @@
 
 <section class="pan-block mt-5 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}成立条件">
     <h3 class="text-sm font-semibold tracking-wide text-base-content/70">成立条件</h3>
-    <ol class="mt-4 space-y-4">
-        @foreach ($foundations as $index => $foundation)
-            <li class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-2">
-                <span class="grid size-7 place-items-center rounded-full bg-primary/12 text-xs font-semibold text-primary">{{ $index + 1 }}</span>
-                <div>
-                    <strong>{{ $foundation['title'] }}</strong>
-                    <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $foundation['detail'] }}</p>
-                </div>
-            </li>
-        @endforeach
-    </ol>
+
+    @if ($foundations === [])
+        <p class="mt-3 text-sm leading-6 text-base-content/45">
+            @if ($mode === 'detail')
+                当前正式规则尚未结构化录入本课成立条件，详情页不擅自以 description 反推。
+            @else
+                当前正式规则尚未结构化录入本课成立条件；解盘信息按 RuleMatch.evidence 输出。
+            @endif
+        </p>
+    @else
+        <ol class="mt-4 space-y-4">
+            @foreach ($foundations as $index => $foundation)
+                @php
+                    $foundationCode = $foundation['code'] ?? null;
+                    $foundationMatched = array_key_exists('matched', $foundation) ? $foundation['matched'] === true : null;
+                    $foundationDetail = $foundation['evidence'] ?? $foundation['detail'] ?? null;
+                    $foundationDescription = $foundation['description'] ?? '';
+                @endphp
+                <li class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-2">
+                    <span class="grid size-7 place-items-center rounded-full bg-primary/12 text-xs font-semibold text-primary">{{ $index + 1 }}</span>
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <strong>{{ $foundation['title'] }}</strong>
+                            @if ($mode === 'detail')
+                                @if ($foundationMatched === true)
+                                    <x-badge value="本盘命中" class="badge-success badge-soft" />
+                                @elseif ($foundationMatched === false)
+                                    <x-badge value="本盘未命中" class="badge-ghost badge-soft" />
+                                @endif
+                            @elseif ($foundationMatched === true)
+                                <x-badge value="已成立" class="badge-success badge-soft" />
+                            @endif
+                        </div>
+                        <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $foundationDescription }}</p>
+                        @if ($foundationMatched === true && $foundationDetail !== null && $foundationDetail !== '')
+                            <p class="mt-1 text-xs leading-5 text-base-content/55">当前盘：{{ $foundationDetail }}</p>
+                        @endif
+                    </div>
+                </li>
+            @endforeach
+        </ol>
+    @endif
 </section>
 
 @if ($mode === 'detail' || $displayJudgments !== [])
     <section class="pan-block mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}增益和减损条件">
         <h3 class="text-sm font-semibold tracking-wide text-base-content/70">增益和减损条件</h3>
 
-        @if ($displayJudgments === [])
-            <p class="mt-3 text-sm leading-6 text-base-content/50">当前正式规则及已收录可执行课例未定义独立增益、减损或例外条件。</p>
+        @if ($mode === 'detail' && $displayJudgments === [])
+            <p class="mt-3 text-sm leading-6 text-base-content/45">
+                @if (($staticDefinition['foundations'] ?? []) === [])
+                    当前正式规则尚未结构化录入本课成立条件与增益减损条件，详情页不擅自以 description 反推。
+                @else
+                    当前正式规则未为本课定义独立的增益、减损或例外条件；详情页不擅自补写。
+                @endif
+            </p>
+        @elseif ($displayJudgments === [])
+            <p class="mt-3 text-sm leading-6 text-base-content/50">当前盘未触发任何独立增益、减损或例外条件。</p>
         @else
             <div class="mt-3 space-y-3">
                 @foreach ($displayJudgments as $judgment)
+                    @php
+                        $judgmentMatched = array_key_exists('matched', $judgment) ? $judgment['matched'] === true : null;
+                        $judgmentDescription = $judgment['description'] ?? '';
+                        $judgmentEvidence = $judgment['evidence'] ?? null;
+                    @endphp
                     <div class="border-l-2 border-primary/35 pl-4">
-                        @if (isset($judgment['effect'], $effectMeta[$judgment['effect']]))
-                            <x-badge :value="$effectMeta[$judgment['effect']]['label']" class="{{ $effectMeta[$judgment['effect']]['class'] }}" />
+                        <div class="flex flex-wrap items-center gap-2">
+                            @if (isset($judgment['effect'], $effectMeta[$judgment['effect']]))
+                                <x-badge :value="$effectMeta[$judgment['effect']]['label']" class="{{ $effectMeta[$judgment['effect']]['class'] }}" />
+                            @endif
+                            <strong>{{ $judgment['label'] }}</strong>
+                            @if ($mode === 'detail')
+                                @if ($judgmentMatched === true)
+                                    <x-badge value="本盘命中" class="badge-success badge-soft" />
+                                @elseif ($judgmentMatched === false)
+                                    <x-badge value="本盘未触发" class="badge-ghost badge-soft" />
+                                @else
+                                    <x-badge value="静态条件" class="badge-ghost badge-soft" />
+                                @endif
+                            @elseif ($judgmentMatched === true)
+                                <x-badge value="已触发" class="badge-success badge-soft" />
+                            @endif
+                        </div>
+                        <p class="mt-1 text-sm leading-6 text-base-content/60">{{ $judgmentDescription }}</p>
+                        @if ($judgmentMatched === true && $judgmentEvidence !== null && $judgmentEvidence !== '')
+                            <p class="mt-1 text-xs leading-5 text-base-content/55">当前盘：{{ $judgmentEvidence }}</p>
                         @endif
-                        <strong class="mt-2 block">{{ $judgment['label'] }}</strong>
-                        <p class="mt-1 text-sm leading-6 text-base-content/60">{{ $judgment['evidence'] }}</p>
-                        @if (! empty($judgment['examples'] ?? []))
+                        @if ($mode === 'detail' && ! empty($judgment['examples'] ?? []))
                             <p class="mt-1 text-xs leading-5 text-base-content/40">课例覆盖：{{ implode('、', $judgment['examples']) }}</p>
                         @endif
                     </div>

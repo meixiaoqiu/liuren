@@ -46,8 +46,8 @@
                     @include('kejing.partials.interpretation-summary', [
                         'interpretation' => $interpretation,
                         'lessonPage' => $lesson,
+                        'staticDefinition' => $detail['staticDefinition'],
                         'mode' => 'detail',
-                        'judgments' => $detail['judgments'],
                     ])
 
                     @if ($traceSpec !== null && $pan !== null && $detail['canonicalCase'] !== null)
@@ -84,6 +84,19 @@
                 @endif
 
                 <section class="mt-6">
+                    <x-card shadow class="pan-data-card">
+                        <x-collapse collapse-plus-minus>
+                            <x-slot:heading>
+                                <span class="font-semibold">古籍相关课例与旁证</span>
+                            </x-slot:heading>
+                            <x-slot:content>
+                                <p class="text-sm leading-6 text-base-content/50">
+                                    此处仅保留与成课判定直接相关的古籍材料摘要；完整原文、冲突、取舍与统计见上方研究记录。
+                                </p>
+                            </x-slot:content>
+                        </x-collapse>
+                    </x-card>
+
                     <x-header
                         title="《六壬大全》正文课例"
                         subtitle="正文课例全部保留；能由正式程序复现者可直接点击排盘，原文材料则逐条列出。"

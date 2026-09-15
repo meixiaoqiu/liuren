@@ -4,16 +4,21 @@
     $seasonalPeriod = $reasoning['seasonal_period'];
 @endphp
 
-<section class="pan-block mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="三光判断过程">
+<section class="pan-block mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="三光详细计算">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h3 class="font-semibold">三光判断</h3>
+            <h3 class="font-semibold">三光详细计算</h3>
             <p class="mt-1 text-sm text-base-content/55">
                 {{ $seasonalPeriod['name'] }}：{{ $wuxing[$wangXiang['wang']] }}旺，{{ $wuxing[$wangXiang['xiang']] }}相
             </p>
         </div>
         <x-badge value="三处皆成" class="badge-primary badge-soft" />
     </div>
+
+    <p class="mt-3 text-xs leading-5 text-base-content/45">
+        旺相时段：{{ $seasonalPeriod['starts_at'] }} 至 {{ $seasonalPeriod['ends_at'] }}。
+        四季末十八日按下一个四立交节时刻前推十八个整日计算。
+    </p>
 
     <div class="mt-4 grid gap-3 md:grid-cols-3">
         @foreach ($reasoning['positions'] as $position)
@@ -45,11 +50,6 @@
             </div>
         @endforeach
     </div>
-
-    <p class="mt-3 text-xs leading-5 text-base-content/45">
-        旺相时段：{{ $seasonalPeriod['starts_at'] }} 至 {{ $seasonalPeriod['ends_at'] }}。
-        四季末十八日按下一个四立交节时刻前推十八个整日计算。
-    </p>
 
     <p class="mt-4 text-sm leading-6 text-base-content/60">日、辰、用三处均旺相且乘吉将，故成三光课。</p>
 </section>

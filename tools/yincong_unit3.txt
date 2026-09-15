@@ -1,0 +1,16 @@
+﻿
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\YinCongRuleTest[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when initial and final transmissions flank the day[39m[90m… [39m [90m0.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90myincong matches when initial and final transmissions flank the day branch[39m
+  [32;1m✓[39;22m[90m [39m[90myincong marks two-noble yin cong when the transmissions are the two nobles[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when nobles flank the stem and branch to embrace the birth year[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches nobles on the stem and branch in either direction[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when stem and branch flank the day prosperity in fuyin[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when stem and branch flank the night noble in fuyin[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when stem and branch flank the day noble in fuyin[39m
+  [32;1m✓[39;22m[90m [39m[90myincong does not match when the transmissions do not flank the stem or branch[39m
+  [32;1m✓[39;22m[90m [39m[90myincong does not match when the initial or final transmission is displaced[39m
+
+  [90mTests:[39m    [32;1m10 passed[39;22m[90m (26 assertions)[39m
+  [90mDuration:[39m [39m0.37s[39m
+

@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义六十四课知一课，统一涵盖九宗门中的比用法与知一法。 */
 final class ZhiyiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     protected const METHODS = ['biyong', 'zhiyi'];
 
