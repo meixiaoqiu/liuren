@@ -1,3 +1,4 @@
+@if (! ($suppressCoreTrace ?? false))
 @php
     $hasJudgments = ! empty($trace['judgments'] ?? []);
     $effectMeta = [
@@ -47,3 +48,5 @@
         @endif
     </div>
 </section>
+
+@endif

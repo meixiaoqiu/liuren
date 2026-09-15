@@ -55,7 +55,7 @@
                             <x-collapse collapse-plus-minus>
                                 <x-slot:heading>
                                     <div>
-                                        <strong>标准课例判定细节</strong>
+                                        <strong>{{ $traceSpec['title'] }} · 标准课例判定细节</strong>
                                         <p class="mt-1 text-xs text-base-content/45">{{ $detail['canonicalCase']['label'] }} · 与排盘“解盘信息”复用同一判定模板</p>
                                     </div>
                                 </x-slot:heading>
@@ -63,6 +63,7 @@
                                     @include($traceSpec['view'], [
                                         'trace' => $interpretation['evidence'],
                                         'title' => $traceSpec['title'],
+                                        'suppressCoreTrace' => true,
                                     ])
                                 </x-slot:content>
                             </x-collapse>

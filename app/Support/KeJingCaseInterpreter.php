@@ -29,20 +29,18 @@ final readonly class KeJingCaseInterpreter
     /** @return array<string, mixed> */
     public function build(array $lesson): array
     {
-        $evaluated = [];
+        $canonical = null;
 
         foreach ($lesson['cases'] ?? [] as $case) {
             if (($case['status'] ?? 'executable') !== 'executable') {
                 continue;
             }
 
-            $evaluation = $this->evaluateCase($case, (string) $lesson['code']);
-            if ($evaluation !== null) {
-                $evaluated[] = $evaluation;
+            $canonical = $this->evaluateCase($case, (string) $lesson['code']);
+            if ($canonical !== null) {
+                break;
             }
         }
-
-        $canonical = $evaluated[0] ?? null;
         $interpretation = $canonical['interpretation'] ?? [
             'code' => $lesson['code'],
             'name' => $lesson['name'],
@@ -62,7 +60,10 @@ final readonly class KeJingCaseInterpreter
             'pan' => $canonical['pan'] ?? null,
             'canonicalCase' => $canonical['case'] ?? null,
             'xundunLabels' => $canonical['xundunLabels'] ?? [],
-            'uncovered' => $this->collectUncovered($evaluated),
+            'uncovered' => array_values(array_filter(
+                $canonical['interpretation']['evidence']['uncovered'] ?? [],
+                static fn ($item): bool => is_string($item) && $item !== '',
+            )),
         ];
     }
 
@@ -156,22 +157,6 @@ final readonly class KeJingCaseInterpreter
             'pan' => $pan,
             'xundunLabels' => $this->xundunLabels($pan),
         ];
-    }
-
-    /** @param list<array<string, mixed>> $evaluated @return list<string> */
-    private function collectUncovered(array $evaluated): array
-    {
-        $items = [];
-
-        foreach ($evaluated as $evaluation) {
-            foreach ($evaluation['interpretation']['evidence']['uncovered'] ?? [] as $item) {
-                if (is_string($item) && $item !== '') {
-                    $items[$item] = true;
-                }
-            }
-        }
-
-        return array_keys($items);
     }
 
     /** @return array<int, string> */

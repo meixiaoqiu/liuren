@@ -9,5 +9,15 @@ interface PanRule
 {
     public function code(): string;
 
+    /**
+     * @return array{
+     *     description: string,
+     *     xiang: ?string,
+     *     foundations: list<array<string, mixed>>,
+     *     judgments: list<array<string, mixed>>
+     * }
+     */
+    public function definition(): array;
+
     public function match(PanFacts $facts): ?RuleMatch;
 }

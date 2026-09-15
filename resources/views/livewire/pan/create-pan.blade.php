@@ -282,6 +282,7 @@
                                 @foreach ($lessonInterpretations as $interpretation)
                                     <article class="flow-root py-1">
                                         @php($kejingPage = \App\Support\KeJingPageCatalog::findByCode($interpretation['code']))
+                                        @php($suppressCoreTrace = $kejingPage !== null)
                                         @if ($kejingPage !== null)
                                             @include('kejing.partials.interpretation-summary', [
                                                 'interpretation' => $interpretation,

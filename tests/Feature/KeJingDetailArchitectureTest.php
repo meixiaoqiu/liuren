@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Pan\Rules\PanRule;
+use App\Domain\Pan\Rules\RuleRegistry;
 use App\Livewire\Pan\CreatePan;
 use App\Support\KeJingCatalog;
 use App\Support\KeJingPageCatalog;
@@ -84,4 +86,48 @@ test('legacy research docs do not masquerade excerpts as complete daquan origina
         ->assertOk()
         ->assertSee('《六壬大全》完整原文')
         ->assertSee('尚未结构化录入');
+});
+
+test('registered pan rules expose the static lesson definition contract', function () {
+    foreach ((new RuleRegistry)->rules() as $rule) {
+        expect($rule)->toBeInstanceOf(PanRule::class);
+
+        $definition = $rule->definition();
+        expect($definition)
+            ->toHaveKeys(['description', 'xiang', 'foundations', 'judgments'])
+            ->and($definition['foundations'])->toBeArray()
+            ->and($definition['judgments'])->toBeArray();
+    }
+});
+
+test('shared lesson trace can suppress foundations already rendered by the common summary', function () {
+    $html = view('livewire.pan.partials.lesson-trace', [
+        'title' => '测试判断',
+        'trace' => [
+            'foundations' => [[
+                'title' => '主体条件',
+                'description' => '不应重复显示',
+            ]],
+            'judgments' => [[
+                'label' => '增强条件',
+                'effect' => 'increase',
+                'evidence' => '不应重复显示',
+            ]],
+        ],
+        'suppressCoreTrace' => true,
+    ])->render();
+
+    expect(trim($html))->toBe('');
+});
+
+test('generic kejing detail does not render a duplicate canonical trace section', function () {
+    $this->get(route('kejing.show', ['lesson' => 'yincong']))
+        ->assertOk()
+        ->assertSee('成立条件')
+        ->assertDontSee('标准课例判定细节');
+
+    $this->get(route('kejing.show', ['lesson' => 'jieli']))
+        ->assertOk()
+        ->assertSee('成立条件')
+        ->assertDontSee('标准课例判定细节');
 });

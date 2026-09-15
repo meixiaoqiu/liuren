@@ -46,11 +46,16 @@ final class KeJingTraceView
             return null;
         }
 
+        $view = self::SPECIAL_VIEWS[$code] ?? null;
+        if ($view === null) {
+            return null;
+        }
+
         $name = (string) ($interpretation['name'] ?? '课经');
         $baseName = preg_replace('/课$/u', '', $name) ?: $name;
 
         return [
-            'view' => self::SPECIAL_VIEWS[$code] ?? 'livewire.pan.partials.lesson-trace',
+            'view' => $view,
             'title' => $baseName.'判断',
         ];
     }
