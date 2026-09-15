@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义返吟课中四课无克、依井栏射法取传所成的井栏格。 */
 final class JinglanRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const METHOD = 'fanyin_wuqin';
 
     protected const RULE_CODE = 'structure.jinglan';

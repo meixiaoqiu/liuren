@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：按项目冻结口径判断《六壬大全》淫泆课主体。 */
 final class YinyiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     private const MAO_YOU = [3, 9];
 
     private const HOU_HE = [3, 11];

@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class BikouRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     private const XUANWU = 9;
 
     protected const RULE_CODE = 'lesson.bikou';

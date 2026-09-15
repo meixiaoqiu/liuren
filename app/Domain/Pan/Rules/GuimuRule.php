@@ -18,6 +18,8 @@ use App\Services\PanCalculator;
  */
 final class GuimuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public const RULE_CODE = 'lesson.guimu';
 
     public const NAME = '鬼墓课';

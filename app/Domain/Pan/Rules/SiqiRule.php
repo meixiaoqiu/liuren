@@ -18,6 +18,8 @@ use App\Services\PanCalculator;
  */
 final class SiqiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.siqi';
 
     protected const NAME = '死奇课';

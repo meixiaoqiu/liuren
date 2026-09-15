@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：为仅按计算轨迹中的初传方法匹配的具体课格提供公共机制。 */
 abstract readonly class ChuchuanMethodRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const METHOD = '';
 
     protected const NAME = '';

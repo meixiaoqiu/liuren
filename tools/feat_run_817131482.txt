@@ -1,0 +1,272 @@
+﻿
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\AdminAccessTest[39m
+  [32;1m✓[39;22m[90m [39m[90mFilament admin login page remains available[39m[90m                         [39m [90m0.98s[39m  
+  [32;1m✓[39;22m[90m [39m[90muser exposes the access contract required by Filament[39m[90m               [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlocal and testing environments allow admin access when no admin ema[39m[90m…[39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mconfigured admin email whitelist grants access only to verified mat[39m[90m…[39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mproduction denies admin access when no whitelist is configured[39m[90m      [39m [90m0.21s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\ExampleTest[39m
+  [32;1m✓[39;22m[90m [39m[90mreturns a successful response[39m[90m                                       [39m [90m0.22s[39m  
+
+  [39;41;1m FAIL [39;49;22m[39m Tests\Feature\FrontendPanTest[39m
+  [32;1m✓[39;22m[90m [39m[90mfrontend pan page is available[39m[90m                                      [39m [90m0.60s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend calculation matches the calculator without side effects[39m[90m    [39m [90m2.77s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects an invalid datetime[39m[90m                                [39m [90m0.92s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend persists reusable pan inputs in browser local storage[39m[90m      [39m [90m0.50s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend keeps the form available when get parameters are invalid[39m[90m   [39m [90m0.67s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects a lesson time before the birth time[39m[90m                [39m [90m1.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend explains the shehai process for a shehai lesson[39m[90m            [39m [90m1.45s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend distinguishes a fanyin pattern from its initial transmissi[39m[90m…[39m [90m1.33s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows jinglan as a grid of fanyin rather than wuqin lesson[39m[90m [39m [90m1.27s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows sanguang lesson with ben hexagram[39m[90m                    [39m [90m1.46s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows sanyang lesson with jin hexagram[39m[90m                     [39m [90m1.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows sanqi lesson and records lianzhu without inventing a[39m[90m…[39m [90m1.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows liuyi lesson with dui hexagram and its reasoning[39m[90m     [39m [90m1.41s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows guanjue lesson with yi hexagram and its reasoning[39m[90m    [39m [90m1.36s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows rong-hua lesson with jian hexagram and its reasoning[39m[90m [39m [90m1.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows fugui lesson with dayou hexagram and its reasoning[39m[90m   [39m [90m1.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows fugui imprisonment and exception as an ordered judgm[39m[90m…[39m [90m0.96s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend accepts reproducible pan inputs from get parameters[39m[90m        [39m [90m1.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows shitai lesson with the daquan text and correction re[39m[90m…[39m [90m1.52s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows longde lesson with cui hexagram and its reasoning[39m[90m    [39m [90m1.58s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend does not classify a fanyin lesson using jianji selection a[39m[90m…[39m [90m1.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend does not classify a fanyin lesson using biyong selection a[39m[90m…[39m [90m1.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend does not classify a fanyin lesson using chongshen selectio[39m[90m…[39m [90m1.28s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend hides the ordinary tianpan shunchuan explanation without l[39m[90m…[39m [90m1.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows maoxing lesson with its hushi grid and hexagram[39m[90m      [39m [90m1.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend leaves biezhe hexagram empty according to liuren daquan[39m[90m    [39m [90m1.36s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the tongren gua metadata for a bazhuan lesson[39m[90m        [39m [90m1.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows both duzu and weibu buxiu grids when a bazhuan lesso[39m[90m…[39m [90m1.62s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the qian gua metadata for a yuanshou lesson[39m[90m          [39m [90m1.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the kun gua metadata for a chongshen lesson[39m[90m          [39m [90m1.41s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the bi gua metadata for a zhiyi lesson[39m[90m               [39m [90m1.27s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend classifies the biyong method as the zhiyi lesson[39m[90m           [39m [90m1.41s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the kan gua metadata for a shehai lesson[39m[90m             [39m [90m1.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows xuangai lesson with sheng hexagram and its reasoning[39m[90m [39m [90m1.37s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend does not classify a non-wu-mao-zi transmission as xuangai[39m[90m… [39m [90m1.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the verified wangxiang condition for a xuangai lesso[39m[90m…[39m [90m1.61s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows the empty transmission condition for a xuangai lesso[39m[90m…[39m [90m1.53s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows zhuyin lesson with ding hexagram and its reasoning[39m[90m   [39m [90m1.33s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows zhuolun lesson with yi hexagram and its reasoning[39m[90m    [39m [90m1.33s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows yincong lesson with huan hexagram and its reasoning[39m[90m  [39m [90m1.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows yincong lesson with day prosperity flanking in fuyin[39m[90m [39m [90m1.32s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows hengtong lesson with jian hexagram and its grids[39m[90m     [39m [90m1.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows hengtong lesson with ju-wang grid[39m[90m                    [39m [90m1.52s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend classifies the de-yun lesson pan as fanchang with the de-y[39m[90m…[39m [90m1.99s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows fanchang lesson with wang-yun grid[39m[90m                   [39m [90m2.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend marks fanchang as not evaluated without a spouse[39m[90m           [39m [90m1.58s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnot_evaluated notice is rendered below all lesson interpretations[39m[90m   [39m [90m1.60s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects a spouse with the same gender as the querent[39m[90m       [39m [90m1.54s[39m  
+  [32;1m✓[39;22m[90m [39m[90madding a second person after a spouse defaults to the other role[39m[90m    [39m [90m1.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects more than the people array max (anti-DoS)[39m[90m          [39m [90m2.36s[39m  
+  [32;1m✓[39;22m[90m [39m[90maddPerson refuses to grow the people array past the max[39m[90m             [39m [90m2.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects more than one spouse in the people array[39m[90m           [39m [90m1.73s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects two spouses with different genders[39m[90m                 [39m [90m1.73s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows bikou lesson and reasoning for the daquan example[39m[90m    [39m [90m1.45s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows youzi lesson and reasoning for the daquan example[39m[90m    [39m [90m1.51s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows zhuixu branch path for the daquan jia-xu example[39m[90m     [39m [90m1.71s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows sanjiao lesson and its three-layer reasoning[39m[90m         [39m [90m1.53s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows zhuixu stem path for the daquan bing-shen example[39m[90m    [39m [90m1.64s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows chongpo reasoning for the modern reproduction of the[39m[90m…[39m [90m1.45s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows yinyi and jiaotong independently for the xin-wei exa[39m[90m…[39m [90m1.39s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows independent yinv without yinyi for the wu-xu example[39m[90m [39m [90m1.56s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows wuyin reasoning for the corrected yi-hai example[39m[90m     [39m [90m1.53s[39m  
+  [32;1m✓[39;22m[90m [39m[90mshared lesson trace hides the entire judgment column when no indepe[39m[90m…[39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows jieli reasoning and omits an unfrozen hexagram badge[39m[90m [39m [90m2.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows due subtype and concrete raw restraint facts[39m[90m         [39m [90m1.49s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows wulu-juesi subtype and concrete raw restraint facts[39m[90m  [39m [90m2.68s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows qinhai lower-deity route and frozen exclusions[39m[90m       [39m [90m1.56s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows zhunfu lesson and all frozen reasoning for the stand[39m[90m…[39m [90m1.68s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows xingshang direction evidence and context boundary[39m[90m    [39m [90m1.65s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows erfan calendar and heaven-earth lodge evidence[39m[90m       [39m [90m1.55s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows tianhuo four-li and strict stem-branch evidence[39m[90m      [39m [90m1.71s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows tianyu dou xi ri ben and multiple initial routes[39m[90m     [39m [90m1.73s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows tianyu grave-only route without expanding rest into[39m[90m… [39m [90m1.78s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows tiankou fen-zhi li-chen and moon-palace evidence[39m[90m     [39m [90m1.67s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend reports tiankou as not evaluated when fen-zhi moon data is[39m[90m…[39m [90m1.56s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows tianwang evidence when different time and initial br[39m[90m…[39m [90m1.62s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend does not show tianwang when only the time branch restrains[39m[90m…[39m [90m1.48s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows pohua foundations and judgments for the reproduced j[39m[90m…[39m [90m1.91s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend explicitly shows branch-only pohua despite no initial tran[39m[90m…[39m [90m2.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows sanyin three groups with concrete modern production[39m[90m… [39m [90m1.78s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend marks sanyin not evaluated without querent xingnian[39m[90m        [39m [90m2.44s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows longzhan strict same-position trace from the executa[39m[90m…[39m [90m2.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend renders longzhan not-evaluated notice[39m[90m                      [39m [90m2.61s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows independent yixun zhoubian grid without bikou lesson[39m[90m [39m [90m2.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrecent lesson explanations do not expose implementation notation wi[39m[90m…[39m [90m2.32s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrecent lesson explanations do not expose implementation notation wi[39m[90m…[39m [90m2.32s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrecent lesson explanations do not expose implementation notation wi[39m[90m…[39m [90m2.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrecent lesson explanations do not expose implementation notation wi[39m[90m…[39m [90m2.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrecent lesson explanations do not expose implementation notation wi[39m[90m…[39m [90m2.21s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows siqi multi-route evidence and never asserts siqi est[39m[90m…[39m [90m2.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows siqi uncovered and never bundles san-si label[39m[90m        [39m [90m2.21s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows zaie multi-key trace from the classic executable cas[39m[90m…[39m [90m2.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend does not expose zaie implementation notation in the recent[39m[90m…[39m [90m1.99s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows all yangjiu routes and concrete evidence for a multi[39m[90m…[39m [90m2.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows riding and sitting tomb evidence in classical execut[39m[90m…[39m [90m3.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend separates jiuchou matcher from daquan strict form[39m[90m          [39m [90m2.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows guimu three-entry trace and ghost-tomb combined judg[39m[90m…[39m [90m2.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows guimu ghost and branch tomb combined trace[39m[90m           [39m [90m2.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend rejects ghost-only or tomb-only pans as not guimu[39m[90m          [39m [90m5.88s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend keeps guimu matcher independent of non-initial ghosts and[39m[90m… [39m [90m2.25s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mfrontend shows lide condition and keeps the classic mixed example i[39m[90m…[39m [90m2.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows weifu as an independent lide grid[39m[90m                    [39m [90m2.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfrontend shows cuotuo as an independent lide grid[39m[90m                   [39m [90m2.39s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\HengtongCoverageTest[39m
+  [32;1m✓[39;22m[90m [39m[90mHengtong lesson and its five grids match the exact expected cases[39m[90m… [39m [90m28.66s[39m  
+
+  [39;41;1m FAIL [39;49;22m[39m Tests\Feature\KeJingDetailArchitectureTest[39m
+  [32;1m✓[39;22m[90m [39m[90mkejing index follows research document numbering and renders the vi[39m[90m…[39m [90m0.82s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mkejing detail and pan interpretation share the same core lesson pre[39m[90m…[39m [90m1.00s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing detail preserves an empty gua slot when a lesson has no fixe[39m[90m…[39m [90m1.00s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing page catalog separates daquan source material from later wit[39m[90m…[39m [90m1.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlegacy research docs do not masquerade excerpts as complete daquan[39m[90m… [39m [90m0.90s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\KeJingPageTest[39m
+  [32;1m✓[39;22m[90m [39m[90mkejing index lists every lesson with its hexagram and detail link[39m[90m   [39m [90m0.82s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing detail page shows the product summary executable cases and r[39m[90m…[39m [90m0.99s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown kejing detail slug returns 404[39m[90m                              [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing page does not expose implementation names or internal numeri[39m[90m…[39m [90m1.00s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery executable kejing case link reproduces its lesson on the pan[39m[90m…[39m [90m53.74s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhe-mei catalog case reproduces the daquan cross-liuhe structure[39m[90m     [39m [90m2.51s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery kejing case declares its selection reason[39m[90m                     [39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90myincong catalog covers all seven textual structures and both noble[39m[90m… [39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhengtong catalog covers all five grids and both di-sheng directions[39m[90m [39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfanchang catalog covers both the de-yun and wang-yun grids[39m[90m          [39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrong-hua catalog contains the daquan bing-yin and ren-shen executab[39m[90m…[39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrong-hua catalog and detail page preserve every named daquan exampl[39m[90m…[39m [90m1.14s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhe-huan catalog declares the daquan wu-shen executable case and ref[39m[90m…[39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhe-huan executable case reproduces the lesson on the pan page[39m[90m       [39m [90m1.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrong-hua bing-yin case is executable and reproduces the lesson on t[39m[90m…[39m [90m1.00s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing fanchang detail links carry the spouse context[39m[90m               [39m [90m1.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfanchang de-yun case is executable and reproduces the pan evidence[39m[90m… [39m [90m2.45s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery kejing case status is executable or reference_only[39m[90m            [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing page renders the not-covered badge for the declared referenc[39m[90m…[39m [90m0.98s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfanchang de-yun executable case never exposes the not-covered banne[39m[90m…[39m [90m1.06s[39m  
+  [32;1m✓[39;22m[90m [39m[90mkejing executable detail links never carry the reference_case query[39m[90m [39m [90m1.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecutable case links from kejing do not expose the reference banne[39m[90m…[39m [90m1.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mKeJingCatalog::findReferenceCase returns null for executable case i[39m[90m…[39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mforged or unknown reference_case never shows the reference banner[39m[90m   [39m [90m2.84s[39m  
+  [32;1m✓[39;22m[90m [39m[90mzhan-guan catalog declares the daquan jia-yin and modern yang-hai e[39m[90m…[39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mzhan-guan executable case reproduces the lesson on the pan page[39m[90m     [39m [90m2.16s[39m  
+  [32;1m✓[39;22m[90m [39m[90mzhan-guan production xiang text uses the shidianguji base copy, not[39m[90m…[39m [90m2.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mzhan-guan jia-yin case reproduces the daquan xu-jia-yin structure[39m[90m   [39m [90m2.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbikou catalog example is executable and reproduces the daquan struc[39m[90m…[39m [90m2.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbikou catalog reproduces the daquan jia-zi upper-god-riding-xuanwu[39m[90m… [39m [90m2.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbikou catalog source_examples labels one path per daquan textual ca[39m[90m…[39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbikou catalog records yixun zhoubian as an independent related grid[39m[90m [39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90myouzi catalog example is executable and reproduces the daquan struc[39m[90m…[39m [90m2.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mzhuixu catalog examples are executable and reproduce both daquan pa[39m[90m…[39m [90m3.88s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanjiao is ordered between youzi and zhuixu and its catalog case is[39m[90m…[39m [90m2.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchongpo follows zhuixu and its combined-source reproduction is exec[39m[90m…[39m [90m2.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90myinyi follows chongpo and its catalog keeps yinv as an independent[39m[90m… [39m [90m2.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mwuyin follows yinyi and all three daquan cases execute through prod[39m[90m…[39m [90m5.51s[39m  
+  [32;1m✓[39;22m[90m [39m[90mjieli follows wuyin and its daquan structure reproduction is execut[39m[90m…[39m [90m2.60s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdue follows jieli and both daquan cases execute through production[39m[90m… [39m [90m3.92s[39m  
+  [32;1m✓[39;22m[90m [39m[90mwulu-juesi follows due and both daquan cases execute through produc[39m[90m…[39m [90m3.75s[39m  
+  [32;1m✓[39;22m[90m [39m[90mqinhai follows wulu-juesi and its daquan case executes through prod[39m[90m…[39m [90m2.14s[39m  
+  [32;1m✓[39;22m[90m [39m[90mzhunfu follows qinhai and its supplemented daquan case executes thr[39m[90m…[39m [90m2.26s[39m  
+  [32;1m✓[39;22m[90m [39m[90mxingshang follows zhunfu and its program-verified case executes thr[39m[90m…[39m [90m2.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtianhuo is lesson 44 after erfan and both catalog directions execut[39m[90m…[39m [90m3.71s[39m  
+  [32;1m✓[39;22m[90m [39m[90merfan is lesson 43 with a real executable four-ping case[39m[90m            [39m [90m2.00s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtianyu is lesson 45 after tianhuo and both frozen routes execute th[39m[90m…[39m [90m4.13s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtiankou is lesson 46 after tianyu with a real executable production[39m[90m…[39m [90m2.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtianwang is lesson 47 after tiankou with a different-branch executa[39m[90m…[39m [90m2.08s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpohua is lesson 48 after tianwang and both production cases execute[39m[90m…[39m [90m4.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanyin is lesson 49 with executable modern case and reference-only[39m[90m… [39m [90m3.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mclicking the sanyin reference-only URL shows lesson-specific reason[39m[90m…[39m [90m1.53s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlongzhan is lesson 50 and its daquan ding-mao case is executable[39m[90m    [39m [90m2.16s[39m  
+  [32;1m✓[39;22m[90m [39m[90myangjiu is lesson 53 and five classic structures are executable[39m[90m     [39m [90m8.95s[39m  
+  [32;1m✓[39;22m[90m [39m[90mjiuchou is lesson 54 and its non strict executable case really matc[39m[90m…[39m [90m3.88s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguimu is lesson 55 and its three executable cases really match[39m[90m      [39m [90m6.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlide is lesson 56 and all three executable cases reproduce the froz[39m[90m…[39m [90m6.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlide detail page always lists both yang-front-yin-rear and yin-fron[39m[90m…[39m [90m1.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90myincong detail page always lists all six OR paths even when canonic[39m[90m…[39m [90m1.92s[39m  
+  [32;1m✓[39;22m[90m [39m[90mxingshang program-verified case is classified as non-daquan and nev[39m[90m…[39m [90m0.92s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanguang detail and pan views expose foundations with the same code[39m[90m…[39m [90m0.93s[39m  
+  [32;1m✓[39;22m[90m [39m[90mjieli detail page preserves the empty gua slot without collapse[39m[90m     [39m [90m1.00s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PanCalculatorTest[39m
+  [32;1m✓[39;22m[90m [39m[90mcalculator returns a pan without depending on the filament session[39m[90m… [39m [90m0.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnobleman switches at the actual Beijing sunrise and sunset using fi[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfilament adapter stores the calculator result in the session[39m[90m        [39m [90m0.28s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator explains each transmission method without changing the p[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcalculator records the initial method at the branch that selected i[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.27s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond batch rules explain their actual middle and final transmissi[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mduzu and weibu buxiu are additional grid matches rather than altern[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mremaining legacy lesson types have independent rule matches with da[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mremaining legacy lesson types have independent rule matches with da[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mremaining legacy lesson types have independent rule matches with da[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mremaining legacy lesson types have independent rule matches with da[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mremaining legacy lesson types have independent rule matches with da[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery fuyin lesson rule explains all three transmission stages with[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery fuyin lesson rule explains all three transmission stages with[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery fuyin lesson rule explains all three transmission stages with[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery fuyin lesson rule explains all three transmission stages with[39m[90m…[39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mordinary fuyin with overcoming is not presented as an additional bu[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mordinary fanyin is not presented as an additional wuyi classificati[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfanyin without overcoming is additionally classified as jinglan gri[39m[90m…[39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanguang requires day branch initial transmission to be prosperous[39m[90m… [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mseasonal strength changes to earth eighteen exact days before each[39m[90m… [39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mseasonal strength changes to earth eighteen exact days before each[39m[90m… [39m [90m0.27s[39m  
+  [32;1m✓[39;22m[90m [39m[90mseasonal strength changes to earth eighteen exact days before each[39m[90m… [39m [90m0.27s[39m  
+  [32;1m✓[39;22m[90m [39m[90mseasonal strength changes to earth eighteen exact days before each[39m[90m… [39m [90m0.30s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcomplete seasonal states cover all five states in spring and the ea[39m[90m…[39m [90m0.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanyang requires forward nobleman day and branch riding its five fr[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanyang excludes the sixth general behind the nobleman front five[39m[90m   [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanqi matches the daquan standard example and records hai zi chou a[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90msanqi is not formed by a day wonder without the xun wonder[39m[90m          [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mliuyi matches the daquan standard example when the xun head branch[39m[90m… [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mliuyi is not formed by a branch instrument without the xun instrume[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mshitai matches the daquan standard example with year month dragon u[39m[90m…[39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mshitai allows the year branch to enter after the initial transmissi[39m[90m…[39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mshitai requires the complete combination rather than only a favorab[39m[90m…[39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguanjue matches the daquan standard structure when a calendar horse[39m[90m…[39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguanjue requires the horse to issue rather than merely enter a late[39m[90m…[39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguanjue does not allow the day horse alone to form the lesson[39m[90m       [39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguanjue is reproducible from a real calendar input[39m[90m                  [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mderived fate stays fixed across months in the same current year bra[39m[90m…[39m [90m0.30s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfugui requires nobleman to ride the vigorous generating initial ove[39m[90m…[39m [90m0.27s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfugui records horse riding dragon as an enhancement[39m[90m                 [39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfugui keeps nobleman imprisonment before its classical exception[39m[90m    [39m [90m0.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnear-current guanjue examples use only automatically derived fate w[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnear-current guanjue examples use only automatically derived fate w[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnear-current guanjue examples use only automatically derived fate w[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlongde requires the year branch to ride nobleman as initial with mo[39m[90m…[39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlongde restores the daquan example by using daylight before the act[39m[90m…[39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuyin zixin breaks the zi mao punishment loop with wu with dataset[39m[90m… [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuyin zixin breaks the zi mao punishment loop with wu with dataset[39m[90m… [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuyin zixin breaks the zi mao punishment loop with wu with dataset[39m[90m… [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuyin zixin breaks the zi mao punishment loop with wu with dataset[39m[90m… [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuyin zixin breaks the zi mao punishment loop with wu with dataset[39m[90m… [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuyin zixin breaks the zi mao punishment loop with wu with dataset[39m[90m… [39m [90m0.21s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PanNoblemanTest[39m
+  [32;1m✓[39;22m[90m [39m[90mten stems select day and night noblemen and distribute all generals[39m[90m…[39m [90m4.94s[39m  
+  [32;1m✓[39;22m[90m [39m[90mBeijing daylight boundaries select the correct nobleman to the seco[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mBeijing daylight boundaries select the correct nobleman to the seco[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mBeijing daylight boundaries select the correct nobleman to the seco[39m[90m…[39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mBeijing daylight boundaries select the correct nobleman to the seco[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mBeijing daylight boundaries select the correct nobleman to the seco[39m[90m…[39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mBeijing daylight boundaries select the correct nobleman to the seco[39m[90m…[39m [90m0.21s[39m  

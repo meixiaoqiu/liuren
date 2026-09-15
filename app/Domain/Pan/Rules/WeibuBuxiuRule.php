@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：判断八专课是否有天后、六合或玄武入传而构成帷簿不修格。 */
 final class WeibuBuxiuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const CHUCHUAN_METHOD = 'bazhuan';
 
     protected const RULE_CODE = 'structure.weibu_buxiu';

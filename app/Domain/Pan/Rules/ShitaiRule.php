@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》正文及订讹，判断龙合首尾且入传岁月兼作日财德所成的时泰课。 */
 final class ShitaiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 甲至癸十日的日德。 */
     protected const DAY_VIRTUES = [2, 8, 5, 11, 5, 2, 8, 5, 11, 5];
 

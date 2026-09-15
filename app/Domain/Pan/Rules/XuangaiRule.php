@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》判断胜光发用、太冲神后入传所成的轩盖课，并罗列已核实的课义条件与客观盘面信息。 */
 final class XuangaiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.xuangai';
 
     protected const NAME = '轩盖课';

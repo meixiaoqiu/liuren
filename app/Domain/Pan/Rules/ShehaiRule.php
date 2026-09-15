@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：定义六十四课涉害课，涵盖涉害本课及见机、察微、缀瑕子格。 */
 final class ShehaiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     protected const METHODS = ['shehai', 'shehai_jianji', 'shehai_chawei', 'shehai_zhuixia'];
 

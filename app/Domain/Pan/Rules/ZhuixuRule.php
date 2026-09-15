@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class ZhuixuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.zhuixu';
 
     protected const NAME = '赘婿课';

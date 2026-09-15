@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：为按计算轨迹中的课体标识匹配的具体课体规则提供公共机制。 */
 abstract readonly class LessonPatternRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const PATTERN = '';
 
     protected const RULE_CODE = '';

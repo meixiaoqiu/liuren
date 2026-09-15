@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：判断占日所在六甲旬的旬首地支进入三传所成的六仪课。 */
 final class LiuyiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 子至亥各日支所对应的支仪。 */
     protected const BRANCH_INSTRUMENTS = [6, 5, 4, 3, 2, 1, 7, 8, 9, 10, 11, 0];
 

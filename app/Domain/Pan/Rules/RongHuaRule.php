@@ -15,6 +15,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class RongHuaRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 日干禄位 */
     private const DAY_STEM_LU = [2, 3, 5, 6, 5, 6, 8, 9, 11, 0];
 

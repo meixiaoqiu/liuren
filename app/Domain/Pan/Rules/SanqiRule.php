@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：判断占日所在六甲旬的旬奇进入三传所成的三奇课。 */
 final class SanqiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 六旬依次取丑、丑、子、子、亥、亥为旬奇。 */
     protected const XUN_WONDERS = [1, 1, 0, 0, 11, 11];
 

@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：独立判断盘珠课篇所附天心格；不以盘珠课或回还格成立为前提。 */
 final class TianxinRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'structure.tianxin';

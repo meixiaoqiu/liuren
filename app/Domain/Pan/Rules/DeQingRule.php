@@ -35,6 +35,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class DeQingRule implements ContextAwareRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 日干德位：寅、申、巳、亥 循环，与 ShitaiRule::DAY_VIRTUES 同源。 */
     private const STEM_VIRTUES = [2, 8, 5, 11, 5, 2, 8, 5, 11, 5];
 

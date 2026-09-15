@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：按原始四课逐位统计度厄课；严格限定恰有三课克贼，四课全克不在本课。 */
 final class DueRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'lesson.due';

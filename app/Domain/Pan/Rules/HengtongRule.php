@@ -8,6 +8,7 @@ use App\Domain\Pan\Facts\PanFacts;
 final class HengtongRule implements PanRule
 {
     use HengtongSupport;
+    use LessonDefinitionDefaults;
 
     protected const RULE_CODE = 'lesson.hengtong';
 

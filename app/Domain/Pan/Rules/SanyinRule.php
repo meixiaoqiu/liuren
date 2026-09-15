@@ -10,6 +10,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class SanyinRule implements ContextAwareRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.sanyin';
 
     protected const NAME = '三阴课';

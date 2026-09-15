@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》判断卯加庚（申）、辛（酉）发用所成的斫轮课。 */
 final class ZhuolunRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.zhuolun';
 
     protected const NAME = '斫轮课';

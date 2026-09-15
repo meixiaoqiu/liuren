@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：识别中传、末传逐次取冲神的三传规则，并返回命中证据。 */
 final class ChongSanchuanRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const METHOD = 'chong';
 
     protected const RULE_CODE = 'sanchuan.chong';

@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：按“斗系日本 AND（初传囚 OR 死 OR 日墓）”冻结口径判断天狱课。 */
 final class TianyuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var array<int, int> 六壬五行长生位：阴阳干同取，不用阴干逆行十二长生。 */
     public const DAY_ORIGIN = [11, 11, 2, 2, 8, 8, 5, 5, 8, 8];
 

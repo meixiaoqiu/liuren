@@ -1,0 +1,97 @@
+test('lide detail page always lists both yang-front-yin-rear and yin-front-yang-rear as static judgments', function () {
+    $definition = app(\App\Domain\Pan\Rules\RuleRegistry::class)
+        ->rules()
+        ->first(static fn ($rule): bool => $rule->code() === 'lesson.lide')
+        ?->definition();
+
+    expect($definition)->not->toBeNull();
+    expect(array_column($definition['judgments'] ?? [], 'code'))
+        ->toContain('yang_front_yin_rear', 'yin_front_yang_rear');
+
+    $this->get(route('kejing.show', ['lesson' => 'lide']))
+        ->assertOk()
+        ->assertSee('阳前阴后')
+        ->assertSee('阴前阳后')
+        ->assertSee('增强')
+        ->assertSee('减损');
+});
+
+test('yincong detail page always lists all six OR paths even when canonical case does not trigger them', function () {
+    $definition = app(\App\Domain\Pan\Rules\RuleRegistry::class)
+        ->rules()
+        ->first(static fn ($rule): bool => $rule->code() === 'lesson.yincong')
+        ?->definition();
+
+    expect($definition)->not->toBeNull();
+
+    $foundationCodes = array_column($definition['foundations'] ?? [], 'code');
+    expect($foundationCodes)->toContain(
+        'gang_tian_gan', 'gang_di_zhi', 'gui_lin_gan_zhi_gang_nian_ming',
+        'gang_ri_lu', 'gang_ye_gui', 'gang_zhou_gui',
+    );
+
+    $this->get(route('kejing.show', ['lesson' => 'yincong']))
+        ->assertOk()
+        ->assertSee('拱天干')
+        ->assertSee('拱地支')
+        ->assertSee('贵临干支拱年命')
+        ->assertSee('干支拱日禄')
+        ->assertSee('干支拱夜贵')
+        ->assertSee('干支拱昼贵');
+});
+
+test('xingshang program-verified case is classified as non-daquan and never appears in daquan section', function () {
+    $lesson = collect(\App\Support\KeJingCatalog::lessons())->firstWhere('code', 'lesson.xingshang');
+    expect($lesson)->not->toBeNull();
+
+    $case = $lesson['cases'][0];
+    expect($case['label'])->toContain('程序验证样本')
+        ->and($case['source_type'] ?? null)->toBe('other');
+
+    $this->get(route('kejing.show', ['lesson' => 'xingshang']))
+        ->assertOk()
+        ->assertSee('刑伤课')
+        ->assertSee('非正文课例与旁证')
+        ->assertDontSee('《六壬大全》正文课例');
+});
+
+test('sanguang detail and pan views expose foundations with the same code keys', function () {
+    $definition = app(\App\Domain\Pan\Rules\RuleRegistry::class)
+        ->rules()
+        ->first(static fn ($rule): bool => $rule->code() === 'lesson.sanguang')
+        ?->definition();
+
+    expect($definition)->not->toBeNull();
+
+    $foundationCodes = array_column($definition['foundations'] ?? [], 'code');
+    $expected = [
+        'day_stem_wang_xiang', 'day_branch_wang_xiang', 'initial_wang_xiang',
+        'day_upper_auspicious_general', 'branch_upper_auspicious_general', 'initial_auspicious_general',
+    ];
+
+    foreach ($expected as $code) {
+        expect($foundationCodes)->toContain($code);
+    }
+
+    $this->get(route('kejing.show', ['lesson' => 'sanguang']))
+        ->assertOk()
+        ->assertSee('日干得旺相')
+        ->assertSee('日支得旺相')
+        ->assertSee('初传得旺相')
+        ->assertSee('日上神乘吉将')
+        ->assertSee('辰上神乘吉将')
+        ->assertSee('初传乘吉将');
+});
+
+test('jieli detail page preserves the empty gua slot without collapse', function () {
+    $jieli = collect(\App\Support\KeJingCatalog::lessons())->firstWhere('code', 'lesson.jieli');
+
+    expect($jieli['gua'])->toBeNull()
+        ->and($jieli['guaSymbol'])->toBeNull();
+
+    $response = $this->get(route('kejing.show', ['lesson' => 'jieli']))
+        ->assertOk()
+        ->assertSee('解离课');
+
+    expect($response->getContent())->toContain('data-kejing-gua-slot="empty"');
+});

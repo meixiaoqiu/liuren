@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：按“占时支克日干 AND 初传克日干”冻结口径判断天网课；同支、神煞、解网与罗网格均不参与基础成立。 */
 final class TianwangRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     private const ELEMENTS = ['木', '火', '土', '金', '水'];
 

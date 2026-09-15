@@ -12,6 +12,8 @@ use App\Services\PanCalculator;
  */
 final class QinhaiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public function code(): string
     {
         return 'lesson.qinhai';

@@ -7,6 +7,8 @@ use App\Domain\Pan\Facts\PanFacts;
 /** 文件作用：按《六壬大全》判断天乙旺相、上下相生并临日辰年命发用所成的富贵课。 */
 final class FuguiRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.fugui';
 
     protected const NAME = '富贵课';

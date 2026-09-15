@@ -20,6 +20,8 @@ use App\Services\PanCalculator;
  */
 final class ZaieRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     protected const RULE_CODE = 'lesson.zaie';
 
     protected const NAME = '灾厄课';

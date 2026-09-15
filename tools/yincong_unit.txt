@@ -1,0 +1,67 @@
+﻿
+  [39;41;1m FAIL [39;49;22m[39m Tests\Unit\YinCongRuleTest[39m
+  [31;1m⨯[39;22m[90m [39m[90myincong matches when initial and final transmissions flank the day[39m[90m… [39m [90m0.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90myincong matches when initial and final transmissions flank the day branch[39m
+  [31;1m⨯[39;22m[90m [39m[90myincong marks two-noble yin cong when the transmissions are the two[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90myincong matches when nobles flank the stem and branch to embrace the birth year[39m
+  [31;1m⨯[39;22m[90m [39m[90myincong matches nobles on the stem and branch in either direction[39m[90m   [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90myincong matches when stem and branch flank the day prosperity in fuyin[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when stem and branch flank the night noble in fuyin[39m
+  [32;1m✓[39;22m[90m [39m[90myincong matches when stem and branch flank the day noble in fuyin[39m
+  [32;1m✓[39;22m[90m [39m[90myincong does not match when the transmissions do not flank the stem or branch[39m
+  [32;1m✓[39;22m[90m [39m[90myincong does not match when the initial or final transmission is displaced[39m
+  [31m────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Unit\YinCongRuleTest[22m [90m>[39m yincong mat… [41;1m InvalidExpectationValue [49;22m  
+[39;1m  Invalid expectation value type. Expected [iterable].[39;22m
+
+  at [32mtests/Unit/YinCongRuleTest.php[39m:[32m44[39m
+     40▕         ->and($match->gua)->toBe('涣')
+     41▕         ->and($match->guaSymbol)->toBe('䷺')
+     42▕         ->and($match->evidence['foundations'])->toHaveCount(1)
+     43▕         ->and($match->evidence['foundations'][0]['title'])->toBe('拱天干')
+  ➜  44▕         ->and($match->evidence['foundations'][0]['detail'])->toContain('拱贵')
+     45▕         ->and($match->evidence['judgments'])->toBe([])
+     46▕         ->and($match->evidence['uncovered'])->toHaveCount(2);
+     47▕ });
+     48▕
+
+  [33m1   [39m[39;1mtests/Unit/YinCongRuleTest.php[39;22m:[39;1m44[39;22m
+
+  [31m────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Unit\YinCongRuleTest[22m [90m>[39m yincong mar… [41;1m InvalidExpectationValue [49;22m  
+[39;1m  Invalid expectation value type. Expected [iterable].[39;22m
+
+  at [32mtests/Unit/YinCongRuleTest.php[39m:[32m73[39m
+     69▕     ]);
+     70▕ 
+     71▕     expect($match)->not->toBeNull()
+     72▕         ->and($match->evidence['foundations'][0]['title'])->toBe('拱天干')
+  ➜  73▕         ->and($match->evidence['foundations'][0]['detail'])->toContain('两贵引从');
+     74▕ });
+     75▕ 
+     76▕ test('yincong matches when nobles flank the stem and branch to embrace the birth year', function () {
+     77▕     // 丁酉日，夜贵酉加临丁干寄宫未、昼贵亥加临日支酉，干支夹拱年命申。
+
+  [33m1   [39m[39;1mtests/Unit/YinCongRuleTest.php[39;22m:[39;1m73[39;22m
+
+  [31m────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Unit\YinCongRuleTest[22m [90m>[39m yincong mat… [41;1m InvalidExpectationValue [49;22m  
+[39;1m  Invalid expectation value type. Expected [iterable].[39;22m
+
+  at [32mtests/Unit/YinCongRuleTest.php[39m:[32m100[39m
+     96▕     ]);
+     97▕ 
+     98▕     expect($match)->not->toBeNull()
+     99▕         ->and($match->evidence['foundations'][0]['title'])->toBe('贵临干支拱年命')
+  ➜ 100▕         ->and($match->evidence['foundations'][0]['detail'])->toContain('昼贵亥加临日干寄宫未');
+    101▕ });
+    102▕ 
+    103▕ test('yincong matches when stem and branch flank the day prosperity in fuyin', function () {
+    104▕     // 丁巳日伏吟，丁寄未、日支巳，前后夹拱日禄午。
+
+  [33m1   [39m[39;1mtests/Unit/YinCongRuleTest.php[39;22m:[39;1m100[39;22m
+
+
+  [90mTests:[39m    [31;1m3 failed[39;22m[90m,[39m[39m [39m[32;1m7 passed[39;22m[90m (21 assertions)[39m
+  [90mDuration:[39m [39m0.41s[39m
+

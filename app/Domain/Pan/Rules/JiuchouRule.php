@@ -14,6 +14,8 @@ use App\Services\PanCalculator;
  */
 final class JiuchouRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     public const RULE_CODE = 'lesson.jiuchou';
 
     public const NAME = '九丑课';

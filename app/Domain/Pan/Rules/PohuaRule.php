@@ -8,6 +8,8 @@ use App\Services\PanCalculator;
 /** 文件作用：按“白虎乘月神死神/死气，并临日、辰、行年或发用之一”判断魄化课；克制与囚死只作课义判断。 */
 final class PohuaRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** @var list<string> */
     private const ELEMENTS = ['木', '火', '土', '金', '水'];
 

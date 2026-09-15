@@ -13,6 +13,8 @@ use App\Services\PanCalculator;
  */
 final class YangjiuRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** 干支乘墓、坐墓专名采用日干五行墓：木未、火戌、土辰、金丑、水辰。 */
     private const STEM_ELEMENT_TOMBS = [7, 7, 10, 10, 4, 4, 1, 1, 4, 4];
 

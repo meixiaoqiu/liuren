@@ -10,32 +10,75 @@
         <div class="pan-classical-shell">
             @include('partials.pan-header')
 
-            <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+            <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:px-8 lg:px-8">
                 <x-header
                     title="课经"
-                    subtitle="《六壬大全》课经集所载诸课"
+                    subtitle="按《六壬大全》原文课序排列"
                     use-h1
                 />
 
                 <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     @foreach ($lessons as $lesson)
+                        @php
+                            $hasReferenceOnly = collect($lesson['cases'] ?? [])
+                                ->contains(static fn (array $case): bool => ($case['status'] ?? 'executable') === 'reference_only');
+
+                            $subgrids = collect($lesson['cases'] ?? [])
+                                ->map(static fn (array $case): string => (string) ($case['label'] ?? ''))
+                                ->filter(static fn (string $label): bool => str_contains($label, '格'))
+                                ->map(static function (string $label): string {
+                                    if (preg_match('/(微服格|蹉跎格|自任格|自刑格|知微格|轩盖格|铸印格|斫轮格|龙德格|三光格|小稽格|稼穑格|直符格|三阳格)/u', $label, $matches) === 1) {
+                                        return $matches[1];
+                                    }
+                                    return '';
+                                })
+                                ->filter()
+                                ->unique()
+                                ->values()
+                                ->all();
+                        @endphp
                         <a
                             href="{{ route('kejing.show', ['lesson' => $lesson['slug']]) }}"
                             class="group block h-full transition hover:opacity-90"
                         >
                             <x-card shadow class="pan-data-card h-full transition group-hover:bg-base-100 group-hover:shadow-md">
-                                <div class="flex min-h-36 flex-col items-center justify-center text-center sm:min-h-40">
-                                    @if ($lesson['guaSymbol'] !== null)
-                                        <span
-                                            class="text-5xl leading-none text-primary"
-                                            aria-label="{{ $lesson['gua'] }}卦卦符"
-                                        >{{ $lesson['guaSymbol'] }}</span>
+                                <div class="flex min-h-52 flex-col items-center justify-center text-center sm:min-h-56">
+                                    <p class="mb-2 text-xs tracking-[0.18em] text-base-content/40">第 {{ $lesson['number'] }} 课</p>
+
+                                    @include('kejing.partials.gua-mark', [
+                                        'gua' => $lesson['gua'],
+                                        'guaSymbol' => $lesson['guaSymbol'],
+                                        'compact' => true,
+                                    ])
+
+                                    <h2 class="mt-3 text-base font-semibold tracking-wide sm:text-lg">{{ $lesson['name'] }}</h2>
+
+                                    <p class="mt-1 h-5 text-sm text-base-content/45">
+                                        @if ($lesson['gua'] !== null)
+                                            {{ $lesson['gua'] }}卦
+                                        @else
+                                            <span class="invisible" aria-hidden="true">无卦</span>
+                                        @endif
+                                    </p>
+
+                                    @if ($hasReferenceOnly)
+                                        <p class="mt-1 text-[0.65rem] tracking-wide text-warning/80">原文参考盘·尚未覆盖</p>
+                                        @php
+                                            $referenceHint = '';
+                                            foreach ($lesson['cases'] ?? [] as $hintCase) {
+                                                if (($hintCase['status'] ?? 'executable') === 'reference_only') {
+                                                    $referenceHint = (string) ($hintCase['reason'] ?? '');
+                                                    break;
+                                                }
+                                            }
+                                        @endphp
+                                        @if ($referenceHint !== '')
+                                            <p class="mt-1 max-h-12 overflow-hidden text-[0.6rem] leading-snug text-base-content/45">{{ $referenceHint }}</p>
+                                        @endif
                                     @endif
 
-                                    <h2 class="mt-4 text-base font-semibold tracking-wide sm:text-lg">{{ $lesson['name'] }}</h2>
-
-                                    @if ($lesson['gua'] !== null)
-                                        <p class="mt-1 text-sm text-base-content/45">{{ $lesson['gua'] }}卦</p>
+                                    @if ($subgrids !== [])
+                                        <p class="mt-1 text-[0.65rem] tracking-wide text-base-content/45">{{ implode(' / ', $subgrids) }}</p>
                                     @endif
                                 </div>
                             </x-card>

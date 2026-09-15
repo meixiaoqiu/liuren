@@ -33,6 +33,8 @@ use App\Domain\Pan\Facts\PanFacts;
  */
 final class ZhanGuanRule implements PanRule
 {
+    use LessonDefinitionDefaults;
+
     /** 辰 = 天罡。 */
     private const TIAN_GANG = 4;
 
