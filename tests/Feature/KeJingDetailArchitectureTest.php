@@ -45,10 +45,64 @@ test('kejing detail and pan interpretation share the same core lesson presentati
         'gender' => $case['gender'],
     ])->test(CreatePan::class)
         ->assertHasNoErrors()
-        ->assertSee('现代汉语描述')
-        ->assertSee('象曰')
+        ->assertSee('三光课')
+        ->assertSee('贲卦')
         ->assertSee('成立条件')
         ->assertSee('查看三光课详解');
+});
+
+test('pan and detail kejing headers share the compact chongshen presentation', function () {
+    $interpretation = [
+        'code' => 'lesson.__shared_header_test',
+        'name' => '测试课',
+        'group' => '六十四课',
+        'description' => '测试现代描述',
+        'marker' => '经',
+        'gua' => '坤',
+        'guaSymbol' => '䷁',
+        'xiang' => '测试象辞',
+        'evidence' => [
+            'foundations' => [],
+            'judgments' => [],
+        ],
+    ];
+
+    $render = static fn (string $mode): string => view('kejing.partials.interpretation-summary', [
+        'interpretation' => $interpretation,
+        'lessonPage' => null,
+        'staticDefinition' => [
+            'description' => '测试现代描述',
+            'xiang' => '测试象辞',
+            'foundations' => [],
+            'judgments' => [],
+        ],
+        'mode' => $mode,
+    ])->render();
+
+    $panHtml = $render('pan');
+    $detailHtml = $render('detail');
+
+    foreach ([$panHtml, $detailHtml] as $html) {
+        expect($html)
+            ->toContain('data-kejing-pan-heading="compact"')
+            ->toContain('data-kejing-pan-gua="compact"')
+            ->toContain('data-kejing-gua-slot="present"')
+            ->toContain('size-20')
+            ->toContain('text-4xl')
+            ->toContain('经')
+            ->toContain('坤卦')
+            ->toContain('测试课')
+            ->toContain('䷁');
+    }
+
+    expect($panHtml)
+        ->toContain('测试现代描述')
+        ->toContain('测试象辞')
+        ->not->toContain('现代汉语描述');
+
+    expect($detailHtml)
+        ->toContain('现代汉语描述')
+        ->toContain('象曰');
 });
 
 test('kejing detail preserves an empty gua slot when a lesson has no fixed hexagram', function () {

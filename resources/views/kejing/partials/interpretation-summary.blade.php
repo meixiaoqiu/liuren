@@ -49,48 +49,70 @@
     ];
 @endphp
 
-<div class="flex items-start gap-5 sm:gap-7">
-    <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-2">
-            <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">{{ $interpretation['marker'] }}</span>
-            @if ($interpretation['gua'] !== null)
-                <span class="flex h-9 items-center bg-primary/12 px-3 text-sm font-semibold text-primary">{{ $interpretation['gua'] }}卦</span>
-            @endif
-        </div>
+<div class="flex items-center gap-3" data-kejing-pan-heading="compact">
+    <div class="flex h-9 shrink-0 items-stretch">
+        <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">{{ $interpretation['marker'] }}</span>
+        @if ($interpretation['gua'] !== null)
+            <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">
+                {{ $interpretation['gua'] }}卦
+            </span>
+        @endif
+    </div>
 
-        <p class="mt-3 text-xs tracking-wide text-base-content/45">
+    <div class="min-w-0 flex-1">
+        <span class="text-xs text-base-content/45">
             @if ($lessonPage !== null)
                 第 {{ $lessonPage['number'] }} 课 ·
             @endif
             {{ $interpretation['group'] }}
-        </p>
-
+        </span>
         @if ($mode === 'detail')
-            <h1 class="mt-1 text-2xl font-semibold tracking-wide sm:text-3xl">{{ $interpretation['name'] }}</h1>
+            <h1 class="text-lg font-semibold">{{ $interpretation['name'] }}</h1>
         @else
-            <h2 class="mt-1 text-xl font-semibold tracking-wide sm:text-2xl">{{ $interpretation['name'] }}</h2>
+            <h2 class="text-lg font-semibold">{{ $interpretation['name'] }}</h2>
         @endif
-
-        <section class="mt-5">
-            <h3 class="text-sm font-semibold tracking-wide text-base-content/70">现代汉语描述</h3>
-            <p class="mt-2 leading-7 text-base-content/65">{{ $descriptionSource }}</p>
-        </section>
-
-        <section class="mt-5">
-            <h3 class="text-sm font-semibold tracking-wide text-base-content/70">象曰</h3>
-            @if ($xiangSource !== null)
-                <p class="mt-2 italic leading-7 text-base-content/55">{{ $xiangSource }}</p>
-            @else
-                <p class="mt-2 text-sm leading-6 text-base-content/45">当前正式规则尚未结构化录入本课《象曰》，页面不自行补写。</p>
-            @endif
-        </section>
     </div>
 
-    @include('kejing.partials.gua-mark', [
-        'gua' => $interpretation['gua'],
-        'guaSymbol' => $interpretation['guaSymbol'],
-    ])
+    @if ($interpretation['guaSymbol'] !== null)
+        <span
+            class="grid size-20 shrink-0 place-items-center bg-primary/10 text-4xl leading-none text-primary"
+            data-kejing-pan-gua="compact"
+            data-kejing-gua-slot="present"
+            aria-label="{{ $interpretation['gua'] }}卦卦符"
+        >
+            {{ $interpretation['guaSymbol'] }}
+        </span>
+    @else
+        <span
+            class="grid size-20 shrink-0 place-items-center bg-transparent text-4xl leading-none text-transparent"
+            data-kejing-gua-slot="empty"
+            aria-hidden="true"
+        >
+            <span class="invisible">䷀</span>
+        </span>
+    @endif
 </div>
+
+@if ($mode === 'pan')
+    <p class="mt-2 leading-7 text-base-content/65">{{ $descriptionSource }}</p>
+    @if ($xiangSource !== null)
+        <p class="mt-2 italic leading-7 text-base-content/55">{{ $xiangSource }}</p>
+    @endif
+@else
+    <section class="mt-5">
+        <h3 class="text-sm font-semibold tracking-wide text-base-content/70">现代汉语描述</h3>
+        <p class="mt-2 leading-7 text-base-content/65">{{ $descriptionSource }}</p>
+    </section>
+
+    <section class="mt-5">
+        <h3 class="text-sm font-semibold tracking-wide text-base-content/70">象曰</h3>
+        @if ($xiangSource !== null)
+            <p class="mt-2 italic leading-7 text-base-content/55">{{ $xiangSource }}</p>
+        @else
+            <p class="mt-2 text-sm leading-6 text-base-content/45">当前正式规则尚未结构化录入本课《象曰》，页面不自行补写。</p>
+        @endif
+    </section>
+@endif
 
 <section class="pan-block mt-5 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}：成立条件">
     <h3 class="text-sm font-semibold tracking-wide text-base-content/70">
