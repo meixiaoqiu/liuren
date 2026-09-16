@@ -256,6 +256,12 @@ final class QuanjuSupport
         }
 
         if ($grid['slug'] === 'quzhi') {
+            if (in_array($stem, [2, 3], true)) {
+                $add($judgments, 'quzhi_fire_day_shengqi', 'increase', '火日得生气', '曲直木局生火日。', "日干{$stemName}属火，曲直木局生火。 ");
+            }
+            if (in_array($stem, [8, 9], true)) {
+                $add($judgments, 'quzhi_water_day_daoqi', 'reduce', '水日为盗气', '水日生曲直木局，日干之气外泄。', "日干{$stemName}属水，水生木局。 ");
+            }
             if ($stem === 5) {
                 $add($judgments, 'quzhi_ji_rooted', 'increase', '己日根固', '曲直木局见己日，传统称根固。', '日干为己。');
             }
@@ -288,6 +294,14 @@ final class QuanjuSupport
             }
             if (in_array($stem, [4, 5], true)) {
                 $add($judgments, 'congge_earth_day_daoqi', 'reduce', '土日为盗气', '土日生从革金局，日干之气外泄。', "日干{$stemName}属土，土生金局。 ");
+            }
+
+            $conggeState = $facts->branchSeasonalState($grid['representative']);
+            if (in_array($conggeState, ['旺', '相'], true)) {
+                $add($judgments, 'congge_with_qi_advance', 'increase', '有气则革而进', '从革金局得旺相，按《订讹》作有气，主革而进。', "从革金局当前时令{$conggeState}，属有气。");
+            }
+            if (in_array($conggeState, ['休', '囚', '死'], true)) {
+                $add($judgments, 'congge_without_qi_retreat', 'reduce', '无气则革而退', '从革金局处休囚死，按《订讹》作无气，主革而退。', "从革金局当前时令{$conggeState}，属无气。");
             }
         }
 

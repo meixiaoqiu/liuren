@@ -27,7 +27,8 @@ final class QuanjuRule implements PanRule
     private const UNCOVERED = [
         '“三合犯杀”要求一传与干支上神作刑、冲、破、害；当前公共地支关系尚未完整提供“刑”，故不以残缺的冲破害代替',
         '“火并火鬼”“金并血支”“木并木怪”及后合、玄武等“并”法尚未冻结统一作用域',
-        '人物年命相关的稼穑细断及从革不革等复合判断尚未完整程序化',
+        '人物年命相关的稼穑细断尚未完整程序化',
+        '从革“不革”所涉火多金少、火旺金囚、武后盗气、六合欲动不动等复合判断尚未程序化',
         '“值旺相老凶少吉、囚死少凶老吉”等老少细断尚未建立统一年龄边界',
         '“用有气孕生男、用无气孕生女”的胎孕细断尚未结构化',
         '“经求利／坐守利、求财传财、官易就、君子小人”等问事分类细断尚未建立统一上下文',
@@ -75,6 +76,8 @@ final class QuanjuRule implements PanRule
                 ['code' => 'yanshang_xu_on_yin', 'effect' => 'reduce', 'label' => '炎上·戌加寅：墓临生', 'description' => '炎上格见天盘戌加临地盘寅，为墓临生。'],
                 ['code' => 'yanshang_wu_on_xu', 'effect' => 'reduce', 'label' => '炎上·午加戌：入墓', 'description' => '炎上格见天盘午加临地盘戌，为火入墓。'],
 
+                ['code' => 'quzhi_fire_day_shengqi', 'effect' => 'increase', 'label' => '曲直·火日得生气', 'description' => '曲直木局生火日。'],
+                ['code' => 'quzhi_water_day_daoqi', 'effect' => 'reduce', 'label' => '曲直·水日为盗气', 'description' => '水日生曲直木局，日干之气外泄。'],
                 ['code' => 'quzhi_ji_rooted', 'effect' => 'increase', 'label' => '曲直·己日根固', 'description' => '曲直木局见己日，传统称根固。'],
                 ['code' => 'quzhi_ding_withered', 'effect' => 'reduce', 'label' => '曲直·丁日枝枯', 'description' => '丁火泄木，曲直格传统称枝枯。'],
                 ['code' => 'quzhi_xin_material', 'effect' => 'increase', 'label' => '曲直·辛日成器', 'description' => '辛金裁木，曲直格传统取成器之义。'],
@@ -85,6 +88,8 @@ final class QuanjuRule implements PanRule
 
                 ['code' => 'congge_water_day_shengqi', 'effect' => 'increase', 'label' => '从革·水日得生气', 'description' => '从革金局生水日。'],
                 ['code' => 'congge_earth_day_daoqi', 'effect' => 'reduce', 'label' => '从革·土日为盗气', 'description' => '土日生从革金局，日干之气外泄。'],
+                ['code' => 'congge_with_qi_advance', 'effect' => 'increase', 'label' => '从革·有气革而进', 'description' => '从革金局旺相为有气，传统称革而进。'],
+                ['code' => 'congge_without_qi_retreat', 'effect' => 'reduce', 'label' => '从革·无气革而退', 'description' => '从革金局休囚死为无气，传统称革而退。'],
 
                 ['code' => 'jiase_wuji_harder', 'effect' => 'reduce', 'label' => '稼穑·戊己日更艰难', 'description' => '《订讹》谓稼穑占主沉滞，戊己日更属艰难。'],
                 ['code' => 'jiase_rengui_release', 'effect' => 'resolve', 'label' => '稼穑·壬癸日脱难', 'description' => '《订讹》称壬癸日为脱难杀。'],

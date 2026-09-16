@@ -74,6 +74,52 @@ test('quanju seasonal states are factual records rather than universal increase 
     }
 });
 
+test('quzhi exposes fire-day shengqi and water-day daoqi judgments', function () {
+    $triple = [
+        'sanchuan0' => 11,
+        'sanchuan1' => 3,
+        'sanchuan2' => 7,
+    ];
+
+    $fire = quanju_match(QuanjuRule::class, [...$triple, 'rigan' => 2]);
+    $water = quanju_match(QuanjuRule::class, [...$triple, 'rigan' => 8]);
+
+    expect($fire)->not->toBeNull()
+        ->and(collect($fire->evidence['judgments'])->pluck('code'))
+        ->toContain('quzhi_fire_day_shengqi');
+
+    expect($water)->not->toBeNull()
+        ->and(collect($water->evidence['judgments'])->pluck('code'))
+        ->toContain('quzhi_water_day_daoqi');
+});
+
+test('congge distinguishes with-qi advance from without-qi retreat', function () {
+    $triple = [
+        'sanchuan0' => 5,
+        'sanchuan1' => 9,
+        'sanchuan2' => 1,
+    ];
+
+    $withQi = quanju_match(QuanjuRule::class, [
+        ...$triple,
+        'calculationTime' => '2026-09-10 12:00:00',
+    ]);
+    $withoutQi = quanju_match(QuanjuRule::class, [
+        ...$triple,
+        'calculationTime' => '2026-06-10 12:00:00',
+    ]);
+
+    expect($withQi)->not->toBeNull()
+        ->and(collect($withQi->evidence['judgments'])->pluck('code'))
+        ->toContain('congge_with_qi_advance')
+        ->not->toContain('congge_without_qi_retreat');
+
+    expect($withoutQi)->not->toBeNull()
+        ->and(collect($withoutQi->evidence['judgments'])->pluck('code'))
+        ->toContain('congge_without_qi_retreat')
+        ->not->toContain('congge_with_qi_advance');
+});
+
 test('jiase means every transmission is one of the four season earth branches and does not require distinct branches', function () {
     $overrides = ['sanchuan0' => 4, 'sanchuan1' => 1, 'sanchuan2' => 4];
 

@@ -33,6 +33,8 @@ test('quanju static definition exposes one explicit OR foundation and every prog
         'yanshang_rengui_zimugui',
         'yanshang_xu_on_yin',
         'yanshang_wu_on_xu',
+        'quzhi_fire_day_shengqi',
+        'quzhi_water_day_daoqi',
         'quzhi_ji_rooted',
         'quzhi_ding_withered',
         'quzhi_xin_material',
@@ -42,6 +44,8 @@ test('quanju static definition exposes one explicit OR foundation and every prog
         'quzhi_mao_on_wei',
         'congge_water_day_shengqi',
         'congge_earth_day_daoqi',
+        'congge_with_qi_advance',
+        'congge_without_qi_retreat',
         'jiase_wuji_harder',
         'jiase_rengui_release',
         'jiase_thunder_god',
@@ -79,8 +83,12 @@ test('quanju detail page lists all five grid definitions and marks the canonical
         ->assertSee('三传戌→午→寅完整构成三合火局，成炎上格。')
         ->assertSee('润下·木日得生气')
         ->assertSee('炎上·庚辛日带杀')
+        ->assertSee('曲直·火日得生气')
         ->assertSee('曲直·己日根固')
         ->assertSee('从革·水日得生气')
+        ->assertSee('从革·有气革而进')
+        ->assertSee('从革·无气革而退')
+        ->assertSee('尚未按“《六壬大全》完整原文”结构化录入')
         ->assertSee('稼穑·戊己日更艰难');
 
     expect(substr_count($response->getContent(), '古籍相关课例与旁证'))->toBe(1);
