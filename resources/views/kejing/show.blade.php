@@ -57,6 +57,12 @@
                     />
                 </div>
 
+                <header class="mb-6">
+                    <h1 class="text-3xl font-semibold tracking-wide text-base-content sm:text-4xl" data-kejing-page-number>
+                        第 {{ $lesson['number'] }} 课
+                    </h1>
+                </header>
+
                 <x-card shadow class="pan-data-card">
                     @include('kejing.partials.interpretation-summary', [
                         'interpretation' => $interpretation,

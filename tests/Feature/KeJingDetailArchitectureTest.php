@@ -51,6 +51,24 @@ test('kejing detail and pan interpretation share the same core lesson presentati
         ->assertSee('查看三光课详解');
 });
 
+test('lesson number belongs to the detail page heading and is absent from pan interpretation', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
+    $case = $lesson['cases'][0];
+
+    $this->get(route('kejing.show', ['lesson' => 'sanguang']))
+        ->assertOk()
+        ->assertSee('data-kejing-page-number', false)
+        ->assertSee('第 '.$lesson['number'].' 课');
+
+    Livewire::withQueryParams([
+        'datetime' => $case['datetime'],
+        'birth' => $case['birth'],
+        'gender' => $case['gender'],
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors()
+        ->assertDontSee('第 '.$lesson['number'].' 课');
+});
+
 test('pan and detail kejing headers share the compact chongshen presentation', function () {
     $interpretation = [
         'code' => 'lesson.__shared_header_test',
