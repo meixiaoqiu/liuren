@@ -14,6 +14,7 @@
                 $interpretation = $detail['interpretation'];
                 $pan = $detail['pan'];
                 $xundunLabels = $detail['xundunLabels'];
+                $grids = $detail['grids'] ?? [];
                 $staticDefinition = $detail['staticDefinition'];
                 $hasStructuredDefinition = ($staticDefinition['foundations'] ?? []) !== []
                     || ($staticDefinition['judgments'] ?? []) !== [];
@@ -90,6 +91,23 @@
                         </div>
                     @endif
                 </x-card>
+
+                @if ($grids !== [])
+                    <section class="mt-6">
+                        <x-card title="格" shadow class="pan-data-card">
+                            <p class="text-sm leading-6 text-base-content/50">
+                                以下为标准课例当前实际命中的传统格；判定直接复用与排盘“解盘信息”相同的格 RuleMatch。
+                            </p>
+
+                            @foreach ($grids as $grid)
+                                @include('livewire.pan.partials.grid-trace', [
+                                    'title' => $grid['name'],
+                                    'trace' => $grid['evidence'],
+                                ])
+                            @endforeach
+                        </x-card>
+                    </section>
+                @endif
 
                 @if ($detail['uncovered'] !== [])
                     <section class="mt-6">

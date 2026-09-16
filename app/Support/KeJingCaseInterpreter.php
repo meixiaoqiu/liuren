@@ -36,7 +36,11 @@ final readonly class KeJingCaseInterpreter
                 continue;
             }
 
-            $canonical = $this->evaluateCase($case, (string) $lesson['code']);
+            $canonical = $this->evaluateCase(
+                $case,
+                (string) $lesson['code'],
+                (string) $lesson['name'],
+            );
             if ($canonical !== null) {
                 break;
             }
@@ -60,6 +64,7 @@ final readonly class KeJingCaseInterpreter
             'pan' => $canonical['pan'] ?? null,
             'canonicalCase' => $canonical['case'] ?? null,
             'xundunLabels' => $canonical['xundunLabels'] ?? [],
+            'grids' => $canonical['grids'] ?? [],
             'uncovered' => array_values(array_filter(
                 $canonical['interpretation']['evidence']['uncovered'] ?? [],
                 static fn ($item): bool => is_string($item) && $item !== '',
@@ -95,7 +100,7 @@ final readonly class KeJingCaseInterpreter
     }
 
     /** @return array<string, mixed>|null */
-    private function evaluateCase(array $case, string $lessonCode): ?array
+    private function evaluateCase(array $case, string $lessonCode, string $lessonName): ?array
     {
         $datetime = CarbonImmutable::createFromFormat('Y-m-d\\TH:i', $case['datetime'], 'Asia/Shanghai');
         $birth = CarbonImmutable::createFromFormat('Y-m-d\\TH:i', $case['birth'], 'Asia/Shanghai');
@@ -141,7 +146,8 @@ final readonly class KeJingCaseInterpreter
             'context' => ['people' => $people],
         ]);
 
-        $match = collect($this->ruleEngine->evaluate($result))->first(
+        $matches = collect($this->ruleEngine->evaluate($result));
+        $match = $matches->first(
             static fn ($candidate): bool => $candidate->code === $lessonCode,
         );
 
@@ -149,11 +155,23 @@ final readonly class KeJingCaseInterpreter
             return null;
         }
 
+        $lessonBaseName = preg_replace('/课$/u', '', $lessonName) ?: $lessonName;
+        $gridGroup = $lessonBaseName.'课体';
+        $grids = $matches
+            ->filter(
+                static fn ($candidate): bool => $candidate->marker === '格'
+                    && $candidate->group === $gridGroup,
+            )
+            ->map(static fn ($candidate): array => $candidate->toArray())
+            ->values()
+            ->all();
+
         $pan = $result->toArray();
 
         return [
             'case' => $case,
             'interpretation' => $match->toArray(),
+            'grids' => $grids,
             'pan' => $pan,
             'xundunLabels' => $this->xundunLabels($pan),
         ];
