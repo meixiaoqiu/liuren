@@ -65,6 +65,7 @@ final readonly class KeJingCaseInterpreter
             'canonicalCase' => $canonical['case'] ?? null,
             'xundunLabels' => $canonical['xundunLabels'] ?? [],
             'grids' => $canonical['grids'] ?? [],
+            'gridDefinitions' => $this->resolveGridDefinitions((string) $lesson['name']),
             'uncovered' => array_values(array_filter(
                 $canonical['interpretation']['evidence']['uncovered'] ?? [],
                 static fn ($item): bool => is_string($item) && $item !== '',
@@ -97,6 +98,20 @@ final readonly class KeJingCaseInterpreter
             'foundations' => [],
             'judgments' => [],
         ];
+    }
+
+    /** @return list<array{code:string,name:string,group:string,marker:string,description:string}> */
+    private function resolveGridDefinitions(string $lessonName): array
+    {
+        $lessonBaseName = preg_replace('/课$/u', '', $lessonName) ?: $lessonName;
+        $gridGroup = $lessonBaseName.'课体';
+
+        return collect($this->registry->rules())
+            ->filter(static fn ($rule): bool => method_exists($rule, 'gridDefinition'))
+            ->map(static fn ($rule): array => $rule->gridDefinition())
+            ->filter(static fn (array $definition): bool => ($definition['group'] ?? null) === $gridGroup)
+            ->values()
+            ->all();
     }
 
     /** @return array<string, mixed>|null */

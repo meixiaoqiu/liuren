@@ -15,6 +15,7 @@
                 $pan = $detail['pan'];
                 $xundunLabels = $detail['xundunLabels'];
                 $grids = $detail['grids'] ?? [];
+                $gridDefinitions = $detail['gridDefinitions'] ?? [];
                 $staticDefinition = $detail['staticDefinition'];
                 $hasStructuredDefinition = ($staticDefinition['foundations'] ?? []) !== []
                     || ($staticDefinition['judgments'] ?? []) !== [];
@@ -92,19 +93,28 @@
                     @endif
                 </x-card>
 
-                @if ($grids !== [])
+                @if ($gridDefinitions !== [])
                     <section class="mt-6">
                         <x-card title="格" shadow class="pan-data-card">
                             <p class="text-sm leading-6 text-base-content/50">
-                                以下为标准课例当前实际命中的传统格；判定直接复用与排盘“解盘信息”相同的格 RuleMatch。
+                                以下为本课正式规则定义的全部格；标准课例实际命中项在下方单独标注。
                             </p>
 
-                            @foreach ($grids as $grid)
+                            @foreach ($gridDefinitions as $gridDefinition)
                                 @include('livewire.pan.partials.grid-trace', [
-                                    'title' => $grid['name'],
-                                    'trace' => $grid['evidence'],
+                                    'title' => $gridDefinition['name'],
+                                    'trace' => ['detail' => $gridDefinition['description']],
                                 ])
                             @endforeach
+
+                            @if ($grids !== [])
+                                <x-alert icon="o-check-circle" class="mt-4 alert-success alert-soft">
+                                    <strong>标准课例当前命中：{{ implode('、', array_column($grids, 'name')) }}</strong>
+                                    @foreach ($grids as $grid)
+                                        <span class="mt-1 block text-sm">{{ $grid['evidence']['detail'] }}</span>
+                                    @endforeach
+                                </x-alert>
+                            @endif
                         </x-card>
                     </section>
                 @endif

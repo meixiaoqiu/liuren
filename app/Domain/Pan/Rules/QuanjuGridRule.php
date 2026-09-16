@@ -20,6 +20,18 @@ abstract class QuanjuGridRule implements PanRule
         return 'structure.'.static::SLUG;
     }
 
+    /** @return array{code:string,name:string,group:string,marker:string,description:string} */
+    public function gridDefinition(): array
+    {
+        return [
+            'code' => $this->code(),
+            'name' => static::NAME,
+            'group' => static::GROUP,
+            'marker' => static::MARKER,
+            'description' => static::DESCRIPTION,
+        ];
+    }
+
     public function match(PanFacts $facts): ?RuleMatch
     {
         $grid = QuanjuSupport::classify($facts);

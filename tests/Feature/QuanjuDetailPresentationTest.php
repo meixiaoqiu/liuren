@@ -48,12 +48,22 @@ test('quanju static definition exposes one explicit OR foundation and every prog
     );
 });
 
-test('quanju detail page reuses the current grid RuleMatch and shows complete static judgments', function () {
+test('quanju detail page lists all five grid definitions and marks the canonical matched grid', function () {
     $response = $this->get(route('kejing.show', ['lesson' => 'quanju']))
         ->assertOk()
         ->assertSee('五格任一成立')
-        ->assertSee('以下为标准课例当前实际命中的传统格')
+        ->assertSee('以下为本课正式规则定义的全部格')
+        ->assertSee('润下格')
         ->assertSee('炎上格')
+        ->assertSee('曲直格')
+        ->assertSee('从革格')
+        ->assertSee('稼穑格')
+        ->assertSee('三传完整构成申子辰水局。')
+        ->assertSee('三传完整构成寅午戌火局。')
+        ->assertSee('三传完整构成亥卯未木局。')
+        ->assertSee('三传完整构成巳酉丑金局。')
+        ->assertSee('三传全部属于辰、戌、丑、未四季土。')
+        ->assertSee('标准课例当前命中：炎上格')
         ->assertSee('三传戌→午→寅完整构成三合火局，成炎上格。')
         ->assertSee('润下·木日得生气')
         ->assertSee('炎上·庚辛日带杀')
