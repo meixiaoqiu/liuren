@@ -37,7 +37,7 @@ test('panzhu catalog production case reproduces the classic combined structure',
         ->assertSee('回还部分：三传尽在四课')
         ->assertSee('二格合一')
         ->assertSee('尚未覆盖')
-        ->assertSee('日用旺相与神将吉凶尚未作为盘珠课课内 judgment 程序化')
+        ->assertSee('日用旺相、神将吉凶与四课不备等课义已在详情页静态列明，但当前盘动态触发尚未程序化')
         ->assertSee('天心格')
         ->assertSee('回还格');
 
@@ -118,6 +118,24 @@ test('kejing detail page exposes panzhu source evidence without exposing interna
         ->assertSee('天心格')
         ->assertSee('回还格')
         ->assertSee('戊子日·子时·未将')
+        ->assertSee('成立条件')
+        ->assertSee('天心部分：四建尽在四课')
+        ->assertSee('回还部分：三传尽在四课')
+        ->assertSee('二格合一')
+        ->assertSee('增益和减损条件')
+        ->assertSee('日用旺相、神将吉')
+        ->assertSee('四课不备，守旧动作亦吉')
+        ->assertSee('反吟：移远就近、缓事为速')
+        ->assertSee('斩关、中末空：动中不动')
+        ->assertSee('柔日昴星：伏匿不动')
+        ->assertSee('重阴忧女')
+        ->assertSee('重阳忧男')
+        ->assertSee('阴覆阳：事在内')
+        ->assertSee('阳覆阴：事在外')
+        ->assertSee('病讼、生产、忧疑、解释反凶')
+        ->assertSee('日用囚死、神将凶')
+        ->assertDontSee('当前正式规则尚未结构化录入本课成立条件')
+        ->assertDontSee('标准课例命中证据（非完整定义）')
         ->assertDontSee('sike[0]')
         ->assertDontSee('sanchuan0');
 });

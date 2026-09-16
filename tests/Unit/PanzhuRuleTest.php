@@ -37,6 +37,31 @@ test('panzhu metadata and three registry entries are stable', function () {
         ->and(array_search('structure.huihuan', $codes, true))->toBe(array_search('structure.tianxin', $codes, true) + 1);
 });
 
+test('panzhu static definition freezes the complete detail-page semantics', function () {
+    $definition = (new PanzhuRule)->definition();
+
+    expect($definition['description'])->toBe(PanzhuRule::DESCRIPTION)
+        ->and($definition['xiang'])->toBe(PanzhuRule::XIANG)
+        ->and(array_column($definition['foundations'], 'code'))->toBe([
+            'four_establishments_in_lessons',
+            'transmissions_in_lessons',
+            'two_grids_combined',
+        ])
+        ->and(array_column($definition['judgments'], 'code'))->toBe([
+            'wangxiang_good_generals',
+            'incomplete_four_lessons',
+            'fanyin_distance_shift',
+            'zhanguan_empty_later',
+            'soft_day_maoxing_hidden',
+            'heavy_yin',
+            'heavy_yang',
+            'yin_over_yang',
+            'yang_over_yin',
+            'adverse_query_types',
+            'qiu_si_bad_generals',
+        ]);
+});
+
 test('classic combined structure establishes panzhu and both independent grids', function () {
     $facts = panzhu_facts();
     $panzhu = (new PanzhuRule)->match($facts);
@@ -49,6 +74,10 @@ test('classic combined structure establishes panzhu and both independent grids',
             'year' => 10, 'month' => 1, 'day' => 0, 'hour' => 1,
         ])
         ->and($panzhu?->evidence['transmissions'])->toBe([0, 11, 10])
+        ->and(array_column($panzhu?->evidence['foundations'] ?? [], 'code'))->toBe([
+            'four_establishments_in_lessons', 'transmissions_in_lessons', 'two_grids_combined',
+        ])
+        ->and(array_column($panzhu?->evidence['foundations'] ?? [], 'matched'))->toBe([true, true, true])
         ->and($tianxin)->not->toBeNull()
         ->and($tianxin?->evidence['matched_routes'])->toBe(['four_lessons'])
         ->and($huihuan)->not->toBeNull();
