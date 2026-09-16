@@ -103,6 +103,7 @@ final class RuleRegistry
             new QuzhiRule,
             new ConggeRule,
             new JiaseRule,
+            new XuantaiRule,
             new YixunZhoubianRule,
         ];
     }
