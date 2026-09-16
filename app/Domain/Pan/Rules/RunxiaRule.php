@@ -6,6 +6,8 @@ namespace App\Domain\Pan\Rules;
 final class RunxiaRule extends QuanjuGridRule
 {
     protected const SLUG = 'runxia';
+
     protected const NAME = '润下格';
+
     protected const DESCRIPTION = '三传完整构成申子辰水局。';
 }

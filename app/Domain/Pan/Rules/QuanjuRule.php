@@ -11,11 +11,17 @@ use App\Domain\Pan\Facts\PanFacts;
 final class QuanjuRule implements PanRule
 {
     public const RULE_CODE = 'lesson.quanju';
+
     public const NAME = '全局课';
+
     public const GROUP = '六十四课';
+
     public const DESCRIPTION = '三传完整构成申子辰、寅午戌、亥卯未、巳酉丑任一三合局，或三传全部属于辰戌丑未四季土。';
+
     public const GUA = '大畜';
+
     public const GUA_SYMBOL = '䷙';
+
     public const XIANG = '三方会合，得成秀气。吉事必成，凶事难弃。尊长恩荣，常人财喜。利合婚姻，谋为大利。';
 
     private const UNCOVERED = [

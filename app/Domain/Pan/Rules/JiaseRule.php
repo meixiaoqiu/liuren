@@ -6,6 +6,8 @@ namespace App\Domain\Pan\Rules;
 final class JiaseRule extends QuanjuGridRule
 {
     protected const SLUG = 'jiase';
+
     protected const NAME = '稼穑格';
+
     protected const DESCRIPTION = '三传全部属于辰、戌、丑、未四季土。';
 }

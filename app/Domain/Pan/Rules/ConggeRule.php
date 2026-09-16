@@ -6,6 +6,8 @@ namespace App\Domain\Pan\Rules;
 final class ConggeRule extends QuanjuGridRule
 {
     protected const SLUG = 'congge';
+
     protected const NAME = '从革格';
+
     protected const DESCRIPTION = '三传完整构成巳酉丑金局。';
 }

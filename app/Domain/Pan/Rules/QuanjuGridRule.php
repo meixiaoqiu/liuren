@@ -10,9 +10,13 @@ abstract class QuanjuGridRule implements PanRule
     use LessonDefinitionDefaults;
 
     protected const SLUG = '';
+
     protected const NAME = '';
+
     protected const DESCRIPTION = '';
+
     protected const GROUP = '全局课体';
+
     protected const MARKER = '格';
 
     public function code(): string
