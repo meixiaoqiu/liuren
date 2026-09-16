@@ -105,19 +105,12 @@
                 @endif
 
                 <section class="mt-6">
-                    <x-card shadow class="pan-data-card">
-                        <x-collapse collapse-plus-minus>
-                            <x-slot:heading>
-                                <span class="font-semibold">古籍相关课例与旁证</span>
-                            </x-slot:heading>
-                            <x-slot:content>
-                                <p class="text-sm leading-6 text-base-content/50">
-                                    此处仅保留与成课判定直接相关的古籍材料摘要；完整原文、冲突、取舍与统计见上方研究记录。
-                                </p>
-                            </x-slot:content>
-                        </x-collapse>
-                    </x-card>
+                    <x-card title="古籍相关课例与旁证" shadow class="pan-data-card">
+                        <p class="text-sm leading-6 text-base-content/50">
+                            此处仅保留与成课判定直接相关的古籍材料摘要；完整原文、冲突、取舍与统计见上方研究记录。
+                        </p>
 
+                        <div class="mt-6">
                     <x-header
                         title="《六壬大全》正文课例"
                         subtitle="正文课例全部保留；能由正式程序复现者可直接点击排盘，原文材料则逐条列出。"
@@ -154,9 +147,9 @@
                             当前目录数据尚未结构化标注《六壬大全》正文课例；请以研究记录为准，页面不自行推定。
                         </x-alert>
                     @endif
-                </section>
+                        </div>
 
-                <section class="mt-6">
+                        <div class="mt-6 border-t border-base-300/70 pt-6">
                     <x-header
                         title="非正文课例与旁证"
                         subtitle="程序补充课例、后世古籍旁证与研究用案例单独列出，避免与《大全》正文混淆。"
@@ -195,6 +188,8 @@
                     @if ($lesson['otherCases'] === [] && $lesson['otherExamples'] === [])
                         <p class="mt-3 text-sm text-base-content/45">当前没有另列非正文课例或旁证。</p>
                     @endif
+                        </div>
+                    </x-card>
                 </section>
 
                 <section class="mt-6">

@@ -1204,15 +1204,25 @@ final class KeJingCatalog
                 'cases' => [
                     self::case(
                         'lesson.quanju.yanshang.ren_wu_si_time',
-                        '壬午日·巳时·丑将·炎上格（既有生产案例）',
+                        '壬午日·巳时·丑将·炎上格（正文结构现代复现）',
                         '复用和美课已经验证的真实生产盘：2026-01-08 09:00 三传戌、午、寅，完整构成寅午戌火局；在全局课中命中炎上格。',
                         '2026-01-08T09:00',
+                        self::DEFAULT_BIRTH,
+                        self::DEFAULT_GENDER,
+                        [],
+                        'executable',
+                        'daquan',
                     ),
                     self::case(
                         'lesson.quanju.runxia.wu_shen_zi_time',
-                        '戊申日·子时·申将·润下格（既有生产案例）',
+                        '戊申日·子时·申将·润下格（正文结构现代复现）',
                         '复用合欢课已经验证的真实生产盘：2000-06-19 00:00 三传子、申、辰，完整构成申子辰水局；在全局课中命中润下格，并属于逆三合排列。',
                         '2000-06-19T00:00',
+                        self::DEFAULT_BIRTH,
+                        self::DEFAULT_GENDER,
+                        [],
+                        'executable',
+                        'daquan',
                     ),
                 ],
                 'source_examples' => [
