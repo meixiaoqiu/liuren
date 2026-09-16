@@ -49,13 +49,11 @@ final class LideRule implements PanRule
             'judgments' => [
                 [
                     'code' => 'yang_front_yin_rear',
-                    'effect' => 'increase',
                     'label' => '阳前阴后',
                     'description' => '两阳神（日阳、辰阳）在贵前、两阴神（日阴、辰阴）在贵后，按《象曰》为「君子则吉，小人则危」。',
                 ],
                 [
                     'code' => 'yin_front_yang_rear',
-                    'effect' => 'reduce',
                     'label' => '阴前阳后',
                     'description' => '两阴神在贵前、两阳神在贵后，按《象曰》为「小人得意，君子失机」。',
                 ],
@@ -89,7 +87,6 @@ final class LideRule implements PanRule
         if ($pattern === 'yang_front_yin_rear') {
             $judgments[] = [
                 'code' => 'yang_front_yin_rear',
-                'effect' => 'increase',
                 'label' => '阳前阴后',
                 'description' => '两阳神（日阳、辰阳）在贵前、两阴神（日阴、辰阴）在贵后，按《象曰》为「君子则吉，小人则危」。',
                 'matched' => true,
@@ -100,7 +97,6 @@ final class LideRule implements PanRule
         if ($pattern === 'yin_front_yang_rear') {
             $judgments[] = [
                 'code' => 'yin_front_yang_rear',
-                'effect' => 'reduce',
                 'label' => '阴前阳后',
                 'description' => '两阴神在贵前、两阳神在贵后，按《象曰》为「小人得意，君子失机」。',
                 'matched' => true,
