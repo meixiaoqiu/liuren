@@ -1259,7 +1259,8 @@ test('lide is lesson 56 and all three executable cases reproduce the frozen less
     expect(array_search('lesson.lide', $codes, true))->toBe(array_search('lesson.guimu', $codes, true) + 1)
         ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['励德课', '随', '䷐'])
         ->and($lesson['summary'])->toContain('贵人临地盘卯或酉')->toContain('只用于分型')
-        ->and($lesson['cases'])->toHaveCount(3);
+        ->and($lesson['cases'])->toHaveCount(3)
+        ->and(array_column($lesson['cases'], 'source_type'))->toBe(['daquan', 'daquan', 'daquan']);
 
     $expected = [
         'lesson.lide.wu_zi_shen_time_wu_general' => ['ground' => 3, 'pattern' => 'mixed', 'grid' => null],
@@ -1314,12 +1315,15 @@ test('lide detail page always lists both yang-front-yin-rear and yin-front-yang-
     expect(array_column($definition['judgments'] ?? [], 'code'))
         ->toContain('yang_front_yin_rear', 'yin_front_yang_rear');
 
+    foreach ($definition['judgments'] ?? [] as $judgment) {
+        expect($judgment)->not->toHaveKey('effect');
+    }
+
     $this->get(route('kejing.show', ['lesson' => 'lide']))
         ->assertOk()
         ->assertSee('阳前阴后')
         ->assertSee('阴前阳后')
-        ->assertSee('增强')
-        ->assertSee('减损');
+        ->assertDontSee('>增强<', false);
 });
 
 test('yincong detail page always lists all six OR paths even when canonical case does not trigger them', function () {

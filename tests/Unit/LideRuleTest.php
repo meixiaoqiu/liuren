@@ -119,6 +119,7 @@ test('complete yang-front yin-rear is a judgment but not a separate lesson match
     expect($match)->not->toBeNull()
         ->and($match?->evidence['pattern'])->toBe('yang_front_yin_rear')
         ->and(collect($match?->evidence['judgments'])->pluck('code')->all())->toBe(['yang_front_yin_rear'])
+        ->and($match?->evidence['judgments'][0])->not->toHaveKey('effect')
         ->and((new WeifuRule)->match(lide_facts(lide_fixture('yang_front_yin_rear'))))->toBeNull()
         ->and((new CuotuoRule)->match(lide_facts(lide_fixture('yang_front_yin_rear'))))->toBeNull();
 });
@@ -128,7 +129,8 @@ test('complete yin-front yang-rear is a judgment but not a separate lesson match
 
     expect($match)->not->toBeNull()
         ->and($match?->evidence['pattern'])->toBe('yin_front_yang_rear')
-        ->and(collect($match?->evidence['judgments'])->pluck('code')->all())->toBe(['yin_front_yang_rear']);
+        ->and(collect($match?->evidence['judgments'])->pluck('code')->all())->toBe(['yin_front_yang_rear'])
+        ->and($match?->evidence['judgments'][0])->not->toHaveKey('effect');
 });
 
 test('the nobleman itself is center and never silently counted as front or rear', function () {
