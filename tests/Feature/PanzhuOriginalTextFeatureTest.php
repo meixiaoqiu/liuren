@@ -1,7 +1,6 @@
 <?php
 
 /** 文件作用：锁定第57课盘珠课详情页已经录入《六壬大全》完整原文，不再回退到摘录警告。 */
-
 test('panzhu detail page exposes complete daquan original text', function () {
     $this->get(route('kejing.show', ['lesson' => 'panzhu']))
         ->assertOk()

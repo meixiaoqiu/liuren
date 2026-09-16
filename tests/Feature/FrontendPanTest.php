@@ -632,7 +632,7 @@ test('frontend shows yincong lesson with day prosperity flanking in fuyin', func
         ->assertHasNoErrors()
         ->assertSee('引从课')
         ->assertSee('引从判断')
-        ->assertSee('成课条件')
+        ->assertSee('成立条件')
         ->assertSee('干支拱日禄')
         ->assertDontSee('规则尚未覆盖');
 });
@@ -647,7 +647,7 @@ test('frontend shows hengtong lesson with jian hexagram and its grids', function
         ->assertSee('䷴')
         ->assertSee('三传相生，干支有情')
         ->assertSee('亨通判断')
-        ->assertSee('成课条件')
+        ->assertSee('成立条件')
         ->assertSee('递生格')
         ->assertSee('递生格依据')
         ->assertSee('三传申、亥、寅')
@@ -892,7 +892,7 @@ test('frontend shows zhuixu branch path for the daquan jia-xu example', function
         ->assertSee('旅卦')
         ->assertSee('䷷')
         ->assertSee('赘婿判断')
-        ->assertSee('成课条件')
+        ->assertSee('成立条件')
         ->assertSee('日干克辰')
         ->assertSee('支临干发用');
 });
@@ -1169,7 +1169,7 @@ test('frontend shows pohua foundations and judgments for the reproduced june ren
         ->assertSee('魄化课')->assertSee('蛊卦')->assertSee('䷑')->assertSee('魄化判断')
         ->assertSee('月神与白虎')->assertSee('月建未')->assertSee('死神在戌、死气在亥')->assertSee('白虎乘戌')
         ->assertSee('成立位置')->assertSee('命中“临日、发用”多路')
-        ->assertSee('吉凶判断')->assertSee('白虎死神/死气克日干')->assertSee('戌属土')->assertSee('日干壬之水')
+        ->assertSee('增益和减损条件')->assertSee('白虎死神/死气克日干')->assertSee('戌属土')->assertSee('日干壬之水')
         ->assertSee('上克下')->assertSee('古籍断为“外丧”')->assertSee('虎在阳忧男')
         ->assertDontSee('谋而招祸，切莫远行。谋而招祸');
 });

@@ -83,9 +83,9 @@ final class ZaieRule implements PanRule
         $initialName = PanCalculator::$dizhi[$initial];
 
         $foundations = [
-            ['title' => '月建', 'detail' => "月建为{$monthName}（yuezhi={$monthBranch}）。"],
-            ['title' => '太岁', 'detail' => "太岁为{$yearName}（nianzhi={$yearBranch}）。"],
-            ['title' => '初传', 'detail' => "初传为{$initialName}（sanchuan0={$initial}）。"],
+            ['title' => '月建', 'detail' => "月建为{$monthName}。"],
+            ['title' => '太岁', 'detail' => "太岁为{$yearName}。"],
+            ['title' => '初传', 'detail' => "初传为{$initialName}。"],
         ];
 
         foreach ($hits as $key) {

@@ -19,12 +19,12 @@ final class KeJingCatalog
     private const DEFAULT_GENDER = 'male';
 
     /**
-     * source_examples 的《六壬大全》来源只接受显式枚举值。
+     * source_examples 的有名来源只接受显式枚举值。
      *
-     * 这里故意不用 str_contains / 前缀匹配，避免“不是《六壬大全》正文”一类文案被误归类。
-     * 未列入本表且未自行提供 source_type 的历史条目统一归为 other。
+     * 这里故意不用 str_contains / 前缀匹配，也不允许未知来源静默回退为 other；
+     * 新增带 source 的课例时必须先在本表明确登记来源类型。
      *
-     * @var array<string, 'daquan'>
+     * @var array<string, 'daquan'|'other'>
      */
     private const SOURCE_EXAMPLE_TYPES = [
         '《六壬大全》' => 'daquan',
@@ -37,6 +37,12 @@ final class KeJingCatalog
         '《六壬大全》正文（详例）' => 'daquan',
         '《六壬大全》正文标准课例' => 'daquan',
         '《六壬大全》泆女正文例' => 'daquan',
+        '《袖中金》（识典底本 130 节附录）' => 'other',
+        '《观月经》（识典底本130节附录）' => 'other',
+        '《御定六壬直指》' => 'other',
+        '《订讹》' => 'other',
+        '《袖中金》' => 'other',
+        '《灵觉经》' => 'other',
     ];
 
     /**
@@ -1191,18 +1197,30 @@ final class KeJingCatalog
             ],
         ];
 
-        // 旧目录中没有 source_type 的 source_examples 在这里一次性结构化。
-        // 分类只查精确枚举表；页面层不得再从 source / label / detail 文案推断来源。
+        // source_examples 在 catalog 层统一补齐结构化 source_type。
+        // 没有 source 的旧条目按非正文材料处理；只要声明了 source，就必须在精确枚举表中登记。
         foreach ($lessons as &$lesson) {
-            foreach ($lesson['source_examples'] ?? [] as &$example) {
+            if (! isset($lesson['source_examples'])) {
+                continue;
+            }
+
+            foreach ($lesson['source_examples'] as &$example) {
                 if (isset($example['source_type'])) {
                     continue;
                 }
 
                 $source = $example['source'] ?? null;
-                $example['source_type'] = is_string($source)
-                    ? (self::SOURCE_EXAMPLE_TYPES[$source] ?? 'other')
-                    : 'other';
+                if ($source === null) {
+                    $example['source_type'] = 'other';
+
+                    continue;
+                }
+
+                if (! is_string($source) || ! array_key_exists($source, self::SOURCE_EXAMPLE_TYPES)) {
+                    throw new \LogicException('未登记的课经旁证来源：'.(is_scalar($source) ? (string) $source : get_debug_type($source)));
+                }
+
+                $example['source_type'] = self::SOURCE_EXAMPLE_TYPES[$source];
             }
             unset($example);
         }

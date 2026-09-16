@@ -2,6 +2,8 @@
     $mode = $mode ?? 'pan';
     $lessonPage = $lessonPage ?? \App\Support\KeJingPageCatalog::findByCode((string) ($interpretation['code'] ?? ''));
     $staticDefinition = $staticDefinition ?? null;
+    $lessonName = (string) ($interpretation['name'] ?? '课经');
+    $lessonBaseName = preg_replace('/课$/u', '', $lessonName) ?: $lessonName;
 
     /**
      * 详情页与排盘页共用同一份结构化数据：
@@ -90,8 +92,14 @@
     ])
 </div>
 
-<section class="pan-block mt-5 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}成立条件">
-    <h3 class="text-sm font-semibold tracking-wide text-base-content/70">成立条件</h3>
+<section class="pan-block mt-5 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}：成立条件">
+    <h3 class="text-sm font-semibold tracking-wide text-base-content/70">
+        @if ($mode === 'pan')
+            {{ $lessonBaseName }}判断 · 成立条件
+        @else
+            成立条件
+        @endif
+    </h3>
 
     @if ($foundations === [])
         <p class="mt-3 text-sm leading-6 text-base-content/45">
@@ -106,7 +114,9 @@
             @foreach ($foundations as $index => $foundation)
                 @php
                     $foundationCode = $foundation['code'] ?? null;
-                    $foundationMatched = array_key_exists('matched', $foundation) ? $foundation['matched'] === true : null;
+                    $foundationMatched = array_key_exists('matched', $foundation)
+                        ? $foundation['matched'] === true
+                        : ($mode === 'pan' ? true : null);
                     $foundationDetail = $foundation['evidence'] ?? $foundation['detail'] ?? null;
                     $foundationDescription = $foundation['description'] ?? '';
                 @endphp
@@ -137,7 +147,7 @@
 </section>
 
 @if ($mode === 'detail' || $displayJudgments !== [])
-    <section class="pan-block mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}增益和减损条件">
+    <section class="pan-block mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $interpretation['name'] }}：增益和减损条件">
         <h3 class="text-sm font-semibold tracking-wide text-base-content/70">增益和减损条件</h3>
 
         @if ($mode === 'detail' && $displayJudgments === [])
@@ -154,7 +164,9 @@
             <div class="mt-3 space-y-3">
                 @foreach ($displayJudgments as $judgment)
                     @php
-                        $judgmentMatched = array_key_exists('matched', $judgment) ? $judgment['matched'] === true : null;
+                        $judgmentMatched = array_key_exists('matched', $judgment)
+                            ? $judgment['matched'] === true
+                            : ($mode === 'pan' ? true : null);
                         $judgmentDescription = $judgment['description'] ?? '';
                         $judgmentEvidence = $judgment['evidence'] ?? null;
                     @endphp

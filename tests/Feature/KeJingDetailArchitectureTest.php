@@ -185,13 +185,24 @@ test('every source example exposes an explicit structural source type', function
     }
 });
 
-test('source example migration preserves the previous daquan split without runtime substring inference', function () {
+test('source example classification uses an exhaustive exact source registry', function () {
+    $reflection = new ReflectionClass(KeJingCatalog::class);
+    $constant = $reflection->getReflectionConstant('SOURCE_EXAMPLE_TYPES');
+
+    expect($constant)->not->toBeFalse();
+    $sourceTypes = $constant->getValue();
+
     foreach (KeJingCatalog::lessons() as $lesson) {
         foreach ($lesson['source_examples'] ?? [] as $example) {
-            $legacyDaquan = str_contains((string) ($example['source'] ?? ''), '六壬大全');
+            $source = $example['source'] ?? null;
+            if ($source === null) {
+                expect($example['source_type'])->toBe('other');
 
-            expect($example['source_type'])
-                ->toBe($legacyDaquan ? 'daquan' : 'other');
+                continue;
+            }
+
+            expect($sourceTypes)->toHaveKey($source);
+            expect($example['source_type'])->toBe($sourceTypes[$source]);
         }
     }
 });
