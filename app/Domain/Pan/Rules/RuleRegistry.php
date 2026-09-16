@@ -97,6 +97,12 @@ final class RuleRegistry
             new PanzhuRule,
             new TianxinRule,
             new HuihuanRule,
+            new QuanjuRule,
+            new RunxiaRule,
+            new YanshangRule,
+            new QuzhiRule,
+            new ConggeRule,
+            new JiaseRule,
             new YixunZhoubianRule,
         ];
     }
