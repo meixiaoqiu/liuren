@@ -46,6 +46,18 @@ test('quanju static definition exposes one explicit OR foundation and every prog
         'jiase_rengui_release',
         'jiase_thunder_god',
     );
+
+    $seasonalJudgments = collect($definition['judgments'])
+        ->filter(static fn (array $judgment): bool =>
+            str_starts_with($judgment['code'], 'grid_seasonal_state_')
+            || str_starts_with($judgment['code'], 'initial_seasonal_state_')
+        )
+        ->values();
+
+    expect($seasonalJudgments)->toHaveCount(10);
+    foreach ($seasonalJudgments as $judgment) {
+        expect($judgment['effect'])->toBe('neutral');
+    }
 });
 
 test('quanju detail page lists all five grid definitions and marks the canonical matched grid', function () {

@@ -147,7 +147,7 @@ final class QuanjuSupport
         if (is_string($gridState)) {
             $judgments[] = [
                 'code' => 'grid_seasonal_state_'.self::stateCode($gridState),
-                'effect' => in_array($gridState, ['旺', '相'], true) ? 'increase' : (in_array($gridState, ['囚', '死'], true) ? 'reduce' : 'neutral'),
+                'effect' => 'neutral',
                 'label' => "{$grid['element_name']}局时令{$gridState}",
                 'description' => '记录全局所属五行在当前四立／土旺十八日口径下的旺相休囚死。',
                 'matched' => true,
@@ -159,7 +159,7 @@ final class QuanjuSupport
         if (is_string($initialState)) {
             $judgments[] = [
                 'code' => 'initial_seasonal_state_'.self::stateCode($initialState),
-                'effect' => in_array($initialState, ['旺', '相'], true) ? 'increase' : (in_array($initialState, ['囚', '死'], true) ? 'reduce' : 'neutral'),
+                'effect' => 'neutral',
                 'label' => "初传时令{$initialState}",
                 'description' => '初传有气、无气与整个局五行旺衰分开记录。',
                 'matched' => true,

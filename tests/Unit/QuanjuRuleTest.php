@@ -54,6 +54,26 @@ test('quanju accepts reverse sanhe without rejecting the lesson', function () {
         ->and(collect($match->evidence['judgments'])->pluck('code'))->toContain('sanhe_reverse');
 });
 
+test('quanju seasonal states are factual records rather than universal increase or reduce judgments', function () {
+    $match = quanju_match(QuanjuRule::class, [
+        'calculationTime' => '2026-01-08 09:00:00',
+    ]);
+
+    expect($match)->not->toBeNull();
+
+    $seasonalJudgments = collect($match->evidence['judgments'])
+        ->filter(static fn (array $judgment): bool =>
+            str_starts_with($judgment['code'], 'grid_seasonal_state_')
+            || str_starts_with($judgment['code'], 'initial_seasonal_state_')
+        )
+        ->values();
+
+    expect($seasonalJudgments)->not->toBeEmpty();
+    foreach ($seasonalJudgments as $judgment) {
+        expect($judgment['effect'])->toBe('neutral');
+    }
+});
+
 test('jiase means every transmission is one of the four season earth branches and does not require distinct branches', function () {
     $overrides = ['sanchuan0' => 4, 'sanchuan1' => 1, 'sanchuan2' => 4];
 
