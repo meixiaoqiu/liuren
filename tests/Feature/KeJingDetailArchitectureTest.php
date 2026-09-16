@@ -69,7 +69,7 @@ test('kejing page catalog separates daquan source material from later witnesses'
 
     expect($lesson['daquanExamples'])->not->toBeEmpty();
     foreach ($lesson['daquanExamples'] as $example) {
-        expect($example['source'])->toContain('六壬大全');
+        expect($example['source_type'])->toBe('daquan');
     }
 
     $response = $this->get(route('kejing.show', ['lesson' => 'lide']))
@@ -174,4 +174,24 @@ test('detail presentation prefers the static definition description and xiang wh
         ->toContain('静态成立条件')
         ->not->toContain('动态描述不应优先')
         ->not->toContain('动态象曰不应优先');
+});
+
+test('every source example exposes an explicit structural source type', function () {
+    foreach (KeJingCatalog::lessons() as $lesson) {
+        foreach ($lesson['source_examples'] ?? [] as $example) {
+            expect($example)->toHaveKey('source_type');
+            expect(['daquan', 'other'])->toContain($example['source_type']);
+        }
+    }
+});
+
+test('source example migration preserves the previous daquan split without runtime substring inference', function () {
+    foreach (KeJingCatalog::lessons() as $lesson) {
+        foreach ($lesson['source_examples'] ?? [] as $example) {
+            $legacyDaquan = str_contains((string) ($example['source'] ?? ''), '六壬大全');
+
+            expect($example['source_type'])
+                ->toBe($legacyDaquan ? 'daquan' : 'other');
+        }
+    }
 });

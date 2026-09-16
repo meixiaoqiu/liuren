@@ -19,6 +19,27 @@ final class KeJingCatalog
     private const DEFAULT_GENDER = 'male';
 
     /**
+     * source_examples 的《六壬大全》来源只接受显式枚举值。
+     *
+     * 这里故意不用 str_contains / 前缀匹配，避免“不是《六壬大全》正文”一类文案被误归类。
+     * 未列入本表且未自行提供 source_type 的历史条目统一归为 other。
+     *
+     * @var array<string, 'daquan'>
+     */
+    private const SOURCE_EXAMPLE_TYPES = [
+        '《六壬大全》' => 'daquan',
+        '《六壬大全》正文' => 'daquan',
+        '《六壬大全·灾厄课》正文' => 'daquan',
+        '《六壬大全》正文（识典底本 130 节）' => 'daquan',
+        '《六壬大全》正文（详例，已有可排课例）' => 'daquan',
+        '《六壬大全》正文（盘式简例）' => 'daquan',
+        '《六壬大全》一旬周遍格' => 'daquan',
+        '《六壬大全》正文（详例）' => 'daquan',
+        '《六壬大全》正文标准课例' => 'daquan',
+        '《六壬大全》泆女正文例' => 'daquan',
+    ];
+
+    /**
      * @return list<array{
      *     name: string,
      *     code: string,
@@ -30,7 +51,7 @@ final class KeJingCatalog
      */
     public static function lessons(): array
     {
-        return [
+        $lessons = [
             [
                 'name' => '三光课',
                 'code' => 'lesson.sanguang',
@@ -1169,6 +1190,25 @@ final class KeJingCatalog
                 ],
             ],
         ];
+
+        // 旧目录中没有 source_type 的 source_examples 在这里一次性结构化。
+        // 分类只查精确枚举表；页面层不得再从 source / label / detail 文案推断来源。
+        foreach ($lessons as &$lesson) {
+            foreach ($lesson['source_examples'] ?? [] as &$example) {
+                if (isset($example['source_type'])) {
+                    continue;
+                }
+
+                $source = $example['source'] ?? null;
+                $example['source_type'] = is_string($source)
+                    ? (self::SOURCE_EXAMPLE_TYPES[$source] ?? 'other')
+                    : 'other';
+            }
+            unset($example);
+        }
+        unset($lesson);
+
+        return $lessons;
     }
 
     /**

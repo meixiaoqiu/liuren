@@ -101,17 +101,11 @@ final class KeJingPageCatalog
     }
 
     /**
-     * source_examples 的来源字段同样采用结构化判断；保持与 case 的 source_type 命名一致。
+     * source_examples 只读取 KeJingCatalog 已结构化的 source_type；不做文案兼容推断。
      */
     private static function isDaquanSource(array $example): bool
     {
-        if (isset($example['source_type'])) {
-            return $example['source_type'] === 'daquan';
-        }
-
-        // 旧版 source_examples 仅通过 'source' 文案标注；为保留向后兼容，
-        // 未带新字段时回退到包含“《六壬大全》”的判断（仅一次性迁移期使用）。
-        return str_contains((string) ($example['source'] ?? ''), '六壬大全');
+        return ($example['source_type'] ?? 'other') === 'daquan';
     }
 
     /** @return array<string, array{number: int, filename: string, path: string}> */
