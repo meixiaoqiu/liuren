@@ -14,7 +14,20 @@
                 $interpretation = $detail['interpretation'];
                 $pan = $detail['pan'];
                 $xundunLabels = $detail['xundunLabels'];
+                $staticDefinition = $detail['staticDefinition'];
+                $hasStructuredDefinition = ($staticDefinition['foundations'] ?? []) !== []
+                    || ($staticDefinition['judgments'] ?? []) !== [];
                 $traceSpec = \App\Support\KeJingTraceView::for($interpretation);
+                $canonicalEvidenceFallback = false;
+                if ($traceSpec === null && ! $hasStructuredDefinition) {
+                    $name = (string) ($interpretation['name'] ?? '课经');
+                    $baseName = preg_replace('/课$/u', '', $name) ?: $name;
+                    $traceSpec = [
+                        'view' => 'livewire.pan.partials.lesson-trace',
+                        'title' => $baseName.'判断',
+                    ];
+                    $canonicalEvidenceFallback = true;
+                }
                 $dizhi = \App\Services\PanCalculator::$dizhi;
                 $tiangan = \App\Services\PanCalculator::$tiangan;
                 $wuxing = \App\Services\PanCalculator::$wuxing;
@@ -55,15 +68,22 @@
                             <x-collapse collapse-plus-minus>
                                 <x-slot:heading>
                                     <div>
-                                        <strong>{{ $traceSpec['title'] }} · 标准课例判定细节</strong>
-                                        <p class="mt-1 text-xs text-base-content/45">{{ $detail['canonicalCase']['label'] }} · 与排盘“解盘信息”复用同一判定模板</p>
+                                        @if ($canonicalEvidenceFallback)
+                                            <strong>标准课例命中证据（非完整定义）</strong>
+                                            <p class="mt-1 text-xs text-base-content/45">
+                                                {{ $detail['canonicalCase']['label'] }} · 这里只展示该课例当前 RuleMatch 的实际命中证据；完整静态课义尚未结构化录入。
+                                            </p>
+                                        @else
+                                            <strong>{{ $traceSpec['title'] }} · 标准课例判定细节</strong>
+                                            <p class="mt-1 text-xs text-base-content/45">{{ $detail['canonicalCase']['label'] }} · 与排盘“解盘信息”复用同一判定模板</p>
+                                        @endif
                                     </div>
                                 </x-slot:heading>
                                 <x-slot:content>
                                     @include($traceSpec['view'], [
                                         'trace' => $interpretation['evidence'],
                                         'title' => $traceSpec['title'],
-                                        'suppressCoreTrace' => true,
+                                        'suppressCoreTrace' => $hasStructuredDefinition,
                                     ])
                                 </x-slot:content>
                             </x-collapse>

@@ -131,3 +131,48 @@ test('generic kejing detail does not render a duplicate canonical trace section'
         ->assertSee('成立条件')
         ->assertDontSee('标准课例判定细节');
 });
+
+
+test('unstructured lesson detail keeps canonical match evidence without pretending it is the full definition', function () {
+    $this->get(route('kejing.show', ['lesson' => 'zhuyin']))
+        ->assertOk()
+        ->assertSee('当前正式规则尚未结构化录入本课成立条件')
+        ->assertSee('标准课例命中证据（非完整定义）')
+        ->assertSee('戌入传')
+        ->assertSee('巳入传');
+});
+
+test('detail presentation prefers the static definition description and xiang when available', function () {
+    $html = view('kejing.partials.interpretation-summary', [
+        'interpretation' => [
+            'code' => 'lesson.__static_definition_test',
+            'name' => '测试课',
+            'group' => '六十四课',
+            'description' => '动态描述不应优先',
+            'marker' => '经',
+            'gua' => null,
+            'guaSymbol' => null,
+            'xiang' => '动态象曰不应优先',
+            'evidence' => [],
+        ],
+        'lessonPage' => null,
+        'staticDefinition' => [
+            'description' => '静态定义描述',
+            'xiang' => '静态定义象曰',
+            'foundations' => [[
+                'code' => 'foundation.test',
+                'title' => '静态成立条件',
+                'description' => '静态条件描述',
+            ]],
+            'judgments' => [],
+        ],
+        'mode' => 'detail',
+    ])->render();
+
+    expect($html)
+        ->toContain('静态定义描述')
+        ->toContain('静态定义象曰')
+        ->toContain('静态成立条件')
+        ->not->toContain('动态描述不应优先')
+        ->not->toContain('动态象曰不应优先');
+});

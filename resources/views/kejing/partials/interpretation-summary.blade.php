@@ -11,8 +11,14 @@
     if ($mode === 'detail') {
         $foundations = $foundations ?? ($staticDefinition['foundations'] ?? []);
         $displayJudgments = $judgments ?? ($staticDefinition['judgments'] ?? []);
-        $staticDescription = (string) ($staticDefinition['description'] ?? '');
-        $xiangSource = $interpretation['xiang'] ?? ($staticDefinition['xiang'] ?? null);
+        $staticDescription = trim((string) ($staticDefinition['description'] ?? ''));
+        $descriptionSource = $staticDescription !== ''
+            ? $staticDescription
+            : (string) ($interpretation['description'] ?? '');
+        $staticXiang = $staticDefinition['xiang'] ?? null;
+        $xiangSource = is_string($staticXiang) && trim($staticXiang) !== ''
+            ? $staticXiang
+            : ($interpretation['xiang'] ?? null);
     } else {
         $foundations = $foundations ?? ($interpretation['evidence']['foundations'] ?? []);
         $foundations = array_values(array_filter(
@@ -29,7 +35,7 @@
                 ? $judgment['matched'] === true
                 : true,
         ));
-        $staticDescription = '';
+        $descriptionSource = (string) ($interpretation['description'] ?? '');
         $xiangSource = $interpretation['xiang'] ?? null;
     }
 
@@ -65,7 +71,7 @@
 
         <section class="mt-5">
             <h3 class="text-sm font-semibold tracking-wide text-base-content/70">现代汉语描述</h3>
-            <p class="mt-2 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
+            <p class="mt-2 leading-7 text-base-content/65">{{ $descriptionSource }}</p>
         </section>
 
         <section class="mt-5">
