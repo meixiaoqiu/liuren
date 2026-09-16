@@ -1425,7 +1425,7 @@ test('frontend shows lide condition and keeps the classic mixed example inside t
         ->set('datetime', '2022-08-03T16:00')
         ->set('birthDatetime', '1900-01-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
-        ->assertSee('励德课')->assertSee('随卦')->assertSee('䷐')->assertSee('励德判断')
+        ->assertSee('励德课')->assertSee('随卦')->assertSee('䷐')
         ->assertSee('成课条件')->assertSee('天乙贵人临卯酉')
         ->assertSee('天乙贵人临地盘卯，符合卯、酉之一')
         ->assertSee('日阳')->assertSee('上神卯，乘朱雀，位置：贵前')

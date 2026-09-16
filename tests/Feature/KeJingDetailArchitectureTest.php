@@ -132,7 +132,6 @@ test('generic kejing detail does not render a duplicate canonical trace section'
         ->assertDontSee('标准课例判定细节');
 });
 
-
 test('unstructured lesson detail keeps canonical match evidence without pretending it is the full definition', function () {
     $this->get(route('kejing.show', ['lesson' => 'zhuyin']))
         ->assertOk()
