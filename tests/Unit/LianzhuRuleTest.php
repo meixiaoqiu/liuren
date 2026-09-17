@@ -46,44 +46,39 @@ test('static definition keeps the two alternative routes in one foundation', fun
         ]);
 });
 
-test('all eight same-quarter meng zhong ji sequences establish lianzhu', function (array $transmissions, string $route) {
-    $match = (new LianzhuRule)->match(lianzhu_facts([
-        'sanchuan0' => $transmissions[0],
-        'sanchuan1' => $transmissions[1],
-        'sanchuan2' => $transmissions[2],
-    ]));
+test('all twelve forward and twelve reverse continuous triples establish lianzhu', function () {
+    $rule = new LianzhuRule;
 
-    expect($match)->not->toBeNull()
-        ->and($match?->evidence['transmissions'])->toBe($transmissions)
-        ->and($match?->evidence['route_flags'][$route])->toBeTrue();
-})->with([
-    '寅卯辰' => [[2, 3, 4], 'meng_forward'],
-    '巳午未' => [[5, 6, 7], 'meng_forward'],
-    '申酉戌' => [[8, 9, 10], 'meng_forward'],
-    '亥子丑' => [[11, 0, 1], 'meng_forward'],
-    '辰卯寅' => [[4, 3, 2], 'meng_reverse'],
-    '未午巳' => [[7, 6, 5], 'meng_reverse'],
-    '戌酉申' => [[10, 9, 8], 'meng_reverse'],
-    '丑子亥' => [[1, 0, 11], 'meng_reverse'],
-]);
+    for ($start = 0; $start < 12; $start++) {
+        $forward = [$start, ($start + 1) % 12, ($start + 2) % 12];
+        $forwardMatch = $rule->match(lianzhu_facts([
+            'nianzhi' => 4,
+            'yuezhi' => 8,
+            'rizhi' => 0,
+            'sanchuan0' => $forward[0],
+            'sanchuan1' => $forward[1],
+            'sanchuan2' => $forward[2],
+        ]));
 
-test('mere numerical continuity across quarters does not establish the meng route', function (array $transmissions) {
-    $match = (new LianzhuRule)->match(lianzhu_facts([
-        'nianzhi' => 0,
-        'yuezhi' => 2,
-        'rizhi' => 8,
-        'sanchuan0' => $transmissions[0],
-        'sanchuan1' => $transmissions[1],
-        'sanchuan2' => $transmissions[2],
-    ]));
+        expect($forwardMatch)->not->toBeNull()
+            ->and($forwardMatch?->evidence['transmissions'])->toBe($forward)
+            ->and($forwardMatch?->evidence['route_flags']['forward'])->toBeTrue();
 
-    expect($match)->toBeNull();
-})->with([
-    '辰巳午' => [[4, 5, 6]],
-    '子丑寅' => [[0, 1, 2]],
-    '午巳辰' => [[6, 5, 4]],
-    '寅丑子' => [[2, 1, 0]],
-]);
+        $reverse = [$start, ($start + 11) % 12, ($start + 10) % 12];
+        $reverseMatch = $rule->match(lianzhu_facts([
+            'nianzhi' => 4,
+            'yuezhi' => 8,
+            'rizhi' => 0,
+            'sanchuan0' => $reverse[0],
+            'sanchuan1' => $reverse[1],
+            'sanchuan2' => $reverse[2],
+        ]));
+
+        expect($reverseMatch)->not->toBeNull()
+            ->and($reverseMatch?->evidence['transmissions'])->toBe($reverse)
+            ->and($reverseMatch?->evidence['route_flags']['reverse'])->toBeTrue();
+    }
+});
 
 test('year month day forward route independently establishes lianzhu', function () {
     $match = (new LianzhuRule)->match(lianzhu_facts([
@@ -98,6 +93,7 @@ test('year month day forward route independently establishes lianzhu', function 
 
     expect($match)->not->toBeNull()
         ->and($match?->evidence['route_flags']['year_month_day_forward'])->toBeTrue()
+        ->and($judgments['year_month_day_forward']['effect'])->toBe('neutral')
         ->and($judgments['year_month_day_forward']['matched'])->toBeTrue()
         ->and($judgments['progressive_lianzhu']['matched'])->toBeFalse();
 });
@@ -115,6 +111,7 @@ test('day month year reverse route independently establishes lianzhu', function 
 
     expect($match)->not->toBeNull()
         ->and($match?->evidence['route_flags']['day_month_year_reverse'])->toBeTrue()
+        ->and($judgments['day_month_year_reverse']['effect'])->toBe('neutral')
         ->and($judgments['day_month_year_reverse']['matched'])->toBeTrue();
 });
 
@@ -141,11 +138,11 @@ test('hai zi chou additionally marks sanqi lianzhu', function () {
     $judgments = collect($match?->evidence['judgments'] ?? [])->keyBy('code');
 
     expect($match)->not->toBeNull()
-        ->and($judgments['progressive_lianzhu']['matched'])->toBeTrue()
+        ->and($match?->evidence['route_flags']['forward'])->toBeTrue()
         ->and($judgments['sanqi_lianzhu']['matched'])->toBeTrue();
 });
 
-test('one pan may hit both the meng route and the calendar route', function () {
+test('one pan may hit both the continuous route and the calendar route', function () {
     $match = (new LianzhuRule)->match(lianzhu_facts([
         'nianzhi' => 2,
         'yuezhi' => 3,
@@ -156,7 +153,7 @@ test('one pan may hit both the meng route and the calendar route', function () {
     ]));
 
     expect($match)->not->toBeNull()
-        ->and($match?->evidence['matched_routes'])->toContain('meng_forward', 'year_month_day_forward');
+        ->and($match?->evidence['matched_routes'])->toContain('forward', 'year_month_day_forward');
 });
 
 test('invalid or unrelated transmissions do not establish lianzhu', function (array $changes) {

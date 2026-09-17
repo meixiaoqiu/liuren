@@ -22,11 +22,11 @@ $rule = new LianzhuRule;
 $counts = array_fill_keys([
     'total',
     'lianzhu',
-    'meng_forward',
-    'meng_reverse',
+    'forward',
+    'reverse',
     'year_month_day_forward',
     'day_month_year_reverse',
-    'both_meng_and_calendar',
+    'both_continuous_and_calendar',
     'calendar_with_repeated_branches',
 ], 0);
 $firstMatches = [];
@@ -47,16 +47,16 @@ for ($date = $start; $date < $end; $date = $date->modify('+1 day')) {
 
         $counts['lianzhu']++;
         $flags = $match->evidence['route_flags'] ?? [];
-        foreach (['meng_forward', 'meng_reverse', 'year_month_day_forward', 'day_month_year_reverse'] as $key) {
+        foreach (['forward', 'reverse', 'year_month_day_forward', 'day_month_year_reverse'] as $key) {
             if (($flags[$key] ?? false) === true) {
                 $counts[$key]++;
             }
         }
 
-        $meng = ($flags['meng_forward'] ?? false) || ($flags['meng_reverse'] ?? false);
+        $continuous = ($flags['forward'] ?? false) || ($flags['reverse'] ?? false);
         $calendar = ($flags['year_month_day_forward'] ?? false) || ($flags['day_month_year_reverse'] ?? false);
-        if ($meng && $calendar) {
-            $counts['both_meng_and_calendar']++;
+        if ($continuous && $calendar) {
+            $counts['both_continuous_and_calendar']++;
         }
 
         if ($calendar) {
@@ -93,8 +93,8 @@ $result = [
     'counts' => $counts,
     'ratios' => [
         'lianzhu' => $ratio($counts['lianzhu']),
-        'meng_forward' => $ratio($counts['meng_forward']),
-        'meng_reverse' => $ratio($counts['meng_reverse']),
+        'forward' => $ratio($counts['forward']),
+        'reverse' => $ratio($counts['reverse']),
         'year_month_day_forward' => $ratio($counts['year_month_day_forward']),
         'day_month_year_reverse' => $ratio($counts['day_month_year_reverse']),
     ],

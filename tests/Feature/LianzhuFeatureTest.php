@@ -30,7 +30,7 @@ test('frontend shows lianzhu lesson and shared reasoning on the classical reprod
         ->assertSee('复卦')
         ->assertSee('䷗')
         ->assertSee('连珠判断')
-        ->assertSee('孟仲季进连珠')
+        ->assertSee('进连珠')
         ->assertSee('寅、卯、辰');
 });
 
@@ -44,5 +44,8 @@ test('lianzhu catalog exposes the daquan example as an executable source case', 
         ->and($lesson['cases'][0]['source_type'])->toBe('daquan')
         ->and($lesson['source_examples'][0]['source'])->toBe('《六壬大全》正文')
         ->and($lesson['source_examples'][0]['source_type'])->toBe('daquan')
-        ->and($lesson['source_examples'][1]['source'])->toBe('《订讹》');
+        ->and($lesson['source_examples'])->toHaveCount(3)
+        ->and($lesson['source_examples'][1]['source'])->toBe('《六壬大全》')
+        ->and($lesson['source_examples'][1]['source_type'])->toBe('daquan')
+        ->and($lesson['source_examples'][2]['source'])->toBe('《订讹》');
 });
