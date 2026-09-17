@@ -60,9 +60,9 @@ final class XuantaiRule implements PanRule
     ];
 
     private const UNCOVERED = [
-        '财爻乘天后、生气、胎神及年命见之等胎孕细断尚未程序化',
+        '用值天后财爻、妻财值生气且胎神发用、年命见之等胎孕细断尚未程序化',
         '喜神吉将、三刑及凶将等综合神将吉凶尚未程序化',
-        '父母发用、子孙空亡、天后空亡与日用休囚等玄胎不育细断尚未程序化',
+        '父母用事或发用、子孙空亡、天后空亡与“日用休囚且天后落空”等细断尚未动态程序化',
         '病讼、行人、捕贼、老幼占病等问事分类缺少统一占事上下文，暂不做动态触发',
     ];
 
@@ -103,10 +103,22 @@ final class XuantaiRule implements PanRule
                     'description' => '玄胎课又见反吟，传统称绝胎；《灵觉经》明确断胎产之灾。',
                 ],
                 [
-                    'code' => 'wealth_tianhou_shengqi_taishen',
+                    'code' => 'use_tianhou_wealth',
                     'effect' => 'increase',
-                    'label' => '财爻、天后、生气、胎神',
-                    'description' => '发用财爻得天后并值生气胎神，传统主妻有孕；年命见之尤的。',
+                    'label' => '用值天后财爻',
+                    'description' => '《六壬大全》正文单列：用神值天后且为财爻，主结偶怀胎；不与下一条强行合并为一个 AND 条件。',
+                ],
+                [
+                    'code' => 'wealth_shengqi_taishen',
+                    'effect' => 'increase',
+                    'label' => '妻财值生气、胎神发用',
+                    'description' => '《六壬大全》正文另列：妻财值生气，且胎神发用，主妻有孕；年命见之，遇玄胎尤的。',
+                ],
+                [
+                    'code' => 'ri_yong_xiuqiu_tianhou_void',
+                    'effect' => 'reduce',
+                    'label' => '日用休囚、天后落空：玄胎不育',
+                    'description' => '《六壬大全》正文：日与用休囚，又见天后落空，为玄胎不育。',
                 ],
                 [
                     'code' => 'good_spirits_generals',
@@ -129,8 +141,8 @@ final class XuantaiRule implements PanRule
                 [
                     'code' => 'parents_initial',
                     'effect' => 'reduce',
-                    'label' => '父母发用',
-                    'description' => '父母发用，传统断尊长见灾。',
+                    'label' => '父母用事 / 发用',
+                    'description' => '《六壬大全》正文作“父母用事”，《订讹》作“父母发用”，二者均断尊长见灾；程序尚未动态触发。',
                 ],
                 [
                     'code' => 'offspring_void',

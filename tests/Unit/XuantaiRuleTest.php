@@ -34,19 +34,24 @@ test('xuantai metadata and registry order are stable', function () {
 
 test('xuantai static definition separates foundations from judgments', function () {
     $definition = (new XuantaiRule)->definition();
+    $judgmentCodes = array_column($definition['judgments'], 'code');
 
     expect($definition['description'])->toBe(XuantaiRule::DESCRIPTION)
         ->and($definition['xiang'])->toBe(XuantaiRule::XIANG)
         ->and(array_column($definition['foundations'], 'code'))->toBe([
             'three_transmissions_all_meng',
         ])
-        ->and(array_column($definition['judgments'], 'code'))->toContain(
+        ->and($judgmentCodes)->toContain(
             'bing_tai',
             'sheng_tai',
             'jue_tai',
+            'use_tianhou_wealth',
+            'wealth_shengqi_taishen',
+            'ri_yong_xiuqiu_tianhou_void',
             'offspring_void',
             'tianhou_void',
-        );
+        )
+        ->and(in_array('wealth_tianhou_shengqi_taishen', $judgmentCodes, true))->toBeFalse();
 });
 
 test('three transmissions all in four meng establish xuantai', function (array $transmissions) {

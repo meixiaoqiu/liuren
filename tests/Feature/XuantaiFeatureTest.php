@@ -10,6 +10,13 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
+test('daquan jia-yin yin-hour si-general example is reproduced by production calculator', function () {
+    $pan = app(PanCalculator::class)->calculate('2031-09-11 03:00:00')->toArray();
+
+    expect([$pan['rigan'], $pan['rizhi'], $pan['shizhi'], $pan['yuejiang']])->toBe([0, 2, 2, 5])
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([8, 11, 2]);
+});
+
 test('known production pan with shen hai yin transmissions matches xuantai', function () {
     $pan = app(PanCalculator::class)->calculate('2001-05-03 11:00:00')->toArray();
 
@@ -31,16 +38,18 @@ test('frontend shows xuantai lesson and shared reasoning', function () {
         ->assertSee('申、亥、寅');
 });
 
-test('xuantai catalog keeps executable reproduction separate from daquan source example', function () {
+test('xuantai catalog exposes daquan reproduction as clickable case', function () {
     $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.xuantai');
 
     expect($lesson)->not->toBeNull()
         ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['玄胎课', '家人', '䷤'])
-        ->and($lesson['cases'])->toHaveCount(1)
-        ->and($lesson['cases'][0]['datetime'])->toBe('2001-05-03T11:00')
-        ->and($lesson['cases'][0]['source_type'])->toBe('other')
+        ->and($lesson['cases'])->toHaveCount(2)
+        ->and($lesson['cases'][0]['datetime'])->toBe('2031-09-11T03:00')
+        ->and($lesson['cases'][0]['status'])->toBe('executable')
+        ->and($lesson['cases'][0]['source_type'])->toBe('daquan')
+        ->and($lesson['cases'][1]['datetime'])->toBe('2001-05-03T11:00')
+        ->and($lesson['cases'][1]['source_type'])->toBe('other')
         ->and($lesson['source_examples'][0]['source'])->toBe('《六壬大全》正文')
         ->and($lesson['source_examples'][0]['source_type'])->toBe('daquan')
-        ->and($lesson['source_examples'][0]['detail'])->toContain('甲寅日')
-        ->and($lesson['source_examples'][0]['detail'])->toContain('申亥寅');
+        ->and($lesson['source_examples'][0]['detail'])->toContain('2031-09-11 03:00');
 });
