@@ -1270,6 +1270,40 @@ final class KeJingCatalog
                     ],
                 ],
             ],
+            [
+                'name' => '间传课',
+                'code' => 'lesson.jianchuan',
+                'gua' => '巽',
+                'guaSymbol' => '䷸',
+                'summary' => '三传连续两次每隔一位同向递传：顺行均进二支或逆行均退二支；成立后唯一对应十二顺格或十二逆格之一。',
+                'cases' => [
+                    self::case(
+                        'lesson.jianchuan.classic_jia_zi_xu_time_zi_general',
+                        '甲子日·戌时·子将·辰加甲·三传辰午申（正文现代复现）',
+                        '《六壬大全》正文例“甲子日辰加甲，三传间位而行”，并明确辰午申为登三天格。2031-01-24 19:00 为甲子日、戌时，大寒后按项目口径为子将；甲寄寅，寅宫上神为辰，生产三传应为辰、午、申。',
+                        '2031-01-24T19:00',
+                        self::DEFAULT_BIRTH,
+                        self::DEFAULT_GENDER,
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
+                ],
+                'source_examples' => [
+                    [
+                        'label' => '甲子日辰加甲·三传辰午申',
+                        'path' => '间一位递作三传 + 登三天格',
+                        'source' => '《六壬大全》正文',
+                        'detail' => '正文标准例：甲子日辰加甲，三传辰午申，既成立间传课，又唯一对应登三天格；现代复现时间为 2031-01-24 19:00。',
+                    ],
+                    [
+                        'label' => '顺十二格与逆十二格',
+                        'path' => '间传成立后的二十四种唯一分型',
+                        'source' => '《六壬大全》正文',
+                        'detail' => '正文逐一列出辰午申至亥丑卯十二顺格，以及寅子戌至卯丑亥十二逆格；格名和具体课义均作为间传课后结构判断，不扩大主体 matcher。',
+                    ],
+                ],
+            ],
         ];
 
         // source_examples 在 catalog 层统一补齐结构化 source_type。
