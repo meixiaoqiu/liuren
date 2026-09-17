@@ -27,11 +27,16 @@ test('kejing index follows research document numbering and renders the visible l
 test('kejing detail and pan interpretation share the same core lesson presentation', function () {
     $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
     $case = $lesson['cases'][0];
+    $definition = collect((new RuleRegistry)->rules())
+        ->first(static fn ($rule): bool => $rule->code() === 'lesson.sanguang')
+        ?->definition();
+
+    expect($definition)->not->toBeNull();
 
     $this->get(route('kejing.show', ['lesson' => 'sanguang']))
         ->assertOk()
-        ->assertSee('现代汉语描述')
-        ->assertSee('象曰')
+        ->assertSee($definition['description'])
+        ->assertSee($definition['xiang'])
         ->assertSee('成立条件')
         ->assertSee('增益和减损条件')
         ->assertSee('三光判断')
@@ -52,13 +57,16 @@ test('kejing detail and pan interpretation share the same core lesson presentati
 });
 
 test('lesson number belongs to the detail page heading and is absent from pan interpretation', function () {
-    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
-    $case = $lesson['cases'][0];
+    $catalogLesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
+    $pageLesson = KeJingPageCatalog::findByCode('lesson.sanguang');
+    $case = $catalogLesson['cases'][0];
+
+    expect($pageLesson)->not->toBeNull();
 
     $this->get(route('kejing.show', ['lesson' => 'sanguang']))
         ->assertOk()
         ->assertSee('data-kejing-page-number', false)
-        ->assertSee('第 '.$lesson['number'].' 课');
+        ->assertSee('第 '.$pageLesson['number'].' 课');
 
     Livewire::withQueryParams([
         'datetime' => $case['datetime'],
@@ -66,7 +74,7 @@ test('lesson number belongs to the detail page heading and is absent from pan in
         'gender' => $case['gender'],
     ])->test(CreatePan::class)
         ->assertHasNoErrors()
-        ->assertDontSee('第 '.$lesson['number'].' 课');
+        ->assertDontSee('第 '.$pageLesson['number'].' 课');
 });
 
 test('pan and detail kejing headers share the compact chongshen presentation', function () {
@@ -119,8 +127,10 @@ test('pan and detail kejing headers share the compact chongshen presentation', f
         ->not->toContain('现代汉语描述');
 
     expect($detailHtml)
-        ->toContain('现代汉语描述')
-        ->toContain('象曰');
+        ->toContain('测试现代描述')
+        ->toContain('测试象辞')
+        ->not->toContain('现代汉语描述')
+        ->not->toContain('象曰');
 });
 
 test('kejing detail preserves an empty gua slot when a lesson has no fixed hexagram', function () {

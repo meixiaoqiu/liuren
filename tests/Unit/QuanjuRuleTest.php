@@ -62,10 +62,8 @@ test('quanju seasonal states are factual records rather than universal increase 
     expect($match)->not->toBeNull();
 
     $seasonalJudgments = collect($match->evidence['judgments'])
-        ->filter(static fn (array $judgment): bool =>
-            str_starts_with($judgment['code'], 'grid_seasonal_state_')
-            || str_starts_with($judgment['code'], 'initial_seasonal_state_')
-        )
+        ->filter(static fn (array $judgment): bool => str_starts_with($judgment['code'], 'grid_seasonal_state_')
+            || str_starts_with($judgment['code'], 'initial_seasonal_state_'))
         ->values();
 
     expect($seasonalJudgments)->not->toBeEmpty();

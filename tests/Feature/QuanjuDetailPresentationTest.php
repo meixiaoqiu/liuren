@@ -52,10 +52,8 @@ test('quanju static definition exposes one explicit OR foundation and every prog
     );
 
     $seasonalJudgments = collect($definition['judgments'])
-        ->filter(static fn (array $judgment): bool =>
-            str_starts_with($judgment['code'], 'grid_seasonal_state_')
-            || str_starts_with($judgment['code'], 'initial_seasonal_state_')
-        )
+        ->filter(static fn (array $judgment): bool => str_starts_with($judgment['code'], 'grid_seasonal_state_')
+            || str_starts_with($judgment['code'], 'initial_seasonal_state_'))
         ->values();
 
     expect($seasonalJudgments)->toHaveCount(10);
