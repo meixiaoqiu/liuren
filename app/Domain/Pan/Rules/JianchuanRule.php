@@ -37,11 +37,11 @@ final class JianchuanRule implements PanRule
      *
      * @var array<string, array{code: string, label: string, description: string}>
      */
-    private const SUBTYPES = [
+    public const SUBTYPES = [
         '4,6,8' => [
             'code' => 'deng_santian',
             'label' => '登三天格',
-            'description' => '辰午申。主层层上达；官事有迁转之象，久旱可雨；惟忌空脱，病讼反见加深。',
+            'description' => '辰午申。官登天位主迁转；惟忌空脱。争讼事情转大，占病症候弥深，贼来，行人至，久旱则雨。',
         ],
         '6,8,10' => [
             'code' => 'chu_santian',
@@ -81,7 +81,7 @@ final class JianchuanRule implements PanRule
         '5,7,9' => [
             'code' => 'bianying',
             'label' => '变盈格',
-            'description' => '巳未酉。物满必缺、势过人衰，正文凡占多凶；官有黜退象，新病忌而久病反可愈。',
+            'description' => '巳未酉。物满必缺、势过人衰；凡占皆凶，占官被黜，占物非当时用者，占新病死，久病愈。',
         ],
         '7,9,11' => [
             'code' => 'ruming',
@@ -121,7 +121,7 @@ final class JianchuanRule implements PanRule
         '6,4,2' => [
             'code' => 'guzu',
             'label' => '顾祖格',
-            'description' => '午辰寅。如子孙回顾长生之祖，有复旧之象；求财谋望多吉，行人来、贼去，官占亦吉。',
+            'description' => '午辰寅。如子孙回顾长生之祖，有复旧之象；求财谋望皆吉，贼去，行人来；惟庚日占病凶，占官大吉。',
         ],
         '4,2,0' => [
             'code' => 'sheyi',
@@ -136,12 +136,12 @@ final class JianchuanRule implements PanRule
         '11,9,7' => [
             'code' => 'shidun',
             'label' => '时遁格',
-            'description' => '亥酉未。有潜形隐遁之象；行人不来、出行不出、捕盗不获、贼去不来，君子较利。',
+            'description' => '亥酉未。有潜形隐遁之象；占行人不来，出行不出，捕盗不获，贼去不来，君子吉而小人凶。',
         ],
         '9,7,5' => [
             'code' => 'liming',
             'label' => '励明格',
-            'description' => '酉未巳。从暗入明，主经历阴暗后得明；事情多先勉强后通，君子取禄位较利。',
+            'description' => '酉未巳。从暗入明，有历阴暗而后得明之象；凡举皆由勉强而后去，君子利取禄位，小人宜早营运。',
         ],
         '7,5,3' => [
             'code' => 'huiming',
@@ -151,7 +151,7 @@ final class JianchuanRule implements PanRule
         '5,3,1' => [
             'code' => 'zhuanbei',
             'label' => '转悖格',
-            'description' => '巳卯丑。避明向暗、以巧就拙，有转为悖戾之象；宜省检守分。',
+            'description' => '巳卯丑。避明向暗，以巧就拙，乘正归邪，事转悖戾；主家零身怯、怪梦，作事似邪魔随事，好出头而不知省检，守分以安命。',
         ],
         '3,1,11' => [
             'code' => 'duanjian',
@@ -172,16 +172,6 @@ final class JianchuanRule implements PanRule
 
     public function definition(): array
     {
-        $subtypeJudgments = [];
-        foreach (self::SUBTYPES as $subtype) {
-            $subtypeJudgments[] = [
-                'code' => 'subtype_'.$subtype['code'],
-                'effect' => 'neutral',
-                'label' => $subtype['label'],
-                'description' => $subtype['description'],
-            ];
-        }
-
         return [
             'description' => self::DESCRIPTION,
             'xiang' => self::XIANG,
@@ -205,7 +195,6 @@ final class JianchuanRule implements PanRule
                     'label' => '逆间传',
                     'description' => '三传连续两次逆行二支；正文总断“逆主事逆”，但顾祖、回明等逆格本身仍可有吉义，不能直接等同于凶。',
                 ],
-                ...$subtypeJudgments,
                 [
                     'code' => 'day_initial_wang_xiang',
                     'effect' => 'increase',
@@ -263,21 +252,6 @@ final class JianchuanRule implements PanRule
         $transmissionNames = implode('、', array_map($branchName, $transmissions));
         $directionLabel = $forward ? '顺间传' : '逆间传';
 
-        $subtypeJudgments = [];
-        foreach (self::SUBTYPES as $key => $candidate) {
-            $matched = $key === implode(',', $transmissions);
-            $subtypeJudgments[] = [
-                'code' => 'subtype_'.$candidate['code'],
-                'effect' => 'neutral',
-                'label' => $candidate['label'],
-                'description' => $candidate['description'],
-                'matched' => $matched,
-                'evidence' => $matched
-                    ? "三传{$transmissionNames}唯一对应{$candidate['label']}。"
-                    : '当前三传不对应此格。',
-            ];
-        }
-
         return new RuleMatch(
             code: self::RULE_CODE,
             name: self::NAME,
@@ -321,7 +295,6 @@ final class JianchuanRule implements PanRule
                         'matched' => $reverse,
                         'evidence' => $reverse ? "三传{$transmissionNames}连续逆隔一位递传。" : '当前盘不是逆间传。',
                     ],
-                    ...$subtypeJudgments,
                     [
                         'code' => 'day_initial_wang_xiang',
                         'effect' => 'increase',

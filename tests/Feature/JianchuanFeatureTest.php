@@ -33,6 +33,7 @@ test('frontend shows jianchuan lesson shared reasoning and deng santian subtype'
         ->assertSee('间传判断')
         ->assertSee('顺间传')
         ->assertSee('登三天格')
+        ->assertSee('三传辰、午、申唯一对应登三天格。')
         ->assertSee('辰、午、申')
         ->assertSee('查看间传课详解');
 });
@@ -59,7 +60,11 @@ test('jianchuan detail exposes all twenty four named subtypes and complete origi
         ->assertSee('向阳格')
         ->assertSee('顾祖格')
         ->assertSee('回明格')
-        ->assertSee('断涧格');
+        ->assertSee('断涧格')
+        ->assertSee('惟庚日占病凶，占官大吉')
+        ->assertSee('君子吉而小人凶')
+        ->assertSee('小人宜早营运')
+        ->assertSee('乘正归邪');
 
     foreach ([
         '登三天格', '出三天格', '涉三渊格', '入三渊格', '向阳格', '出阳格',
