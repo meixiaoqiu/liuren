@@ -104,6 +104,7 @@ final class RuleRegistry
             new ConggeRule,
             new JiaseRule,
             new XuantaiRule,
+            new LianzhuRule,
             new YixunZhoubianRule,
         ];
     }
