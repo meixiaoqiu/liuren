@@ -1487,7 +1487,11 @@ test('liuchun daquan ji-mao case is executable and reproduces liuyin via registr
     expect($case)->not->toBeNull()
         ->and($case['status'])->toBe('executable')
         ->and($case['source_type'])->toBe('daquan')
-        ->and($case['datetime'])->toBe('2024-01-16T21:00');
+        ->and($case['datetime'])->toBe('2024-01-16T21:00')
+        ->and($case['label'])->toContain('主体结构现代复现')
+        ->and($case['reason'])->toContain('顺间传·溟濛格')
+        ->and($case['reason'])->toContain('课后结构尚未验证')
+        ->and($case['reason'])->not->toContain('引入中末鬼乡');
 
     $component = Livewire::test(CreatePan::class)
         ->set('datetime', $case['datetime'])
@@ -1520,7 +1524,10 @@ test('liuchun daquan jia-wu reference-only case shows the not-covered badge and 
     expect($case)->not->toBeNull()
         ->and($case['status'])->toBe('reference_only')
         ->and($case['source_type'])->toBe('daquan')
-        ->and($case['datetime'])->toBe('2024-01-31T03:00');
+        ->and($case['datetime'])->toBe('2024-01-31T03:00')
+        ->and($case['reason'])->toContain('天地盘若以戌发用')
+        ->and($case['reason'])->toContain('冲突位于初传取用层')
+        ->and($case['reason'])->not->toContain('互斥');
 
     expect(KeJingCatalog::findReferenceCase('lesson.liuchun.daquan_jia_wu_gan_shang_zi'))
         ->not->toBeNull();
@@ -1535,7 +1542,7 @@ test('liuchun daquan jia-wu reference-only case shows the not-covered badge and 
         ->toBeNull();
 });
 
-test('liuchun daquan jia-wu case never claims liuyang on the pan page', function () {
+test('liuchun daquan jia-wu reference pan matches liuyang but not the daquan transmission', function () {
     // 甲午正文例 reference_only：当前时间点（2024-01-31 03:00）实际盘面是六阳寅子戌，与正文退间传 戌申午 不一致；
     // 即便展示，也不应作为六纯命中案例隐藏此冲突。
     $component = Livewire::withQueryParams([
@@ -1550,8 +1557,24 @@ test('liuchun daquan jia-wu case never claims liuyang on the pan page', function
     $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.liuchun');
 
     expect([$pan['rigan'], $pan['rizhi']])->toBe([0, 6])
+        ->and([$pan['shizhi'], $pan['yuejiang']])->toBe([2, 0])
+        ->and($pan['tianpan'])->toBe([10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        ->and($pan['sike'])->toBe([0, 0, 0, 10, 6, 4, 4, 2])
         ->and($pan['sike'][1])->toBe(0)
         ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([2, 0, 10])
+        ->and([$pan['tianpan'][10], $pan['tianpan'][8]])->toBe([8, 6])
+        ->and($pan['jiuzongmen'])->toBe(5)
+        ->and(array_column($pan['shehaiTrace']['candidates'], 'lesson_index'))->toBe([3, 7])
+        ->and(array_column($pan['shehaiTrace']['candidates'], 'depth'))->toBe([2, 6])
+        ->and($pan['shehaiTrace']['decision'])->toMatchArray([
+            'rule' => '取涉害较深者',
+            'tied' => false,
+            'selected_lesson_index' => 7,
+            'selected_branch' => 2,
+        ])
+        ->and($pan['calculationTrace']['initial_transmission']['method'])->toBe('shehai')
+        ->and($pan['calculationTrace']['middle_transmission']['method'])->toBe('tianpan_shunchuan')
+        ->and($pan['calculationTrace']['final_transmission']['method'])->toBe('tianpan_shunchuan')
         ->and($match)->not->toBeNull()
         ->and($match['evidence']['type'])->toBe('liuyang');
 
