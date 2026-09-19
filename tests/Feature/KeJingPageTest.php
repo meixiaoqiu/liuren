@@ -350,6 +350,7 @@ test('kejing page renders the not-covered badge for the declared reference-only 
         'lesson.siqi.classic_jia_zi_chou_time_si_general',
         'lesson.yangjiu.geng_wu_external_reference',
         'lesson.yangjiu.ji_you_internal_reference',
+        'lesson.liuchun.daquan_jia_wu_gan_shang_zi',
     ]);
 
     $response = $this->get(route('kejing.show', ['lesson' => 'sanyin']))
@@ -1417,18 +1418,37 @@ test('jieli detail page preserves the empty gua slot without collapse', function
     expect($response->getContent())->toContain('data-kejing-gua-slot="empty"');
 });
 
-test('liuchun catalog exposes two fixed executable production examples', function () {
+test('liuchun catalog exposes two daquan cases plus two modern executable production examples', function () {
     $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
 
     expect($lesson)->not->toBeNull()
         ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['六纯课', '革', '䷰'])
-        ->and($lesson['cases'])->toHaveCount(2)
-        ->and(array_column($lesson['cases'], 'datetime'))->toBe(['2031-01-04T05:00', '2031-01-03T05:00'])
-        ->and(array_unique(array_column($lesson['cases'], 'status')))->toBe(['executable'])
+        ->and($lesson['cases'])->toHaveCount(4)
+        ->and(array_column($lesson['cases'], 'case_id'))->toBe([
+            'lesson.liuchun.production_liuyang_20310104_0500',
+            'lesson.liuchun.production_liuyin_20310103_0500',
+            'lesson.liuchun.daquan_jia_wu_gan_shang_zi',
+            'lesson.liuchun.daquan_ji_mao_you_jia_wei',
+        ])
+        ->and(array_column($lesson['cases'], 'datetime'))->toBe([
+            '2031-01-04T05:00',
+            '2031-01-03T05:00',
+            '2024-01-31T03:00',
+            '2024-01-16T21:00',
+        ])
+        ->and(array_column($lesson['cases'], 'status'))->toBe([
+            'executable', 'executable', 'reference_only', 'executable',
+        ])
+        ->and(array_column($lesson['cases'], 'source_type'))->toBe([
+            'other', 'other', 'daquan', 'daquan',
+        ])
         ->and($lesson['source_examples'])->toHaveCount(4)
         ->and(array_unique(array_column($lesson['source_examples'], 'source')))->toBe(['《六壬大全》正文']);
 
     foreach ($lesson['cases'] as $case) {
+        if (($case['status'] ?? 'executable') !== 'executable') {
+            continue;
+        }
         $component = Livewire::test(CreatePan::class)
             ->set('datetime', $case['datetime'])
             ->set('birthDatetime', $case['birth'])
@@ -1449,8 +1469,108 @@ test('liuchun detail page shows definition sources complete original and uncover
         ->assertSee('六阳／六阴两条独立入口')
         ->assertSee('六阳动达，如登三天')
         ->assertSee('《六壬大全》正文课例')
-        ->assertSee('甲午日干上子')->assertSee('己卯日酉加未')
+        ->assertSee('甲午日·干上子·退间传 戌申午')
+        ->assertSee('己卯日·酉加未·三传亥丑卯')
+        ->assertSee('2031-01-04·卯时')
+        ->assertSee('2031-01-03·卯时')
         ->assertSee('《六壬大全》完整原文')
         ->assertSee('尚未程序化或尚待冻结的课义')
         ->assertSee('五阳、五阴及年命填实暂未程序化');
+});
+
+test('liuchun daquan ji-mao case is executable and reproduces liuyin via registry engine', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
+    $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.liuchun.daquan_ji_mao_you_jia_wei');
+
+    expect($case)->not->toBeNull()
+        ->and($case['status'])->toBe('executable')
+        ->and($case['source_type'])->toBe('daquan')
+        ->and($case['datetime'])->toBe('2024-01-16T21:00');
+
+    $component = Livewire::test(CreatePan::class)
+        ->set('datetime', $case['datetime'])
+        ->set('birthDatetime', $case['birth'])
+        ->set('gender', $case['gender'])
+        ->call('calculate')
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.liuchun');
+
+    // 己卯日，tianpan[未]=酉，四课上神 酉亥巳未，三传 亥丑卯，六阴命中。
+    expect([$pan['rigan'], $pan['rizhi']])->toBe([5, 3])
+        ->and($pan['tianpan'][7])->toBe(9)
+        ->and([$pan['sike'][1], $pan['sike'][3], $pan['sike'][5], $pan['sike'][7]])->toBe([9, 11, 5, 7])
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([11, 1, 3])
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['type'])->toBe('liuyin');
+
+    $component->assertSee('六纯课')
+        ->assertSee('六阴课')
+        ->assertSee('查看六纯课详解')
+        ->assertDontSee('原文参考盘·尚未覆盖');
+});
+
+test('liuchun daquan jia-wu reference-only case shows the not-covered badge and is whitelisted', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
+    $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.liuchun.daquan_jia_wu_gan_shang_zi');
+
+    expect($case)->not->toBeNull()
+        ->and($case['status'])->toBe('reference_only')
+        ->and($case['source_type'])->toBe('daquan')
+        ->and($case['datetime'])->toBe('2024-01-31T03:00');
+
+    expect(KeJingCatalog::findReferenceCase('lesson.liuchun.daquan_jia_wu_gan_shang_zi'))
+        ->not->toBeNull();
+
+    $response = $this->get(route('kejing.show', ['lesson' => 'liuchun']));
+    $response->assertSee('原文参考盘·尚未覆盖');
+    $response->assertSee('甲午日·干上子·退间传 戌申午');
+
+    // reference_only 案例进入排盘页必须经白名单校验通过后才能显示"原文参考盘"标识；
+    // 这里使用伪造 ID 时应被 KeJingCatalog::findReferenceCase 拒绝。
+    expect(KeJingCatalog::findReferenceCase('lesson.liuchun.daquan_jia_wu_gan_shang_zi_forged'))
+        ->toBeNull();
+});
+
+test('liuchun daquan jia-wu case never claims liuyang on the pan page', function () {
+    // 甲午正文例 reference_only：当前时间点（2024-01-31 03:00）实际盘面是六阳寅子戌，与正文退间传 戌申午 不一致；
+    // 即便展示，也不应作为六纯命中案例隐藏此冲突。
+    $component = Livewire::withQueryParams([
+        'datetime' => '2024-01-31T03:00',
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+        'reference_case' => 'lesson.liuchun.daquan_jia_wu_gan_shang_zi',
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors();
+
+    $pan = $component->get('pan');
+    $match = collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.liuchun');
+
+    expect([$pan['rigan'], $pan['rizhi']])->toBe([0, 6])
+        ->and($pan['sike'][1])->toBe(0)
+        ->and([$pan['sanchuan0'], $pan['sanchuan1'], $pan['sanchuan2']])->toBe([2, 0, 10])
+        ->and($match)->not->toBeNull()
+        ->and($match['evidence']['type'])->toBe('liuyang');
+
+    // reference_only 提示必须出现；且当前盘面三传 ≠ 戌申午，必须显示这一冲突。
+    $component->assertSee('原文参考盘·尚未覆盖');
+    $component->assertSee('原文参考盘');
+});
+
+test('liuchun daqan ji-mao executable case reproduces the lesson on the pan page', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
+    $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.liuchun.daquan_ji_mao_you_jia_wei');
+
+    $component = Livewire::withQueryParams([
+        'datetime' => $case['datetime'],
+        'birth' => $case['birth'],
+        'gender' => $case['gender'],
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors();
+
+    $component->assertSee('六纯课')
+        ->assertSee('六阴课')
+        ->assertSee('查看六纯课详解')
+        ->assertDontSee('原文参考盘·尚未覆盖');
 });
