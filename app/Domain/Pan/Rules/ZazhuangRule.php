@@ -21,6 +21,8 @@ final class ZazhuangRule implements PanRule
 
     public const DESCRIPTION = '凡正常课取初传，辨其纯杂，并据初传及所临地盘取五行、颜色与太玄数。';
 
+    public const XIANG = '五行阴阳，万物纯杂，凶视救神，吉防害鬼。数目日期，颜色物类，觅物寻人，克应可取。';
+
     /** @var list<int> */
     public const PURE_BRANCHES = [0, 6, 3, 9];
 
@@ -54,7 +56,7 @@ final class ZazhuangRule implements PanRule
     {
         return [
             'description' => self::DESCRIPTION,
-            'xiang' => null,
+            'xiang' => self::XIANG,
             'foundations' => [
                 ['code' => 'valid_initial', 'title' => '凡正常课取初传', 'description' => '只要排盘存在 0 至 11 范围内的合法初传，即成立杂状课。'],
                 ['code' => 'purity', 'title' => '按初传辨纯杂', 'description' => '子、午、卯、酉四仲为纯；其余八支为杂。杂支再依日干五行分生杂、死杂或普通杂。'],
@@ -112,7 +114,7 @@ final class ZazhuangRule implements PanRule
             description: self::DESCRIPTION,
             gua: null,
             guaSymbol: null,
-            xiang: null,
+            xiang: self::XIANG,
             evidence: [
                 'initial' => $initial,
                 'initial_name' => $initialName,
@@ -148,9 +150,10 @@ final class ZazhuangRule implements PanRule
                 ],
                 'judgments' => [],
                 'uncovered' => [
-                    '物类、形状等更细的传统取象尚未程序化；颜色与太玄数仅复原本课已冻结的固定映射。',
-                    '《御定六壬直指》有“杂状课统节之体”异说；本程序依《六壬大全》不为杂状课设置卦体。',
-                    '《六壬大全》本课正文未见独立《象曰》，程序不自行摘句拼接。',
+                    '“凶视救神，吉防害鬼”的具体程序语义尚未冻结。',
+                    '生杂所主、死杂所主等传统占断，目前仅保留古籍说明，尚未结构化为动态 judgment。',
+                    '数目如何依据不同占类解释为日、月、距离等单位，尚未建立统一程序模型。',
+                    '“觅物寻人，克应可取”的具体取法尚未程序化。',
                 ],
             ],
         );

@@ -27,8 +27,12 @@ test('zazhuang metadata and registry order are stable', function () {
     $rule = new ZazhuangRule;
     $codes = array_map(fn ($item) => $item->code(), (new RuleRegistry)->rules());
 
+    $match = $rule->match(zazhuang_facts());
+
     expect([$rule->code(), $rule::NAME, $rule::GROUP])->toBe(['lesson.zazhuang', '杂状课', '六十四课'])
-        ->and([$rule->definition()['xiang'], $rule->match(zazhuang_facts())?->gua, $rule->match(zazhuang_facts())?->guaSymbol])->toBe([null, null, null])
+        ->and($rule->definition()['xiang'])->toBe(ZazhuangRule::XIANG)
+        ->and($match?->xiang)->toBe(ZazhuangRule::XIANG)
+        ->and([$match?->gua, $match?->guaSymbol])->toBe([null, null])
         ->and(array_search('lesson.zazhuang', $codes, true))->toBe(array_search('lesson.liuchun', $codes, true) + 1);
 });
 
