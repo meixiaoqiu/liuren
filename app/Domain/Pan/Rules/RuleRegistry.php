@@ -107,6 +107,7 @@ final class RuleRegistry
             new LianzhuRule,
             new JianchuanRule,
             ...JianchuanGridRule::all(),
+            new LiuchunRule,
             new YixunZhoubianRule,
         ];
     }

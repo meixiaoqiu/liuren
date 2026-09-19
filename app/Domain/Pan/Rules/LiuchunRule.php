@@ -26,8 +26,9 @@ final class LiuchunRule implements PanRule
 
     private const UNCOVERED = [
         '五阳、五阴及年命填实暂未程序化；原因是古籍扩展规则存在，但具体“填之”的机器判定语义尚未完成课例验证。',
-        '六阳遇退间传、六阴遇昼夜及出户、盈阳、励明、回明等附格，仅保留为课后判断，尚未建立跨课的动态联动。',
-        '六阴所述“将乘后合元、支干遇盗气、弹射发用、坐空”与源消根断，需要统一神将、盗气、空亡及年命事实后再程序化。',
+        '六阳遇退间传、夜传昼及六阴遇昼将入夜、出户、盈阳、励明、回明等附格尚未程序化。',
+        '后合元、盗气、弹射发用、坐空及源消根断尚未程序化。',
+        '初传、中传逢空时，君子畏之减力、常人赖之省力及末事得理等身份化占断尚未程序化。',
     ];
 
     public function code(): string
@@ -45,14 +46,7 @@ final class LiuchunRule implements PanRule
                 'title' => '六阳／六阴两条独立入口',
                 'description' => '四课四个上神、初传以外的中传和末传同属阳，或同属阴；初传必须是四课上神之一。',
             ]],
-            'judgments' => [
-                ['code' => 'liuyang', 'effect' => 'increase', 'label' => '六阳课', 'description' => '正文谓六阳“私凶公吉，官遇升迁”；宜占天庭尊长之事。'],
-                ['code' => 'liuyin', 'effect' => 'reduce', 'label' => '六阴课', 'description' => '正文谓六阴“公凶私利，病患缠延”；宜卑下、阴谋奸私之事，病者死。'],
-                ['code' => 'liuyang_retreat_jianchuan', 'effect' => 'neutral', 'label' => '六阳遇退间传', 'description' => '正文甲午例称六阳遇退间传为倒拔蛇、悖戾，并见财引入中末鬼乡；保留为需跨课核验的附格。'],
-                ['code' => 'liuyin_special_transmissions', 'effect' => 'neutral', 'label' => '六阴昼夜与间传附格', 'description' => '正文列夜传昼、昼将入夜及出户、盈阳、励明、回明等，指出不可一概以昏迷断之。'],
-                ['code' => 'five_yang_yin_fate_fill', 'effect' => 'neutral', 'label' => '五阳五阴与年命填实', 'description' => '正文称“以人年命定之”；机器判定语义尚未验证，不参与 matcher。'],
-                ['code' => 'source_exhaustion_root_severance', 'effect' => 'reduce', 'label' => '源消根断', 'description' => '正文以五阴相续、盗气迤逦脱去，并本命缘不摄而死为断；尚待人物与盗气事实统一。'],
-            ],
+            'judgments' => [],
         ];
     }
 
@@ -95,7 +89,7 @@ final class LiuchunRule implements PanRule
                 'matched' => true,
                 'evidence' => "四课上神为{$names}；三传为".implode('、', array_map($branchName, $transmissions)).'。',
             ]],
-            'judgments' => array_map(fn (array $judgment) => [...$judgment, 'matched' => $judgment['code'] === $type], $this->definition()['judgments']),
+            'judgments' => [],
             'uncovered' => self::UNCOVERED,
         ]);
     }

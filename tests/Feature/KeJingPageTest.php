@@ -1416,3 +1416,41 @@ test('jieli detail page preserves the empty gua slot without collapse', function
 
     expect($response->getContent())->toContain('data-kejing-gua-slot="empty"');
 });
+
+test('liuchun catalog exposes two fixed executable production examples', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
+
+    expect($lesson)->not->toBeNull()
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['六纯课', '革', '䷰'])
+        ->and($lesson['cases'])->toHaveCount(2)
+        ->and(array_column($lesson['cases'], 'datetime'))->toBe(['2031-01-04T05:00', '2031-01-03T05:00'])
+        ->and(array_unique(array_column($lesson['cases'], 'status')))->toBe(['executable'])
+        ->and($lesson['source_examples'])->toHaveCount(4)
+        ->and(array_unique(array_column($lesson['source_examples'], 'source')))->toBe(['《六壬大全》正文']);
+
+    foreach ($lesson['cases'] as $case) {
+        $component = Livewire::test(CreatePan::class)
+            ->set('datetime', $case['datetime'])
+            ->set('birthDatetime', $case['birth'])
+            ->set('gender', $case['gender'])
+            ->call('calculate')
+            ->assertHasNoErrors();
+
+        expect(collect($component->get('ruleMatches'))->firstWhere('code', 'lesson.liuchun'))->not->toBeNull();
+    }
+});
+
+test('liuchun detail page shows definition sources complete original and uncovered boundaries', function () {
+    $this->get(route('kejing.show', ['lesson' => 'liuchun']))
+        ->assertOk()
+        ->assertSee('第 62 课')
+        ->assertSee('六纯课')->assertSee('革卦')->assertSee('䷰')
+        ->assertSee('四课上神皆阳（或皆阴）')
+        ->assertSee('六阳／六阴两条独立入口')
+        ->assertSee('六阳动达，如登三天')
+        ->assertSee('《六壬大全》正文课例')
+        ->assertSee('甲午日干上子')->assertSee('己卯日酉加未')
+        ->assertSee('《六壬大全》完整原文')
+        ->assertSee('尚未程序化或尚待冻结的课义')
+        ->assertSee('五阳、五阴及年命填实暂未程序化');
+});

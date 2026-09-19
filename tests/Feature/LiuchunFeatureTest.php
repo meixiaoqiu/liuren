@@ -1,30 +1,28 @@
 <?php
 
-/** 文件作用：以生产 PanCalculator 搜索并复现六纯课，不为课例修改核心排盘。 */
+/** 文件作用：以生产 PanCalculator 固定复现六阳、六阴，并验证正式规则引擎接入。 */
 
-use App\Domain\Pan\Facts\PanFacts;
-use App\Domain\Pan\Rules\LiuchunRule;
+use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Services\PanCalculator;
 
-test('production calculator yields both six-yang and six-yin examples in 2031', function () {
-    $calculator = app(PanCalculator::class);
-    $rule = new LiuchunRule;
-    $found = [];
+test('production pan reproduces fixed six-yang example through the rule engine', function () {
+    $pan = app(PanCalculator::class)->calculate('2031-01-04 05:00:00');
+    $data = $pan->toArray();
+    $match = collect(app(PanRuleEngine::class)->evaluate($pan))->firstWhere('code', 'lesson.liuchun');
 
-    for ($day = new DateTimeImmutable('2031-01-01 00:00:00', new DateTimeZone('Asia/Shanghai')); count($found) < 2; $day = $day->modify('+1 day')) {
-        expect($day)->toBeLessThan(new DateTimeImmutable('2032-01-01 00:00:00', new DateTimeZone('Asia/Shanghai')));
-        foreach ([23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21] as $hour) {
-            $pan = $calculator->calculate($day->setTime($hour, 0)->format('Y-m-d H:i:s'));
-            $match = $rule->match(PanFacts::from($pan));
-            if ($match !== null) {
-                $found[$match->evidence['type']] = [$pan->toArray(), $match];
-            }
-        }
-    }
+    expect([$data['sike'][1], $data['sike'][3], $data['sike'][5], $data['sike'][7]])->toBe([0, 10, 2, 0])
+        ->and([$data['sanchuan0'], $data['sanchuan1'], $data['sanchuan2']])->toBe([2, 0, 10])
+        ->and($match)->not->toBeNull()
+        ->and($match?->evidence['type'])->toBe('liuyang');
+});
 
-    expect(array_keys($found))->toContain('liuyang', 'liuyin');
-    foreach ($found as [$pan, $match]) {
-        expect($match->evidence['initial_from_sike_upper'])->toBeTrue()
-            ->and($match->evidence['sike_upper_branches'])->toBe([$pan['sike'][1], $pan['sike'][3], $pan['sike'][5], $pan['sike'][7]]);
-    }
+test('production pan reproduces fixed six-yin example through the rule engine', function () {
+    $pan = app(PanCalculator::class)->calculate('2031-01-03 05:00:00');
+    $data = $pan->toArray();
+    $match = collect(app(PanRuleEngine::class)->evaluate($pan))->firstWhere('code', 'lesson.liuchun');
+
+    expect([$data['sike'][1], $data['sike'][3], $data['sike'][5], $data['sike'][7]])->toBe([11, 9, 1, 11])
+        ->and([$data['sanchuan0'], $data['sanchuan1'], $data['sanchuan2']])->toBe([11, 9, 7])
+        ->and($match)->not->toBeNull()
+        ->and($match?->evidence['type'])->toBe('liuyin');
 });

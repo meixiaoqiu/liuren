@@ -1458,3 +1458,21 @@ test('frontend shows cuotuo as an independent lide grid', function () {
         ->assertSee('午乘螣蛇（贵前）')->assertSee('辰乘六合（贵前）')
         ->assertDontSee('微服格依据');
 });
+
+test('frontend shows fixed liuchun examples through registry engine and shared interpretation', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2031-01-04T05:00')
+        ->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('六纯课')->assertSee('革卦')->assertSee('䷰')
+        ->assertSee('六阳课')->assertSee('成立条件')
+        ->assertSee('四课上神为子、戌、寅、子；三传为寅、子、戌。')
+        ->assertSee('查看六纯课详解');
+
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2031-01-03T05:00')
+        ->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('六纯课')->assertSee('六阴课')
+        ->assertSee('四课上神为亥、酉、丑、亥；三传为亥、酉、未。');
+});

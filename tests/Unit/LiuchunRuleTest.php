@@ -57,6 +57,16 @@ test('uniform sike is rejected when middle or final transmission has the opposit
 
 test('initial transmission must be a sike upper branch and five yang yin is not an entry', function () {
     $rule = new LiuchunRule;
-    expect($rule->match(liuchun_facts(['sanchuan0' => 8])))->toBeNull()
-        ->and($rule->definition()['judgments'])->toContain(['code' => 'five_yang_yin_fate_fill', 'effect' => 'neutral', 'label' => '五阳五阴与年命填实', 'description' => '正文称“以人年命定之”；机器判定语义尚未验证，不参与 matcher。']);
+    expect($rule->match(liuchun_facts(['sanchuan0' => 8])))->toBeNull();
+});
+
+test('unimplemented post-lesson readings are uncovered rather than judgments', function () {
+    $rule = new LiuchunRule;
+    $definition = $rule->definition();
+    $match = $rule->match(liuchun_facts());
+    $uncovered = implode('；', $match?->evidence['uncovered'] ?? []);
+
+    expect($definition['judgments'])->toBe([])
+        ->and($match?->evidence['judgments'])->toBe([])
+        ->and($uncovered)->toContain('五阳、五阴', '退间传', '源消根断', '初传、中传逢空');
 });
