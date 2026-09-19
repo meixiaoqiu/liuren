@@ -62,7 +62,7 @@
                                     </p>
 
                                     @if ($hasReferenceOnly)
-                                        <p class="mt-1 text-[0.65rem] tracking-wide text-warning/80">原文参考盘·尚未覆盖</p>
+                                        <p class="mt-1 text-[0.65rem] tracking-wide text-warning/80">原文参考盘·尚未完整复现</p>
                                         @php
                                             $referenceHint = '';
                                             foreach ($lesson['cases'] ?? [] as $hintCase) {

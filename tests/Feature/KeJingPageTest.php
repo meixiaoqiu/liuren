@@ -358,7 +358,7 @@ test('kejing page renders the not-covered badge for the declared reference-only 
     $response = $this->get(route('kejing.show', ['lesson' => 'sanyin']))
         ->assertOk();
 
-    $response->assertSee('原文参考盘·尚未覆盖');
+    $response->assertSee('原文参考盘·尚未完整复现');
 });
 
 test('fanchang de-yun executable case never exposes the not-covered banner on the pan page', function () {
@@ -1122,7 +1122,7 @@ test('sanyin is lesson 49 with executable modern case and reference-only classic
         ->and($match['evidence']['xingnian']['branch'])->toBe(8);
 
     $this->get(route('kejing'))->assertOk()
-        ->assertSee('三阴课')->assertSee('原文参考盘·尚未覆盖')->assertSee('古例卯时取昼贵');
+        ->assertSee('三阴课')->assertSee('原文参考盘·尚未完整复现')->assertSee('古例卯时取昼贵');
 });
 
 test('clicking the sanyin reference-only URL shows lesson-specific reason and preserves only the day-night nobleman difference', function () {
@@ -1134,7 +1134,7 @@ test('clicking the sanyin reference-only URL shows lesson-specific reason and pr
 
     $pan = $component->get('pan');
     expect([$pan['rigan'], $pan['rizhi'], $pan['yuejiang'], $pan['shizhi']])->toBe([9, 1, 0, 3]);
-    $component->assertSee('原文参考盘·尚未覆盖（三阴课）')
+    $component->assertSee('原文参考盘·尚未完整复现（三阴课）')
         ->assertSee('古例卯时取昼贵')
         ->assertSee('北京实际日出/日落')
         ->assertDontSee('繁昌课·本命五行口径未定');
@@ -1514,7 +1514,7 @@ test('liuchun daquan ji-mao case is executable and reproduces liuyin via registr
     $component->assertSee('六纯课')
         ->assertSee('六阴课')
         ->assertSee('查看六纯课详解')
-        ->assertDontSee('原文参考盘·尚未覆盖');
+        ->assertDontSee('原文参考盘·尚未完整复现');
 });
 
 test('liuchun daquan jia-wu reference-only case shows the not-covered badge and is whitelisted', function () {
@@ -1525,15 +1525,18 @@ test('liuchun daquan jia-wu reference-only case shows the not-covered badge and 
         ->and($case['status'])->toBe('reference_only')
         ->and($case['source_type'])->toBe('daquan')
         ->and($case['datetime'])->toBe('2024-01-31T03:00')
-        ->and($case['reason'])->toContain('天地盘若以戌发用')
-        ->and($case['reason'])->toContain('冲突位于初传取用层')
+        // 锁定统一表述：冲突位于“初传取用口径”，而非否定六纯主体、不主张改 PanCalculator。
+        ->and($case['reason'])->toContain('冲突位于"初传取用口径"')
+        ->and($case['reason'])->toContain('不是六纯课主体定义')
+        ->and($case['reason'])->toContain('不以单例古例修改核心涉害算法')
+        ->and($case['reason'])->toContain('涉害计数结果：戌=2，寅=6')
         ->and($case['reason'])->not->toContain('互斥');
 
     expect(KeJingCatalog::findReferenceCase('lesson.liuchun.daquan_jia_wu_gan_shang_zi'))
         ->not->toBeNull();
 
     $response = $this->get(route('kejing.show', ['lesson' => 'liuchun']));
-    $response->assertSee('原文参考盘·尚未覆盖');
+    $response->assertSee('原文参考盘·尚未完整复现');
     $response->assertSee('甲午日·干上子·退间传 戌申午');
 
     // reference_only 案例进入排盘页必须经白名单校验通过后才能显示"原文参考盘"标识；
@@ -1545,6 +1548,10 @@ test('liuchun daquan jia-wu reference-only case shows the not-covered badge and 
 test('liuchun daquan jia-wu reference pan matches liuyang but not the daquan transmission', function () {
     // 甲午正文例 reference_only：当前时间点（2024-01-31 03:00）实际盘面是六阳寅子戌，与正文退间传 戌申午 不一致；
     // 即便展示，也不应作为六纯命中案例隐藏此冲突。
+    //
+    // 以下对当前生产 PanCalculator 的 trace 断言（候选=戌、寅，深度=2、6，最终选寅）
+    // 都是当前生产算法输出的回归值，不在本课中宣称其为唯一古法口径；
+    // 文档明确写明：涉害深度的逐重计数口径属于核心排盘算法问题，本课不据此单例作修改。
     $component = Livewire::withQueryParams([
         'datetime' => '2024-01-31T03:00',
         'birth' => '1986-08-01T00:00',
@@ -1579,7 +1586,8 @@ test('liuchun daquan jia-wu reference pan matches liuyang but not the daquan tra
         ->and($match['evidence']['type'])->toBe('liuyang');
 
     // reference_only 提示必须出现；且当前盘面三传 ≠ 戌申午，必须显示这一冲突。
-    $component->assertSee('原文参考盘·尚未覆盖');
+    // UI 文案固定为“原文参考盘·尚未完整复现”，强调冲突在“初传取用口径”，而非否定六纯主体。
+    $component->assertSee('原文参考盘·尚未完整复现');
     $component->assertSee('原文参考盘');
 });
 
@@ -1597,7 +1605,7 @@ test('liuchun daqan ji-mao executable case reproduces the lesson on the pan page
     $component->assertSee('六纯课')
         ->assertSee('六阴课')
         ->assertSee('查看六纯课详解')
-        ->assertDontSee('原文参考盘·尚未覆盖');
+        ->assertDontSee('原文参考盘·尚未完整复现');
 });
 
 test('zazhuang catalog and classic case reproduce the complete production plate', function () {

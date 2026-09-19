@@ -19,7 +19,7 @@
                 <x-badge :value="$kind" class="badge-ghost badge-sm" />
             @endif
             @if (($case['status'] ?? 'executable') === 'reference_only')
-                <x-badge value="原文参考盘·尚未覆盖" class="badge-warning badge-soft" />
+                <x-badge value="原文参考盘·尚未完整复现" class="badge-warning badge-soft" />
             @endif
             <x-icon name="o-arrow-top-right-on-square" class="text-primary" />
         </x-slot:menu>

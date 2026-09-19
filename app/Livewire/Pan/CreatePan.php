@@ -44,7 +44,7 @@ class CreatePan extends Component
     public array $people = [];
 
     /**
-     * 课经白名单中的案例 ID。用于在排盘页上展示「原文参考盘·尚未覆盖」提示。
+     * 课经白名单中的案例 ID。用于在排盘页上展示「原文参考盘·尚未完整复现」提示。
      * 排盘页必须通过 `KeJingCatalog::findReferenceCase()` 二次校验，
      * 不得直接根据本查询参数渲染 reference_only 提示。
      */

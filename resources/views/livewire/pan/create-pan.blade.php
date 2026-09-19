@@ -274,7 +274,7 @@
 
                                 @if ($referenceCase !== null)
                                     <div class="pan-block bg-warning/10 px-5 py-4 text-sm text-warning-content">
-                                        <strong>原文参考盘·尚未覆盖（{{ $referenceCase['lesson']['name'] }}）</strong>
+                                        <strong>原文参考盘·尚未完整复现（{{ $referenceCase['lesson']['name'] }}）</strong>
                                         <p class="mt-1">{{ $referenceCase['case']['reason'] }}</p>
                                     </div>
                                 @endif
