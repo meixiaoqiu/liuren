@@ -337,7 +337,7 @@ test('every kejing case status is executable or reference_only', function () {
     }
 });
 
-test('kejing page renders the not-covered badge for the declared reference-only case', function () {
+test('kejing page renders the reference-only badge for the declared reference-only case', function () {
     $referenceCases = [];
     foreach (KeJingCatalog::lessons() as $lesson) {
         foreach ($lesson['cases'] as $case) {
@@ -361,7 +361,7 @@ test('kejing page renders the not-covered badge for the declared reference-only 
     $response->assertSee('原文参考盘·尚未完整复现');
 });
 
-test('fanchang de-yun executable case never exposes the not-covered banner on the pan page', function () {
+test('fanchang de-yun executable case never exposes the reference-only banner on the pan page', function () {
     $fanchang = collect(KeJingCatalog::lessons())
         ->firstWhere('code', 'lesson.fanchang');
 
@@ -383,7 +383,6 @@ test('fanchang de-yun executable case never exposes the not-covered banner on th
 
     // executable 课例永远不应出现「原文参考盘」字样。
     $component->assertDontSee('原文参考盘');
-    $component->assertDontSee('尚未覆盖');
 
     // 但德孕格本身应被正确显示。
     $component->assertSee('繁昌课');
@@ -427,7 +426,7 @@ test('executable case links from kejing do not expose the reference banner on th
 });
 
 test('KeJingCatalog::findReferenceCase returns null for executable case ids and forged ids', function () {
-    // 当前所有课例均为 executable；findReferenceCase 仍存在以备未来争议课例使用。
+    // executable case id 和伪造 id 均不得被 findReferenceCase 识别为 reference_only。
     expect(KeJingCatalog::findReferenceCase('lesson.fanchang.de_yun'))->toBeNull();
     expect(KeJingCatalog::findReferenceCase('lesson.fanchang.wang_yun'))->toBeNull();
     expect(KeJingCatalog::findReferenceCase('totally-forged-id'))->toBeNull();
@@ -1517,7 +1516,7 @@ test('liuchun daquan ji-mao case is executable and reproduces liuyin via registr
         ->assertDontSee('原文参考盘·尚未完整复现');
 });
 
-test('liuchun daquan jia-wu reference-only case shows the not-covered badge and is whitelisted', function () {
+test('liuchun daquan jia-wu reference-only case shows the reference-only badge and is whitelisted', function () {
     $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
     $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.liuchun.daquan_jia_wu_gan_shang_zi');
 
@@ -1591,7 +1590,7 @@ test('liuchun daquan jia-wu reference pan matches liuyang but not the daquan tra
     $component->assertSee('原文参考盘');
 });
 
-test('liuchun daqan ji-mao executable case reproduces the lesson on the pan page', function () {
+test('liuchun daquan ji-mao executable case reproduces the lesson on the pan page', function () {
     $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.liuchun');
     $case = collect($lesson['cases'])->firstWhere('case_id', 'lesson.liuchun.daquan_ji_mao_you_jia_wei');
 

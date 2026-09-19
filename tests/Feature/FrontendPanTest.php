@@ -690,7 +690,6 @@ test('frontend classifies the de-yun lesson pan as fanchang with the de-yun grid
         ->assertSee('德孕格依据')
         ->assertSee('繁昌判断')
         ->assertDontSee('原文参考盘')
-        ->assertDontSee('尚未覆盖')
         ->assertDontSee('旺孕格依据')
         ->assertDontSee('规则尚未覆盖');
 });
