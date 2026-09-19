@@ -1423,6 +1423,40 @@ final class KeJingCatalog
                     ],
                 ],
             ],
+            [
+                'name' => '杂状课',
+                'code' => 'lesson.zazhuang',
+                'gua' => null,
+                'guaSymbol' => null,
+                'summary' => '凡正常课皆取初传辨纯杂，并结合初传所临地盘取五行、物色和太玄数；杂支再分生杂、死杂等。',
+                'cases' => [
+                    self::case(
+                        'lesson.zazhuang.daquan_jiazi_yinshi_haijiang_wu_jia_you',
+                        '甲子日·寅时·亥将·午加酉',
+                        '《六壬大全》正文物色案例；初传午为纯，午加酉，上神午赤、下神酉白，并可验证太玄数9×6。',
+                        '2024-03-01T03:00',
+                        self::DEFAULT_BIRTH,
+                        self::DEFAULT_GENDER,
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
+                ],
+                'source_examples' => [
+                    [
+                        'label' => '凡课俱取初传动爻',
+                        'path' => '凡正常课取初传即成立',
+                        'source' => '《六壬大全》正文',
+                        'detail' => '正文以“凡课俱取”确立普遍入口；纯杂、五行、物色与数目是成立后的取象，不是额外 matcher 条件。',
+                    ],
+                    [
+                        'label' => '正月将·甲子日·寅时·午加酉为用',
+                        'path' => '正文标准物色例',
+                        'source' => '《六壬大全》正文',
+                        'detail' => '生产时间 2024-03-01 03:00 完整复现甲子日、寅时、亥将、午加酉、三传午卯子；上神午赤、下神酉白。',
+                    ],
+                ],
+            ],
         ];
 
         // source_examples 在 catalog 层统一补齐结构化 source_type。

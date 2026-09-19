@@ -36,6 +36,7 @@ final class KeJingTraceView
         'lesson.jiuchou' => 'livewire.pan.partials.jiuchou-trace',
         'lesson.guimu' => 'livewire.pan.partials.guimu-trace',
         'lesson.lide' => 'livewire.pan.partials.lide-trace',
+        'lesson.zazhuang' => 'livewire.pan.partials.zazhuang-trace',
     ];
 
     /** @return array{view: string, title: string}|null */

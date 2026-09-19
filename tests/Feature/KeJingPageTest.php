@@ -1,7 +1,9 @@
 <?php
 
+use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Domain\Pan\Rules\RuleRegistry;
 use App\Livewire\Pan\CreatePan;
+use App\Services\PanCalculator;
 use App\Support\KeJingCatalog;
 use Livewire\Livewire;
 
@@ -1573,4 +1575,41 @@ test('liuchun daqan ji-mao executable case reproduces the lesson on the pan page
         ->assertSee('六阴课')
         ->assertSee('查看六纯课详解')
         ->assertDontSee('原文参考盘·尚未覆盖');
+});
+
+test('zazhuang catalog and classic case reproduce the complete production plate', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.zazhuang');
+    $case = $lesson['cases'][0];
+
+    expect($lesson)->not->toBeNull()
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['杂状课', null, null])
+        ->and($case['case_id'])->toBe('lesson.zazhuang.daquan_jiazi_yinshi_haijiang_wu_jia_you')
+        ->and([$case['status'], $case['source_type']])->toBe(['executable', 'daquan']);
+
+    $pan = app(PanCalculator::class)->calculate('2024-03-01 03:00:00');
+    $match = collect(app(PanRuleEngine::class)->evaluate($pan))
+        ->first(fn ($item) => $item->code === 'lesson.zazhuang');
+
+    expect([$pan->get('rigan'), $pan->get('rizhi'), $pan->get('shizhi'), $pan->get('yuejiang')])->toBe([0, 0, 2, 11])
+        ->and([$pan->get('sanchuan0'), $pan->get('sanchuan1'), $pan->get('sanchuan2')])->toBe([6, 3, 0])
+        ->and($pan->get('tianpan')[9])->toBe(6)
+        ->and($match)->not->toBeNull()
+        ->and($match->evidence['purity'])->toBe('pure')
+        ->and([$match->evidence['upper_colors'], $match->evidence['lower_colors']])->toBe([['赤'], ['白']])
+        ->and([$match->evidence['base_number'], $match->evidence['seasonal_state'], $match->evidence['adjusted_number']])->toBe([54, '相', 108]);
+});
+
+test('zazhuang detail page shows number name sources complete original and traditional imagery boundary', function () {
+    $response = $this->get(route('kejing.show', ['lesson' => 'zazhuang']))
+        ->assertOk()
+        ->assertSee('第 63 课')->assertSee('杂状课')
+        ->assertSee('凡正常课取初传')->assertSee('按初传辨纯杂')->assertSee('读取初传所临地盘')
+        ->assertSee('甲子日·寅时·亥将·午加酉')
+        ->assertSee('《六壬大全》正文课例')->assertSee('《六壬大全》完整原文')
+        ->assertSee('初传：午')->assertSee('分类：纯')->assertSee('上赤')->assertSee('下白')
+        ->assertSee('午9 × 酉6 = 54')->assertSee('修正数：108')
+        ->assertSee('传统杂状取象')->assertSee('本程序仅复原其计算规则')
+        ->assertDontSee('节卦');
+
+    expect($response->getContent())->toContain('data-kejing-gua-slot="empty"');
 });

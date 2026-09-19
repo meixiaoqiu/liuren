@@ -478,6 +478,9 @@
                                         @if ($interpretation['code'] === 'lesson.jianchuan')
                                             @include('livewire.pan.partials.lesson-trace', ['title' => '间传判断', 'trace' => $interpretation['evidence']])
                                         @endif
+                                        @if ($interpretation['code'] === 'lesson.zazhuang')
+                                            @include('livewire.pan.partials.zazhuang-trace', ['trace' => $interpretation['evidence']])
+                                        @endif
                                         @if ($interpretation['group'] === '全局课体')
                                             @include('livewire.pan.partials.grid-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
                                         @endif

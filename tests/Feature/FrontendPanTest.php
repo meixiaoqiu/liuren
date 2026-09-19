@@ -1476,3 +1476,33 @@ test('frontend shows fixed liuchun examples through registry engine and shared i
         ->assertSee('六纯课')->assertSee('六阴课')
         ->assertSee('四课上神为亥、酉、丑、亥；三传为亥、酉、未。');
 });
+
+test('frontend shows zazhuang classic pure imagery and exact tai xuan correction', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2024-03-01T03:00')
+        ->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('杂状课')->assertSee('杂状判断')->assertSee('杂状取象')
+        ->assertSee('初传：午')->assertSee('分类：纯')->assertSee('午加酉')->assertSee('加临地盘酉')
+        ->assertSee('上神午火')->assertSee('下神酉金')->assertSee('上赤')->assertSee('下白')
+        ->assertSee('午9 × 酉6 = 54')->assertSee('当前午火为相')->assertSee('修正数：108')
+        ->assertSee('传统杂状取象')->assertSee('查看杂状课详解');
+});
+
+test('frontend shows fixed real production birth mixed and death mixed pans', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2031-01-01T07:00')
+        ->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('杂状课')->assertSee('分类：生杂')
+        ->assertSee('初传巳为杂；辛日以巳为长生，属生杂。')
+        ->assertSee('巳加申');
+
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2031-01-01T23:00')
+        ->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('杂状课')->assertSee('分类：死杂')
+        ->assertSee('初传辰为杂；壬日以辰为墓，属死杂。')
+        ->assertSee('辰加卯');
+});
