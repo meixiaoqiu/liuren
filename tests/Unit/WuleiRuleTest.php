@@ -96,3 +96,44 @@ test('a real production plate matches wulei through the registry engine', functi
         ->and($match?->evidence['initial']['branch'])->toBe($pan->get('sanchuan0'))
         ->and($match?->evidence['initial']['liuqin'])->toBe($pan->get('liuqin0'));
 });
+
+test('wulei statistics script closes at 4380 for 2031 and 4392 for the leap year 2032', function () {
+    $script = realpath(__DIR__.'/../Support/Statistics/WuleiStatistics.php');
+    expect($script)->not->toBeFalse();
+
+    // 这里显式断言 WuleiStatistics.php 必须按年动态计算分母：
+    // 2031 年平年 365 天 × 12 时辰 = 4380；2032 年闰年 366 天 × 12 时辰 = 4392。
+    $run = static function (int $year) use ($script): array {
+        $command = sprintf('php %s %d 2>&1', escapeshellarg($script), $year);
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+        expect($exitCode)->toBe(0);
+
+        $json = trim(implode("\n", $output));
+        $decoded = json_decode($json, true);
+        expect($decoded)->not->toBeNull();
+
+        return $decoded;
+    };
+
+    $y2031 = $run(2031);
+    expect($y2031['year'])->toBe(2031)
+        ->and($y2031['is_leap_year'])->toBeFalse()
+        ->and($y2031['days_in_year'])->toBe(365)
+        ->and($y2031['denominator'])->toBe(4380)
+        ->and($y2031['matched'])->toBe(4380)
+        ->and(array_sum($y2031['initial_branch_distribution']))->toBe(4380)
+        ->and(array_sum($y2031['initial_liuqin_distribution']))->toBe(4380)
+        ->and(array_sum($y2031['initial_seasonal_state_distribution']))->toBe(4380);
+
+    $y2032 = $run(2032);
+    expect($y2032['year'])->toBe(2032)
+        ->and($y2032['is_leap_year'])->toBeTrue()
+        ->and($y2032['days_in_year'])->toBe(366)
+        ->and($y2032['denominator'])->toBe(4392)
+        ->and($y2032['matched'])->toBe(4392)
+        ->and(array_sum($y2032['initial_branch_distribution']))->toBe(4392)
+        ->and(array_sum($y2032['initial_liuqin_distribution']))->toBe(4392)
+        ->and(array_sum($y2032['initial_seasonal_state_distribution']))->toBe(4392);
+});

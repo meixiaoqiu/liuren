@@ -23,6 +23,12 @@ $initialStates = array_fill_keys(['旺', '相', '休', '囚', '死'], 0);
 $start = new DateTimeImmutable("{$year}-01-01 00:00:00", $timezone);
 $end = $start->modify('+1 year');
 
+// 分母由 12 个代表时辰 × 该年实际天数动态计算。
+// 2031 年平年 365 天 = 4380；2032 年闰年 366 天 = 4392。
+$isLeap = (new DateTimeImmutable("{$year}-03-01 00:00:00", $timezone))->format('L') === '1';
+$daysInYear = $isLeap ? 366 : 365;
+$expectedDenominator = count($hours) * $daysInYear;
+
 for ($date = $start; $date < $end; $date = $date->modify('+1 day')) {
     foreach ($hours as $hour) {
         $datetime = $date->setTime($hour, 0)->format('Y-m-d H:i:s');
@@ -39,8 +45,22 @@ for ($date = $start; $date < $end; $date = $date->modify('+1 day')) {
     }
 }
 
-if ($counts !== ['denominator' => 4380, 'matched' => 4380]) {
-    throw new RuntimeException('物类课全年正常生产盘应全部命中且分母应为4380。');
+if ($counts['denominator'] !== $expectedDenominator) {
+    throw new RuntimeException(sprintf(
+        '物类课扫描分母应为 %d（%d 年%s，每天 %d 个代表时辰），实际为 %d。',
+        $expectedDenominator,
+        $year,
+        $isLeap ? '闰年 366 天' : '平年 365 天',
+        count($hours),
+        $counts['denominator'],
+    ));
+}
+if ($counts['matched'] !== $expectedDenominator) {
+    throw new RuntimeException(sprintf(
+        '物类课全年正常生产盘应全部命中，期望 %d，实际 %d。',
+        $expectedDenominator,
+        $counts['matched'],
+    ));
 }
 if (array_sum($initialBranches) !== $counts['matched'] || array_sum($initialLiuqin) !== $counts['matched'] || array_sum($initialStates) !== $counts['matched']) {
     throw new RuntimeException('物类课初传分布统计不闭合。');
@@ -55,6 +75,8 @@ echo json_encode([
     'year' => $year,
     'timezone' => 'Asia/Shanghai',
     'representative_hours' => $hours,
+    'is_leap_year' => $isLeap,
+    'days_in_year' => $daysInYear,
     ...$counts,
     'initial_branch_distribution' => $namedBranches,
     'initial_liuqin_distribution' => $initialLiuqin,
