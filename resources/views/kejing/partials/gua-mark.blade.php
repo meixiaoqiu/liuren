@@ -2,7 +2,7 @@
     $compact = $compact ?? false;
     $hasGua = $guaSymbol !== null;
     $boxClass = $compact
-        ? 'size-24 text-7xl sm:size-28 sm:text-8xl'
+        ? 'size-20 text-4xl'
         : 'size-28 text-8xl sm:size-32 sm:text-9xl';
 @endphp
 

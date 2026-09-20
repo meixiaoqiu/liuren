@@ -1121,7 +1121,13 @@ test('sanyin is lesson 49 with executable modern case and reference-only classic
         ->and($match['evidence']['xingnian']['branch'])->toBe(8);
 
     $this->get(route('kejing'))->assertOk()
-        ->assertSee('三阴课')->assertSee('原文参考盘·尚未完整复现')->assertSee('古例卯时取昼贵');
+        ->assertSee('三阴课')
+        ->assertDontSee('原文参考盘·尚未完整复现')
+        ->assertDontSee('古例卯时取昼贵');
+
+    $this->get(route('kejing.show', ['lesson' => 'sanyin']))->assertOk()
+        ->assertSee('原文参考盘·尚未完整复现')
+        ->assertSee('古例卯时取昼贵');
 });
 
 test('clicking the sanyin reference-only URL shows lesson-specific reason and preserves only the day-night nobleman difference', function () {
@@ -1298,6 +1304,9 @@ test('lide is lesson 56 and all three executable cases reproduce the frozen less
 
     $this->get(route('kejing'))->assertOk()
         ->assertSee('励德课')->assertSee('随卦')->assertSee('䷐')
+        ->assertDontSee('微服格')->assertDontSee('蹉跎格');
+
+    $this->get(route('kejing.show', ['lesson' => 'lide']))->assertOk()
         ->assertSee('微服格')->assertSee('蹉跎格');
 });
 
