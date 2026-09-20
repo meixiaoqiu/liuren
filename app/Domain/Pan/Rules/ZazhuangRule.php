@@ -59,8 +59,6 @@ final class ZazhuangRule implements PanRule
             'xiang' => self::XIANG,
             'foundations' => [
                 ['code' => 'valid_initial', 'title' => '凡正常课取初传', 'description' => '只要排盘存在 0 至 11 范围内的合法初传，即成立杂状课。'],
-                ['code' => 'purity', 'title' => '按初传辨纯杂', 'description' => '子、午、卯、酉四仲为纯；其余八支为杂。杂支再依日干五行分生杂、死杂或普通杂。'],
-                ['code' => 'initial_ground', 'title' => '读取初传所临地盘', 'description' => '以上神为初传、下神为初传当前加临的地盘支，继续取五行、颜色与太玄数。'],
             ],
             'judgments' => [],
         ];
@@ -102,8 +100,7 @@ final class ZazhuangRule implements PanRule
         $seasonalState = $facts->branchSeasonalState($initial);
         $multiplier = is_string($seasonalState) ? (self::NUMBER_MULTIPLIERS[$seasonalState] ?? null) : null;
         $adjustedNumber = $multiplier === null || $baseNumber === null ? null : self::adjustedNumber($baseNumber, $multiplier);
-
-        $purityEvidence = $pure
+        $classificationEvidence = $pure
             ? "初传{$initialName}，属于子午卯酉四仲纯神。"
             : $this->mixedEvidence($initialName, $dayStemName, $mixedSubtype, $mixedSubtypeLabel);
 
@@ -139,14 +136,13 @@ final class ZazhuangRule implements PanRule
                 'number_multiplier' => $multiplier,
                 'adjusted_number' => $adjustedNumber,
                 'imagery' => [
+                    'classification' => $classificationEvidence,
                     'elements' => "上神{$initialName}".self::elementName($upperElement).($groundValid ? "，下神{$groundName}".self::elementName($lowerElement).'。' : '；当前盘缺少可读的加临地盘。'),
                     'colors' => '上'.implode('、', self::BRANCH_COLORS[$initial]).($groundValid ? '，下'.implode('、', self::BRANCH_COLORS[$ground]).'。' : '；下神颜色待加临地盘可读后计算。'),
                     'numbers' => $groundValid ? "{$initialName}{$upperNumber} × {$groundName}{$lowerNumber} = {$baseNumber}" : '当前盘缺少可读的加临地盘，暂不能计算基础数。',
                 ],
                 'foundations' => [
                     ['code' => 'valid_initial', 'title' => '凡正常课取初传', 'description' => '存在合法初传即成立杂状课。', 'matched' => true, 'evidence' => "当前初传为{$initialName}。"],
-                    ['code' => 'purity', 'title' => '按初传辨纯杂', 'description' => '子午卯酉为纯，其余八支为杂；杂支再辨生杂、死杂或普通杂。', 'matched' => true, 'evidence' => $purityEvidence],
-                    ['code' => 'initial_ground', 'title' => '读取初传所临地盘', 'description' => '以上神为初传、下神为其当前加临地盘。', 'matched' => $groundValid, 'evidence' => $groundValid ? "初传{$initialName}当前加临地盘{$groundName}。" : '当前事实中没有可读的天盘加临位置。'],
                 ],
                 'judgments' => [],
                 'uncovered' => [

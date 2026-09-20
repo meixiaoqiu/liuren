@@ -1630,10 +1630,18 @@ test('zazhuang catalog and classic case reproduce the complete production plate'
 });
 
 test('zazhuang detail page shows number name sources complete original and traditional imagery boundary', function () {
+    $rule = collect((new RuleRegistry)->rules())
+        ->first(fn ($rule) => $rule->code() === 'lesson.zazhuang');
+
+    expect($rule)->not->toBeNull()
+        ->and($rule->definition()['foundations'])->toHaveCount(1)
+        ->and($rule->definition()['foundations'][0]['code'])->toBe('valid_initial');
+
     $response = $this->get(route('kejing.show', ['lesson' => 'zazhuang']))
         ->assertOk()
         ->assertSee('第 63 课')->assertSee('杂状课')
-        ->assertSee('凡正常课取初传')->assertSee('按初传辨纯杂')->assertSee('读取初传所临地盘')
+        ->assertSee('凡正常课取初传')
+        ->assertDontSee('按初传辨纯杂')->assertDontSee('读取初传所临地盘')
         ->assertSee('甲子日·寅时·亥将·午加酉')
         ->assertSee('《六壬大全》正文课例')->assertSee('《六壬大全》完整原文')
         ->assertSee('寅中有生火，一杂')->assertSee('辰中有水土墓，二、三杂')

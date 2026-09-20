@@ -25,13 +25,21 @@ function zazhuang_facts(array $changes = []): PanFacts
 
 test('zazhuang metadata and registry order are stable', function () {
     $rule = new ZazhuangRule;
+    $definition = $rule->definition();
     $codes = array_map(fn ($item) => $item->code(), (new RuleRegistry)->rules());
 
     $match = $rule->match(zazhuang_facts());
 
     expect([$rule->code(), $rule::NAME, $rule::GROUP])->toBe(['lesson.zazhuang', '杂状课', '六十四课'])
-        ->and($rule->definition()['xiang'])->toBe(ZazhuangRule::XIANG)
+        ->and($definition['xiang'])->toBe(ZazhuangRule::XIANG)
+        ->and($definition['foundations'])->toHaveCount(1)
+        ->and($definition['foundations'][0]['code'])->toBe('valid_initial')
         ->and($match?->xiang)->toBe(ZazhuangRule::XIANG)
+        ->and($match?->evidence['foundations'])->toHaveCount(1)
+        ->and($match?->evidence['foundations'][0]['code'])->toBe('valid_initial')
+        ->and($match?->evidence['purity'])->toBe('pure')
+        ->and($match?->evidence['ground'])->toBe(0)
+        ->and($match?->evidence['imagery']['classification'])->toBe('初传子，属于子午卯酉四仲纯神。')
         ->and([$match?->gua, $match?->guaSymbol])->toBe([null, null])
         ->and(array_search('lesson.zazhuang', $codes, true))->toBe(array_search('lesson.liuchun', $codes, true) + 1);
 });
