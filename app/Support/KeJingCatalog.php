@@ -1457,6 +1457,42 @@ final class KeJingCatalog
                     ],
                 ],
             ],
+            [
+                'name' => '物类课',
+                'code' => 'lesson.wulei',
+                'gua' => '节',
+                'guaSymbol' => '䷻',
+                'summary' => '凡正常课取初传即成立；以初传为主辨六亲、五行、旺衰及物类，亲疏、新旧和始终吉凶等扩展暂按研究边界处理。',
+                'cases' => [
+                    self::case(
+                        'lesson.wulei.daquan_jiayin_winter_zi_initial',
+                        '甲寅日·冬占·子水发用（正文结构现代复现）',
+                        '1900-12-07 17:00 为甲寅日，项目四立／土旺十八日口径判为冬季；生产盘初传子水为旺，liuqin0 为父母，完整复现《六壬大全》“甲寅日，冬占，子水母，旺气用为新气”主体结构。此为正文结构现代复现，不是古籍原始公历日期。',
+                        '1900-12-07T17:00',
+                        '1880-08-01T00:00',
+                        self::DEFAULT_GENDER,
+                        [],
+                        'executable',
+                        'daquan',
+                    ),
+                ],
+                'source_examples' => [
+                    [
+                        'label' => '甲寅日·冬占·子水发用',
+                        'path' => '子水父母、冬季旺气，正文结构现代复现',
+                        'source' => '《六壬大全》正文',
+                        'detail' => '1900-12-07 17:00 经正式 PanCalculator 复现甲寅日、冬季、子水发用、liuqin0=父母且子水为旺；只称现代复现，不主张这是古籍原始公历日期。',
+                        'status' => 'executable',
+                    ],
+                    [
+                        'label' => '丙午日·三月占·三传寅午戌',
+                        'path' => '三传火局、与日辰同类、火有气',
+                        'source' => '《六壬大全》正文',
+                        'detail' => '按项目节气月份口径，三月为辰月；扫描 1900-2100、Asia/Shanghai、每天十二个代表时辰，未找到丙午日且三传寅午戌的完整生产盘。正文结构保留为原文参考，不为迁就孤例修改核心排盘。',
+                        'status' => 'reference_only',
+                    ],
+                ],
+            ],
         ];
 
         // source_examples 在 catalog 层统一补齐结构化 source_type。

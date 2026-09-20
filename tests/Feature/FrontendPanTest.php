@@ -1505,3 +1505,17 @@ test('frontend shows fixed real production birth mixed and death mixed pans', fu
         ->assertSee('初传辰为杂；壬日以辰为墓，属死杂。')
         ->assertSee('辰加卯');
 });
+
+test('frontend shows wulei three transmission facts from the executable daquan structure', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '1900-12-07T17:00')
+        ->set('birthDatetime', '1880-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('物类课')->assertSee('节卦')->assertSee('䷻')
+        ->assertSee('物类判断')->assertSee('物类取象')
+        ->assertSee('子 · 五行水 · 六亲父母 · 时令旺 · 乘青龙将')
+        ->assertSee('巳 · 五行火 · 六亲子孙 · 时令死 · 乘太阴将')
+        ->assertSee('戌 · 五行土 · 六亲妻财 · 时令囚 · 乘六合将')
+        ->assertSee('六亲、旺衰和天将均为物类取象事实')
+        ->assertSee('查看物类课详解');
+});

@@ -1657,3 +1657,36 @@ test('zazhuang detail page shows number name sources complete original and tradi
 
     expect($response->getContent())->toContain('data-kejing-gua-slot="empty"');
 });
+
+test('wulei is lesson 64 and its daquan jia-yin structure is executable through the formal engine', function () {
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.wulei');
+    $case = $lesson['cases'][0];
+
+    expect($lesson)->not->toBeNull()
+        ->and([$lesson['name'], $lesson['gua'], $lesson['guaSymbol']])->toBe(['物类课', '节', '䷻'])
+        ->and($case['case_id'])->toBe('lesson.wulei.daquan_jiayin_winter_zi_initial')
+        ->and([$case['status'], $case['source_type']])->toBe(['executable', 'daquan']);
+
+    $pan = app(PanCalculator::class)->calculate('1900-12-07 17:00:00');
+    $match = collect(app(PanRuleEngine::class)->evaluate($pan))
+        ->first(fn ($item) => $item->code === 'lesson.wulei');
+
+    expect([$pan->get('rigan'), $pan->get('rizhi'), $pan->get('sanchuan0'), $pan->get('liuqin0')])->toBe([0, 2, 0, 2])
+        ->and($match)->not->toBeNull()
+        ->and($match->evidence['initial']['seasonal_state'])->toBe('旺')
+        ->and($match->evidence['initial']['liuqin_name'])->toBe('父母');
+});
+
+test('wulei detail page shares formal trace and preserves complete original and research boundaries', function () {
+    $response = $this->get(route('kejing.show', ['lesson' => 'wulei']))
+        ->assertOk()
+        ->assertSee('第 64 课')->assertSee('物类课')->assertSee('节卦')->assertSee('䷻')
+        ->assertSee('合法初传')->assertSee('《六壬大全》正文课例')->assertSee('《六壬大全》完整原文')
+        ->assertSee('凡课俱取初传动爻')->assertSee('统节之体，乃蜃气楼台之课也')
+        ->assertSee('物以声应，方以类萃')->assertSee('甲寅日，冬占子水母')
+        ->assertSee('甲寅日·冬占·子水发用')->assertSee('丙午日·三月占·三传寅午戌')
+        ->assertSee('初传')->assertSee('五行水')->assertSee('六亲父母')->assertSee('时令旺')->assertSee('乘青龙将')
+        ->assertSee('亲疏、新旧、过去未来和始终吉凶的完整古法尚未程序化');
+
+    expect($response->getContent())->toContain('data-kejing-gua-slot="present"');
+});
