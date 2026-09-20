@@ -1681,6 +1681,12 @@ test('wulei is lesson 64 with executable daquan jia-yin case that fully reproduc
     expect($match)->not->toBeNull()
         ->and($pan->get('rigan'))->toBe(0)
         ->and($pan->get('rizhi'))->toBe(2)
+        ->and($pan->get('yuejiang'))->toBe(2)
+        ->and($pan->get('shizhi'))->toBe(3)
+        ->and($pan->get('sike'))->toBe([0, 1, 1, 0, 2, 1, 1, 0])
+        // 地盘依项目固定索引为子至亥 0..11；天盘亥起子位、逐宫顺布，
+        // 与《大全》课式左侧十二宫“辰巳午未／卯申／寅酉／丑子亥戌”一致。
+        ->and($pan->get('tianpan'))->toBe([11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         ->and([$pan->get('sanchuan0'), $pan->get('sanchuan1'), $pan->get('sanchuan2')])
         ->toBe([0, 11, 10])
         ->and($match->evidence['initial']['branch_name'])->toBe('子')
@@ -1702,6 +1708,7 @@ test('wulei detail page shares formal trace and preserves complete original and 
         ->assertSee('合法初传')->assertSee('《六壬大全》正文课例')->assertSee('《六壬大全》完整原文')
         ->assertSee('凡课俱取初传动爻')->assertSee('统节之体，乃蜃气楼台之课也')
         ->assertSee('物以声应，方以类萃')->assertSee('甲寅日，冬占子水母')
+        ->assertSee('合勾龙空')->assertSee('后贵后贵')->assertSee('父癸亥阴')->assertSee('财壬戌玄')
         ->assertSee('甲寅日·冬占·子水发用·子亥戌')->assertSee('丙午日·三月占·三传寅午戌')
         // canonicalCase 是 executable / daquan 的 2024-12-16 05:00（甲寅日·卯时·寅将·子亥戌）。
         // 这里核对 canonicalCase 渲染出来的三传、五行、六亲、旺衰。
