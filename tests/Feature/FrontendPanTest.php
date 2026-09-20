@@ -1506,16 +1506,17 @@ test('frontend shows fixed real production birth mixed and death mixed pans', fu
         ->assertSee('辰加卯');
 });
 
-test('frontend shows wulei three transmission facts from the executable daquan jia-yin datetime', function () {
+test('frontend shows wulei complete daquan jia-yin transmission generals', function () {
     Livewire::test(CreatePan::class)
-        ->set('datetime', '2024-12-16T05:00')
+        ->set('datetime', '2031-11-10T07:00')
         ->set('birthDatetime', '1880-08-01T00:00')->set('gender', 'male')
         ->call('calculate')->assertHasNoErrors()
         ->assertSee('物类课')->assertSee('节卦')->assertSee('䷻')
         ->assertSee('物类判断')->assertSee('物类取象')
-        ->assertSee('子 · 五行水 · 六亲父母 · 时令旺')
-        ->assertSee('亥 · 五行水 · 六亲父母 · 时令旺')
+        ->assertSee('子 · 五行水 · 六亲父母 · 时令旺 · 乘天后将')
+        ->assertSee('亥 · 五行水 · 六亲父母 · 时令旺 · 乘太阴将')
         ->assertSee('戌 · 五行土 · 六亲妻财')
+        ->assertSee('乘玄武将')
         ->assertSee('六亲、旺衰和天将均为物类取象事实')
         ->assertSee('查看物类课详解');
 });

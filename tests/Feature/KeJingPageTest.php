@@ -1658,7 +1658,7 @@ test('zazhuang detail page shows number name sources complete original and tradi
     expect($response->getContent())->toContain('data-kejing-gua-slot="empty"');
 });
 
-test('wulei is lesson 64 with executable daquan jia-yin case that fully reproduces the three transmissions', function () {
+test('wulei is lesson 64 with executable daquan jia-yin case that reproduces the complete classic plate', function () {
     $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.wulei');
     $casesById = collect($lesson['cases'])->keyBy('case_id');
 
@@ -1670,31 +1670,36 @@ test('wulei is lesson 64 with executable daquan jia-yin case that fully reproduc
         ->and([$casesById['lesson.wulei.daquan_jiayin_winter_zi_initial']['status'], $casesById['lesson.wulei.daquan_jiayin_winter_zi_initial']['source_type']])
         ->toBe(['executable', 'daquan'])
         ->and(isset($casesById['lesson.wulei.modern_2024_03_01_jiazi']))->toBeFalse()
-        ->and($casesById['lesson.wulei.daquan_jiayin_winter_zi_initial']['datetime'])->toBe('2024-12-16T05:00');
+        ->and($casesById['lesson.wulei.daquan_jiayin_winter_zi_initial']['datetime'])->toBe('2031-11-10T07:00');
 
     // 该 executable / daquan 课例必须经正式 PanCalculator + PanRuleEngine 命中 lesson.wulei，
-    // 且三传与《大全》"子→亥→戌"完全一致。
-    $pan = app(PanCalculator::class)->calculate('2024-12-16 05:00:00');
+    // 且三传、四课、天地盘与天将均与《大全》甲寅正文课式一致。
+    $pan = app(PanCalculator::class)->calculate('2031-11-10 07:00:00');
     $match = collect(app(PanRuleEngine::class)->evaluate($pan))
         ->first(fn ($item) => $item->code === 'lesson.wulei');
 
     expect($match)->not->toBeNull()
         ->and($pan->get('rigan'))->toBe(0)
         ->and($pan->get('rizhi'))->toBe(2)
-        ->and($pan->get('yuejiang'))->toBe(2)
-        ->and($pan->get('shizhi'))->toBe(3)
+        ->and($pan->get('yuejiang'))->toBe(3)
+        ->and($pan->get('shizhi'))->toBe(4)
         ->and($pan->get('sike'))->toBe([0, 1, 1, 0, 2, 1, 1, 0])
         // 地盘依项目固定索引为子至亥 0..11；天盘亥起子位、逐宫顺布，
         // 与《大全》课式左侧十二宫“辰巳午未／卯申／寅酉／丑子亥戌”一致。
         ->and($pan->get('tianpan'))->toBe([11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        ->and($pan->get('tianjiang'))->toBe([10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         ->and([$pan->get('sanchuan0'), $pan->get('sanchuan1'), $pan->get('sanchuan2')])
         ->toBe([0, 11, 10])
+        ->and([$pan->get('sanchuan0tianjiang'), $pan->get('sanchuan1tianjiang'), $pan->get('sanchuan2tianjiang')])->toBe([11, 10, 9])
         ->and($match->evidence['initial']['branch_name'])->toBe('子')
         ->and($match->evidence['initial']['element_name'])->toBe('水')
         ->and($match->evidence['initial']['seasonal_state'])->toBe('旺')
         ->and($match->evidence['initial']['liuqin_name'])->toBe('父母')
+        ->and($match->evidence['initial']['general_name'])->toBe('天后')
         ->and($match->evidence['middle']['branch_name'])->toBe('亥')
-        ->and($match->evidence['final']['branch_name'])->toBe('戌');
+        ->and($match->evidence['middle']['general_name'])->toBe('太阴')
+        ->and($match->evidence['final']['branch_name'])->toBe('戌')
+        ->and($match->evidence['final']['general_name'])->toBe('玄武');
 
     // 已不保留 reference_only 课例。
     expect(KeJingCatalog::findReferenceCase('lesson.wulei.daquan_jiayin_winter_zi_initial'))->toBeNull()
@@ -1710,11 +1715,12 @@ test('wulei detail page shares formal trace and preserves complete original and 
         ->assertSee('物以声应，方以类萃')->assertSee('甲寅日，冬占子水母')
         ->assertSee('合勾龙空')->assertSee('后贵后贵')->assertSee('父癸亥阴')->assertSee('财壬戌玄')
         ->assertSee('甲寅日·冬占·子水发用·子亥戌')->assertSee('丙午日·三月占·三传寅午戌')
-        // canonicalCase 是 executable / daquan 的 2024-12-16 05:00（甲寅日·卯时·寅将·子亥戌）。
-        // 这里核对 canonicalCase 渲染出来的三传、五行、六亲、旺衰。
-        ->assertSee('子 · 五行水 · 六亲父母 · 时令旺')
-        ->assertSee('亥 · 五行水 · 六亲父母 · 时令旺')
+        // canonicalCase 是 executable / daquan 的 2031-11-10 07:00（甲寅日·辰时·卯将·子亥戌）。
+        // 这里核对 canonicalCase 渲染出来的三传、五行、六亲、旺衰与天将。
+        ->assertSee('子 · 五行水 · 六亲父母 · 时令旺 · 乘天后将')
+        ->assertSee('亥 · 五行水 · 六亲父母 · 时令旺 · 乘太阴将')
         ->assertSee('戌 · 五行土 · 六亲妻财')
+        ->assertSee('乘玄武将')
         // reference_only 已不再使用，故页面不应展示"原文参考盘·尚未完整复现"。
         ->assertDontSee('原文参考盘·尚未完整复现')
         ->assertSee('亲疏、新旧、过去未来和始终吉凶的完整古法尚未程序化');
