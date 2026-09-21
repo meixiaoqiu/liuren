@@ -3,6 +3,7 @@
 namespace App\Livewire\Pan;
 
 use App\Data\PanResult;
+use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
@@ -56,6 +57,14 @@ class CreatePan extends Component
     /** @var array<int, array{code: string, name: string, group: string, description: string, marker: string, gua: ?string, guaSymbol: ?string, xiang: ?string, evidence: array<string, mixed>, coverageAreas: list<string>}> */
     public array $ruleMatches = [];
 
+    /**
+     * 毕法独立判定结果。毕法与课经是两套独立体系，本字段不参与 RuleMatch 排序与展示，
+     * 也不混入"解盘信息"中的课经列表。排盘页"毕法"区块单独使用本字段。
+     *
+     * @var list<array{code: string, name: string, summary: string, matched: bool, sub_matches: list<array<string, mixed>>, matched_routes: list<string>, evidence: array<string, mixed>}>
+     */
+    public array $bifaMatches = [];
+
     /** @var list<string> */
     public array $coverageNotices = [];
 
@@ -78,6 +87,7 @@ class CreatePan extends Component
         PanCalculator $calculator,
         PanRuleEngine $ruleEngine,
         FateCalculator $fateCalculator,
+        BiFaRuleEngine $bifaRuleEngine,
     ): void {
         if ($this->datetime === '') {
             $this->datetime = now('Asia/Shanghai')->format('Y-m-d\TH:i');
@@ -85,7 +95,7 @@ class CreatePan extends Component
 
         if (request()->query->has('datetime')) {
             try {
-                $this->calculate($calculator, $ruleEngine, $fateCalculator);
+                $this->calculate($calculator, $ruleEngine, $fateCalculator, $bifaRuleEngine);
             } catch (ValidationException $exception) {
                 // URL 参数可能由用户手工修改；保留表单和验证错误供其修正。
                 $this->setErrorBag($exception->validator->errors());
@@ -118,6 +128,7 @@ class CreatePan extends Component
         PanCalculator $calculator,
         PanRuleEngine $ruleEngine,
         FateCalculator $fateCalculator,
+        BiFaRuleEngine $bifaRuleEngine,
     ): void {
         $validated = $this->validate([
             'datetime' => ['required', 'date_format:Y-m-d\TH:i'],
@@ -227,6 +238,12 @@ class CreatePan extends Component
         $this->referenceCase = $this->resolveReferenceCase();
         $this->notEvaluated = $ruleEngine->notEvaluated($result);
         $this->seasonalPeriod = PanFacts::from($result)->seasonalPeriod();
+
+        // 毕法独立判定——不参与 RuleMatch 排序、不混进"解盘信息"。
+        $this->bifaMatches = array_values(array_map(
+            static fn ($match): array => $match->toArray(),
+            $bifaRuleEngine->evaluate($result),
+        ));
     }
 
     public function render(): View
@@ -254,6 +271,7 @@ class CreatePan extends Component
             ],
             'xundunLabels' => $this->xundunLabels(),
             'lessonInterpretations' => $this->ruleMatches,
+            'bifaInterpretations' => $this->bifaMatches,
         ]);
     }
 

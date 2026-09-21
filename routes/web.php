@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\BiFaPageCatalog;
 use App\Support\KeJingCaseInterpreter;
 use App\Support\KeJingPageCatalog;
 use App\Support\KeJingResearchDocument;
@@ -42,3 +43,31 @@ Route::get('/kejing/{lesson}', function (
 Route::get('/reference', function () {
     return view('reference.index', ['reference' => QuickReferenceCatalog::class]);
 })->name('reference');
+
+Route::get('/bifa', function () {
+    return view('bifa.index', ['laws' => BiFaPageCatalog::laws()]);
+})->name('bifa');
+
+Route::get('/bifa/{law}', function (string $law) {
+    $pages = BiFaPageCatalog::laws();
+    $lawIndex = null;
+    foreach ($pages as $index => $candidate) {
+        if ($candidate['slug'] === $law) {
+            $lawIndex = $index;
+            break;
+        }
+    }
+
+    abort_if($lawIndex === null, 404);
+
+    $page = $pages[$lawIndex];
+    $researched = $page['researched'] ?? false;
+
+    return view('bifa.show', [
+        'law' => $page,
+        'researched' => $researched,
+        'researchContent' => $researched ? file_get_contents(base_path($page['researchPath'])) : null,
+        'previousLaw' => $lawIndex > 0 ? $pages[$lawIndex - 1] : null,
+        'nextLaw' => $lawIndex < count($pages) - 1 ? $pages[$lawIndex + 1] : null,
+    ]);
+})->where('law', '[a-z0-9-]+')->name('bifa.show');

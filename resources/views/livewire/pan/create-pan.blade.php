@@ -505,6 +505,19 @@
                                 @include('livewire.pan.partials.shehai-trace')
                             </div>
                         </x-card>
+
+                        @if (! empty($bifaInterpretations))
+                            <x-card title="毕法" subtitle="《毕法赋》独立判定 · 不与课经混用" class="pan-data-card pan-mobile-edge" shadow>
+                                <p class="mb-4 text-sm leading-6 text-base-content/55">
+                                    毕法体系与课经六十四课各自独立，命中与否由各毕法规则独立判定；本页不出现跨体系引用。
+                                </p>
+                                <div class="space-y-4">
+                                    @foreach ($bifaInterpretations as $bifa)
+                                        @include('livewire.pan.partials.bifa-trace', ['bifa' => $bifa])
+                                    @endforeach
+                                </div>
+                            </x-card>
+                        @endif
                     </div>
                 @endif
             </section>
