@@ -11,9 +11,10 @@ namespace App\Support;
  *  - markdown 研究文档路径与 GitHub URL
  *  - 已研究 / 未研究标记
  *  - 前后法导航
+ *  - 案例按 executable / reference_only / generated 分组
  *
  * 等页面层所需数据一并整理出来。BiFaPageCatalog 仍然不依赖 KeJingCatalog，
- * 也不复用 KeJingPageCatalog 的 helper。
+ * 不复用课经任何 helper。
  */
 final class BiFaPageCatalog
 {
@@ -28,6 +29,9 @@ final class BiFaPageCatalog
         researchPath: string,
         researchUrl: string,
         researched: bool,
+        daquanCases: list<array<string, mixed>>,
+        generatedCases: list<array<string, mixed>>,
+        referenceOnlyCases: list<array<string, mixed>>
      * }>
      */
     public static function laws(): array
@@ -44,16 +48,32 @@ final class BiFaPageCatalog
             $filename = sprintf('%02d-%s.md', $law['number'], $law['name']);
             $document = $documents[$law['number']] ?? null;
             $resolvedFilename = $document['filename'] ?? $filename;
-            $resolvedPath = $document['path'] ?? ('docs/毕法/' . $filename);
+            $resolvedPath = $document['path'] ?? ('docs/毕法/'.$filename);
+
+            $cases = BiFaCaseCatalog::casesForLaw($law['code']);
 
             $pages[] = [
                 ...$law,
                 'researchFilename' => $resolvedFilename,
                 'researchPath' => $resolvedPath,
                 'researchUrl' => 'https://github.com/meixiaoqiu/liuren/blob/master/docs/'
-                    . '%E6%AF%95%E6%B3%95/'
-                    . rawurlencode($resolvedFilename),
+                    .'%E6%AF%95%E6%B3%95/'
+                    .rawurlencode($resolvedFilename),
                 'researched' => $document !== null,
+                'daquanCases' => array_values(array_filter(
+                    $cases,
+                    static fn (array $case): bool => $case['source_type'] === 'daquan'
+                        && $case['status'] === 'executable',
+                )),
+                'referenceOnlyCases' => array_values(array_filter(
+                    $cases,
+                    static fn (array $case): bool => $case['source_type'] === 'daquan'
+                        && $case['status'] === 'reference_only',
+                )),
+                'generatedCases' => array_values(array_filter(
+                    $cases,
+                    static fn (array $case): bool => $case['source_type'] === 'generated',
+                )),
             ];
         }
 
@@ -70,7 +90,10 @@ final class BiFaPageCatalog
      *     researchFilename: string,
      *     researchPath: string,
      *     researchUrl: string,
-     *     researched: bool
+     *     researched: bool,
+     *     daquanCases: list<array<string, mixed>>,
+     *     generatedCases: list<array<string, mixed>>,
+     *     referenceOnlyCases: list<array<string, mixed>>
      * }|null
      */
     public static function findBySlug(string $slug): ?array
@@ -94,7 +117,10 @@ final class BiFaPageCatalog
      *     researchFilename: string,
      *     researchPath: string,
      *     researchUrl: string,
-     *     researched: bool
+     *     researched: bool,
+     *     daquanCases: list<array<string, mixed>>,
+     *     generatedCases: list<array<string, mixed>>,
+     *     referenceOnlyCases: list<array<string, mixed>>
      * }|null
      */
     public static function findByCode(string $code): ?array
@@ -124,7 +150,7 @@ final class BiFaPageCatalog
             $documents[(int) $matches[1]] = [
                 'number' => (int) $matches[1],
                 'filename' => $filename,
-                'path' => 'docs/毕法/' . $filename,
+                'path' => 'docs/毕法/'.$filename,
             ];
         }
 

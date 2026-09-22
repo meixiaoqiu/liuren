@@ -7,15 +7,22 @@ use App\Domain\Pan\Facts\PanFacts;
 use LogicException;
 
 /**
- * 文件作用：逐一执行注册的毕法规则、收集全部命中结果。
+ * 文件作用：逐一执行注册的毕法规则、收集应当进入排盘结果的命中。
  *
- * 与 PanRuleEngine 不同：
- *  - 本引擎不会因为"上下文缺失"而跳过规则——毕法允许单条规则的多个分格
- *    各自独立给出"未评估"标记；
- *  - 本引擎不会输出 coverageNotices / notEvaluated 通用提示，
- *    缺人资料的提示直接由各 BiFaRule 在 subMatches 内自带 people_missing 标记。
+ * 正常排盘只返回：
+ *
+ *  - 至少一个分格命中的 BiFaRule；；
+ *  - 或所有分格均不命中、但存在至少一个满足前置条件、仅因人物资料缺失而无法判断的 route
+ *    ——这种情况下 BiFaRuleMatch 仍返回，前台展示为"待评估"。
+ *
+ * 全部 route 均不命中且无待评估路线时，BiFaRule::match() 必须返回 null——
+ * 不进入排盘页面。这是为了 100 法全部实现后，排盘页只显示真正相关的毕法，
+ * 而不是把"100 法全部未命中"也展示一长串卡片。
+ *
+ * 未来如需"100 法全判定"做开发调试，请单独引入 BiFaRuleEngine::evaluateAll()，
+ * 不要污染正常排盘结果。
  */
-final readonly class BiFaRuleEngine
+final class BiFaRuleEngine
 {
     public function __construct(private BiFaRuleRegistry $registry = new BiFaRuleRegistry) {}
 
@@ -28,7 +35,7 @@ final readonly class BiFaRuleEngine
 
         foreach ($this->registry->rules() as $rule) {
             if (isset($registeredCodes[$rule->code()])) {
-                throw new LogicException('Duplicate BiFa rule code: ' . $rule->code());
+                throw new LogicException('Duplicate BiFa rule code: '.$rule->code());
             }
 
             $registeredCodes[$rule->code()] = true;

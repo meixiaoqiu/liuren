@@ -19,92 +19,160 @@
                         class="btn-ghost btn-sm"
                     />
 
-                    @if ($researched)
+                    @if ($law['researched'])
                         <x-button
-                                label="打开完整研究记录"
-                                icon="o-book-open"
-                                :link="$law['researchUrl']"
-                                external
-                                class="btn-ghost btn-sm"
-                            />
+                            label="打开完整研究记录"
+                            icon="o-book-open"
+                            :link="$law['researchUrl']"
+                            external
+                            class="btn-ghost btn-sm"
+                        />
                     @endif
                 </div>
 
                 <header class="mb-6">
-                    <h1 class="text-3xl font-semibold tracking-wide text-base-content sm:text-4xl">
-                        第 {{ $law['number'] }} 法
-                    </h1>
-                    <p class="mt-2 text-xl font-medium tracking-wide text-primary sm:text-2xl">{{ $law['name'] }}</p>
+                    <p class="text-xs tracking-[0.18em] text-base-content/40">第 {{ $law['number'] }} 法 · 毕法体系</p>
+                    <h1 class="mt-1 text-3xl font-semibold tracking-wide text-base-content sm:text-4xl">{{ $law['name'] }}</h1>
                     @if ($law['summary'] !== '')
                         <p class="mt-3 max-w-3xl text-sm leading-7 text-base-content/65">{{ $law['summary'] }}</p>
                     @endif
                 </header>
 
-                @if (! $researched)
+                @if (! $law['researched'])
                     <x-card shadow class="pan-data-card">
                         <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
                             本法尚未研究：详情页仅保留目录信息，无分格定义、无盘面判定、无研究文档。后续按"逐法逐步实现"原则补齐。
                         </x-alert>
                     </x-card>
                 @else
-                    <x-card shadow class="pan-data-card">
-                        <x-header
-                            title="研究文档"
-                            subtitle="毕法体系研究记录入口"
-                            size="text-lg"
-                        />
-
-                        <div class="prose mt-4 max-w-none text-base-content/75">
-                            @if ($researchContent !== null)
-                                <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8">{{ $researchContent }}</div>
-                            @else
-                                <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
-                                    研究文档路径存在但内容为空，请到 docs/毕法/{{ $law['researchFilename'] }} 补齐内容。
-                                </x-alert>
-                            @endif
-                        </div>
-
-                        <div class="mt-6">
-                            <x-button
-                                label="打开完整研究记录"
-                                icon="o-book-open"
-                                :link="$law['researchUrl']"
-                                external
-                                class="btn-ghost btn-sm"
-                            />
-                        </div>
+                    <x-card title="总纲与现代说明" shadow class="pan-data-card">
+                        <p class="text-sm leading-7 text-base-content/65">
+                            本法由毕法独立规则判定：一张盘可能同时命中本法的多个分格；命中任一分格即本法整体成立，断义随命中的分格变化。
+                        </p>
+                        <p class="mt-4 text-sm leading-7 text-base-content/65">
+                            本法与课经第 22 课"引从课"在结构上大量重合，但二者属不同知识体系；毕法不通过课经"引从课"的 match() 反推，分格定义、断义与课经各自独立维护；案例以独立 case_id 区分（`bifa.*` vs `lesson.*`）。
+                        </p>
                     </x-card>
 
                     <section class="mt-6">
-                        <x-card title="毕法体系说明" shadow class="pan-data-card">
-                            <p class="text-sm leading-7 text-base-content/65">
-                                本法由毕法独立规则判定：一张盘可能同时命中本法的多个分格；命中任一分格即本法整体成立，断义随命中的分格变化。判定的具体证据、当前盘面是否命中各分格，将出现在排盘页的"毕法"独立区块；本页仅展示目录与研究文档。
+                        <x-card title="成立条件（9 类古籍分格 → 10 条程序 route）" shadow class="pan-data-card">
+                            <p class="mb-3 text-sm text-base-content/55">
+                                引从天干 / 初末引从地支 必须"初在前、末在后"，前后方向不可互换；其余夹拱结构用无方向 flanks()。
                             </p>
-                            <p class="mt-4 text-sm leading-7 text-base-content/65">
-                                本法与课经第 22 课"引从课"在结构上大量重合，但二者属不同知识体系；毕法不通过课经"引从课"的 match() 反推，分格定义、断义与课经各自独立维护。
-                            </p>
+                            <ul class="list-disc space-y-2 pl-5 text-sm leading-7 text-base-content/70">
+                                @foreach ($law['foundations'] ?? [] as $foundation)
+                                    <li>
+                                        <strong class="text-base-content/85">{{ $foundation['title'] }}</strong>
+                                        <code class="ml-2 rounded bg-base-200 px-1 py-0.5 text-xs">{{ $foundation['code'] }}</code>
+                                        <span class="ml-2 text-base-content/55">— {{ $foundation['description'] }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
                         </x-card>
                     </section>
+
+                    @if (! empty($law['daquanCases']) || ! empty($law['referenceOnlyCases']))
+                        <section class="mt-6">
+                            <x-card title="《六壬大全》正文案例" shadow class="pan-data-card">
+                                <p class="mb-3 text-sm text-base-content/55">
+                                    第一法古籍正文出现的案例全部进入案例目录；
+                                    已被当前 PanCalculator 完整复现的标记为 executable，未完整复现的标记为 reference_only。
+                                </p>
+                                @if (! empty($law['daquanCases']))
+                                    <div class="grid gap-3 lg:grid-cols-2">
+                                        @foreach ($law['daquanCases'] as $case)
+                                            @include('kejing.partials.case-card', ['case' => $case, 'kind' => '正文现代复现'])
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @if (! empty($law['referenceOnlyCases']))
+                                    <div class="mt-4 grid gap-3 lg:grid-cols-2">
+                                        @foreach ($law['referenceOnlyCases'] as $case)
+                                            <div class="pan-block bg-warning/8 px-4 py-4">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <x-badge value="《大全》原文" class="badge-primary badge-soft badge-sm" />
+                                                    <x-badge value="原文参考盘 · 尚未完整复现" class="badge-warning badge-soft badge-sm" />
+                                                    <strong class="text-sm">{{ $case['label'] }}</strong>
+                                                </div>
+                                                <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $case['reason'] }}</p>
+                                                <p class="mt-1 text-xs text-base-content/45">{{ $case['source'] }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </x-card>
+                        </section>
+                    @endif
+
+                    @if (! empty($law['generatedCases']))
+                        <section class="mt-6">
+                            <x-card title="程序验证案例" shadow class="pan-data-card">
+                                <p class="mb-3 text-sm text-base-content/55">
+                                    第一法由程序验证覆盖的边界案例——覆盖无人物资料、缺本命/行年、完全不命中等独立路径。
+                                </p>
+                                <div class="grid gap-3 lg:grid-cols-2">
+                                    @foreach ($law['generatedCases'] as $case)
+                                        @include('kejing.partials.case-card', ['case' => $case, 'kind' => '程序验证案例'])
+                                    @endforeach
+                                </div>
+                            </x-card>
+                        </section>
+                    @endif
+
+                    @if (! empty($original))
+                        <section class="mt-6">
+                            <x-card title="古籍原文" shadow class="pan-data-card">
+                                @if ($original['status'] === 'complete')
+                                    <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/75">{{ $original['content'] }}</div>
+                                @elseif ($original['status'] === 'excerpt')
+                                    <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
+                                        现有研究文档只有"{{ $original['heading'] }}"整理段，尚未按"《六壬大全》完整原文"结构化录入。为避免把摘录冒充完整原文，本页明确标记为未完成。
+                                    </x-alert>
+                                    <x-collapse collapse-plus-minus class="mt-4">
+                                        <x-slot:heading><strong>查看现有正文整理 / /</strong></x-slot:heading>
+                                        <x-slot:content>
+                                            <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/70">{{ $original['content'] }}</div>
+                                        </x-slot:content>
+                                    </x-collapse>
+                                @else
+                                    <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
+                                        当前研究文档尚未结构化录入"《六壬大全》完整原文"。本页不会根据摘要或旁证反向拼接古文；补入研究文档后，这里会自动显示。
+                                    </x-alert>
+                                @endif
+
+                                <div class="mt-4">
+                                    <x-button
+                                        label="打开完整研究记录"
+                                        icon="o-book-open"
+                                        :link="$law['researchUrl']"
+                                        external
+                                        class="btn-ghost btn-sm"
+                                    />
+                                </div>
+                            </x-card>
+                        </section>
+                    @endif
                 @endif
 
                 <nav class="mt-8 flex flex-wrap items-center justify-between gap-3" aria-label="毕法前后导航">
-                    @if (! empty($previousLaw))
-                        <x-button
-                            :label="'← 上一法 · '.$previousLaw['name']"
-                            :link="route('bifa.show', ['law' => $previousLaw['slug']])"
-                            class="btn-ghost"
-                        />
-                    @else
-                        <span></span>
-                    @endif
+                        @if (! empty($previousLaw))
+                            <x-button
+                                :label="'← 上一法 · '.$previousLaw['name']"
+                                :link="route('bifa.show', ['law' => $previousLaw['slug']])"
+                                class="btn-ghost"
+                            />
+                        @else
+                            <span></span>
+                        @endif
 
-                    @if (! empty($nextLaw))
-                        <x-button
-                            :label="$nextLaw['name'].' · 下一法 →'"
-                            :link="route('bifa.show', ['law' => $nextLaw['slug']])"
-                            class="btn-ghost ml-auto"
-                        />
-                    @endif
+                        @if (! empty($nextLaw))
+                            <x-button
+                                :label="$nextLaw['name'].' · 下一法 →'"
+                                :link="route('bifa.show', ['law' => $nextLaw['slug']])"
+                                class="btn-ghost ml-auto"
+                            />
+                        @endif
                 </nav>
             </main>
         </div>

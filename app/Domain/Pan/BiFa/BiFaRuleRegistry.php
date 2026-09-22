@@ -2,6 +2,8 @@
 
 namespace App\Domain\Pan\BiFa;
 
+use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
+
 /**
  * 文件作用：登记毕法规则引擎每次起盘需要执行的具体规则。
  *
@@ -15,7 +17,7 @@ final class BiFaRuleRegistry
     public function rules(): array
     {
         return [
-            new \App\Domain\Pan\BiFa\Rules\QianHouYinCongRule,
+            new QianHouYinCongRule,
         ];
     }
 }

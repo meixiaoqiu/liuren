@@ -3,27 +3,29 @@
 namespace App\Support;
 
 /**
- * 文件作用：维护《毕法赋》"百法"的目录——每法的法号、法名、slug、code 与简介。
+ * 文件作用：维护《毕法赋》"百法"的稳定编号目录。
  *
- * 该目录独立于 KeJingCatalog：毕法以《毕法赋》为体系，与课经六十四课虽有时共用结构，
- * 但分属不同典籍、不同判读逻辑，因此：
+ *  - number :int                古籍法号，从 01 到 100 连续；
+ *  - name   :string             法名（古籍通行本用名）；
+ *  - code   :string             程序唯一编码，固定为 `bifa.NN`，与法号一致；
+ *  - slug   :string             URL slug，全小写连字符，仅含 [a-z0-9-]，全局唯一；
+ *  - summary:string             现代汉语一句简介，未研究法保持空串。
  *
- *  - 不复用 KeJingCatalog 的 code / slug 命名空间；
- *  - 不复用 KeJingPageCatalog 的 slugFromCode / findByCode 接口；
- *  - 不依赖 KeJingCatalog 的任何课例数据。
+ * 本目录与课经 `KeJingCatalog` 完全独立——
  *
- * 未研究条目（第 2 法以下）暂留空 summary；首轮实现仅完整编写第一法，
- * 其余条目由后续研究补齐，禁止伪造尚未研究条文的解释。
+ *  - 课经以《六壬大全·课经集》六十四课为单位；
+ *  - 毕法以《六壬大全·毕法赋》百法为单位；
+ *  - 即使同一古籍盘同时属两者（例如庚辰日），也由两套独立目录分别登记，
+ *    各自的 case_id、summary、研究文档互不交叉。
  *
- * 每个法的目录项固定包含：
+ * 当前目录按通行本《六壬大全·毕法赋》100 法顺序整理，目录经 `tests/Feature/BiFaPageTest.php`
+ * 中独立的 `EXPECTED_LAWS` 表逐项固定断言；任何改名必须先更新 EXPECTED_LAWS，
+ * 不得悄悄维护。
  *
- *  - number  :int                法号，从 1 起递增；
- *  - name    :string             法名（古籍原文用名）；
- *  - code    :string             程序唯一编码，前缀 bifa.；
- *  - slug    :string             URL slug，小写连字符，仅含 [a-z0-9-]；
- *  - summary :string             现代汉语一句简介，未研究时为空串。
+ * 后续每法由各自独立研究文档 (`docs/毕法/NN-法名.md`) 补齐。未研究法的 summary
+ * 保持空字符串，前台展示为"尚未研究"。
  *
- * @see docs/毕法/01-前后引从升迁吉.md  第一法研究记录
+ * @see docs/毕法/01-前后引从升迁吉.md  第一法研究文档
  */
 final class BiFaCatalog
 {
@@ -38,610 +40,121 @@ final class BiFaCatalog
      */
     public static function laws(): array
     {
-        $laws = [
-            self::law(
-                1,
-                '前后引从升迁吉',
-                'qian-hou-yin-cong',
-                '初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。',
-            ),
-            self::law(
-                2,
-                '旺禄临身迁官吉',
-                'wang-lu-lin-shen',
-                '',
-            ),
-            self::law(
-                3,
-                '权摄不正禄临支',
-                'quan-she-bu-zheng',
-                '',
-            ),
-            self::law(
-                4,
-                '不修而修禄临干',
-                'bu-xiu-er-xiu',
-                '',
-            ),
-            self::law(
-                5,
-                '任信丁马俱来',
-                'ren-xin-ding-ma',
-                '',
-            ),
-            self::law(
-                6,
-                '三传递进',
-                'san-chuan-di-jin',
-                '',
-            ),
-            self::law(
-                7,
-                '三传退失时',
-                'san-chuan-tui-shi',
-                '',
-            ),
-            self::law(
-                8,
-                '三传递退',
-                'san-chuan-di-tui',
-                '',
-            ),
-            self::law(
-                9,
-                '初传乘旺临干',
-                'chu-chuan-cheng-wang',
-                '',
-            ),
-            self::law(
-                10,
-                '末传乘旺临干',
-                'mo-chuan-cheng-wang',
-                '',
-            ),
-            self::law(
-                11,
-                '首尾乘旺临干',
-                'shou-wei-cheng-wang',
-                '',
-            ),
-            self::law(
-                12,
-                '首尾乘旺临支',
-                'shou-wei-cheng-wang-zhi',
-                '',
-            ),
-            self::law(
-                13,
-                '首尾夹拱',
-                'shou-wei-jia-gong',
-                '',
-            ),
-            self::law(
-                14,
-                '日辰夹拱',
-                'ri-chen-jia-gong',
-                '',
-            ),
-            self::law(
-                15,
-                '两贵夹拱',
-                'liang-gui-jia-gong',
-                '',
-            ),
-            self::law(
-                16,
-                '两贵逢空',
-                'liang-gui-feng-kong',
-                '',
-            ),
-            self::law(
-                17,
-                '空亡乘墓',
-                'kong-wang-cheng-mu',
-                '',
-            ),
-            self::law(
-                18,
-                '空亡逢冲',
-                'kong-wang-feng-chong',
-                '',
-            ),
-            self::law(
-                19,
-                '空亡乘旺',
-                'kong-wang-cheng-wang',
-                '',
-            ),
-            self::law(
-                20,
-                '空亡乘生',
-                'kong-wang-cheng-sheng',
-                '',
-            ),
-            self::law(
-                21,
-                '空亡临日',
-                'kong-wang-lin-ri',
-                '',
-            ),
-            self::law(
-                22,
-                '空亡临支',
-                'kong-wang-lin-zhi',
-                '',
-            ),
-            self::law(
-                23,
-                '空亡临命',
-                'kong-wang-lin-ming',
-                '',
-            ),
-            self::law(
-                24,
-                '空亡临身',
-                'kong-wang-lin-shen',
-                '',
-            ),
-            self::law(
-                25,
-                '岁月空亡',
-                'sui-yue-kong-wang',
-                '',
-            ),
-            self::law(
-                26,
-                '日辰空亡',
-                'ri-chen-kong-wang',
-                '',
-            ),
-            self::law(
-                27,
-                '年命空亡',
-                'nian-ming-kong-wang',
-                '',
-            ),
-            self::law(
-                28,
-                '初传空亡',
-                'chu-chuan-kong-wang',
-                '',
-            ),
-            self::law(
-                29,
-                '末传空亡',
-                'mo-chuan-kong-wang',
-                '',
-            ),
-            self::law(
-                30,
-                '中传空亡',
-                'zhong-chuan-kong-wang',
-                '',
-            ),
-            self::law(
-                31,
-                '三传空亡',
-                'san-chuan-kong-wang',
-                '',
-            ),
-            self::law(
-                32,
-                '三传俱空',
-                'san-chuan-ju-kong',
-                '',
-            ),
-            self::law(
-                33,
-                '空亡发用',
-                'kong-wang-fa-yong',
-                '',
-            ),
-            self::law(
-                34,
-                '传空得用',
-                'chuan-kong-de-yong',
-                '',
-            ),
-            self::law(
-                35,
-                '空上乘空',
-                'kong-shang-cheng-kong',
-                '',
-            ),
-            self::law(
-                36,
-                '落空亡发用',
-                'luo-kong-wang',
-                '',
-            ),
-            self::law(
-                37,
-                '空亡所乘',
-                'kong-wang-suo-cheng',
-                '',
-            ),
-            self::law(
-                38,
-                '空亡日辰',
-                'kong-wang-ri-chen',
-                '',
-            ),
-            self::law(
-                39,
-                '空亡岁命',
-                'kong-wang-sui-ming',
-                '',
-            ),
-            self::law(
-                40,
-                '三合连续',
-                'san-he-lian-xu',
-                '',
-            ),
-            self::law(
-                41,
-                '递进合',
-                'di-jin-he',
-                '',
-            ),
-            self::law(
-                42,
-                '六合成立',
-                'liu-he-cheng-li',
-                '',
-            ),
-            self::law(
-                43,
-                '合中带煞',
-                'he-zhong-dai-sha',
-                '',
-            ),
-            self::law(
-                44,
-                '三刑相遇',
-                'san-xing-xiang-yu',
-                '',
-            ),
-            self::law(
-                45,
-                '六害相逢',
-                'liu-hai-xiang-feng',
-                '',
-            ),
-            self::law(
-                46,
-                '三破相逢',
-                'san-po-xiang-feng',
-                '',
-            ),
-            self::law(
-                47,
-                '六冲相遇',
-                'liu-chong-xiang-yu',
-                '',
-            ),
-            self::law(
-                48,
-                '传冲',
-                'chuan-chong',
-                '',
-            ),
-            self::law(
-                49,
-                '干冲',
-                'gan-chong',
-                '',
-            ),
-            self::law(
-                50,
-                '支冲',
-                'zhi-chong',
-                '',
-            ),
-            self::law(
-                51,
-                '岁月冲',
-                'sui-yue-chong',
-                '',
-            ),
-            self::law(
-                52,
-                '日辰冲',
-                'ri-chen-chong',
-                '',
-            ),
-            self::law(
-                53,
-                '支破',
-                'zhi-po',
-                '',
-            ),
-            self::law(
-                54,
-                '破冲',
-                'po-chong',
-                '',
-            ),
-            self::law(
-                55,
-                '刑冲',
-                'xing-chong',
-                '',
-            ),
-            self::law(
-                56,
-                '传墓',
-                'chuan-mu',
-                '',
-            ),
-            self::law(
-                57,
-                '传煞',
-                'chuan-sha',
-                '',
-            ),
-            self::law(
-                58,
-                '传生',
-                'chuan-sheng',
-                '',
-            ),
-            self::law(
-                59,
-                '传财',
-                'chuan-cai',
-                '',
-            ),
-            self::law(
-                60,
-                '传官',
-                'chuan-guan',
-                '',
-            ),
-            self::law(
-                61,
-                '传鬼',
-                'chuan-gui',
-                '',
-            ),
-            self::law(
-                62,
-                '传父',
-                'chuan-fu',
-                '',
-            ),
-            self::law(
-                63,
-                '传兄',
-                'chuan-xiong',
-                '',
-            ),
-            self::law(
-                64,
-                '传子',
-                'chuan-zi',
-                '',
-            ),
-            self::law(
-                65,
-                '传妻',
-                'chuan-qi',
-                '',
-            ),
-            self::law(
-                66,
-                '传同类',
-                'chuan-tong-lei',
-                '',
-            ),
-            self::law(
-                67,
-                '传反',
-                'chuan-fan',
-                '',
-            ),
-            self::law(
-                68,
-                '传伏',
-                'chuan-fu-biao',
-                '',
-            ),
-            self::law(
-                69,
-                '传进',
-                'chuan-jin',
-                '',
-            ),
-            self::law(
-                70,
-                '传退',
-                'chuan-tui',
-                '',
-            ),
-            self::law(
-                71,
-                '传病',
-                'chuan-bing',
-                '',
-            ),
-            self::law(
-                72,
-                '传死',
-                'chuan-si',
-                '',
-            ),
-            self::law(
-                73,
-                '传绝',
-                'chuan-jue',
-                '',
-            ),
-            self::law(
-                74,
-                '传胎',
-                'chuan-tai',
-                '',
-            ),
-            self::law(
-                75,
-                '传养',
-                'chuan-yang',
-                '',
-            ),
-            self::law(
-                76,
-                '传长生',
-                'chuan-chang-sheng',
-                '',
-            ),
-            self::law(
-                77,
-                '传沐浴',
-                'chuan-mu-yu',
-                '',
-            ),
-            self::law(
-                78,
-                '传冠带',
-                'chuan-guan-dai',
-                '',
-            ),
-            self::law(
-                79,
-                '传临官',
-                'chuan-lin-guan',
-                '',
-            ),
-            self::law(
-                80,
-                '传帝旺',
-                'chuan-di-wang',
-                '',
-            ),
-            self::law(
-                81,
-                '传衰',
-                'chuan-shuai',
-                '',
-            ),
-            self::law(
-                82,
-                '传病符',
-                'chuan-bing-fu',
-                '',
-            ),
-            self::law(
-                83,
-                '传死符',
-                'chuan-si-fu',
-                '',
-            ),
-            self::law(
-                84,
-                '传墓',
-                'chuan-mu-biao',
-                '',
-            ),
-            self::law(
-                85,
-                '传绝',
-                'chuan-jue-biao',
-                '',
-            ),
-            self::law(
-                86,
-                '传胎养',
-                'chuan-tai-yang',
-                '',
-            ),
-            self::law(
-                87,
-                '传生旺',
-                'chuan-sheng-wang',
-                '',
-            ),
-            self::law(
-                88,
-                '传墓绝',
-                'chuan-mu-jue',
-                '',
-            ),
-            self::law(
-                89,
-                '传病胎',
-                'chuan-bing-tai',
-                '',
-            ),
-            self::law(
-                90,
-                '传死绝',
-                'chuan-si-jue',
-                '',
-            ),
-            self::law(
-                91,
-                '传衰病',
-                'chuan-shuai-bing',
-                '',
-            ),
-            self::law(
-                92,
-                '传旺胎',
-                'chuan-wang-tai',
-                '',
-            ),
-            self::law(
-                93,
-                '传墓养',
-                'chuan-mu-yang',
-                '',
-            ),
-            self::law(
-                94,
-                '传绝生',
-                'chuan-jue-sheng',
-                '',
-            ),
-            self::law(
-                95,
-                '传死养',
-                'chuan-si-yang',
-                '',
-            ),
-            self::law(
-                96,
-                '传病衰',
-                'chuan-bing-shuai',
-                '',
-            ),
-            self::law(
-                97,
-                '三传旺相',
-                'san-chuan-wang-xiang',
-                '',
-            ),
-            self::law(
-                98,
-                '三传休囚',
-                'san-chuan-xiu-qiu',
-                '',
-            ),
-            self::law(
-                99,
-                '三传死绝',
-                'san-chuan-si-jue',
-                '',
-            ),
-            self::law(
-                100,
-                '三传生旺',
-                'san-chuan-sheng-wang',
-                '',
-            ),
-        ];
+        static $laws = null;
+        if ($laws === null) {
+            $laws = self::buildLaws();
+        }
 
         return $laws;
+    }
+
+    /**
+     * @return list<array{number: int, name: string, code: string, slug: string, summary: string}>
+     */
+    private static function buildLaws(): array
+    {
+        return [
+            self::law(1, '前后引从升迁吉', 'qian-hou-yin-cong', '初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。'),
+            self::law(2, '首尾相见始终宜', 'shou-wei-xiang-jian', ''),
+            self::law(3, '帘幕贵人高甲第', 'lian-mu-gui-ren', ''),
+            self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', ''),
+            self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', ''),
+            self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', ''),
+            self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', ''),
+            self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', ''),
+            self::law(9, '不修而修禄临干', 'bu-xi-u-xiu', ''),
+            self::law(10, '任信丁马俱来', 'ren-xin-ding-ma', ''),
+            self::law(11, '虎临干鬼凶无比', 'hu-lin-gang-gui', ''),
+            self::law(12, '蛇鬼乘墓终不吉', 'she-gui-cheng-mu', ''),
+            self::law(13, '伏吟卦体定幽明', 'fu-yin-gua-ti', ''),
+            self::law(14, '反吟卦体事须分', 'fan-yin-gua-ti', ''),
+            self::law(15, '三光并起立名声', 'san-guang-bing-qi', ''),
+            self::law(16, '三阳发用自荣昌', 'san-yang-fa-yong', ''),
+            self::law(17, '旺相气发用须急进', 'wang-xiang-fa-yong', ''),
+            self::law(18, '衰囚气发用退宜深', 'shuai-qiu-fa-yong', ''),
+            self::law(19, '进神传课宜进达', 'jin-shen-chuan-ke', ''),
+            self::law(20, '退神传课宜退藏', 'tui-shen-chuan-ke', ''),
+            self::law(21, '天乙乘旺临干支', 'tian-yi-cheng-wang', ''),
+            self::law(22, '天乙乘墓临干支', 'tian-yi-cheng-mu', ''),
+            self::law(23, '天乙临支发用', 'tian-yi-lin-zhi', ''),
+            self::law(24, '天乙临干发用', 'tian-yi-lin-gan', ''),
+            self::law(25, '天乙乘蛇雀克干', 'tian-yi-ke-gan', ''),
+            self::law(26, '天乙乘虎阴克支', 'tian-yi-ke-zhi', ''),
+            self::law(27, '日辰上见天乙', 'ri-chen-shang-tian', ''),
+            self::law(28, '天乙乘墓支干', 'tian-yi-cheng-mu-zhigan', ''),
+            self::law(29, '日辰天乙俱乘旺', 'ri-chen-tian-yi-wang', ''),
+            self::law(30, '天乙同会干支', 'tian-yi-tong-hui', ''),
+            self::law(31, '天乙顺行终吉', 'tian-yi-shun-xing', ''),
+            self::law(32, '天乙逆行终凶', 'tian-yi-ni-xing', ''),
+            self::law(33, '课传三阳终吉', 'san-yang-zhong-ji', ''),
+            self::law(34, '课传三阴终凶', 'san-yin-zhong-xiong', ''),
+            self::law(35, '三阳课格宜进身', 'san-yang-ke-ge', ''),
+            self::law(36, '三阴课格宜退步', 'san-yin-ke-ge', ''),
+            self::law(37, '阳将阳日阳方吉', 'yang-jiang-yang-ri', ''),
+            self::law(38, '阴将阴日阴方凶', 'yin-jiang-yin-ri', ''),
+            self::law(39, '日辰旺相临用', 'ri-chen-wang-xiang', ''),
+            self::law(40, '日辰休囚临用', 'ri-chen-xiu-qiu', ''),
+            self::law(41, '日辰上见勾陈', 'ri-chen-gou-chen', ''),
+            self::law(42, '日辰上见玄武', 'ri-chen-xuan-wu', ''),
+            self::law(43, '日辰上见青龙', 'ri-chen-qing-long', ''),
+            self::law(44, '日辰上见白虎', 'ri-chen-bai-hu', ''),
+            self::law(45, '日辰上见太常', 'ri-chen-tai-chang', ''),
+            self::law(46, '日辰上见六合', 'ri-chen-liu-he', ''),
+            self::law(47, '日辰上见朱雀', 'ri-chen-zhu-que', ''),
+            self::law(48, '日辰上见腾蛇', 'ri-chen-teng-she', ''),
+            self::law(49, '日辰上见天空', 'ri-chen-tian-kong', ''),
+            self::law(50, '日辰上见天乙', 'ri-chen-tian-yi', ''),
+            self::law(51, '三传俱见天乙', 'san-chuan-ju-tian-yi', ''),
+            self::law(52, '三传俱见日鬼', 'san-chuan-ju-ri-gui', ''),
+            self::law(53, '三传生旺终吉', 'san-chuan-sheng-wang', ''),
+            self::law(54, '三传墓绝终凶', 'san-chuan-mu-jue', ''),
+            self::law(55, '初末传终吉', 'chu-mo-chuan', ''),
+            self::law(56, '初中传终吉', 'chu-zhong-chuan', ''),
+            self::law(57, '中末传终吉', 'zhong-mo-chuan', ''),
+            self::law(58, '初末墓绝终凶', 'chu-mo-mu-jue', ''),
+            self::law(59, '初中墓绝终凶', 'chu-zhong-mu-jue', ''),
+            self::law(60, '中末墓绝终凶', 'zhong-mo-mu-jue', ''),
+            self::law(61, '初传旺相终吉', 'chu-wang-xiang', ''),
+            self::law(62, '初传休囚终凶', 'chu-xiu-qiu', ''),
+            self::law(63, '末传旺相终吉', 'mo-wang-xiang', ''),
+            self::law(64, '末传休囚终凶', 'mo-xiu-qiu', ''),
+            self::law(65, '中传旺相终吉', 'zhong-wang-xiang', ''),
+            self::law(66, '中传休囚终凶', 'zhong-xiu-qiu', ''),
+            self::law(67, '初传生日终吉', 'chu-sheng-ri', ''),
+            self::law(68, '末传生日终吉', 'mo-sheng-ri', ''),
+            self::law(69, '初传克日终凶', 'chu-ke-ri', ''),
+            self::law(70, '末传克日终凶', 'mo-ke-ri', ''),
+            self::law(71, '初传比和终吉', 'chu-bi-he', ''),
+            self::law(72, '初传墓日终凶', 'chu-mu-ri', ''),
+            self::law(73, '末传墓日终凶', 'mo-mu-ri', ''),
+            self::law(74, '初传绝日终凶', 'chu-jue-ri', ''),
+            self::law(75, '末传绝日终凶', 'mo-jue-ri', ''),
+            self::law(76, '初传空亡终凶', 'chu-kong-wang', ''),
+            self::law(77, '末传空亡终凶', 'mo-kong-wang', ''),
+            self::law(78, '初传旬空终凶', 'chu-xun-kong', ''),
+            self::law(79, '末传旬空终凶', 'mo-xun-kong', ''),
+            self::law(80, '初传伏吟终凶', 'chu-fu-yin', ''),
+            self::law(81, '末传伏吟终凶', 'mo-fu-yin', ''),
+            self::law(82, '初传反吟终凶', 'chu-fan-yin', ''),
+            self::law(83, '末传反吟终凶', 'mo-fan-yin', ''),
+            self::law(84, '初传六害终凶', 'chu-liu-hai', ''),
+            self::law(85, '末传六害终凶', 'mo-liu-hai', ''),
+            self::law(86, '初传三刑终凶', 'chu-san-xing', ''),
+            self::law(87, '末传三刑终凶', 'mo-san-xing', ''),
+            self::law(88, '初传六破终凶', 'chu-liu-po', ''),
+            self::law(89, '末传六破终凶', 'mo-liu-po', ''),
+            self::law(90, '初传刑冲终凶', 'chu-xing-chong', ''),
+            self::law(91, '末传刑冲终凶', 'mo-xing-chong', ''),
+            self::law(92, '初传见贵终吉', 'chu-jian-gui', ''),
+            self::law(93, '末传见贵终吉', 'mo-jian-gui', ''),
+            self::law(94, '初传见禄终吉', 'chu-jian-lu', ''),
+            self::law(95, '末传见禄终吉', 'mo-jian-lu', ''),
+            self::law(96, '初传见马终吉', 'chu-jian-ma', ''),
+            self::law(97, '末传见马终吉', 'mo-jian-ma', ''),
+            self::law(98, '初传见财终吉', 'chu-jian-cai', ''),
+            self::law(99, '末传见财终吉', 'mo-jian-cai', ''),
+            self::law(100, '初末传相生终吉', 'chu-mo-sheng', ''),
+        ];
     }
 
     /**
@@ -652,19 +165,19 @@ final class BiFaCatalog
         return [
             'number' => $number,
             'name' => $name,
-            'code' => 'bifa.' . self::numberToCode($number),
+            'code' => self::codeFor($number),
             'slug' => $slug,
             'summary' => $summary,
         ];
     }
 
-    private static function numberToCode(int $number): string
+    public static function codeFor(int $number): string
     {
         if ($number < 1 || $number > 100) {
             throw new \InvalidArgumentException('BiFaCatalog 法号必须介于 1..100。');
         }
 
-        return str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+        return 'bifa.'.str_pad((string) $number, 2, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -688,6 +201,20 @@ final class BiFaCatalog
     {
         foreach (self::laws() as $law) {
             if ($law['code'] === $code) {
+                return $law;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
+     */
+    public static function findByNumber(int $number): ?array
+    {
+        foreach (self::laws() as $law) {
+            if ($law['number'] === $number) {
                 return $law;
             }
         }

@@ -6,40 +6,38 @@ use App\Domain\Pan\BiFa\BiFaRule;
 use App\Domain\Pan\BiFa\BiFaRuleMatch;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Support\BiFaCatalog;
+use LogicException;
 
 /**
- * 文件作用：按《毕法赋》第一法"前后引从升迁吉"逐分格判断当前盘面是否成立。
+ * 文件作用：按《毕法赋》第一法"前后引从升迁吉"逐分格判断当前盘面。
  *
- * 该法对应《六壬大全·毕法赋》第一法，与课经第 22 课"引从课"在结构上大量重合，
- * 但属于不同知识体系：
+ * 第一法共整理为 9 类古籍分格，对应 10 条程序判断 route——
+ * 古籍"干支拱昼夜贵"为同一类，程序拆为昼贵与夜贵两条独立 route。
  *
- *  - 课经第 22 课以"成课"为单位判定，命中即整课出现，并承担组课排盘逻辑；
- *  - 毕法第一法以"分格"为单位判定，一张盘可能同时命中若干分格，
- *    命中其一即第一法整体成立，断义随命中的分格变化。
+ * 9 类古籍分格：
  *
- * 因此本类不复用 App\Domain\Pan\Rules\YinCongRule 的匹配结果，也不与
- * 任何 PanRule 共享注册路径。两种体系的 RuleMatch 互相不交叉。
+ *  - 1. 引从天干                → route yin_gan
+ *  - 2. 初末引从地支            → route yin_zhi
+ *  - 3. 拱贵格                  → route gong_gui（基于引从天干）
+ *  - 4. 两贵引从天干格          → route liang_gui_yin_gan（基于引从天干）
+ *  - 5. 贵临干支拱年命           → route gui_lin_gan_zhi_gang_nianming
+ *  - 6. 二贵拱年命              → route er_gui_gang_nianming
+ *  - 7. 干支拱日禄（伏吟）       → route gan_zhi_gang_ri_lu
+ *  - 8. 干支拱昼夜贵（伏吟）     → route gan_zhi_gang_zhou_gui / gan_zhi_gang_ye_gui（两条程序 route）
+ *  - 9. 干支并初中拱地盘贵人     → route gan_zhi_bing_chu_zhong_gui
  *
- * 实现 9 个分格：
+ * 引从方向性：引从天干 / 引从地支 必须 初=前（寄宫/日支前一宫）、末=后（寄宫/日支后一宫）；
+ * 颠倒则"引从"语义不成立，yin_gan / yin_zhi 不得命中。昼夜贵人 / 二贵等"无方向夹拱"分格
+ * 仍使用 flanks(a, b, target) 不区分 a/b 前后。
  *
- *  - A. 引从天干（基础格，初末夹拱日干寄宫）
- *  - B. 拱贵格（A + 干上神 ∈ {昼贵, 夜贵}）
- *  - C. 两贵引从天干格（A + {初传, 末传} == {昼贵, 夜贵}）
- *  - D. 初末引从地支（初末夹拱日支）
- *  - E. 贵临干支拱年命（{干上神, 支上神} == {昼贵, 夜贵} + 干支夹拱本命/行年）
- *  - F. 二贵拱年命（{初传, 末传} == {昼贵, 夜贵} + 初末夹拱本命/行年）
- *  - G. 干支拱日禄（伏吟 + 干支夹拱日禄）
- *  - H. 干支拱昼贵（伏吟 + 干支夹拱昼贵）
- *  - H. 干支拱夜贵（伏吟 + 干支夹拱夜贵）
- *  - I. 干支并初中拱地盘贵人（干支夹拱 target + 初中夹拱同一 target，target ∈ {昼贵, 夜贵}）
+ * 人物资料边界：年命相关两条 route（gui_lin_gan_zhi_gang_nianming、er_gui_gang_nianming）
+ * 需要 nianming 或 xingnian 任一存在；两者皆缺时整条 route 标记为待评估，但不影响其余
+ * 7 类分格的判定。
  *
- * 仅 E、F 需占测者人物资料；其余 7 个分格完全可独立判断，
- * 因此缺人资料不会让整条第一法变成 not_evaluated，只标记 E/F 为未评估。
+ * 命中证据：E/F 的 detail 文案只显示真正命中的本命/行年，不堆砌全部目标。
  */
 final class QianHouYinCongRule implements BiFaRule
 {
-    private const LAW_NUMBER = 1;
-
     /** @var list<string> */
     private const BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
@@ -54,7 +52,7 @@ final class QianHouYinCongRule implements BiFaRule
 
     public function code(): string
     {
-        return 'bifa.qian_hou_yin_cong';
+        return 'bifa.01';
     }
 
     /**
@@ -63,22 +61,18 @@ final class QianHouYinCongRule implements BiFaRule
     public function law(): array
     {
         $law = BiFaCatalog::findByCode($this->code());
+        if ($law === null) {
+            throw new LogicException('BiFaCatalog 找不到 '.$this->code().'；注册表与目录脱节。');
+        }
 
-        // 该法必定存在；目录缺失是编程错误。
-        return $law ?? [
-            'number' => self::LAW_NUMBER,
-            'name' => '前后引从升迁吉',
-            'code' => $this->code(),
-            'slug' => 'qian-hou-yin-cong',
-            'summary' => '',
-        ];
+        return $law;
     }
 
     /**
      * @return array{
      *     description: string,
      *     foundations: list<array{code: string, title: string, description: string}>,
-     *     judgments: list<array{code: string, effect: string, label: string, description: string}>
+     *     judgments: list<array<string, mixed>>
      * }
      */
     public function definition(): array
@@ -86,56 +80,16 @@ final class QianHouYinCongRule implements BiFaRule
         return [
             'description' => '初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。',
             'foundations' => [
-                [
-                    'code' => 'yin_gan',
-                    'title' => '引从天干',
-                    'description' => '日干寄宫前一宫位之上神发用作初传，后一宫位之上神作末传，前后夹拱天干。',
-                ],
-                [
-                    'code' => 'yin_zhi',
-                    'title' => '初末引从地支',
-                    'description' => '日支前一宫位之上神发用作初传，后一宫位之上神作末传，前后夹拱地支。',
-                ],
-                [
-                    'code' => 'gong_gui',
-                    'title' => '拱贵格',
-                    'description' => '引从天干成立，且日干寄宫之上神恰乘昼夜贵人之一。',
-                ],
-                [
-                    'code' => 'liang_gui_yin_gan',
-                    'title' => '两贵引从天干格',
-                    'description' => '引从天干成立，且初传、末传恰分别为昼夜二贵（昼贵 / 夜贵允许互换方向）。',
-                ],
-                [
-                    'code' => 'gui_lin_gan_zhi_gang_nianming',
-                    'title' => '贵临干支拱年命',
-                    'description' => '昼夜二贵分别加临日干寄宫与日支（方向不限），且干支前后夹拱占人本命或行年。',
-                ],
-                [
-                    'code' => 'er_gui_gang_nianming',
-                    'title' => '二贵拱年命',
-                    'description' => '初传、末传恰分别为昼夜二贵（允许互换方向），且初末夹拱本命或行年。',
-                ],
-                [
-                    'code' => 'gan_zhi_gang_ri_lu',
-                    'title' => '干支拱日禄',
-                    'description' => '伏吟盘，日干寄宫与日支前后夹拱日禄。',
-                ],
-                [
-                    'code' => 'gan_zhi_gang_zhou_gui',
-                    'title' => '干支拱昼贵',
-                    'description' => '伏吟盘，日干寄宫与日支前后夹拱昼贵。',
-                ],
-                [
-                    'code' => 'gan_zhi_gang_ye_gui',
-                    'title' => '干支拱夜贵',
-                    'description' => '伏吟盘，日干寄宫与日支前后夹拱夜贵。',
-                ],
-                [
-                    'code' => 'gan_zhi_bing_chu_zhong_gui',
-                    'title' => '干支并初中拱地盘贵人',
-                    'description' => '干支夹拱昼夜贵人之一，且初传、中传也夹拱同一个昼夜贵人（不许昼贵 / 夜贵互换后拼凑成立）。',
-                ],
+                ['code' => 'yin_gan',                        'title' => '引从天干',                       'description' => '日干寄宫前一宫位之上神发用作初传，后一宫位之上神作末传，前引后从夹拱天干。'],
+                ['code' => 'yin_zhi',                        'title' => '初末引从地支',                   'description' => '日支前一宫位之上神发用作初传，后一宫位之上神作末传，前引后从夹拱地支。'],
+                ['code' => 'gong_gui',                       'title' => '拱贵格',                         'description' => '引从天干成立，且日干寄宫之上神恰乘昼夜贵人之一。'],
+                ['code' => 'liang_gui_yin_gan',              'title' => '两贵引从天干格',                 'description' => '引从天干成立，且初传、末传恰分别为昼夜二贵（贵人身份可互换，初末方向不可互换）。'],
+                ['code' => 'gui_lin_gan_zhi_gang_nianming',  'title' => '贵临干支拱年命',                 'description' => '昼夜二贵分别加临日干寄宫与日支（方向不限），且干支前后夹拱占人本命或行年。'],
+                ['code' => 'er_gui_gang_nianming',           'title' => '二贵拱年命',                     'description' => '初传、末传恰分别为昼夜二贵（贵人身份可互换），且初末前后夹拱本命或行年。'],
+                ['code' => 'gan_zhi_gang_ri_lu',             'title' => '干支拱日禄',                     'description' => '伏吟盘，日干寄宫与日支前后夹拱日禄。'],
+                ['code' => 'gan_zhi_gang_zhou_gui',          'title' => '干支拱昼贵',                     'description' => '伏吟盘，日干寄宫与日支前后夹拱昼贵。'],
+                ['code' => 'gan_zhi_gang_ye_gui',            'title' => '干支拱夜贵',                     'description' => '伏吟盘，日干寄宫与日支前后夹拱夜贵。'],
+                ['code' => 'gan_zhi_bing_chu_zhong_gui',     'title' => '干支并初中拱地盘贵人',           'description' => '干支夹拱昼夜贵人之一，且初传、中传也夹拱同一昼夜贵人；昼夜贵不得互换。'],
             ],
             'judgments' => [],
         ];
@@ -164,28 +118,34 @@ final class QianHouYinCongRule implements BiFaRule
         $nightNoble = self::NIGHT_NOBLE[$rigan] ?? null;
         $lu = self::DAY_PROSPERITY[$rigan] ?? null;
 
-        // 关键事实——初、末、中传所临地盘（=天盘支→地盘宫位）。
-        $initialGround = self::groundPositionOf($tianpan, $initial);
-        $middleGround = self::groundPositionOf($tianpan, $middle);
-        $finalGround = self::groundPositionOf($tianpan, $final);
+        $initialGround = $facts->heavenBranchGroundPosition($initial);
+        $middleGround = $facts->heavenBranchGroundPosition($middle);
+        $finalGround = $facts->heavenBranchGroundPosition($final);
         if ($initialGround === null || $middleGround === null || $finalGround === null) {
             return null;
         }
 
         $fuyin = $facts->hasPlatePattern('fuyin');
-
-        // 干上神 / 支上神：tianpan[lodging] / tianpan[rizhi]。
         $ganShangShen = $tianpan[$lodging] ?? null;
         $zhiShangShen = $tianpan[$rizhi] ?? null;
 
-        // 基础分格 A / D。
-        $yinGan = self::flanks($initialGround, $finalGround, $lodging);
-        $yinZhi = self::flanks($initialGround, $finalGround, $rizhi);
+        // 方向性引从：初=前、末=后。前 = (+1) mod 12；后 = (+11) mod 12。
+        $lodgingFront = ($lodging + 1) % 12;
+        $lodgingBack = ($lodging + 11) % 12;
+        $rizhiFront = ($rizhi + 1) % 12;
+        $rizhiBack = ($rizhi + 11) % 12;
 
-        // 分格 B：引从天干 + 干上神是昼夜贵人之一。
+        // 分格 A：引从天干。初传临 lodign 前一宫，末传临 lodging 后一宫。
+        $yinGan = $initialGround === $lodgingFront && $finalGround === $lodgingBack;
+
+        // 分格 B：初末引从地支。初传临 rizhi 前一宫，末传临 rizhi 后一宫。
+        $yinZhi = $initialGround === $rizhiFront && $finalGround === $rizhiBack;
+
+        // 分格 C：拱贵格。引从天干 + 干上神 ∈ {昼夜贵}。
         $gongGui = $yinGan && self::isNoble($ganShangShen, $dayNoble, $nightNoble);
 
-        // 分格 C：引从天干 + {初传, 末传} == {昼贵, 夜贵}（允许互换方向）。
+        // 分格 D：两贵引从天干格。引从天干 + {初传, 末传} == {昼贵, 夜贵}。
+        // 贵人身份可互换，初末方向已由 yinGan 锁定为初=昼/夜、末=夜/昼。
         $liangGuiYinGan = $yinGan && self::areTransmissionsTwoNobles(
             $initial,
             $final,
@@ -193,10 +153,10 @@ final class QianHouYinCongRule implements BiFaRule
             $nightNoble,
         );
 
-        // 占测者本命 / 行年（缺人资料时 E / F 标记 people_missing）。
+        // 占测者资料：nianming / xingnian 任一存在即视为可参与判断。
         $person = self::resolvePerson($facts);
 
-        // 分格 E：贵临干支 + 干支夹拱本命或行年。
+        // 分格 E：贵临干支拱年命。{干上神, 支上神} == {昼贵, 夜贵} + 干支前后夹拱本命/行年。
         $guiLinGanZhiMatched = self::isTwoNoblesOnGanZhi(
             $ganShangShen,
             $zhiShangShen,
@@ -205,12 +165,13 @@ final class QianHouYinCongRule implements BiFaRule
         );
         $guiLinGanZhiGangNianming = false;
         $guiLinGanZhiPeopleMissing = $person === null;
+        $guiLinGanZhiHits = ['nianming' => false, 'xingnian' => false];
         if ($guiLinGanZhiMatched && $person !== null) {
-            $guiLinGanZhiGangNianming = self::flanks($lodging, $rizhi, $person['nianming'])
-                || ($person['xingnian'] !== null && self::flanks($lodging, $rizhi, $person['xingnian']));
+            $guiLinGanZhiHits = self::flanksAnyTarget($lodging, $rizhi, $person);
+            $guiLinGanZhiGangNianming = $guiLinGanZhiHits['nianming'] || $guiLinGanZhiHits['xingnian'];
         }
 
-        // 分格 F：{初传, 末传} == {昼贵, 夜贵} + 初末夹拱本命或行年。
+        // 分格 F：二贵拱年命。{初传, 末传} == {昼贵, 夜贵} + 初末前后夹拱本命/行年。
         $erGuiTransmissionsTwoNobles = self::areTransmissionsTwoNobles(
             $initial,
             $final,
@@ -219,68 +180,74 @@ final class QianHouYinCongRule implements BiFaRule
         );
         $erGuiGangNianming = false;
         $erGuiPeopleMissing = $person === null;
+        $erGuiHits = ['nianming' => false, 'xingnian' => false];
         if ($erGuiTransmissionsTwoNobles && $person !== null) {
-            $erGuiGangNianming = self::flanks($initialGround, $finalGround, $person['nianming'])
-                || ($person['xingnian'] !== null && self::flanks($initialGround, $finalGround, $person['xingnian']));
+            $erGuiHits = self::flanksAnyTarget($initialGround, $finalGround, $person);
+            $erGuiGangNianming = $erGuiHits['nianming'] || $erGuiHits['xingnian'];
         }
 
-        // 分格 G：伏吟 + 干支夹拱日禄。
-        $ganZhiGangRiLu = $fuyin && is_int($lu) && self::flanks($lodging, $rizhi, $lu);
+        // 分格 G：干支拱日禄（伏吟）。
+        $ganZhiGangRiLu = $fuyin && is_int($lu)
+            && self::flanks($lodging, $rizhi, $lu);
 
-        // 分格 H（昼贵 / 夜贵 分别记录）。
-        $ganZhiGangZhouGui = $fuyin && is_int($dayNoble) && self::flanks($lodging, $rizhi, $dayNoble);
-        $ganZhiGangYeGui = $fuyin && is_int($nightNoble) && self::flanks($lodging, $rizhi, $nightNoble);
+        // 分格 H：干支拱昼贵 / 夜贵（伏吟）。
+        $ganZhiGangZhouGui = $fuyin && is_int($dayNoble)
+            && self::flanks($lodging, $rizhi, $dayNoble);
+        $ganZhiGangYeGui = $fuyin && is_int($nightNoble)
+            && self::flanks($lodging, $rizhi, $nightNoble);
 
-        // 分格 I：干支并初中拱同一昼夜贵人。
+        // 分格 I：干支并初中拱同一昼夜贵人。干支与初中必须拱同一贵人，不许互换。
         $ganZhiBingChuZhongGuiMatched = false;
-        $ganZhiBingChuZhongGuiTarget = null;
-        if (is_int($dayNoble) && self::flanks($lodging, $rizhi, $dayNoble) && self::flanks($initialGround, $middleGround, $dayNoble)) {
+        $ganZhiBingChuZongTargetKey = null;
+        if (is_int($dayNoble)
+            && self::flanks($lodging, $rizhi, $dayNoble)
+            && self::flanks($initialGround, $middleGround, $dayNoble)) {
             $ganZhiBingChuZhongGuiMatched = true;
-            $ganZhiBingChuZhongGuiTarget = 'day_noble';
-        } elseif (is_int($nightNoble) && self::flanks($lodging, $rizhi, $nightNoble) && self::flanks($initialGround, $middleGround, $nightNoble)) {
+            $ganZhiBingChuZongTargetKey = 'day_noble';
+        } elseif (is_int($nightNoble)
+            && self::flanks($lodging, $rizhi, $nightNoble)
+            && self::flanks($initialGround, $middleGround, $nightNoble)) {
             $ganZhiBingChuZhongGuiMatched = true;
-            $ganZhiBingChuZhongGuiTarget = 'night_noble';
+            $ganZhiBingChuZongTargetKey = 'night_noble';
         }
 
         $subMatches = [
             self::subMatch('yin_gan', '引从天干', $yinGan,
-                '日干寄宫'.self::BRANCH_NAMES[$lodging].'前一宫位上神'.self::BRANCH_NAMES[$initial].'发用作初传，后一宫位上神'.self::BRANCH_NAMES[$final].'作末传，前后夹拱天干。',
-                self::yinGanEvidence($lodging, $initial, $final, $tianpan),
+                '日干寄宫前一宫位之上神发用作初传、后一宫位之上神作末传，前引后从夹拱天干。',
+                $yinGan ? self::yinGanEvidence($initialGround, $finalGround, $lodging) : null,
                 false, false),
-
             self::subMatch('yin_zhi', '初末引从地支', $yinZhi,
-                '日支'.self::BRANCH_NAMES[$rizhi].'前一宫位上神'.self::BRANCH_NAMES[$initial].'发用作初传，后一宫位上神'.self::BRANCH_NAMES[$final].'作末传，前后夹拱地支。',
-                self::yinZhiEvidence($rizhi, $initial, $final, $tianpan),
+                '日支前一宫位之上神发用作初传、后一宫位之上神作末传，前引后从夹拱地支。',
+                $yinZhi ? self::yinZhiEvidence($initialGround, $finalGround, $rizhi) : null,
                 false, false),
-
             self::subMatch('gong_gui', '拱贵格', $gongGui,
-                '引从天干的同时，日干寄宫之上神恰乘昼夜贵人之一。',
-                self::gongGuiEvidence($lodging, $yinGan, $ganShangShen, $dayNoble, $nightNoble),
+                '引从天干成立的同时，日干寄宫之上神恰乘昼夜贵人之一。',
+                self::gongGuiEvidence($gongGui, $ganShangShen, $dayNoble, $nightNoble),
                 false, false),
-
             self::subMatch('liang_gui_yin_gan', '两贵引从天干格', $liangGuiYinGan,
-                '引从天干的同时，初传、末传恰分别为昼夜二贵（昼贵 / 夜贵允许互换方向）。',
-                self::liangGuiYinGanEvidence($initial, $final, $dayNoble, $nightNoble),
+                '引从天干成立的同时，初传、末传恰分别为昼夜二贵（贵人身份可互换，初末方向不可互换）。',
+                self::liangGuiYinGanEvidence($liangGuiYinGan, $initial, $final, $dayNoble, $nightNoble),
                 false, false),
-
-            self::subMatch('gui_lin_gan_zhi_gang_nianming', '贵临干支拱年命', $guiLinGanZhiGangNianming,
+            self::subMatch('gui_lin_gan_zhi_gang_nianming', '贵临干支拱年命',
+                $guiLinGanZhiGangNianming,
                 '昼夜二贵分别加临日干寄宫与日支（方向不限），且干支前后夹拱占人本命或行年。',
                 self::guiLinGanZhiEvidence(
                     $guiLinGanZhiMatched,
                     $guiLinGanZhiGangNianming,
                     $guiLinGanZhiPeopleMissing,
-                    $lodging,
-                    $rizhi,
                     $ganShangShen,
                     $zhiShangShen,
+                    $lodging,
+                    $rizhi,
                     $person,
                     $dayNoble,
                     $nightNoble,
+                    $guiLinGanZhiHits,
                 ),
-                true, $guiLinGanZhiPeopleMissing && $guiLinGanZhiMatched),
-
-            self::subMatch('er_gui_gang_nianming', '二贵拱年命', $erGuiGangNianming,
-                '初传、末传恰分别为昼夜二贵（允许互换方向），且初末夹拱占人本命或行年。',
+                true, $guiLinGanZhiPeopleMissing),
+            self::subMatch('er_gui_gang_nianming', '二贵拱年命',
+                $erGuiGangNianming,
+                '初传、末传恰分别为昼夜二贵（贵人身份可互换），且初末前后夹拱占人本命或行年。',
                 self::erGuiGangNianmingEvidence(
                     $erGuiTransmissionsTwoNobles,
                     $erGuiGangNianming,
@@ -292,30 +259,27 @@ final class QianHouYinCongRule implements BiFaRule
                     $person,
                     $dayNoble,
                     $nightNoble,
+                    $erGuiHits,
                 ),
-                true, $erGuiPeopleMissing && $erGuiTransmissionsTwoNobles),
-
+                true, $erGuiPeopleMissing),
             self::subMatch('gan_zhi_gang_ri_lu', '干支拱日禄', $ganZhiGangRiLu,
-                '伏吟盘，日干寄宫与日支前后夹拱日禄'.self::BRANCH_NAMES[$lu ?? 0].'。',
-                self::ganZhiGangRiLuEvidence($fuyin, $lodging, $rizhi, $lu),
+                '伏吟盘，日干寄宫与日支前后夹拱日禄。',
+                self::ganZhiGangRiLuEvidence($ganZhiGangRiLu, $fuyin, $lodging, $rizhi, $lu),
                 false, false),
-
             self::subMatch('gan_zhi_gang_zhou_gui', '干支拱昼贵', $ganZhiGangZhouGui,
-                '伏吟盘，日干寄宫与日支前后夹拱昼贵'.self::BRANCH_NAMES[$dayNoble ?? 0].'。',
-                self::ganZhiGangGuiEvidence($fuyin, $lodging, $rizhi, $dayNoble, '昼贵'),
+                '伏吟盘，日干寄宫与日支前后夹拱昼贵。',
+                self::ganZhiGangGuiEvidence($ganZhiGangZhouGui, $fuyin, $lodging, $rizhi, $dayNoble, '昼贵'),
                 false, false),
-
             self::subMatch('gan_zhi_gang_ye_gui', '干支拱夜贵', $ganZhiGangYeGui,
-                '伏吟盘，日干寄宫与日支前后夹拱夜贵'.self::BRANCH_NAMES[$nightNoble ?? 0].'。',
-                self::ganZhiGangGuiEvidence($fuyin, $lodging, $rizhi, $nightNoble, '夜贵'),
+                '伏吟盘，日干寄宫与日支前后夹拱夜贵。',
+                self::ganZhiGangGuiEvidence($ganZhiGangYeGui, $fuyin, $lodging, $rizhi, $nightNoble, '夜贵'),
                 false, false),
-
             self::subMatch('gan_zhi_bing_chu_zhong_gui', '干支并初中拱地盘贵人',
                 $ganZhiBingChuZhongGuiMatched,
-                '干支夹拱昼夜贵人之一，同时初传、中传也夹拱同一昼夜贵人；不许昼贵 / 夜贵互换后拼凑成立。',
+                '干支夹拱昼夜贵人之一，同时初传、中传也夹拱同一昼夜贵人；昼夜贵不得互换。',
                 self::ganZhiBingChuZhongEvidence(
                     $ganZhiBingChuZhongGuiMatched,
-                    $ganZhiBingChuZhongGuiTarget,
+                    $ganZhiBingChuZongTargetKey,
                     $lodging,
                     $rizhi,
                     $initialGround,
@@ -327,18 +291,29 @@ final class QianHouYinCongRule implements BiFaRule
         ];
 
         $matchedRoutes = [];
+        $pendingRoutes = [];
         foreach ($subMatches as $sub) {
             if ($sub['matched']) {
                 $matchedRoutes[] = $sub['code'];
+            } elseif ($sub['requires_people'] && $sub['people_missing']) {
+                $pendingRoutes[] = $sub['code'];
             }
+        }
+
+        // 正常排盘只返回"已命中"或"有真正待评估路线"的毕法；
+        // 两者皆空时返回 null，避免 100 法全未命中时还把卡片铺满排盘页。
+        if ($matchedRoutes === [] && $pendingRoutes === []) {
+            return null;
         }
 
         return new BiFaRuleMatch(
             code: $this->code(),
+            number: $this->law()['number'],
             name: $this->law()['name'],
             summary: $this->law()['summary'],
             subMatches: $subMatches,
             matchedRoutes: $matchedRoutes,
+            pendingRoutes: $pendingRoutes,
             evidence: [
                 'rigan' => $rigan,
                 'rizhi' => $rizhi,
@@ -354,24 +329,6 @@ final class QianHouYinCongRule implements BiFaRule
                 'xingnian' => $person['xingnian'] ?? null,
             ],
         );
-    }
-
-    /**
-     * @param  array<int, int>  $tianpan
-     */
-    private static function groundPositionOf(array $tianpan, int $heavenBranch): ?int
-    {
-        $position = array_search($heavenBranch, $tianpan, true);
-
-        return is_int($position) ? $position : null;
-    }
-
-    private static function flanks(int $a, int $b, int $target): bool
-    {
-        $front = ($target + 1) % 12;
-        $back = ($target + 11) % 12;
-
-        return ($a === $front && $b === $back) || ($a === $back && $b === $front);
     }
 
     private static function isNoble(?int $branch, ?int $dayNoble, ?int $nightNoble): bool
@@ -410,7 +367,20 @@ final class QianHouYinCongRule implements BiFaRule
     }
 
     /**
-     * @return array{role: string, nianming: int, xingnian: ?int, xingnian_gan: ?int}|null
+     * 无方向夹拱：a、b 两个宫位只要分别位于 target 的前一宫 / 后一宫，前后顺序不区分。
+     */
+    private static function flanks(int $a, int $b, int $target): bool
+    {
+        $front = ($target + 1) % 12;
+        $back = ($target + 11) % 12;
+
+        return ($a === $front && $b === $back) || ($a === $back && $b === $front);
+    }
+
+    /**
+     * 返回结构化的占测者本命 / 行年信息：nianming 或 xingnian 任一存在即视为可参与判断。
+     *
+     * @return array{nianming: ?int, xingnian: ?int, xingnian_gan: ?int}|null
      */
     private static function resolvePerson(PanFacts $facts): ?array
     {
@@ -419,86 +389,90 @@ final class QianHouYinCongRule implements BiFaRule
             return null;
         }
 
-        $nianming = $person['nianming'] ?? null;
-        if (! is_int($nianming)) {
+        $nianmingRaw = $person['nianming'] ?? null;
+        $xingnianRaw = $person['xingnian'] ?? null;
+
+        $nianming = is_int($nianmingRaw) ? $nianmingRaw : null;
+        $xingnian = is_int($xingnianRaw) ? $xingnianRaw : null;
+        $xingnianGanRaw = $person['xingnian_gan'] ?? null;
+        $xingnianGan = is_int($xingnianGanRaw) ? $xingnianGanRaw : null;
+
+        if ($nianming === null && $xingnian === null) {
             return null;
         }
 
-        $xingnian = $person['xingnian'] ?? null;
-        $xingnian_gan = $person['xingnian_gan'] ?? null;
-
         return [
-            'role' => 'querent',
             'nianming' => $nianming,
-            'xingnian' => is_int($xingnian) ? $xingnian : null,
-            'xingnian_gan' => is_int($xingnian_gan) ? $xingnian_gan : null,
+            'xingnian' => $xingnian,
+            'xingnian_gan' => $xingnianGan,
         ];
     }
 
     /**
-     * @param  array<int, int>  $tianpan
+     * 干支夹拱本命 / 行年（无方向）：分别检 target = 本命 与 target = 行年，
+     * 返回各自是否命中；调用者按"只显示真正命中的目标"组合文案。
+     *
+     * @param  array{nianming: ?int, xingnian: ?int, xingnian_gan: ?int}  $person
+     * @return array{nianming: bool, xingnian: bool}
      */
-    private static function yinGanEvidence(int $lodging, int $initial, int $final, array $tianpan): string
+    private static function flanksAnyTarget(int $lodgingFront, int $lodgingBack, array $person): array
+    {
+        return [
+            'nianming' => $person['nianming'] !== null
+                && self::flanks($lodgingFront, $lodgingBack, $person['nianming']),
+            'xingnian' => $person['xingnian'] !== null
+                && self::flanks($lodgingFront, $lodgingBack, $person['xingnian']),
+        ];
+    }
+
+    private static function yinGanEvidence(int $initialGround, int $finalGround, int $lodging): ?string
     {
         return sprintf(
-            '初传临地盘%s（天盘%s），末传临地盘%s（天盘%s），前后夹拱日干寄宫%s。',
-            self::BRANCH_NAMES[($lodging + 1) % 12],
-            self::BRANCH_NAMES[$initial],
-            self::BRANCH_NAMES[($lodging + 11) % 12],
-            self::BRANCH_NAMES[$final],
+            '初传临地盘%s，末传临地盘%s，前后夹拱日干寄宫%s。',
+            self::BRANCH_NAMES[$initialGround],
+            self::BRANCH_NAMES[$finalGround],
             self::BRANCH_NAMES[$lodging],
         );
     }
 
-    /**
-     * @param  array<int, int>  $tianpan
-     */
-    private static function yinZhiEvidence(int $rizhi, int $initial, int $final, array $tianpan): string
+    private static function yinZhiEvidence(int $initialGround, int $finalGround, int $rizhi): ?string
     {
         return sprintf(
-            '初传临地盘%s（天盘%s），末传临地盘%s（天盘%s），前后夹拱日支%s。',
-            self::BRANCH_NAMES[($rizhi + 1) % 12],
-            self::BRANCH_NAMES[$initial],
-            self::BRANCH_NAMES[($rizhi + 11) % 12],
-            self::BRANCH_NAMES[$final],
+            '初传临地盘%s，末传临地盘%s，前后夹拱日支%s。',
+            self::BRANCH_NAMES[$initialGround],
+            self::BRANCH_NAMES[$finalGround],
             self::BRANCH_NAMES[$rizhi],
         );
     }
 
-    /**
-     * @return string|null
-     */
-    private static function gongGuiEvidence(int $lodging, bool $yinGan, ?int $ganShang, ?int $dayNoble, ?int $nightNoble)
+    private static function gongGuiEvidence(bool $matched, ?int $ganShang, ?int $dayNoble, ?int $nightNoble): ?string
     {
-        if (! $yinGan || $ganShang === null) {
+        if (! $matched || $ganShang === null) {
             return null;
         }
 
         if ($dayNoble !== null && $ganShang === $dayNoble) {
-            return sprintf('日干寄宫%s上乘昼贵%s。', self::BRANCH_NAMES[$lodging], self::BRANCH_NAMES[$dayNoble]);
+            return sprintf('日干寄宫上乘昼贵%s。', self::BRANCH_NAMES[$dayNoble]);
         }
         if ($nightNoble !== null && $ganShang === $nightNoble) {
-            return sprintf('日干寄宫%s上乘夜贵%s。', self::BRANCH_NAMES[$lodging], self::BRANCH_NAMES[$nightNoble]);
+            return sprintf('日干寄宫上乘夜贵%s。', self::BRANCH_NAMES[$nightNoble]);
         }
 
         return null;
     }
 
-    private static function liangGuiYinGanEvidence(int $initial, int $final, ?int $dayNoble, ?int $nightNoble): ?string
+    private static function liangGuiYinGanEvidence(bool $matched, int $initial, int $final, ?int $dayNoble, ?int $nightNoble): ?string
     {
-        if ($dayNoble === null || $nightNoble === null) {
+        if (! $matched || $dayNoble === null || $nightNoble === null) {
             return null;
         }
-
-        $initialLabel = self::nobleLabel($initial, $dayNoble, $nightNoble);
-        $finalLabel = self::nobleLabel($final, $dayNoble, $nightNoble);
 
         return sprintf(
             '初传%s（%s），末传%s（%s），恰为昼夜二贵。',
             self::BRANCH_NAMES[$initial],
-            $initialLabel,
+            self::nobleLabel($initial, $dayNoble, $nightNoble),
             self::BRANCH_NAMES[$final],
-            $finalLabel,
+            self::nobleLabel($final, $dayNoble, $nightNoble),
         );
     }
 
@@ -515,25 +489,28 @@ final class QianHouYinCongRule implements BiFaRule
     }
 
     /**
-     * @param  array{role: string, nianming: int, xingnian: ?int, xingnian_gan: ?int}|null  $person
+     * E 分格的命中证据：只显示真正命中的目标，避免堆砌本命/行年全部文案。
+     *
+     * @param  array{nianming: ?int, xingnian: ?int, xingnian_gan: ?int}|null  $person
      */
     private static function guiLinGanZhiEvidence(
         bool $matched,
         bool $gangNianming,
         bool $peopleMissing,
-        int $lodging,
-        int $rizhi,
         ?int $ganShang,
         ?int $zhiShang,
+        int $lodging,
+        int $rizhi,
         ?array $person,
         ?int $dayNoble,
         ?int $nightNoble,
+        array $hits = ['nianming' => false, 'xingnian' => false],
     ): ?string {
         if ($peopleMissing && $matched) {
             return '昼夜二贵已分别加临日干寄宫与日支，但缺少占测者本命 / 行年资料，无法判断干支是否夹拱年命。';
         }
 
-        if (! $gangNianming) {
+        if (! $gangNianming || $person === null) {
             return null;
         }
 
@@ -541,11 +518,14 @@ final class QianHouYinCongRule implements BiFaRule
         $zhiLabel = $zhiShang === $nightNoble ? '夜贵' : '昼贵';
 
         $targets = [];
-        if ($person['nianming'] !== null) {
-            $targets[] = '本命' . self::BRANCH_NAMES[$person['nianming']];
+        if ($person['nianming'] !== null && $hits['nianming']) {
+            $targets[] = '本命'.self::BRANCH_NAMES[$person['nianming']];
         }
-        if ($person['xingnian'] !== null) {
-            $targets[] = '行年' . self::BRANCH_NAMES[$person['xingnian']];
+        if ($person['xingnian'] !== null && $hits['xingnian']) {
+            $targets[] = '行年'.self::BRANCH_NAMES[$person['xingnian']];
+        }
+        if ($targets === []) {
+            return null;
         }
 
         return sprintf(
@@ -556,12 +536,14 @@ final class QianHouYinCongRule implements BiFaRule
             $zhiLabel,
             self::BRANCH_NAMES[$zhiShang],
             self::BRANCH_NAMES[$rizhi],
-            implode(' / ', $targets),
+            implode('、', $targets),
         );
     }
 
     /**
-     * @param  array{role: string, nianming: int, xingnian: ?int, xingnian_gan: ?int}|null  $person
+     * F 分格的命中证据：只显示真正命中的目标。
+     *
+     * @param  array{nianming: ?int, xingnian: ?int, xingnian_gan: ?int}|null  $person
      */
     private static function erGuiGangNianmingEvidence(
         bool $twoNobles,
@@ -574,12 +556,13 @@ final class QianHouYinCongRule implements BiFaRule
         ?array $person,
         ?int $dayNoble,
         ?int $nightNoble,
+        array $hits = ['nianming' => false, 'xingnian' => false],
     ): ?string {
         if ($peopleMissing && $twoNobles) {
             return '初传、末传已分别为昼夜二贵，但缺少占测者本命 / 行年资料，无法判断初末是否夹拱年命。';
         }
 
-        if (! $gangNianming) {
+        if (! $gangNianming || $person === null) {
             return null;
         }
 
@@ -587,28 +570,31 @@ final class QianHouYinCongRule implements BiFaRule
         $finalLabel = self::nobleLabel($final, $dayNoble ?? -1, $nightNoble ?? -1);
 
         $targets = [];
-        if ($person['nianming'] !== null) {
-            $targets[] = '本命' . self::BRANCH_NAMES[$person['nianming']];
+        if ($person['nianming'] !== null && $hits['nianming']) {
+            $targets[] = '本命'.self::BRANCH_NAMES[$person['nianming']];
         }
-        if ($person['xingnian'] !== null) {
-            $targets[] = '行年' . self::BRANCH_NAMES[$person['xingnian']];
+        if ($person['xingnian'] !== null && $hits['xingnian']) {
+            $targets[] = '行年'.self::BRANCH_NAMES[$person['xingnian']];
+        }
+        if ($targets === []) {
+            return null;
         }
 
         return sprintf(
-            '初传%s临地盘%s（%s），末传%s临地盘%s（%s），初末夹拱%s。',
+            '初传%s临地盘%s（%s），末传%s临地盘%s（%s），初末前后夹拱%s。',
             self::BRANCH_NAMES[$initial],
             self::BRANCH_NAMES[$initialGround],
             $initialLabel,
             self::BRANCH_NAMES[$final],
             self::BRANCH_NAMES[$finalGround],
             $finalLabel,
-            implode(' / ', $targets),
+            implode('、', $targets),
         );
     }
 
-    private static function ganZhiGangRiLuEvidence(bool $fuyin, int $lodging, int $rizhi, ?int $lu): ?string
+    private static function ganZhiGangRiLuEvidence(bool $matched, bool $fuyin, int $lodging, int $rizhi, ?int $lu): ?string
     {
-        if (! $fuyin || $lu === null) {
+        if (! $matched || ! $fuyin || $lu === null) {
             return null;
         }
 
@@ -620,9 +606,9 @@ final class QianHouYinCongRule implements BiFaRule
         );
     }
 
-    private static function ganZhiGangGuiEvidence(bool $fuyin, int $lodging, int $rizhi, ?int $target, string $label): ?string
+    private static function ganZhiGangGuiEvidence(bool $matched, bool $fuyin, int $lodging, int $rizhi, ?int $target, string $label): ?string
     {
-        if (! $fuyin || $target === null) {
+        if (! $matched || ! $fuyin || $target === null) {
             return null;
         }
 
@@ -645,13 +631,12 @@ final class QianHouYinCongRule implements BiFaRule
         ?int $dayNoble,
         ?int $nightNoble,
     ): ?string {
-        if (! $matched) {
+        if (! $matched || $targetKey === null) {
             return null;
         }
 
         $target = $targetKey === 'day_noble' ? $dayNoble : $nightNoble;
         $label = $targetKey === 'day_noble' ? '昼贵' : '夜贵';
-
         if ($target === null) {
             return null;
         }

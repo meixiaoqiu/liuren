@@ -8,6 +8,7 @@ use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Services\PanCalculator;
+use App\Support\BiFaCaseCatalog;
 use App\Support\KeJingCatalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
@@ -61,7 +62,18 @@ class CreatePan extends Component
      * 毕法独立判定结果。毕法与课经是两套独立体系，本字段不参与 RuleMatch 排序与展示，
      * 也不混入"解盘信息"中的课经列表。排盘页"毕法"区块单独使用本字段。
      *
-     * @var list<array{code: string, name: string, summary: string, matched: bool, sub_matches: list<array<string, mixed>>, matched_routes: list<string>, evidence: array<string, mixed>}>
+     * @var list<array{
+     *     code: string,
+     *     number: int,
+     *     name: string,
+     *     summary: string,
+     *     matched: bool,
+     *     sub_matches: list<array<string, mixed>>,
+     *     matched_routes: list<string>,
+     *     pending_routes: list<string>,
+     *     evidence: array<string, mixed>,
+     *     related_cases: list<array<string, mixed>>
+     * }>
      */
     public array $bifaMatches = [];
 
@@ -240,9 +252,50 @@ class CreatePan extends Component
         $this->seasonalPeriod = PanFacts::from($result)->seasonalPeriod();
 
         // 毕法独立判定——不参与 RuleMatch 排序、不混进"解盘信息"。
-        $this->bifaMatches = array_values(array_map(
+        // 每条 BiFaRuleMatch 同时附带：当前命中 route 与案例目录中 routes 字段的交集案例。
+        $bifaMatches = array_map(
             static fn ($match): array => $match->toArray(),
             $bifaRuleEngine->evaluate($result),
+        );
+        $this->bifaMatches = array_values(array_map(
+            static function (array $bifa): array {
+                $matched = array_values(array_map('strval', $bifa['matched_routes'] ?? []));
+                $related = BiFaCaseCatalog::casesByMatchedRoutes(
+                    (string) $bifa['code'],
+                    $matched,
+                );
+                // 把 datetime / birth / gender / people 转换为可拼接到 URL 的查询参数。
+                $related = array_map(
+                    static function (array $case): array {
+                        $params = [];
+                        if (! empty($case['datetime'])) {
+                            $params['datetime'] = $case['datetime'];
+                        }
+                        if (! empty($case['birth'])) {
+                            $params['birth'] = $case['birth'];
+                        }
+                        if (! empty($case['gender'])) {
+                            $params['gender'] = $case['gender'];
+                        }
+                        if (! empty($case['people'])) {
+                            $params['people'] = $case['people'];
+                        }
+
+                        return [
+                            ...$case,
+                            'link_params' => $params,
+                        ];
+                    },
+                    $related,
+                );
+
+                return [
+                    ...$bifa,
+                    'related_cases' => $related,
+                    '_debug_matched' => $matched,
+                ];
+            },
+            $bifaMatches,
         ));
     }
 
