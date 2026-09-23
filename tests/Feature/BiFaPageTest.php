@@ -9,111 +9,44 @@ use App\Support\BiFaCatalog;
 use Livewire\Livewire;
 
 /**
- * 独立的 100 法 canonical 名称表——不与 BiFaCatalog 共享数据。
- * 修改 BiFaCatalog 时，必须同步修改此表；测试断言会拒绝两者不一致。
+ * 直接读取独立的 canonical fixture 文件（tests/Fixtures/bifa_canonical_100_laws.json），
+ * 不从 BiFaCatalog 取数据；该 fixture 是《六壬大全·毕法赋》百法目录的唯一权威来源。
+ *
+ * 修改 BiFaCatalog 时必须同步修改该 fixture；测试断言会拒绝 BiFaCatalog 与 fixture 不一致。
+ *
+ * 用静态缓存避免每个测试都重新读盘；Laravel app context 在测试体内部已建立。
+ *
+ * @return array<int, string> number => name
  */
-$expectedLaws = [
-    1 => '前后引从升迁吉',
-    2 => '首尾相见始终宜',
-    3 => '帘幕贵人高甲第',
-    4 => '催官使者赴官期',
-    5 => '六阳数足须公用',
-    6 => '六阴相继尽昏迷',
-    7 => '旺禄临身徒妄作',
-    8 => '权摄不正禄临支',
-    9 => '不修而修禄临干',
-    10 => '任信丁马俱来',
-    11 => '虎临干鬼凶无比',
-    12 => '蛇鬼乘墓终不吉',
-    13 => '伏吟卦体定幽明',
-    14 => '反吟卦体事须分',
-    15 => '三光并起立名声',
-    16 => '三阳发用自荣昌',
-    17 => '旺相气发用须急进',
-    18 => '衰囚气发用退宜深',
-    19 => '进神传课宜进达',
-    20 => '退神传课宜退藏',
-    21 => '天乙乘旺临干支',
-    22 => '天乙乘墓临干支',
-    23 => '天乙临支发用',
-    24 => '天乙临干发用',
-    25 => '天乙乘蛇雀克干',
-    26 => '天乙乘虎阴克支',
-    27 => '日辰上见天乙',
-    28 => '天乙乘墓支干',
-    29 => '日辰天乙俱乘旺',
-    30 => '天乙同会干支',
-    31 => '天乙顺行终吉',
-    32 => '天乙逆行终凶',
-    33 => '课传三阳终吉',
-    34 => '课传三阴终凶',
-    35 => '三阳课格宜进身',
-    36 => '三阴课格宜退步',
-    37 => '阳将阳日阳方吉',
-    38 => '阴将阴日阴方凶',
-    39 => '日辰旺相临用',
-    40 => '日辰休囚临用',
-    41 => '日辰上见勾陈',
-    42 => '日辰上见玄武',
-    43 => '日辰上见青龙',
-    44 => '日辰上见白虎',
-    45 => '日辰上见太常',
-    46 => '日辰上见六合',
-    47 => '日辰上见朱雀',
-    48 => '日辰上见腾蛇',
-    49 => '日辰上见天空',
-    50 => '日辰上见天乙',
-    51 => '三传俱见天乙',
-    52 => '三传俱见日鬼',
-    53 => '三传生旺终吉',
-    54 => '三传墓绝终凶',
-    55 => '初末传终吉',
-    56 => '初中传终吉',
-    57 => '中末传终吉',
-    58 => '初末墓绝终凶',
-    59 => '初中墓绝终凶',
-    60 => '中末墓绝终凶',
-    61 => '初传旺相终吉',
-    62 => '初传休囚终凶',
-    63 => '末传旺相终吉',
-    64 => '末传休囚终凶',
-    65 => '中传旺相终吉',
-    66 => '中传休囚终凶',
-    67 => '初传生日终吉',
-    68 => '末传生日终吉',
-    69 => '初传克日终凶',
-    70 => '末传克日终凶',
-    71 => '初传比和终吉',
-    72 => '初传墓日终凶',
-    73 => '末传墓日终凶',
-    74 => '初传绝日终凶',
-    75 => '末传绝日终凶',
-    76 => '初传空亡终凶',
-    77 => '末传空亡终凶',
-    78 => '初传旬空终凶',
-    79 => '末传旬空终凶',
-    80 => '初传伏吟终凶',
-    81 => '末传伏吟终凶',
-    82 => '初传反吟终凶',
-    83 => '末传反吟终凶',
-    84 => '初传六害终凶',
-    85 => '末传六害终凶',
-    86 => '初传三刑终凶',
-    87 => '末传三刑终凶',
-    88 => '初传六破终凶',
-    89 => '末传六破终凶',
-    90 => '初传刑冲终凶',
-    91 => '末传刑冲终凶',
-    92 => '初传见贵终吉',
-    93 => '末传见贵终吉',
-    94 => '初传见禄终吉',
-    95 => '末传见禄终吉',
-    96 => '初传见马终吉',
-    97 => '末传见马终吉',
-    98 => '初传见财终吉',
-    99 => '末传见财终吉',
-    100 => '初末传相生终吉',
-];
+function bifa_canonical_laws(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $path = base_path('tests/Fixtures/bifa_canonical_100_laws.json');
+    $data = json_decode((string) file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+    $cache = [];
+    foreach ($data['laws'] as $row) {
+        $cache[(int) $row['number']] = (string) $row['name'];
+    }
+
+    return $cache;
+}
+
+test('canonical 100-law fixture itself is well-formed (100 laws, sequential numbers)', function () {
+    $expectedLaws = bifa_canonical_laws();
+
+    // 直接断言 fixture 自身：100 条、number 连续 1..100——保证 fixture 不被悄悄改成残表。
+    expect($expectedLaws)->toHaveCount(100)
+        ->and(array_keys($expectedLaws))->toEqual(range(1, 100));
+
+    // 用户特别要求核验的几个关键法号必须出现在 fixture 中（覆盖 name 数量）。
+    foreach ([1, 2, 3, 8, 9, 10, 50, 100] as $keyNumber) {
+        expect($expectedLaws)->toHaveKey($keyNumber);
+        expect($expectedLaws[$keyNumber])->not->toBeEmpty();
+    }
+});
 
 test('BiFaCatalog exposes 100 laws with sequential numbers and unique slugs', function () {
     $laws = BiFaCatalog::laws();
@@ -136,8 +69,8 @@ test('BiFaCatalog exposes 100 laws with sequential numbers and unique slugs', fu
     expect($seenNumbers)->toEqual(range(1, 100));
 });
 
-test('BiFaCatalog names match the canonical 100-law table', function () use ($expectedLaws) {
-    $laws = BiFaCatalog::laws();
+test('BiFaCatalog names match the canonical 100-law table', function () {
+    $expectedLaws = bifa_canonical_laws();
 
     foreach ($expectedLaws as $number => $name) {
         $law = BiFaCatalog::findByNumber($number);
@@ -147,7 +80,21 @@ test('BiFaCatalog names match the canonical 100-law table', function () use ($ex
     }
 });
 
-test('BiFaCatalog findByCode finds every registered law', function () use ($expectedLaws) {
+test('BiFaCatalog equals the canonical fixture (no extra / no missing / name exact match)', function () {
+    $expectedLaws = bifa_canonical_laws();
+    $laws = BiFaCatalog::laws();
+    $catalogMap = [];
+    foreach ($laws as $law) {
+        $catalogMap[(int) $law['number']] = (string) $law['name'];
+    }
+
+    // 双侧集合必须完全一致——既能防止 BiFaCatalog 漏法，也能防止 BiFaCatalog 自作主张增加额外条目。
+    expect($catalogMap)->toEqual($expectedLaws);
+});
+
+test('BiFaCatalog findByCode finds every registered law', function () {
+    $expectedLaws = bifa_canonical_laws();
+
     foreach ($expectedLaws as $number => $name) {
         $code = sprintf('bifa.%02d', $number);
         $law = BiFaCatalog::findByCode($code);

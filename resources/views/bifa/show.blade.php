@@ -60,7 +60,7 @@
                                 引从天干 / 初末引从地支 必须"初在前、末在后"，前后方向不可互换；其余夹拱结构用无方向 flanks()。
                             </p>
                             <ul class="list-disc space-y-2 pl-5 text-sm leading-7 text-base-content/70">
-                                @foreach ($law['foundations'] ?? [] as $foundation)
+                                @foreach (($definition['foundations'] ?? []) as $foundation)
                                     <li>
                                         <strong class="text-base-content/85">{{ $foundation['title'] }}</strong>
                                         <code class="ml-2 rounded bg-base-200 px-1 py-0.5 text-xs">{{ $foundation['code'] }}</code>
