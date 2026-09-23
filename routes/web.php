@@ -2,6 +2,7 @@
 
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
 use App\Support\BiFaPageCatalog;
+use App\Support\BiFaResearchDocument;
 use App\Support\KeJingCaseInterpreter;
 use App\Support\KeJingPageCatalog;
 use App\Support\KeJingResearchDocument;
@@ -49,7 +50,7 @@ Route::get('/bifa', function () {
     return view('bifa.index', ['laws' => BiFaPageCatalog::laws()]);
 })->name('bifa');
 
-Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry) {
+Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry, BiFaResearchDocument $research) {
     $pages = BiFaPageCatalog::laws();
     $lawIndex = null;
     foreach ($pages as $index => $candidate) {
@@ -72,18 +73,7 @@ Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry) {
         }
     }
 
-    $original = ['status' => 'missing', 'heading' => null, 'content' => null];
-    if ($researched) {
-        $path = base_path($page['researchPath']);
-        if (is_file($path)) {
-            $markdown = file_get_contents($path);
-            if (is_string($markdown) && $markdown !== '') {
-                $heading = '《六壬大全·毕法赋》第一法原文';
-                $content = $markdown;
-                $original = ['status' => 'complete', 'heading' => $heading, 'content' => $content];
-            }
-        }
-    }
+    $original = $research->original($page);
 
     return view('bifa.show', [
         'law' => $page,

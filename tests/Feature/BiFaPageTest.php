@@ -220,6 +220,14 @@ test('bifa detail page renders the first law with foundations, cases, original t
     // 古籍原文区域。
     $response->assertSee('古籍原文');
 
+    // 古籍原文部分应包含原文关键字（"前引后从"、"庚辰日" 等）；不允许混入下游整理章节的内容。
+    $response->assertSee('前引后从', false);
+    $response->assertSee('象曰', false);
+    $response->assertDontSee('程序语义');
+    $response->assertDontSee('工程裁决');
+    $response->assertDontSee('现代汉语解释');
+    $response->assertDontSee('分格 1：', false);
+
     // 研究记录入口。
     $response->assertSee('打开完整研究记录');
 
