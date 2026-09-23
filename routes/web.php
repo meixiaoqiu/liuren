@@ -2,11 +2,11 @@
 
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
 use App\Support\BiFaPageCatalog;
-use App\Support\BiFaPresenter;
 use App\Support\BiFaResearchDocument;
 use App\Support\KeJingCaseInterpreter;
 use App\Support\KeJingPageCatalog;
 use App\Support\KeJingResearchDocument;
+use App\Support\Knowledge\BiFaKnowledgeCardFactory;
 use App\Support\QuickReferenceCatalog;
 use Illuminate\Support\Facades\Route;
 
@@ -51,7 +51,12 @@ Route::get('/bifa', function () {
     return view('bifa.index', ['laws' => BiFaPageCatalog::laws()]);
 })->name('bifa');
 
-Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry, BiFaResearchDocument $research) {
+Route::get('/bifa/{law}', function (
+    string $law,
+    BiFaRuleRegistry $registry,
+    BiFaResearchDocument $research,
+    BiFaKnowledgeCardFactory $cardFactory,
+) {
     $pages = BiFaPageCatalog::laws();
     $lawIndex = null;
     foreach ($pages as $index => $candidate) {
@@ -77,14 +82,9 @@ Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry, BiF
     $original = $research->original($page);
 
     return view('bifa.show', [
-        'law' => [
-            ...$page,
-            'daquanCases' => BiFaPresenter::cases($page['daquanCases'], array_column($definition['foundations'] ?? [], 'title', 'code')),
-            'generatedCases' => BiFaPresenter::cases($page['generatedCases'], array_column($definition['foundations'] ?? [], 'title', 'code')),
-            'referenceOnlyCases' => BiFaPresenter::cases($page['referenceOnlyCases'], array_column($definition['foundations'] ?? [], 'title', 'code')),
-        ],
+        'law' => $page,
         'researched' => $researched,
-        'definition' => BiFaPresenter::definition($definition),
+        'knowledgeCard' => $cardFactory->fromDetail($page, $definition)->toArray(),
         'original' => $original,
         'previousLaw' => $lawIndex > 0 ? $pages[$lawIndex - 1] : null,
         'nextLaw' => $lawIndex < count($pages) - 1 ? $pages[$lawIndex + 1] : null,

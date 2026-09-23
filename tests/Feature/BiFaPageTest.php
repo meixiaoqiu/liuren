@@ -146,8 +146,9 @@ test('bifa detail page renders the first law with foundations, cases, original t
     $response->assertSee('干支并初中拱地盘贵人');
 
     foreach (['yin_gan', 'er_gui_gang_nianming', 'gan_zhi_bing_chu_zhong_gui',
-        'BiFaRuleEngine', 'QianHouYinCongRule', 'match()', 'flanks()', 'case_id',
-        'matched_routes', 'pending_routes', 'reference_only', 'executable', 'PanCalculator'] as $internalName) {
+        'BiFaRuleEngine', 'QianHouYinCongRule', 'BiFaKnowledgeCardFactory', 'match()', 'fromMatch',
+        'flanks()', '$matchedRoutes', 'bifa.01', 'case_id', 'matched_routes', 'pending_routes',
+        'reference_only', 'executable', 'PanCalculator'] as $internalName) {
         $response->assertDontSee($internalName, false);
     }
 
@@ -212,8 +213,9 @@ test('bifa panel renders related executable cases when first law matches and rou
     $component->assertDontSee('第 bifa.qian_hou_yin_cong 法');
     $component->assertSee('引从天干');
     $component->assertSee('拱贵格');
-    foreach (['yin_gan', 'gong_gui', 'BiFaRuleEngine', 'QianHouYinCongRule',
-        'matched_routes', 'pending_routes', 'case_id', 'reference_only', 'executable'] as $internalName) {
+    foreach (['yin_gan', 'gong_gui', 'bifa.01', 'BiFaRuleEngine', 'QianHouYinCongRule',
+        'BiFaKnowledgeCardFactory', 'fromMatch', '$matchedRoutes', 'matched_routes', 'pending_routes',
+        'case_id', 'reference_only', 'executable'] as $internalName) {
         $component->assertDontSee($internalName, false);
     }
 

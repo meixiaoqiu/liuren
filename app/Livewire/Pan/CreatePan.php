@@ -9,8 +9,8 @@ use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Services\PanCalculator;
 use App\Support\BiFaCaseCatalog;
-use App\Support\BiFaPresenter;
 use App\Support\KeJingCatalog;
+use App\Support\Knowledge\BiFaKnowledgeCardFactory;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\ValidationException;
@@ -78,6 +78,9 @@ class CreatePan extends Component
      */
     public array $bifaMatches = [];
 
+    /** @var list<array<string, mixed>> 仅包含可直接展示内容的统一知识卡片。 */
+    public array $bifaKnowledgeCards = [];
+
     /** @var list<string> */
     public array $coverageNotices = [];
 
@@ -101,6 +104,7 @@ class CreatePan extends Component
         PanRuleEngine $ruleEngine,
         FateCalculator $fateCalculator,
         BiFaRuleEngine $bifaRuleEngine,
+        BiFaKnowledgeCardFactory $bifaCardFactory,
     ): void {
         if ($this->datetime === '') {
             $this->datetime = now('Asia/Shanghai')->format('Y-m-d\TH:i');
@@ -108,7 +112,7 @@ class CreatePan extends Component
 
         if (request()->query->has('datetime')) {
             try {
-                $this->calculate($calculator, $ruleEngine, $fateCalculator, $bifaRuleEngine);
+                $this->calculate($calculator, $ruleEngine, $fateCalculator, $bifaRuleEngine, $bifaCardFactory);
             } catch (ValidationException $exception) {
                 // URL 参数可能由用户手工修改；保留表单和验证错误供其修正。
                 $this->setErrorBag($exception->validator->errors());
@@ -142,6 +146,7 @@ class CreatePan extends Component
         PanRuleEngine $ruleEngine,
         FateCalculator $fateCalculator,
         BiFaRuleEngine $bifaRuleEngine,
+        BiFaKnowledgeCardFactory $bifaCardFactory,
     ): void {
         $validated = $this->validate([
             'datetime' => ['required', 'date_format:Y-m-d\TH:i'],
@@ -254,9 +259,14 @@ class CreatePan extends Component
 
         // 毕法独立判定——不参与 RuleMatch 排序、不混进"解盘信息"。
         // 每条 BiFaRuleMatch 同时附带：当前命中 route 与案例目录中 routes 字段的交集案例。
+        $evaluatedBiFaMatches = $bifaRuleEngine->evaluate($result);
+        $this->bifaKnowledgeCards = array_values(array_map(
+            static fn ($match): array => $bifaCardFactory->fromMatch($match)->toArray(),
+            $evaluatedBiFaMatches,
+        ));
         $bifaMatches = array_map(
             static fn ($match): array => $match->toArray(),
-            $bifaRuleEngine->evaluate($result),
+            $evaluatedBiFaMatches,
         );
         $this->bifaMatches = array_values(array_map(
             static function (array $bifa): array {
@@ -325,10 +335,7 @@ class CreatePan extends Component
             ],
             'xundunLabels' => $this->xundunLabels(),
             'lessonInterpretations' => $this->ruleMatches,
-            'bifaInterpretations' => array_map(
-                static fn (array $match): array => BiFaPresenter::match($match),
-                $this->bifaMatches,
-            ),
+            'bifaInterpretations' => $this->bifaKnowledgeCards,
         ]);
     }
 
