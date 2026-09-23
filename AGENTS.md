@@ -19,6 +19,36 @@
 - 临时产物应优先使用有意义的文件名，例如 `tests.txt`、`pint.txt`、`search-result.json`；任务完成后是否保留由开发者自行决定，因为该目录不属于版本库内容。
 - 不得为了单个临时文件继续向根 `.gitignore` 增加 `tools/*.txt` 一类零散规则；若文件只是开发过程输出，应改写到 `storage/app/private/dev/`。
 
+## 用户界面展示规范
+
+### 禁止暴露内部实现名称
+
+- 用户可见页面禁止直接展示 PHP 类名、namespace、Rule 类名、method 名、variable 名、route code、rule code、enum、database key 或 internal status。
+- `yin_gan`、`er_gui_gang_nianming`、`gan_zhi_bing_chu_zhong_gui`、`BiFaRuleEngine`、`QianHouYinCongRule`、`matched_routes`、`pending_routes` 等均属于内部实现名称，不得显示给用户。
+- 内部实现名称必须转换为用户语言后再展示，例如将上述相关标识转换为“引从天干”“二贵拱年命”“干支并初中拱地盘贵人”“命中”“待评估”等中文名称或状态文本。
+
+### 数据层与展示层分离
+
+- `Rule`、`Engine`、`Match DTO` 属于规则层的内部实现，不得将 `RuleMatch` 直接传递给 Blade 渲染。
+- 推荐的数据流为 `Rule` → `Match DTO` → `Presenter / ViewModel / Catalog` → `Blade`。
+- 展示层统一负责中文名称、用户说明、状态文本、展示排序和提示语，模板不得自行暴露或拼接内部标识。
+
+### 新增规则体系必须提供展示元数据
+
+- 新增任何课经、毕法、神煞或格局规则时，必须同时定义内部标识、用户名称和用户说明，不能只有 code 而没有中文展示信息。
+- 例如，内部标识 `yin_gan` 必须配套用户名称“引从天干”和用户说明“初传居日干前，末传居日干后。”。
+
+### 页面测试规范
+
+- 涉及用户页面修改时，测试必须覆盖页面不会出现 class 名、namespace、rule code 或 internal field。
+- 不得使用 `assertSee('yin_gan')`、`assertSee('BiFaRuleEngine')` 等断言把内部实现名称固化为用户界面内容。
+- 应断言用户语言，例如 `assertSee('引从天干')`、`assertSee('二贵拱年命')`。
+
+### 最终验收规范
+
+- 测试全部通过不代表 UI 合格。
+- 提交前必须人工检查首页或目录页、详情页、解盘信息、案例展示和错误提示，确认不存在开发字段或内部实现名称泄漏。
+
 ## 终审与安全扫描
 
 - 用户要求“终审”时，默认审查当前全部待提交内容，包括代码正确性、回归保护、测试、格式、敏感信息及明显安全风险。

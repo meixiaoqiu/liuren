@@ -2,6 +2,7 @@
 
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
 use App\Support\BiFaPageCatalog;
+use App\Support\BiFaPresenter;
 use App\Support\BiFaResearchDocument;
 use App\Support\KeJingCaseInterpreter;
 use App\Support\KeJingPageCatalog;
@@ -65,7 +66,7 @@ Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry, BiF
     $page = $pages[$lawIndex];
     $researched = $page['researched'] ?? false;
 
-    $definition = null;
+    $definition = [];
     foreach ($registry->rules() as $rule) {
         if ($rule->code() === $page['code']) {
             $definition = $rule->definition();
@@ -76,9 +77,14 @@ Route::get('/bifa/{law}', function (string $law, BiFaRuleRegistry $registry, BiF
     $original = $research->original($page);
 
     return view('bifa.show', [
-        'law' => $page,
+        'law' => [
+            ...$page,
+            'daquanCases' => BiFaPresenter::cases($page['daquanCases'], array_column($definition['foundations'] ?? [], 'title', 'code')),
+            'generatedCases' => BiFaPresenter::cases($page['generatedCases'], array_column($definition['foundations'] ?? [], 'title', 'code')),
+            'referenceOnlyCases' => BiFaPresenter::cases($page['referenceOnlyCases'], array_column($definition['foundations'] ?? [], 'title', 'code')),
+        ],
         'researched' => $researched,
-        'definition' => $definition,
+        'definition' => BiFaPresenter::definition($definition),
         'original' => $original,
         'previousLaw' => $lawIndex > 0 ? $pages[$lawIndex - 1] : null,
         'nextLaw' => $lawIndex < count($pages) - 1 ? $pages[$lawIndex + 1] : null,

@@ -25,7 +25,7 @@
                     <div class="flex flex-wrap items-baseline gap-2">
                         @if ($sub['matched'])
                             <x-badge value="✓ 命中" class="badge-success badge-sm" />
-                        @elseif (! empty($sub['people_missing']) && ! empty($sub['requires_people']))
+                        @elseif ($sub['needs_people'])
                             <x-badge value="待评估" class="badge-warning badge-sm" />
                         @else
                             <x-badge value="○ 不成立" class="badge-ghost badge-sm" />
@@ -36,7 +36,7 @@
 
                     @if (! empty($sub['detail']))
                         <p class="mt-2 text-sm leading-6 text-base-content/70">{{ $sub['detail'] }}</p>
-                    @elseif (! empty($sub['people_missing']) && ! empty($sub['requires_people']))
+                    @elseif ($sub['needs_people'])
                         <p class="mt-2 text-sm leading-6 text-warning-content/80">
                             本分格需要占测者本命 / 行年资料；当前盘面未提供本命 / 行年，已标记为待评估。
                         </p>
@@ -47,7 +47,7 @@
 
         @if ($bifa['matched'])
             <p class="mt-4 text-sm font-medium text-success">
-                ✓ 本法成立（{{ count($bifa['matched_routes']) }} 个分格命中）
+                ✓ 本法成立（{{ $bifa['matched_count'] }} 个分格命中）
             </p>
         @else
             <p class="mt-4 text-sm text-base-content/50">本法当前未命中。</p>
@@ -56,26 +56,21 @@
         @if (! empty($relatedCases))
             <div class="mt-5 border-t border-base-300/70 pt-4">
                 <h3 class="text-sm font-medium text-base-content/80">相关案例</h3>
-                <p class="mt-1 text-xs text-base-content/45">仅展示 routes 与当前命中 route 有交集的案例。</p>
+                <p class="mt-1 text-xs text-base-content/45">仅展示与当前命中分格相关的案例。</p>
                 <div class="mt-3 space-y-3">
                     @foreach ($relatedCases as $case)
                         @php
-                            $params = $case['link_params'] ?? [];
-                            $href = route('pan.create', $params);
-                            $sourceLabel = $case['source_type'] === 'generated' ? '程序验证案例' : '《大全》正文案例';
-                            $statusLabel = $case['status'] === 'executable' ? '可排盘' : '原文参考盘 · 尚未完整复现';
+                            $href = $case['url'];
                         @endphp
                         <div class="rounded-lg border border-base-300/70 bg-base-100 px-4 py-3">
                             <div class="flex flex-wrap items-center gap-2">
-                                <x-badge :value="$sourceLabel" class="badge-primary badge-soft badge-sm" />
-                                <x-badge :value="$statusLabel" class="badge-{{ $case['status'] === 'executable' ? 'success' : 'warning' }} badge-soft badge-sm" />
+                                <x-badge :value="$case['source_label']" class="badge-primary badge-soft badge-sm" />
+                                <x-badge :value="$case['status_label']" class="badge-{{ $case['status_tone'] }} badge-soft badge-sm" />
                                 <strong class="text-sm">{{ $case['label'] }}</strong>
-                                <code class="ml-2 text-xs text-base-content/45">{{ $case['case_id'] }}</code>
                             </div>
-                            <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $case['reason'] }}</p>
-                            <p class="mt-1 text-xs text-base-content/45">{{ $case['source'] }}</p>
+                            <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $case['description'] }}</p>
                             <div class="mt-3 flex flex-wrap items-center gap-2">
-                                @if ($case['status'] === 'executable')
+                                @if ($href !== null)
                                     <x-button
                                         label="查看排盘 →"
                                         :link="$href"

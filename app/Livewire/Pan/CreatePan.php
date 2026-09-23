@@ -9,6 +9,7 @@ use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Services\PanCalculator;
 use App\Support\BiFaCaseCatalog;
+use App\Support\BiFaPresenter;
 use App\Support\KeJingCatalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
@@ -324,7 +325,10 @@ class CreatePan extends Component
             ],
             'xundunLabels' => $this->xundunLabels(),
             'lessonInterpretations' => $this->ruleMatches,
-            'bifaInterpretations' => $this->bifaMatches,
+            'bifaInterpretations' => array_map(
+                static fn (array $match): array => BiFaPresenter::match($match),
+                $this->bifaMatches,
+            ),
         ]);
     }
 

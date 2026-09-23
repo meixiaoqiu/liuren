@@ -50,20 +50,19 @@
                             本法由毕法独立规则判定：一张盘可能同时命中本法的多个分格；命中任一分格即本法整体成立，断义随命中的分格变化。
                         </p>
                         <p class="mt-4 text-sm leading-7 text-base-content/65">
-                            本法与课经第 22 课"引从课"在结构上大量重合，但二者属不同知识体系；毕法不通过课经"引从课"的 match() 反推，分格定义、断义与课经各自独立维护；案例以独立 case_id 区分（`bifa.*` vs `lesson.*`）。
+                            本法与课经第 22 课“引从课”在结构上大量重合，但二者属于不同知识体系；毕法有独立的分格定义、判定依据和断义，不从课经结论反向推定。
                         </p>
                     </x-card>
 
                     <section class="mt-6">
-                        <x-card title="成立条件（9 类古籍分格 → 10 条程序 route）" shadow class="pan-data-card">
+                        <x-card title="成立条件（9 类古籍分格）" shadow class="pan-data-card">
                             <p class="mb-3 text-sm text-base-content/55">
-                                引从天干 / 初末引从地支 必须"初在前、末在后"，前后方向不可互换；其余夹拱结构用无方向 flanks()。
+                                引从天干与初末引从地支均须“初在前、末在后”，前后方向不可互换；其余夹拱结构不区分两端次序。
                             </p>
                             <ul class="list-disc space-y-2 pl-5 text-sm leading-7 text-base-content/70">
                                 @foreach (($definition['foundations'] ?? []) as $foundation)
                                     <li>
                                         <strong class="text-base-content/85">{{ $foundation['title'] }}</strong>
-                                        <code class="ml-2 rounded bg-base-200 px-1 py-0.5 text-xs">{{ $foundation['code'] }}</code>
                                         <span class="ml-2 text-base-content/55">— {{ $foundation['description'] }}</span>
                                     </li>
                                 @endforeach
@@ -76,12 +75,12 @@
                             <x-card title="《六壬大全》正文案例" shadow class="pan-data-card">
                                 <p class="mb-3 text-sm text-base-content/55">
                                     第一法古籍正文出现的案例全部进入案例目录；
-                                    已被当前 PanCalculator 完整复现的标记为 executable，未完整复现的标记为 reference_only。
+                                    能够完整复现的案例可直接查看排盘；尚未完整复现的案例仅作为原文参考。
                                 </p>
                                 @if (! empty($law['daquanCases']))
                                     <div class="grid gap-3 lg:grid-cols-2">
                                         @foreach ($law['daquanCases'] as $case)
-                                            @include('kejing.partials.case-card', ['case' => $case, 'kind' => '正文现代复现'])
+                                            @include('bifa.partials.case-card', ['case' => $case, 'kind' => '正文现代复现'])
                                         @endforeach
                                     </div>
                                 @endif
@@ -95,8 +94,8 @@
                                                     <x-badge value="原文参考盘 · 尚未完整复现" class="badge-warning badge-soft badge-sm" />
                                                     <strong class="text-sm">{{ $case['label'] }}</strong>
                                                 </div>
-                                                <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $case['reason'] }}</p>
-                                                <p class="mt-1 text-xs text-base-content/45">{{ $case['source'] }}</p>
+                                                <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $case['description'] }}</p>
+                                                <p class="mt-1 text-xs text-base-content/45">{{ $case['source_label'] }}</p>
                                             </div>
                                         @endforeach
                                     </div>
@@ -113,7 +112,7 @@
                                 </p>
                                 <div class="grid gap-3 lg:grid-cols-2">
                                     @foreach ($law['generatedCases'] as $case)
-                                        @include('kejing.partials.case-card', ['case' => $case, 'kind' => '程序验证案例'])
+                                        @include('bifa.partials.case-card', ['case' => $case, 'kind' => '程序验证案例'])
                                     @endforeach
                                 </div>
                             </x-card>

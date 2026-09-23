@@ -141,13 +141,14 @@ test('bifa detail page renders the first law with foundations, cases, original t
     $response->assertSee('前后引从升迁吉');
     $response->assertSee('第 1 法');
     $response->assertSee('9 类古籍分格');
+    $response->assertSee('引从天干');
+    $response->assertSee('二贵拱年命');
+    $response->assertSee('干支并初中拱地盘贵人');
 
-    // 10 条 route 应全部出现在 foundations 列表里。
-    foreach (['yin_gan', 'yin_zhi', 'gong_gui', 'liang_gui_yin_gan',
-        'gui_lin_gan_zhi_gang_nianming', 'er_gui_gang_nianming',
-        'gan_zhi_gang_ri_lu', 'gan_zhi_gang_zhou_gui',
-        'gan_zhi_gang_ye_gui', 'gan_zhi_bing_chu_zhong_gui'] as $code) {
-        $response->assertSee($code, false);
+    foreach (['yin_gan', 'er_gui_gang_nianming', 'gan_zhi_bing_chu_zhong_gui',
+        'BiFaRuleEngine', 'QianHouYinCongRule', 'match()', 'flanks()', 'case_id',
+        'matched_routes', 'pending_routes', 'reference_only', 'executable', 'PanCalculator'] as $internalName) {
+        $response->assertDontSee($internalName, false);
     }
 
     // 正文案例区域应展示已有案例。
@@ -209,6 +210,12 @@ test('bifa panel renders related executable cases when first law matches and rou
     $component->assertSee('第 1 法');
     $component->assertDontSee('第 bifa.01 法');
     $component->assertDontSee('第 bifa.qian_hou_yin_cong 法');
+    $component->assertSee('引从天干');
+    $component->assertSee('拱贵格');
+    foreach (['yin_gan', 'gong_gui', 'BiFaRuleEngine', 'QianHouYinCongRule',
+        'matched_routes', 'pending_routes', 'case_id', 'reference_only', 'executable'] as $internalName) {
+        $component->assertDontSee($internalName, false);
+    }
 
     // 相关案例仅展示 routes 与 matched_routes 有交集的案例。
     $relatedRoutes = [];
