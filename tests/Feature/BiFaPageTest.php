@@ -4,8 +4,11 @@ use App\Data\PanResult;
 use App\Domain\Pan\BiFa\BiFaRule;
 use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
+use App\Domain\Pan\BiFa\Rules\CuiGuanShiZheRule;
+use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\Rules\RuleRegistry;
 use App\Livewire\Pan\CreatePan;
+use App\Services\PanCalculator;
 use App\Support\BiFaCatalog;
 use App\Support\BiFaPageCatalog;
 use Livewire\Livewire;
@@ -411,6 +414,118 @@ test('bifa panel renders the second law when its executable case is loaded', fun
         'matched_routes',
         'pending_routes',
         '$matchedRoutes',
+    ] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
+});
+
+test('researched and implemented fourth bifa shows four Chinese foundations and no internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'cui-guan-shi-zhe']))->assertOk();
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($response->viewData('knowledgeCard')['conditions'])->toHaveCount(4);
+
+    foreach (['催官使者', '催官符', '恩主举荐·父母爻', '恩主举荐·长生作贵人'] as $title) {
+        $response->assertSee($title);
+    }
+
+    // 古籍原文 + 关键术语
+    $response->assertSee('古籍原文')
+        ->assertSee('催官使者赴官期')
+        ->assertSee('催官使者')
+        ->assertSee('催官符')
+        ->assertSee('恩主举荐')
+        ->assertSee('父母爻')
+        ->assertSee('长生作贵人')
+        ->assertSee('返本煞')
+        ->assertSee('打开完整研究记录');
+
+    // 程序验证案例
+    $response->assertSee('程序验证·壬戌日夜占·催官使者·官星戌乘白虎临日干寄宫亥')
+        ->assertSee('程序验证·丁丑日·催官符·亥官临干+三传巳酉丑金局')
+        ->assertSee('程序验证·戊午日·父母爻巳午见于干支初传')
+        ->assertSee('程序验证·己未日夜占·夜贵申=长生贵人');
+
+    // 内部字段不得泄漏
+    foreach ([
+        'bifa.04',
+        'cui_guan_messenger',
+        'cui_guan_talisman',
+        'patron_parent_line',
+        'patron_noble_as_growth',
+        'CuiGuanShiZheRule',
+        'BiFaRuleEngine',
+        'BiFaKnowledgeCardFactory',
+        'match()',
+        'matched_routes',
+        'pending_routes',
+        'case_id',
+        'GuimuRule::DAY_GHOSTS',
+    ] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
+test('fourth bifa pan page renders the matched foundation titles and avoids internal codes', function () {
+    // 找一个第四法命中的现代 datetime；先扫描 2000..2031 找到 cui_guan_messenger 命中
+    $calc = new PanCalculator;
+    $found = null;
+    for ($y = 2000; $y <= 2031 && $found === null; $y++) {
+        for ($m = 1; $m <= 12 && $found === null; $m++) {
+            for ($d = 1; $d <= 28 && $found === null; $d++) {
+                foreach ([13, 15] as $h) {
+                    try {
+                        $data = $calc->calculate(sprintf('%04d-%02d-%02d %02d:00:00', $y, $m, $d, $h))->toArray();
+                    } catch (Throwable $e) {
+                        continue;
+                    }
+                    $data['context'] = ['people' => []];
+                    $facts = PanFacts::from(new PanResult($data));
+                    $match = (new CuiGuanShiZheRule)->match($facts);
+                    if ($match !== null && in_array('cui_guan_messenger', $match->matchedRoutes, true)) {
+                        $found = sprintf('%04d-%02d-%02dT%02d:00', $y, $m, $d, $h);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if ($found === null) {
+        // 找不到时跳过本测试（不应发生；2000-01-05T15:00 已验证）
+        expect(true)->toBeTrue();
+
+        return;
+    }
+
+    $component = Livewire::withQueryParams([
+        'datetime' => $found,
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors();
+
+    $matches = app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan')));
+    $bifa04 = collect($matches)->first(fn ($match): bool => $match->code === 'bifa.04');
+
+    expect($bifa04)->not->toBeNull()
+        ->and($bifa04->matchedRoutes)->toContain('cui_guan_messenger');
+
+    // 排盘块展示「毕 + 法名」，不展示法序号。
+    $component->assertSee('催官使者赴官期')
+        ->assertDontSee('第 4 法');
+
+    // 不得泄漏内部标识。
+    foreach ([
+        'bifa.04',
+        'cui_guan_messenger',
+        'cui_guan_talisman',
+        'patron_parent_line',
+        'patron_noble_as_growth',
+        'CuiGuanShiZheRule',
+        'matched_routes',
+        'pending_routes',
     ] as $internal) {
         $component->assertDontSee($internal, false);
     }

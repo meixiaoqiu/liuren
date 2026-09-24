@@ -57,7 +57,7 @@ final class BiFaCatalog
             self::law(1, '前后引从升迁吉', 'qian-hou-yin-cong', '初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。'),
             self::law(2, '首尾相见始终宜', 'shou-wei-xiang-jian', '旬首旬尾加临干支，或四建尽入四课，或三传尽入四课，主事绪前后相续、吉凶易成。'),
             self::law(3, '帘幕贵人高甲第', 'lian-mu-gui-ren', '昼夜反取帘幕贵人，兼察旬首、斗鬼、亚魁、德入天门、真朱雀与二贵拱年命，主科名之象。'),
-            self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', ''),
+            self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', '官星乘白虎临干年命为催官使者，或得催官符、父母爻、长生贵人，主赴任催促与恩主举荐之象。'),
             self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', ''),
             self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', ''),
             self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', ''),

@@ -26,6 +26,8 @@
 - 用户可见页面禁止直接展示 PHP 类名、namespace、Rule 类名、method 名、variable 名、route code、rule code、enum、database key 或 internal status。
 - `yin_gan`、`er_gui_gang_nianming`、`gan_zhi_bing_chu_zhong_gui`、`BiFaRuleEngine`、`QianHouYinCongRule`、`matched_routes`、`pending_routes` 等均属于内部实现名称，不得显示给用户。
 - 内部实现名称必须转换为用户语言后再展示，例如将上述相关标识转换为“引从天干”“二贵拱年命”“干支并初中拱地盘贵人”“命中”“待评估”等中文名称或状态文本。
+- **延伸禁止**：用户可见页面（路由返回的 HTML 响应、Livewire 渲染区块、`bifa`/`pan`/`pdf` 视图、错误提示、邮件 / 通知文本）的所有文案——标题、按钮、提示、状态、链接、卡片正文、案例描述、详情段落——一律使用中文；除古籍原文片段按古籍用字保留外，不夹带英文单词、英文短语或英文句子。
+- 本条不约束的程序内部结构：URL slug（`cui-guan-shi-zhe`）、route name（`bifa.show`）、case_id、JSON API 字段名（`tianpan`、`sanchuan0`、`guirenPeriod` 等）、`BiFaRuleMatch::$evidence` 键、`PanResult::get()` 的 key、测试断言字符串、源代码标识、数据库列名。
 
 ### 数据层与展示层分离
 
