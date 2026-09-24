@@ -244,6 +244,57 @@ test('researched and implemented first bifa constructs its KnowledgeCard', funct
         ->and($response->viewData('knowledgeCard'))->not->toBeNull();
 });
 
+test('researched and implemented second bifa constructs its KnowledgeCard and shows 4 foundations', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'shou-wei-xiang-jian']))->assertOk();
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($response->viewData('knowledgeCard'))->not->toBeNull();
+
+    $card = $response->viewData('knowledgeCard');
+    expect($card['label'])->toBe('第 2 法')
+        ->and($card['title'])->toBe('首尾相见始终宜')
+        ->and($card['conditions'])->toHaveCount(4)
+        ->and($card['conditions'][0]['title'])->toBe('周而复始·旬尾临干、旬首临支')
+        ->and($card['conditions'][1]['title'])->toBe('周而复始·旬首临干、旬尾临支')
+        ->and($card['conditions'][2]['title'])->toBe('天心格')
+        ->and($card['conditions'][3]['title'])->toBe('回还格');
+
+    $contents = (string) json_encode($card, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+    // 详情页不应泄漏内部 route code / 工厂类名。
+    foreach ([
+        'xun_tail_on_stem_xun_head_on_branch',
+        'xun_head_on_stem_xun_tail_on_branch',
+        'tianxin_four_establishments_in_lessons',
+        'huihuan_transmissions_in_lessons',
+        'bifa.02',
+        'ShouWeiXiangJianRule',
+        'BiFaRuleEngine',
+        'BiFaKnowledgeCardFactory',
+        'match()',
+        'matched_routes',
+        'pending_routes',
+        '$matchedRoutes',
+    ] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+    expect($contents)->not->toContain('xun_tail_on_stem_xun_head_on_branch')
+        ->and($contents)->not->toContain('bifa.02');
+
+    // 第二法详情页应展示四项成立条件的中文标题。
+    $response->assertSee('周而复始·旬尾临干、旬首临支')
+        ->assertSee('周而复始·旬首临干、旬尾临支')
+        ->assertSee('天心格')
+        ->assertSee('回还格');
+
+    // 第二法案例应展示。
+    $response->assertSee('乙未日')
+        ->assertSee('乙丑日')
+        ->assertSee('乙巳日')
+        ->assertSee('辛亥日');
+});
+
 test('bifa panel renders the first law without numbering or unrelated cases', function () {
     $component = Livewire::withQueryParams([
         'datetime' => '2000-01-23T13:00',
@@ -308,6 +359,46 @@ test('bifa engine returns null when first law neither matches nor has pending ro
 
     // 排盘页不应出现"毕法"卡片，因为第一法整体不命中且无待评估。
     $component->assertDontSee('前后引从升迁吉');
+});
+
+test('bifa panel renders the second law when its executable case is loaded', function () {
+    $component = Livewire::withQueryParams([
+        'datetime' => '1986-08-19T13:00',
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+    ])->test(CreatePan::class)
+        ->assertHasNoErrors();
+
+    $matches = app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan')));
+    $bifa02 = collect($matches)->first(fn ($match): bool => $match->code === 'bifa.02');
+
+    expect($bifa02)->not->toBeNull()
+        ->and($bifa02->matchedRoutes)->toContain('xun_tail_on_stem_xun_head_on_branch');
+
+    // 排盘块使用"毕 + 法名"的课经同款标题，不展示法序号。
+    $component->assertSee('首尾相见始终宜');
+    $component->assertDontSee('第 2 法');
+
+    // 第二法的 route code 不得泄漏到排盘页。
+    foreach ([
+        'xun_tail_on_stem_xun_head_on_branch',
+        'xun_head_on_stem_xun_tail_on_branch',
+        'tianxin_four_establishments_in_lessons',
+        'huihuan_transmissions_in_lessons',
+        'bifa.02',
+        'ShouWeiXiangJianRule',
+    ] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
+
+    // 第一法展示不受第二法影响——同盘可能同时命中第一法、第二法，仍按各自子卡片渲染。
+    foreach ([
+        'matched_routes',
+        'pending_routes',
+        '$matchedRoutes',
+    ] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
 });
 
 test('every executable bifa case reproduces at least its declared routes', function () {

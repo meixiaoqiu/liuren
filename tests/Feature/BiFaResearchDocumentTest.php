@@ -39,8 +39,8 @@ test('BiFaResearchDocument extracts the 古籍原文 section for the researched 
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 2..100 法都尚未研究
-    $page = BiFaPageCatalog::findByCode('bifa.02');
+    // 第 3..100 法都尚未研究
+    $page = BiFaPageCatalog::findByCode('bifa.03');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 

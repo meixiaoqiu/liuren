@@ -55,7 +55,7 @@ final class BiFaCatalog
     {
         return [
             self::law(1, '前后引从升迁吉', 'qian-hou-yin-cong', '初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。'),
-            self::law(2, '首尾相见始终宜', 'shou-wei-xiang-jian', ''),
+            self::law(2, '首尾相见始终宜', 'shou-wei-xiang-jian', '旬首旬尾加临干支，或四建尽入四课，或三传尽入四课，主事绪前后相续、吉凶易成。'),
             self::law(3, '帘幕贵人高甲第', 'lian-mu-gui-ren', ''),
             self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', ''),
             self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', ''),

@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
+use App\Domain\Pan\BiFa\BiFaRuleRegistry;
 use App\Support\BiFaCaseCatalog;
 
 /**
@@ -66,15 +66,19 @@ test('BiFaCaseCatalog executable cases have datetime / birth / gender', function
 });
 
 test('BiFaCaseCatalog routes only contain codes registered in BiFaRule::definition', function () {
-    // 第一法定义所有合法 route。
-    $rule = new QianHouYinCongRule;
-    $allowedCodes = array_column($rule->definition()['foundations'], 'code');
+    // 全部已注册 BiFaRule 的 foundation code 合并为合法集合。
+    $allowedCodes = [];
+    foreach ((new BiFaRuleRegistry)->rules() as $rule) {
+        foreach ($rule->definition()['foundations'] as $foundation) {
+            $allowedCodes[] = $foundation['code'];
+        }
+    }
 
     foreach (BiFaCaseCatalog::cases() as $case) {
         foreach ($case['routes'] as $route) {
             expect($route)->toBeIn(
                 $allowedCodes,
-                "case_id={$case['case_id']} 声明 route={$route} 不属于第一法已注册的 foundations",
+                "case_id={$case['case_id']} 声明 route={$route} 不属于已注册 BiFaRule 的 foundations",
             );
         }
     }
