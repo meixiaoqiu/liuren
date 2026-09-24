@@ -41,13 +41,15 @@ final class LianMuGuiRenRule implements BiFaRule
                 ['code' => 'dou_gui_on_stem_or_fate', 'title' => '斗鬼相加', 'description' => '丑加未或未加丑，发生在日干寄宫、本命宫或行年宫。'],
                 ['code' => 'ya_kui_you_on_stem_or_fate', 'title' => '亚魁临干年命', 'description' => '酉加临日干寄宫、本命宫或行年宫。'],
                 ['code' => 'day_virtue_enters_heaven_gate', 'title' => '德入天门', 'description' => '日德加临地盘亥宫，并以日德发用。'],
-                ['code' => 'true_vermilion_bird', 'title' => '真朱雀', 'description' => '己日、四季年、夜贵逆布，并且朱雀乘午。'],
+                ['code' => 'true_vermilion_bird', 'title' => '真朱雀', 'description' => '己日夜占，用夜贵逆布，且朱雀乘午。'],
                 ['code' => 'two_nobles_flank_fate', 'title' => '昼夜二贵拱年命', 'description' => '昼夜二贵分别临干支，且日干寄宫与日支夹拱本命或行年。'],
             ],
             'judgments' => [
                 ['label' => '前五类尤忌旬空', 'effect' => 'reduce', 'description' => '上述前五类科名结构所用关键神落本旬空亡，则力量受损；正文尤忌空亡。'],
                 ['label' => '帘幕空墓受克减力', 'effect' => 'reduce', 'description' => '帘幕贵人逢空亡、入墓或受克，科名之力减损；逐日喜忌详见研究记录。'],
                 ['label' => '朱雀克帘幕减力', 'effect' => 'reduce', 'description' => '朱雀所乘地支五行克帘幕贵人五行，正文主文章不合主文之意。'],
+                ['label' => '真朱雀生太岁', 'effect' => 'increase', 'description' => '真朱雀成立，又逢丑、辰、未、戌四季年，朱雀午火生太岁土；正文用于春闱、文书等语境时主文意贴合、科名有利。'],
+                ['label' => '真朱雀克太岁', 'effect' => 'reduce', 'description' => '原文称申、酉年真朱雀克太岁（午火克申酉金），占讼则主事情上达朝廷且凶险加重；此乃古籍原断，不作现代确定性转写。'],
             ],
             'sections' => [
                 ['title' => '帘幕贵人的昼夜取法', 'content' => '帘幕不是当前所用天乙贵人：昼占反取夜贵，夜占反取昼贵。'],
@@ -106,12 +108,13 @@ final class LianMuGuiRenRule implements BiFaRule
         $noblemanMovingBackward = $facts->isNoblemanMovingBackward();
         $wuGeneral = $facts->generalRidingBranch(6);
         $trueVermilionBird = $rigan === 5
-            && in_array($nianzhi, [4, 10, 1, 7], true)
             && $period === 'night'
             && $noblemanMovingBackward
             && $wuGeneral === 2;
+        $trueVermilionBirdGeneratesTaisui = in_array($nianzhi, [1, 4, 7, 10], true);
+        $trueVermilionBirdControlsTaisui = in_array($nianzhi, [8, 9], true);
         $trueVermilionBirdDetail = $trueVermilionBird
-            ? sprintf('己日，太岁%s，当前为夜占，贵人逆行，午乘朱雀。', self::BRANCH_NAMES[$nianzhi])
+            ? sprintf('己日，当前为夜占，贵人逆行，午乘朱雀；太岁为%s。', self::BRANCH_NAMES[$nianzhi])
             : null;
 
         $routes = [
@@ -121,7 +124,7 @@ final class LianMuGuiRenRule implements BiFaRule
             ['dou_gui_on_stem_or_fate', '斗鬼相加', $douHit, $peopleMissing && ! $stemDouHit && $hasAnyDouGuiPosition, '丑加未或未加丑，发生在日干寄宫、本命宫或行年宫。'],
             ['ya_kui_you_on_stem_or_fate', '亚魁临干年命', $yaKuiHit, $peopleMissing && (($tianpan[$lodging] ?? null) !== 9), '酉加临日干寄宫、本命宫或行年宫。'],
             ['day_virtue_enters_heaven_gate', '德入天门', ($tianpan[11] ?? null) === self::DAY_VIRTUES[$rigan] && $initial === self::DAY_VIRTUES[$rigan], false, '日德加临地盘亥宫，并以日德发用。'],
-            ['true_vermilion_bird', '真朱雀', $trueVermilionBird, false, '己日、四季年、夜贵逆布，并且午乘朱雀。'],
+            ['true_vermilion_bird', '真朱雀', $trueVermilionBird, false, '己日夜占，用夜贵逆布，且朱雀乘午。'],
             ['two_nobles_flank_fate', '昼夜二贵拱年命', $twoNobles && $flankHit, $peopleMissing && $twoNobles, '昼夜二贵分别临干支，且干支夹拱本命或行年。'],
         ];
 
@@ -166,6 +169,8 @@ final class LianMuGuiRenRule implements BiFaRule
             'day_virtue' => self::DAY_VIRTUES[$rigan],
             'nobleman_moving_backward' => $noblemanMovingBackward,
             'general_riding_wu' => $wuGeneral,
+            'true_vermilion_bird_generates_taisui' => $trueVermilionBirdGeneratesTaisui,
+            'true_vermilion_bird_controls_taisui' => $trueVermilionBirdControlsTaisui,
         ]);
     }
 

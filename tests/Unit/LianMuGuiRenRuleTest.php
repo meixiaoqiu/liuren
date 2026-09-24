@@ -109,23 +109,93 @@ test('day virtue must both enter hai and be initial without requiring fuyin', fu
         ->and(lmgr_match(['sanchuan0' => 2])?->matchedRoutes ?? [])->not->toContain('day_virtue_enters_heaven_gate');
 });
 
-test('true vermilion bird requires every textual condition', function () {
+function lmgr_trueVermilionBirdBase(): array
+{
     $t = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
     $g = [];
     for ($i = 0; $i < 12; $i++) {
         $g[$i] = (2 - $i + 12) % 12;
     }
-    $base = ['rigan' => 5, 'rizhi' => 5, 'nianzhi' => 4, 'guirenPeriod' => 'night', 'tianpan' => $t, 'tianjiang' => $g];
+
+    return ['rigan' => 5, 'rizhi' => 5, 'nianzhi' => 4, 'guirenPeriod' => 'night', 'tianpan' => $t, 'tianjiang' => $g];
+}
+
+test('true vermilion bird matches on a four-season year (chen) with all four structural conditions', function () {
+    $base = lmgr_trueVermilionBirdBase();
     $match = lmgr_match($base);
     $route = lmgr_route($match, 'true_vermilion_bird');
     expect($match->matchedRoutes)->toContain('true_vermilion_bird')
         ->and($match->evidence['nianzhi'])->toBe(4)
         ->and($match->evidence['nobleman_moving_backward'])->toBeTrue()
         ->and($match->evidence['general_riding_wu'])->toBe(2)
-        ->and($route['detail'])->toContain('己日')->toContain('太岁辰')->toContain('夜占')->toContain('贵人逆行')->toContain('午乘朱雀');
-    foreach ([['rigan' => 4], ['nianzhi' => 0], ['guirenPeriod' => 'day'], ['tianjiang' => range(0, 11)], ['tianpan' => range(0, 11)]] as $bad) {
-        expect(lmgr_match(array_replace($base, $bad))?->matchedRoutes ?? [])->not->toContain('true_vermilion_bird');
+        ->and($match->evidence['true_vermilion_bird_generates_taisui'])->toBeTrue()
+        ->and($match->evidence['true_vermilion_bird_controls_taisui'])->toBeFalse()
+        ->and($route['detail'])->toContain('己日')->toContain('太岁为辰')->toContain('夜占')->toContain('贵人逆行')->toContain('午乘朱雀');
+});
+
+test('true vermilion bird still matches when nianzhi is shen (controls taisui)', function () {
+    $base = array_replace(lmgr_trueVermilionBirdBase(), ['nianzhi' => 8]);
+    $match = lmgr_match($base);
+    expect($match->matchedRoutes)->toContain('true_vermilion_bird')
+        ->and($match->evidence['nianzhi'])->toBe(8)
+        ->and($match->evidence['true_vermilion_bird_controls_taisui'])->toBeTrue()
+        ->and($match->evidence['true_vermilion_bird_generates_taisui'])->toBeFalse();
+});
+
+test('true vermilion bird still matches when nianzhi is you (controls taisui)', function () {
+    $base = array_replace(lmgr_trueVermilionBirdBase(), ['nianzhi' => 9]);
+    $match = lmgr_match($base);
+    expect($match->matchedRoutes)->toContain('true_vermilion_bird')
+        ->and($match->evidence['nianzhi'])->toBe(9)
+        ->and($match->evidence['true_vermilion_bird_controls_taisui'])->toBeTrue();
+});
+
+test('true vermilion bird still matches when nianzhi is a normal year (zi)', function () {
+    $base = array_replace(lmgr_trueVermilionBirdBase(), ['nianzhi' => 0]);
+    $match = lmgr_match($base);
+    expect($match->matchedRoutes)->toContain('true_vermilion_bird')
+        ->and($match->evidence['nianzhi'])->toBe(0)
+        ->and($match->evidence['true_vermilion_bird_generates_taisui'])->toBeFalse()
+        ->and($match->evidence['true_vermilion_bird_controls_taisui'])->toBeFalse();
+});
+
+test('true vermilion bird rejects every structural failure but never blames nianzhi', function () {
+    $base = lmgr_trueVermilionBirdBase();
+    expect(lmgr_match($base)->matchedRoutes)->toContain('true_vermilion_bird');
+
+    // 非己日：直接失败。
+    expect(lmgr_match(array_replace($base, ['rigan' => 4]))?->matchedRoutes ?? [])
+        ->not->toContain('true_vermilion_bird');
+
+    // 非夜占：直接失败。
+    expect(lmgr_match(array_replace($base, ['guirenPeriod' => 'day']))?->matchedRoutes ?? [])
+        ->not->toContain('true_vermilion_bird');
+
+    // 贵人非逆行（用正序天将）：直接失败。
+    expect(lmgr_match(array_replace($base, ['tianjiang' => range(0, 11)]))?->matchedRoutes ?? [])
+        ->not->toContain('true_vermilion_bird');
+
+    // 午不乘朱雀（朱雀序列号 6 不再落午）：直接失败。
+    expect(lmgr_match(array_replace($base, ['tianpan' => range(0, 11)]))?->matchedRoutes ?? [])
+        ->not->toContain('true_vermilion_bird');
+
+    // 任何 nianzhi 都不再是真朱雀的门槛——春夏秋冬四年之外也必须命中（连续遍历 0..11）。
+    foreach (range(0, 11) as $nz) {
+        expect(lmgr_match(array_replace($base, ['nianzhi' => $nz]))->matchedRoutes)
+            ->toContain('true_vermilion_bird');
     }
+});
+
+test('true vermilion bird definitions expose both taisui judgments with correct effects', function () {
+    $rule = new LianMuGuiRenRule;
+    $definition = $rule->definition();
+    $labels = array_column($definition['judgments'], 'label');
+    $effects = array_column($definition['judgments'], 'effect', 'label');
+
+    expect($labels)->toContain('真朱雀生太岁')
+        ->and($labels)->toContain('真朱雀克太岁')
+        ->and($effects['真朱雀生太岁'])->toBe('increase')
+        ->and($effects['真朱雀克太岁'])->toBe('reduce');
 });
 
 test('two nobles may swap and flank either fate target, while missing people is pending', function () {

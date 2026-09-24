@@ -195,7 +195,13 @@ final class BiFaCaseCatalog
             'case_id' => 'bifa.03.generated-true-vermilion', 'law_code' => 'bifa.03',
             'label' => '程序验证·真朱雀', 'source_type' => 'generated', 'status' => 'executable',
             'datetime' => '2031-01-08T23:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
-            'routes' => ['true_vermilion_bird'], 'reason' => '生产排盘真实复现己日、四季年、夜贵逆布及午乘朱雀全条件。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+            'routes' => ['true_vermilion_bird'], 'reason' => '生产排盘真实复现己酉日、夜占、夜贵逆布及午乘朱雀四项主体条件；当日太岁为戌（四季年），对应「真朱雀生太岁」增强断义。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-true-vermilion-controls-taisui', 'law_code' => 'bifa.03',
+            'label' => '程序验证·真朱雀克太岁', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2017-01-02T01:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['true_vermilion_bird'], 'reason' => '2017 丙申年生产排盘真实复现真朱雀四项主体条件；当日太岁为申，对应「真朱雀克太岁」减损断义；用于验证主体结构不依赖「四季年」、申酉年也能成立。', 'source' => '程序验证案例·2017 年生产 PanCalculator 扫描',
         ],
         [
             'case_id' => 'bifa.03.generated-two-nobles-flank-fate', 'law_code' => 'bifa.03',
