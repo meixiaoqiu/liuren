@@ -186,6 +186,28 @@ test('true vermilion bird rejects every structural failure but never blames nian
     }
 });
 
+test('taisui judgment evidence stays false when true vermilion bird itself is missing (nianzhi chen, shen)', function () {
+    // 同样基于真朱雀的"四项主体"基线，但破坏"贵人逆行"——天将换成正序——让真朱雀不成立。
+    // 同时保留斗鬼相加的结构，让第三法仍可返回 BiFaRuleMatch，从而能读 evidence。
+    $base = lmgr_trueVermilionBirdBase();
+
+    $chen = array_replace($base, ['nianzhi' => 4, 'tianjiang' => range(0, 11)]);
+    $shen = array_replace($base, ['nianzhi' => 8, 'tianjiang' => range(0, 11)]);
+
+    $chenMatch = lmgr_match($chen);
+    $shenMatch = lmgr_match($shen);
+
+    // 派生 evidence 必须以真朱雀已成立为前提；这里只破坏真朱雀，nianzhi 单独处于生/克分支。
+    expect($chenMatch->matchedRoutes)->not->toContain('true_vermilion_bird')
+        ->and($chenMatch->evidence['nianzhi'])->toBe(4)
+        ->and($chenMatch->evidence['true_vermilion_bird_generates_taisui'])->toBeFalse()
+        ->and($chenMatch->evidence['true_vermilion_bird_controls_taisui'])->toBeFalse()
+        ->and($shenMatch->matchedRoutes)->not->toContain('true_vermilion_bird')
+        ->and($shenMatch->evidence['nianzhi'])->toBe(8)
+        ->and($shenMatch->evidence['true_vermilion_bird_generates_taisui'])->toBeFalse()
+        ->and($shenMatch->evidence['true_vermilion_bird_controls_taisui'])->toBeFalse();
+});
+
 test('true vermilion bird definitions expose both taisui judgments with correct effects', function () {
     $rule = new LianMuGuiRenRule;
     $definition = $rule->definition();

@@ -111,8 +111,10 @@ final class LianMuGuiRenRule implements BiFaRule
             && $period === 'night'
             && $noblemanMovingBackward
             && $wuGeneral === 2;
-        $trueVermilionBirdGeneratesTaisui = in_array($nianzhi, [1, 4, 7, 10], true);
-        $trueVermilionBirdControlsTaisui = in_array($nianzhi, [8, 9], true);
+        $trueVermilionBirdGeneratesTaisui = $trueVermilionBird
+            && in_array($nianzhi, [1, 4, 7, 10], true);
+        $trueVermilionBirdControlsTaisui = $trueVermilionBird
+            && in_array($nianzhi, [8, 9], true);
         $trueVermilionBirdDetail = $trueVermilionBird
             ? sprintf('己日，当前为夜占，贵人逆行，午乘朱雀；太岁为%s。', self::BRANCH_NAMES[$nianzhi])
             : null;
