@@ -171,7 +171,7 @@ final class BiFaCaseCatalog
             'case_id' => 'bifa.03.generated-xun-head-curtain', 'law_code' => 'bifa.03',
             'label' => '程序验证·旬首作帘幕', 'source_type' => 'generated', 'status' => 'executable',
             'datetime' => '2031-01-21T15:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
-            'routes' => ['xun_head_as_curtain_noble'], 'reason' => '生产排盘中旬首自然等于帘幕贵人并临干，无日干白名单。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+            'routes' => ['curtain_noble_on_stem_or_fate', 'xun_head_as_curtain_noble'], 'reason' => '生产排盘中旬首自然等于帘幕贵人并临干，无日干白名单。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
         ],
         [
             'case_id' => 'bifa.03.generated-chen-xu-xun-head', 'law_code' => 'bifa.03',
@@ -212,8 +212,15 @@ final class BiFaCaseCatalog
         [
             'case_id' => 'bifa.03.daquan-xun-head-curtain', 'law_code' => 'bifa.03',
             'label' => '正文结构·旬首作帘幕', 'source_type' => 'daquan', 'status' => 'reference_only',
-            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['xun_head_as_curtain_noble'],
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['curtain_noble_on_stem_or_fate', 'xun_head_as_curtain_noble'],
             'reason' => '原文仅列乙、己、辛日的结构结论，没有完整 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-ya-kui', 'law_code' => 'bifa.03',
+            'label' => '正文结构·亚魁临干年命', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['ya_kui_you_on_stem_or_fate'],
+            'reason' => '原文给出亚魁酉临年命、日干的结构，但没有足以唯一映射现代公历的完整 datetime，因此作为 reference_only 原文参考结构保存。',
+            'source' => '《六壬大全·毕法赋》第三法',
         ],
         [
             'case_id' => 'bifa.03.daquan-chen-xu-xun-head', 'law_code' => 'bifa.03',

@@ -51,7 +51,7 @@ final class LianMuGuiRenRule implements BiFaRule
             ],
             'sections' => [
                 ['title' => '帘幕贵人的昼夜取法', 'content' => '帘幕不是当前所用天乙贵人：昼占反取夜贵，夜占反取昼贵。'],
-                ['title' => '人物资料与待评估规则', 'content' => '前五类先判断不依赖人物的日干路径；日干已命中即成立，否则在本命、行年均缺时待评估。昼夜二贵拱年命无人物资料时必待评估。'],
+                ['title' => '人物资料与待评估规则', 'content' => '先判断不依赖人物的日干路径；日干已命中即成立。人物全缺时，仅在该分格其余前置条件已经成立、补充本命或行年后仍可能命中的情况下待评估。'],
                 ['title' => '空亡作用范围', 'content' => '“以上诸说忌空亡”只覆盖帘幕、旬首帘幕、辰戌旬首、斗鬼与亚魁，不扩展到后三类。'],
                 ['title' => '不采用的后世扩展', 'content' => '武举法、文昌、青龙、朱雀旺相、考试占事类型不作主体入口；朱雀克帘幕、空墓受克与榜将出只作减损或未覆盖说明。'],
             ],
@@ -87,47 +87,85 @@ final class LianMuGuiRenRule implements BiFaRule
         if ($person !== null) {
             if ($person['nianming'] !== null) {
                 $grounds['本命宫'] = $person['nianming'];
-            } if ($person['xingnian'] !== null) {
+            }
+            if ($person['xingnian'] !== null) {
                 $grounds['行年宫'] = $person['xingnian'];
             }
         }
+
         $stemCurtain = ($tianpan[$lodging] ?? null) === $curtain;
         $curtainHit = self::upperHits($tianpan, $grounds, $curtain);
         $xunStem = ($tianpan[$lodging] ?? null) === $xunHead;
         $xunHit = self::upperHits($tianpan, $grounds, $xunHead);
+        $stemDouHit = self::douAt($tianpan, $lodging);
+        $hasAnyDouGuiPosition = self::hasAnyDouGuiPosition($tianpan);
         $douHit = self::douHits($tianpan, $grounds);
         $yaKuiHit = self::upperHits($tianpan, $grounds, 9);
         $twoNobles = self::samePair($tianpan[$lodging] ?? null, $tianpan[$rizhi] ?? null, $dayNoble, $nightNoble);
         $flankHit = $person !== null && self::flanksPerson($lodging, $rizhi, $person);
+        $noblemanMovingBackward = $facts->isNoblemanMovingBackward();
+        $wuGeneral = $facts->generalRidingBranch(6);
+        $trueVermilionBird = $rigan === 5
+            && in_array($nianzhi, [4, 10, 1, 7], true)
+            && $period === 'night'
+            && $noblemanMovingBackward
+            && $wuGeneral === 2;
+        $trueVermilionBirdDetail = $trueVermilionBird
+            ? sprintf('己日，太岁%s，当前为夜占，贵人逆行，午乘朱雀。', self::BRANCH_NAMES[$nianzhi])
+            : null;
+
         $routes = [
             ['curtain_noble_on_stem_or_fate', '帘幕贵人临干年命', $curtainHit, $peopleMissing && ! $stemCurtain, '帘幕贵人加临日干寄宫、本命宫或行年宫。'],
             ['xun_head_as_curtain_noble', '旬首作帘幕', $xunHead === $curtain && $xunHit, $peopleMissing && $xunHead === $curtain && ! $xunStem, '旬首恰为帘幕贵人，并加临日干寄宫、本命宫或行年宫。'],
             ['chen_xu_xun_head_on_stem_or_fate', '辰戌旬首临干年命', in_array($xunHead, [4, 10], true) && $xunHit, $peopleMissing && in_array($xunHead, [4, 10], true) && ! $xunStem, '辰或戌作旬首，并加临日干寄宫、本命宫或行年宫。'],
-            ['dou_gui_on_stem_or_fate', '斗鬼相加', $douHit, $peopleMissing && ! self::douAt($tianpan, $lodging), '丑加未或未加丑，发生在日干寄宫、本命宫或行年宫。'],
+            ['dou_gui_on_stem_or_fate', '斗鬼相加', $douHit, $peopleMissing && ! $stemDouHit && $hasAnyDouGuiPosition, '丑加未或未加丑，发生在日干寄宫、本命宫或行年宫。'],
             ['ya_kui_you_on_stem_or_fate', '亚魁临干年命', $yaKuiHit, $peopleMissing && (($tianpan[$lodging] ?? null) !== 9), '酉加临日干寄宫、本命宫或行年宫。'],
             ['day_virtue_enters_heaven_gate', '德入天门', ($tianpan[11] ?? null) === self::DAY_VIRTUES[$rigan] && $initial === self::DAY_VIRTUES[$rigan], false, '日德加临地盘亥宫，并以日德发用。'],
-            ['true_vermilion_bird', '真朱雀', $rigan === 5 && in_array($nianzhi, [4, 10, 1, 7], true) && $period === 'night' && $facts->isNoblemanMovingBackward() && $facts->generalRidingBranch(6) === 2, false, '己日、四季年、夜贵逆布，并且午乘朱雀。'],
-            ['two_nobles_flank_fate', '昼夜二贵拱年命', $twoNobles && $flankHit, $peopleMissing, '昼夜二贵分别临干支，且干支夹拱本命或行年。'],
+            ['true_vermilion_bird', '真朱雀', $trueVermilionBird, false, '己日、四季年、夜贵逆布，并且午乘朱雀。'],
+            ['two_nobles_flank_fate', '昼夜二贵拱年命', $twoNobles && $flankHit, $peopleMissing && $twoNobles, '昼夜二贵分别临干支，且干支夹拱本命或行年。'],
         ];
+
         $sub = [];
         $matched = [];
         $pending = [];
-        foreach ($routes as [$code,$title,$hit,$missing,$description]) {
-            $sub[] = ['code' => $code, 'title' => $title, 'description' => $description, 'matched' => $hit, 'detail' => $hit ? $description : null, 'requires_people' => $missing, 'people_missing' => $missing];
+        foreach ($routes as [$code, $title, $hit, $missing, $description]) {
+            $detail = $hit && $code === 'true_vermilion_bird'
+                ? $trueVermilionBirdDetail
+                : ($hit ? $description : null);
+            $sub[] = [
+                'code' => $code,
+                'title' => $title,
+                'description' => $description,
+                'matched' => $hit,
+                'detail' => $detail,
+                'requires_people' => $missing,
+                'people_missing' => $missing,
+            ];
             if ($hit) {
                 $matched[] = $code;
             } elseif ($missing) {
                 $pending[] = $code;
             }
         }
+
         if ($matched === [] && $pending === []) {
             return null;
         }
 
         return new BiFaRuleMatch($this->code(), $this->law()['number'], $this->law()['name'], $this->law()['summary'], $sub, $matched, $pending, [
-            'rigan' => $rigan, 'rizhi' => $rizhi, 'guiren_period' => $period, 'curtain_noble' => $curtain, 'xun_head' => $xunHead,
-            'curtain_is_void' => $facts->isBranchXunVoid($curtain), 'xun_head_is_void' => $facts->isBranchXunVoid($xunHead),
-            'day_noble' => $dayNoble, 'night_noble' => $nightNoble, 'day_virtue' => self::DAY_VIRTUES[$rigan],
+            'rigan' => $rigan,
+            'rizhi' => $rizhi,
+            'nianzhi' => $nianzhi,
+            'guiren_period' => $period,
+            'curtain_noble' => $curtain,
+            'xun_head' => $xunHead,
+            'curtain_is_void' => $facts->isBranchXunVoid($curtain),
+            'xun_head_is_void' => $facts->isBranchXunVoid($xunHead),
+            'day_noble' => $dayNoble,
+            'night_noble' => $nightNoble,
+            'day_virtue' => self::DAY_VIRTUES[$rigan],
+            'nobleman_moving_backward' => $noblemanMovingBackward,
+            'general_riding_wu' => $wuGeneral,
         ]);
     }
 
@@ -139,7 +177,7 @@ final class LianMuGuiRenRule implements BiFaRule
             }
         }
 
-return false;
+        return false;
     }
 
     private static function douAt(array $tianpan, int $g): bool
@@ -155,7 +193,12 @@ return false;
             }
         }
 
-return false;
+        return false;
+    }
+
+    private static function hasAnyDouGuiPosition(array $tianpan): bool
+    {
+        return self::douAt($tianpan, 1) || self::douAt($tianpan, 7);
     }
 
     private static function samePair(mixed $a, mixed $b, int $x, int $y): bool
@@ -178,7 +221,9 @@ return false;
         $p = $facts->personByRole('querent');
         if ($p === null) {
             return null;
-        } $n = is_int($p['nianming'] ?? null) ? $p['nianming'] : null;
+        }
+
+        $n = is_int($p['nianming'] ?? null) ? $p['nianming'] : null;
         $x = is_int($p['xingnian'] ?? null) ? $p['xingnian'] : null;
 
         return $n === null && $x === null ? null : ['nianming' => $n, 'xingnian' => $x];

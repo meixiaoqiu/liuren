@@ -75,7 +75,10 @@ test('BiFaResearchDocument extracts verified original text for the third law', f
         ->and($content)->toContain('帘幕官者，如昼占乃夜贵，夜占乃昼贵')
         ->and($content)->toContain('德入天门格')
         ->and($content)->toContain('真朱雀格')
-        ->and($content)->toContain('六己日')
+        ->and($content)->toContain('六已日')
+        ->and($content)->toContain('源消根断格')
+        ->and($content)->toContain('帘幕贵人，尤分喜畏')
+        ->and($content)->toContain('占武举法')
         ->and($content)->not->toContain('## 三');
 });
 
