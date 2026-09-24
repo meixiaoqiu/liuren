@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Pan\BiFa\Rules\LianMuGuiRenRule;
 use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Services\PanCalculator;
@@ -47,4 +48,17 @@ test('KnowledgeCard fromDetail provides 第 N 法 label as the user-facing numbe
     expect($card->label)->toBe('第 1 法')
         ->and($card->title)->toBe('前后引从升迁吉')
         ->and($card->type)->toBe('bifa');
+});
+
+test('third bifa KnowledgeCard exposes Chinese routes and hides implementation names', function () {
+    $pan = (new PanCalculator)->calculate('2031-01-01 03:00:00');
+    $match = (new LianMuGuiRenRule)->match(PanFacts::from($pan));
+    expect($match)->not->toBeNull();
+    $card = app(BiFaKnowledgeCardFactory::class)->fromMatch($match);
+    $payload = json_encode($card->toArray(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    expect($card->conditions)->toHaveCount(8)
+        ->and($payload)->toContain('亚魁临干年命')
+        ->and($payload)->not->toContain('bifa.03')
+        ->and($payload)->not->toContain('ya_kui_you_on_stem_or_fate')
+        ->and($payload)->not->toContain('matched_routes');
 });

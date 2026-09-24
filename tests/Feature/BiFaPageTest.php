@@ -298,6 +298,22 @@ test('researched and implemented second bifa constructs its KnowledgeCard and sh
         ->assertSee('辛亥日');
 });
 
+test('researched and implemented third bifa shows eight Chinese foundations and no internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'lian-mu-gui-ren']))->assertOk();
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($response->viewData('knowledgeCard')['conditions'])->toHaveCount(8);
+    foreach (['帘幕贵人临干年命', '旬首作帘幕', '辰戌旬首临干年命', '斗鬼相加', '亚魁临干年命', '德入天门', '真朱雀', '昼夜二贵拱年命'] as $title) {
+        $response->assertSee($title);
+    }
+    $response->assertSee('帘幕官者，如昼占乃夜贵，夜占乃昼贵', false)
+        ->assertSee('前五类尤忌旬空')->assertSee('朱雀克帘幕减力')
+        ->assertSee('程序验证·亚魁临干');
+    foreach (['bifa.03', 'curtain_noble_on_stem_or_fate', 'xun_head_as_curtain_noble', 'chen_xu_xun_head_on_stem_or_fate', 'dou_gui_on_stem_or_fate', 'ya_kui_you_on_stem_or_fate', 'day_virtue_enters_heaven_gate', 'true_vermilion_bird', 'two_nobles_flank_fate', 'LianMuGuiRenRule', 'matched_routes', 'pending_routes', 'match()'] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
 test('bifa panel renders the first law without numbering or unrelated cases', function () {
     $component = Livewire::withQueryParams([
         'datetime' => '2000-01-23T13:00',
@@ -310,9 +326,9 @@ test('bifa panel renders the first law without numbering or unrelated cases', fu
     expect($cards)->toBeArray()->not->toBeEmpty();
 
     $matches = app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan')));
-    expect($matches)->toHaveCount(1)
-        ->and($matches[0]->code)->toBe('bifa.01')
-        ->and($matches[0]->matchedRoutes)->toContain('yin_gan', 'gong_gui');
+    $bifa01 = collect($matches)->first(fn ($match): bool => $match->code === 'bifa.01');
+    expect($bifa01)->not->toBeNull()
+        ->and($bifa01->matchedRoutes)->toContain('yin_gan', 'gong_gui');
 
     // 排盘块使用“毕 + 法名”的课经同款标题，不展示法序号。
     $component->assertSee('毕');
@@ -349,7 +365,7 @@ test('bifa panel renders the first law without numbering or unrelated cases', fu
     }
 });
 
-test('bifa engine returns null when first law neither matches nor has pending routes', function () {
+test('first bifa is absent when it neither matches nor has pending routes', function () {
     // 2000-01-09T07:00 是 Hengtong 课例之一；毕法第一法完全不成立、且无人物资料。
     $component = Livewire::withQueryParams([
         'datetime' => '2000-01-09T07:00',
@@ -358,9 +374,7 @@ test('bifa engine returns null when first law neither matches nor has pending ro
     ])->test(CreatePan::class)
         ->assertHasNoErrors();
 
-    expect($component->get('bifaKnowledgeCards'))->toBeArray()->toBeEmpty();
-
-    // 排盘页不应出现"毕法"卡片，因为第一法整体不命中且无待评估。
+    // 后续法律可以独立命中；这里只锁定第一法不应被伪造出来。
     $component->assertDontSee('前后引从升迁吉');
 });
 

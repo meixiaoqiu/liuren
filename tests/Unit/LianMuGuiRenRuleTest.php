@@ -1,0 +1,149 @@
+<?php
+
+use App\Data\PanResult;
+use App\Domain\Pan\BiFa\Rules\LianMuGuiRenRule;
+use App\Domain\Pan\Facts\PanFacts;
+
+function lmgr_match(array $overrides = []): mixed
+{
+    $base = [
+        'rigan' => 0, 'rizhi' => 0, 'nianzhi' => 0, 'guirenPeriod' => 'day',
+        'sanchuan0' => 0, 'sanchuan1' => 1, 'sanchuan2' => 2,
+        'tianpan' => range(0, 11), 'tianjiang' => range(0, 11),
+        'context' => ['people' => [['role' => 'querent', 'nianming' => 3, 'xingnian' => 4, 'xingnian_gan' => 0, 'birth_datetime' => null, 'gender' => null]]],
+    ];
+    $pan = array_replace($base, $overrides);
+
+    return (new LianMuGuiRenRule)->match(PanFacts::from(new PanResult($pan)));
+}
+
+function lmgr_route(mixed $match, string $code): array
+{
+    return collect($match?->subMatches ?? [])->firstWhere('code', $code) ?? [];
+}
+
+test('third law exposes eight ordered routes and catalog metadata', function () {
+    $rule = new LianMuGuiRenRule;
+    expect($rule->code())->toBe('bifa.03')->and($rule->law()['name'])->toBe('帘幕贵人高甲第')
+        ->and(array_column($rule->definition()['foundations'], 'title'))->toBe([
+            '帘幕贵人临干年命', '旬首作帘幕', '辰戌旬首临干年命', '斗鬼相加', '亚魁临干年命', '德入天门', '真朱雀', '昼夜二贵拱年命',
+        ]);
+});
+
+test('curtain noble reverses current period and handles stem and pending paths', function () {
+    $day = lmgr_match(['tianpan' => [0, 1, 7, 3, 4, 5, 6, 2, 8, 9, 10, 11], 'context' => ['people' => []]]);
+    expect($day->evidence['curtain_noble'])->toBe(7)->and(lmgr_route($day, 'curtain_noble_on_stem_or_fate')['matched'])->toBeTrue();
+    $night = lmgr_match(['guirenPeriod' => 'night', 'tianpan' => [0, 1, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11], 'context' => ['people' => []]]);
+    expect($night->evidence['curtain_noble'])->toBe(1)->and(lmgr_route($night, 'curtain_noble_on_stem_or_fate')['matched'])->toBeTrue();
+    $pending = lmgr_match(['context' => ['people' => []]]);
+    expect($pending->pendingRoutes)->toContain('curtain_noble_on_stem_or_fate');
+});
+
+test('curtain route accepts nianming only and xingnian only', function () {
+    $t = range(0, 11);
+    $t[3] = 7;
+    $n = lmgr_match(['tianpan' => $t, 'context' => ['people' => [['role' => 'querent', 'nianming' => 3, 'xingnian' => null]]]]);
+    $t = range(0, 11);
+    $t[4] = 7;
+    $x = lmgr_match(['tianpan' => $t, 'context' => ['people' => [['role' => 'querent', 'nianming' => null, 'xingnian' => 4]]]]);
+    expect($n->matchedRoutes)->toContain('curtain_noble_on_stem_or_fate')->and($x->matchedRoutes)->toContain('curtain_noble_on_stem_or_fate');
+});
+
+test('xun head as curtain is derived for legal yi ji xin structures without a whitelist', function (int $stem, int $branch, int $lodging, int $curtain) {
+    $tianpan = range(0, 11);
+    $tianpan[$lodging] = $curtain;
+    $match = lmgr_match(['rigan' => $stem, 'rizhi' => $branch, 'guirenPeriod' => 'day', 'tianpan' => $tianpan]);
+    expect($match->matchedRoutes)->toContain('xun_head_as_curtain_noble');
+})->with([
+    '乙酉日' => [1, 9, 4, 8],
+    '己丑日' => [5, 1, 7, 8],
+    '辛酉日' => [7, 9, 10, 2],
+]);
+
+test('chen and xu xun head routes are independent from curtain', function () {
+    $t = range(0, 11);
+    $t[7] = 4;
+    $chen = lmgr_match(['rigan' => 0, 'rizhi' => 4, 'tianpan' => $t]);
+    expect($chen->matchedRoutes)->toContain('chen_xu_xun_head_on_stem_or_fate')->not->toContain('xun_head_as_curtain_noble');
+    $t = range(0, 11);
+    $t[2] = 10;
+    $xu = lmgr_match(['rigan' => 0, 'rizhi' => 10, 'tianpan' => $t]);
+    expect($xu->matchedRoutes)->toContain('chen_xu_xun_head_on_stem_or_fate');
+    $other = lmgr_match(['rigan' => 0, 'rizhi' => 0]);
+    expect($other?->matchedRoutes ?? [])->not->toContain('chen_xu_xun_head_on_stem_or_fate');
+});
+
+test('dou gui and ya kui match stem or fate and reject other structures', function () {
+    $t = range(0, 11);
+    $t[7] = 1;
+    expect(lmgr_match(['rigan' => 3, 'rizhi' => 1, 'tianpan' => $t])->matchedRoutes)->toContain('dou_gui_on_stem_or_fate');
+    $t = range(0, 11);
+    $t[1] = 7;
+    expect(lmgr_match(['tianpan' => $t, 'context' => ['people' => [['role' => 'querent', 'nianming' => 1, 'xingnian' => null]]]])->matchedRoutes)->toContain('dou_gui_on_stem_or_fate');
+    $t = range(0, 11);
+    $t[2] = 9;
+    expect(lmgr_match(['tianpan' => $t])->matchedRoutes)->toContain('ya_kui_you_on_stem_or_fate');
+    $t = range(0, 11);
+    $t[3] = 9;
+    expect(lmgr_match(['tianpan' => $t])->matchedRoutes)->toContain('ya_kui_you_on_stem_or_fate');
+    $t = range(0, 11);
+    $t[4] = 9;
+    expect(lmgr_match(['tianpan' => $t])->matchedRoutes)->toContain('ya_kui_you_on_stem_or_fate');
+    expect(lmgr_match()?->matchedRoutes ?? [])->not->toContain('dou_gui_on_stem_or_fate')->not->toContain('ya_kui_you_on_stem_or_fate');
+});
+
+test('day virtue must both enter hai and be initial without requiring fuyin', function () {
+    $t = range(0, 11);
+    $t[11] = 2;
+    $yes = lmgr_match(['tianpan' => $t, 'sanchuan0' => 2]);
+    expect($yes->matchedRoutes)->toContain('day_virtue_enters_heaven_gate');
+    expect(lmgr_match(['tianpan' => $t, 'sanchuan0' => 3])?->matchedRoutes ?? [])->not->toContain('day_virtue_enters_heaven_gate')
+        ->and(lmgr_match(['sanchuan0' => 2])?->matchedRoutes ?? [])->not->toContain('day_virtue_enters_heaven_gate');
+});
+
+test('true vermilion bird requires every textual condition', function () {
+    $t = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
+    $g = [];
+    for ($i = 0; $i < 12; $i++) {
+        $g[$i] = (2 - $i + 12) % 12;
+    }
+    $base = ['rigan' => 5, 'rizhi' => 5, 'nianzhi' => 4, 'guirenPeriod' => 'night', 'tianpan' => $t, 'tianjiang' => $g];
+    expect(lmgr_match($base)->matchedRoutes)->toContain('true_vermilion_bird');
+    foreach ([['rigan' => 4], ['nianzhi' => 0], ['guirenPeriod' => 'day'], ['tianjiang' => range(0, 11)], ['tianpan' => range(0, 11)]] as $bad) {
+        expect(lmgr_match(array_replace($base, $bad))?->matchedRoutes ?? [])->not->toContain('true_vermilion_bird');
+    }
+});
+
+test('two nobles may swap and flank either fate target, while missing people is pending', function () {
+    $t = range(0, 11);
+    $t[2] = 1;
+    $t[0] = 7;
+    $n = lmgr_match(['tianpan' => $t, 'context' => ['people' => [['role' => 'querent', 'nianming' => 1, 'xingnian' => null]]]]);
+    expect($n->matchedRoutes)->toContain('two_nobles_flank_fate');
+    $t[2] = 7;
+    $t[0] = 1;
+    $x = lmgr_match(['tianpan' => $t, 'context' => ['people' => [['role' => 'querent', 'nianming' => null, 'xingnian' => 1]]]]);
+    expect($x->matchedRoutes)->toContain('two_nobles_flank_fate');
+    $p = lmgr_match(['tianpan' => $t, 'context' => ['people' => []]]);
+    expect($p->pendingRoutes)->toContain('two_nobles_flank_fate');
+});
+
+test('no hits and no pending returns null, while pending-only returns a match', function () {
+    $withPeople = lmgr_match(['rigan' => 2, 'rizhi' => 2, 'nianzhi' => 0, 'tianpan' => range(0, 11), 'context' => ['people' => [['role' => 'querent', 'nianming' => 0, 'xingnian' => 0]]]]);
+    expect($withPeople)->toBeNull();
+    $missing = lmgr_match(['rigan' => 2, 'rizhi' => 2, 'nianzhi' => 0, 'tianpan' => range(0, 11), 'context' => ['people' => []]]);
+    expect($missing)->not->toBeNull()->and($missing->matchedRoutes)->toBe([])->and($missing->pendingRoutes)->not->toBe([]);
+});
+
+test('matched and pending route order always follows the eight foundations', function () {
+    $t = range(0, 11);
+    $t[2] = 7;
+    $t[4] = 9;
+    $matched = lmgr_match(['tianpan' => $t]);
+    expect($matched->matchedRoutes)->toBe(['curtain_noble_on_stem_or_fate', 'ya_kui_you_on_stem_or_fate']);
+
+    $pending = lmgr_match(['rigan' => 2, 'rizhi' => 2, 'context' => ['people' => []]]);
+    expect($pending->pendingRoutes)->toBe([
+        'curtain_noble_on_stem_or_fate', 'dou_gui_on_stem_or_fate', 'ya_kui_you_on_stem_or_fate', 'two_nobles_flank_fate',
+    ]);
+});

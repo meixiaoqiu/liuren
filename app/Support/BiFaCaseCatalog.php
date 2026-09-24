@@ -151,6 +151,102 @@ final class BiFaCaseCatalog
      */
     private const CASES = [
         // ----------------------------------------------------------------------
+        // 第三法 · 帘幕贵人高甲第
+        // ----------------------------------------------------------------------
+        [
+            'case_id' => 'bifa.03.generated-ya-kui-on-stem', 'law_code' => 'bifa.03',
+            'label' => '程序验证·亚魁临干', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-01T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['ya_kui_you_on_stem_or_fate'],
+            'reason' => '生产排盘中酉加临日干寄宫，真实复现亚魁临干；这是程序搜索的现代盘，不冒充古籍 datetime。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-curtain-on-stem', 'law_code' => 'bifa.03',
+            'label' => '程序验证·帘幕贵人临干', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-02T17:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['curtain_noble_on_stem_or_fate'], 'reason' => '生产排盘真实复现帘幕贵人临日干寄宫。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-xun-head-curtain', 'law_code' => 'bifa.03',
+            'label' => '程序验证·旬首作帘幕', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-21T15:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['xun_head_as_curtain_noble'], 'reason' => '生产排盘中旬首自然等于帘幕贵人并临干，无日干白名单。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-chen-xu-xun-head', 'law_code' => 'bifa.03',
+            'label' => '程序验证·辰戌旬首临干', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-04T21:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['chen_xu_xun_head_on_stem_or_fate'], 'reason' => '生产排盘真实复现辰戌旬首临日干寄宫。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-dou-gui', 'law_code' => 'bifa.03',
+            'label' => '程序验证·斗鬼相加', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-03T13:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['dou_gui_on_stem_or_fate'], 'reason' => '生产排盘真实复现丑未互加发生在日干路径。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-day-virtue', 'law_code' => 'bifa.03',
+            'label' => '程序验证·德入天门', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-02T01:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['day_virtue_enters_heaven_gate'], 'reason' => '生产排盘真实复现日德加地盘亥宫并发用。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-true-vermilion', 'law_code' => 'bifa.03',
+            'label' => '程序验证·真朱雀', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-08T23:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['true_vermilion_bird'], 'reason' => '生产排盘真实复现己日、四季年、夜贵逆布及午乘朱雀全条件。', 'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.generated-two-nobles-flank-fate', 'law_code' => 'bifa.03',
+            'label' => '程序验证·昼夜二贵拱本命', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-03-24T11:00', 'birth' => '1985-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['two_nobles_flank_fate'], 'reason' => '生产排盘昼夜二贵分别临干支，干支夹拱乙丑年出生占者的本命丑。', 'source' => '程序验证案例·2031 年生产 PanCalculator 与 FateCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-curtain-noble', 'law_code' => 'bifa.03',
+            'label' => '正文结构·帘幕贵人临干年命', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['curtain_noble_on_stem_or_fate'],
+            'reason' => '原文只给结构，没有完整公历 datetime，故为 reference_only，不能伪造时间回填。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-xun-head-curtain', 'law_code' => 'bifa.03',
+            'label' => '正文结构·旬首作帘幕', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['xun_head_as_curtain_noble'],
+            'reason' => '原文仅列乙、己、辛日的结构结论，没有完整 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-chen-xu-xun-head', 'law_code' => 'bifa.03',
+            'label' => '正文结构·甲辰甲戌旬首', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['chen_xu_xun_head_on_stem_or_fate'],
+            'reason' => '正文给出甲辰、甲戌两旬而未给完整 datetime，无法直接复现，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-dou-gui', 'law_code' => 'bifa.03',
+            'label' => '正文结构·丑未斗鬼相加', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['dou_gui_on_stem_or_fate'],
+            'reason' => '正文只有丑加未、未加丑结构，没有完整 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-day-virtue', 'law_code' => 'bifa.03',
+            'label' => '正文结构·德入天门', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['day_virtue_enters_heaven_gate'],
+            'reason' => '正文只定义日德加亥发用，没有完整 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-true-vermilion', 'law_code' => 'bifa.03',
+            'label' => '正文结构·真朱雀', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['true_vermilion_bird'],
+            'reason' => '正文给六己日、四季年、夜贵逆布、朱雀乘午，但无完整 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法',
+        ],
+        [
+            'case_id' => 'bifa.03.daquan-two-nobles', 'law_code' => 'bifa.03',
+            'label' => '丁酉日·昼夜二贵拱年命', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['two_nobles_flank_fate'],
+            'reason' => '正文给丁酉日、干上酉、支上亥、年命申，但未给完整 datetime，无法据此唯一复现，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第三法·丁酉日条',
+        ],
+
+        // ----------------------------------------------------------------------
         // 第一法 · 前后引从升迁吉
         // ----------------------------------------------------------------------
         [

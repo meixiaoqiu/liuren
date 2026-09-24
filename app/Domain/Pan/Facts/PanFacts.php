@@ -493,6 +493,21 @@ final readonly class PanFacts
         return $xunIndex === null ? null : [0, 10, 8, 6, 4, 2][$xunIndex];
     }
 
+    /** 判断任意地支是否落在当前日旬的两旬空；资料异常时返回 null。 */
+    public function isBranchXunVoid(int $branch): ?bool
+    {
+        if ($branch < 0 || $branch > 11) {
+            return null;
+        }
+
+        $xunHead = $this->dayXunHeadBranch();
+        if ($xunHead === null) {
+            return null;
+        }
+
+        return $branch === ($xunHead + 10) % 12 || $branch === ($xunHead + 11) % 12;
+    }
+
     public function isNoblemanMovingForward(): bool
     {
         $generals = $this->get('tianjiang');
