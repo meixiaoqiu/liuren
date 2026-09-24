@@ -8,7 +8,6 @@ use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Services\PanCalculator;
-use App\Support\BiFaCaseCatalog;
 use App\Support\KeJingCatalog;
 use App\Support\Knowledge\BiFaKnowledgeCardFactory;
 use Carbon\CarbonImmutable;
@@ -58,25 +57,6 @@ class CreatePan extends Component
 
     /** @var array<int, array{code: string, name: string, group: string, description: string, marker: string, gua: ?string, guaSymbol: ?string, xiang: ?string, evidence: array<string, mixed>, coverageAreas: list<string>}> */
     public array $ruleMatches = [];
-
-    /**
-     * 毕法独立判定结果。毕法与课经是两套独立体系，本字段不参与 RuleMatch 排序与展示，
-     * 也不混入"解盘信息"中的课经列表。排盘页"毕法"区块单独使用本字段。
-     *
-     * @var list<array{
-     *     code: string,
-     *     number: int,
-     *     name: string,
-     *     summary: string,
-     *     matched: bool,
-     *     sub_matches: list<array<string, mixed>>,
-     *     matched_routes: list<string>,
-     *     pending_routes: list<string>,
-     *     evidence: array<string, mixed>,
-     *     related_cases: list<array<string, mixed>>
-     * }>
-     */
-    public array $bifaMatches = [];
 
     /** @var list<array<string, mixed>> 仅包含可直接展示内容的统一知识卡片。 */
     public array $bifaKnowledgeCards = [];
@@ -257,56 +237,11 @@ class CreatePan extends Component
         $this->notEvaluated = $ruleEngine->notEvaluated($result);
         $this->seasonalPeriod = PanFacts::from($result)->seasonalPeriod();
 
-        // 毕法独立判定——不参与 RuleMatch 排序、不混进"解盘信息"。
-        // 每条 BiFaRuleMatch 同时附带：当前命中 route 与案例目录中 routes 字段的交集案例。
+        // 毕法独立判定——领域结果立即转换为只含用户展示内容的 KnowledgeCard。
         $evaluatedBiFaMatches = $bifaRuleEngine->evaluate($result);
         $this->bifaKnowledgeCards = array_values(array_map(
             static fn ($match): array => $bifaCardFactory->fromMatch($match)->toArray(),
             $evaluatedBiFaMatches,
-        ));
-        $bifaMatches = array_map(
-            static fn ($match): array => $match->toArray(),
-            $evaluatedBiFaMatches,
-        );
-        $this->bifaMatches = array_values(array_map(
-            static function (array $bifa): array {
-                $matched = array_values(array_map('strval', $bifa['matched_routes'] ?? []));
-                $related = BiFaCaseCatalog::casesByMatchedRoutes(
-                    (string) $bifa['code'],
-                    $matched,
-                );
-                // 把 datetime / birth / gender / people 转换为可拼接到 URL 的查询参数。
-                $related = array_map(
-                    static function (array $case): array {
-                        $params = [];
-                        if (! empty($case['datetime'])) {
-                            $params['datetime'] = $case['datetime'];
-                        }
-                        if (! empty($case['birth'])) {
-                            $params['birth'] = $case['birth'];
-                        }
-                        if (! empty($case['gender'])) {
-                            $params['gender'] = $case['gender'];
-                        }
-                        if (! empty($case['people'])) {
-                            $params['people'] = $case['people'];
-                        }
-
-                        return [
-                            ...$case,
-                            'link_params' => $params,
-                        ];
-                    },
-                    $related,
-                );
-
-                return [
-                    ...$bifa,
-                    'related_cases' => $related,
-                    '_debug_matched' => $matched,
-                ];
-            },
-            $bifaMatches,
         ));
     }
 

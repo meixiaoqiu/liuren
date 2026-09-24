@@ -11,15 +11,12 @@ use InvalidArgumentException;
  *
  *  - 所有属性只能保存可以直接呈现给用户的内容，不承载规则 code、类名、方法名、
  *    原始证据数组或调试数据；
- *  - `type` 为内部稳定枚举字符串（`bifa` / `kejing` / `pattern` …），用于跨体系判断；
+ *  - `type` 为稳定内部类型键（`bifa` / `kejing` / `pattern` …），用于跨体系识别；
  *    UI 不得基于此字符串做业务分支判断；
  *  - `typeLabel` 为中文展示名（"毕法" / "课经" / "格"），由 Factory 提供，Blade 仅展示；
  *  - `label` 为面向用户的展示编号（"第 1 法" / "第 22 课" / "格·三光"），不是程序 code；
  *  - `status.tone` 必须是以下枚举之一：`success` / `warning` / `info` / `neutral`，
  *    禁止任意字符串。
- *
- * 兼容：仍提供 `code()` 访问器（指向 `label`）以及 `getCode()` 旧别名，
- *       避免历史调用立即崩溃；新代码请直接读取 `label` 与 `typeLabel`。
  */
 final readonly class KnowledgeCard
 {
@@ -77,15 +74,6 @@ final readonly class KnowledgeCard
     }
 
     /**
-     * 历史兼容：以前 code 字段实际存放面向用户的展示编号（"第 1 法"）。
-     * 改名 label 后保持旧别名，避免既有调用立即崩溃。
-     */
-    public function code(): string
-    {
-        return $this->label;
-    }
-
-    /**
      * @param  array{label: string, tone: string}  $status
      */
     public static function assertValidStatus(array $status): void
@@ -112,8 +100,6 @@ final readonly class KnowledgeCard
         return [
             'type' => $this->type,
             'type_label' => $this->typeLabel,
-            // 历史别名：旧调用继续可读 `code` 字段，新代码用 `label`。
-            'code' => $this->label,
             'label' => $this->label,
             'title' => $this->title,
             'summary' => $this->summary,

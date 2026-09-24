@@ -1,11 +1,14 @@
 <?php
 
+use App\Data\PanResult;
 use App\Domain\Pan\BiFa\BiFaRule;
+use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
 use App\Domain\Pan\Rules\RuleRegistry;
 use App\Livewire\Pan\CreatePan;
 use App\Support\BiFaCaseCatalog;
 use App\Support\BiFaCatalog;
+use App\Support\BiFaPageCatalog;
 use Livewire\Livewire;
 
 /**
@@ -140,7 +143,8 @@ test('bifa detail page renders the first law with foundations, cases, original t
 
     $response->assertSee('前后引从升迁吉');
     $response->assertSee('第 1 法');
-    $response->assertSee('9 类古籍分格');
+    $response->assertSee('成立条件说明');
+    $response->assertDontSee('9 类古籍分格');
     $response->assertSee('引从天干');
     $response->assertSee('二贵拱年命');
     $response->assertSee('干支并初中拱地盘贵人');
@@ -188,6 +192,16 @@ test('unknown bifa slug returns 404', function () {
     $this->get('/bifa/not-a-real-law')->assertNotFound();
 });
 
+test('unresearched bifa detail does not construct a KnowledgeCard', function () {
+    $law = collect(BiFaPageCatalog::laws())->firstWhere('researched', false);
+    expect($law)->not->toBeNull();
+
+    $response = $this->get(route('bifa.show', ['law' => $law['slug']]))->assertOk();
+
+    expect($response->viewData('knowledgeCard'))->toBeNull();
+    $response->assertSee('本法尚未研究');
+});
+
 test('bifa panel renders the first law without numbering or unrelated cases', function () {
     $component = Livewire::withQueryParams([
         'datetime' => '2000-01-23T13:00',
@@ -196,16 +210,13 @@ test('bifa panel renders the first law without numbering or unrelated cases', fu
     ])->test(CreatePan::class)
         ->assertHasNoErrors();
 
-    $bifa = $component->get('bifaMatches');
+    $cards = $component->get('bifaKnowledgeCards');
+    expect($cards)->toBeArray()->not->toBeEmpty();
 
-    expect($bifa)->toBeArray()
-        ->and($bifa)->not->toBeEmpty();
-
-    $firstLaw = $bifa[0];
-    expect('bifa.01')->toBe($firstLaw['code'])
-        ->and(1)->toBe($firstLaw['number'])
-        ->and('前后引从升迁吉')->toBe($firstLaw['name'])
-        ->and($firstLaw['matched_routes'])->toContain('yin_gan', 'gong_gui');
+    $matches = app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan')));
+    expect($matches)->toHaveCount(1)
+        ->and($matches[0]->code)->toBe('bifa.01')
+        ->and($matches[0]->matchedRoutes)->toContain('yin_gan', 'gong_gui');
 
     // 排盘块使用“毕 + 法名”的课经同款标题，不展示法序号。
     $component->assertSee('毕');
@@ -232,20 +243,6 @@ test('bifa panel renders the first law without numbering or unrelated cases', fu
         $component->assertDontSee($internalName, false);
     }
 
-    // 相关案例仅展示 routes 与 matched_routes 有交集的案例。
-    $relatedRoutes = [];
-    foreach ($firstLaw['related_cases'] ?? [] as $case) {
-        foreach ($case['routes'] ?? [] as $route) {
-            $relatedRoutes[] = $route;
-        }
-    }
-    expect($relatedRoutes)->not->toBeEmpty();
-    // 每条 related_case 的 routes 都必须与当前 matched_routes 有交集（即不堆砌无关案例）。
-    foreach ($firstLaw['related_cases'] ?? [] as $case) {
-        expect(array_intersect($case['routes'] ?? [], $firstLaw['matched_routes'] ?? []))
-            ->not->toBeEmpty('案例 routes 必须与当前命中 route 有交集');
-    }
-
     // 相关案例属于规则研究材料，不进入当前盘卡片。
     $component->assertDontSee('查看排盘');
 
@@ -265,8 +262,7 @@ test('bifa engine returns null when first law neither matches nor has pending ro
     ])->test(CreatePan::class)
         ->assertHasNoErrors();
 
-    $bifa = $component->get('bifaMatches');
-    expect($bifa)->toBeArray()->toBeEmpty();
+    expect($component->get('bifaKnowledgeCards'))->toBeArray()->toBeEmpty();
 
     // 排盘页不应出现"毕法"卡片，因为第一法整体不命中且无待评估。
     $component->assertDontSee('前后引从升迁吉');
@@ -296,26 +292,17 @@ test('every executable bifa case reproduces at least its declared routes', funct
             ->test(CreatePan::class)
             ->assertHasNoErrors();
 
-        $bifa = collect($component->get('bifaMatches'))
-            ->firstWhere('code', $case['law_code']);
-
         if ($case['law_code'] !== 'bifa.01') {
             continue; // 仅验证第一法案例；后续法的排盘结果不在本轮范围内。
         }
 
-        if ($case['case_id'] === 'bifa.01.geng-chen-yin-gan' && false) {
-            dump([
-                'case_id' => $case['case_id'],
-                'datetime' => $case['datetime'],
-                'bifa' => $bifa,
-                'expected' => $case['routes'],
-            ]);
-        }
+        $bifa = collect(app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan'))))
+            ->first(fn ($match): bool => $match->code === $case['law_code']);
 
         expect($bifa)->not->toBeNull("案例 {$case['case_id']} 起盘后必须命中第一法");
 
         $declaredRoutes = $case['routes'];
-        $matchedRoutes = $bifa['matched_routes'];
+        $matchedRoutes = $bifa->matchedRoutes;
 
         foreach ($declaredRoutes as $route) {
             if ($route === '') {

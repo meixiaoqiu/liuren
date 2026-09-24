@@ -125,34 +125,10 @@ final readonly class BiFaKnowledgeCardFactory
                 $foundations,
             )),
             evidence: [],
-            sections: [
-                [
-                    'title' => '总纲与现代说明',
-                    'content' => (string) ($definition['description'] ?? $catalogLaw['summary']),
-                ],
-                [
-                    'title' => '成立条件（9 类古籍分格）',
-                    'content' => '引从天干与初末引从地支均须"初在前、末在后"，前后方向不可互换；其余夹拱结构不区分两端次序。本法与课经"引从课"虽有相近结构，但属于不同知识体系。',
-                ],
-            ],
+            sections: array_values($definition['sections'] ?? []),
             examples: $this->examples(BiFaCaseCatalog::casesForLaw((string) $law['code']), $routeNames),
             actions: $actions,
         );
-    }
-
-    /** @param array<string, mixed> $match */
-    public function fromLegacyMatch(array $match): KnowledgeCard
-    {
-        return $this->fromMatch(new BiFaRuleMatch(
-            code: (string) ($match['code'] ?? ''),
-            number: (int) ($match['number'] ?? 0),
-            name: (string) ($match['name'] ?? ''),
-            summary: (string) ($match['summary'] ?? ''),
-            subMatches: $match['sub_matches'] ?? [],
-            matchedRoutes: $match['matched_routes'] ?? [],
-            pendingRoutes: $match['pending_routes'] ?? [],
-            evidence: $match['evidence'] ?? [],
-        ));
     }
 
     /**
@@ -210,7 +186,7 @@ final readonly class BiFaKnowledgeCardFactory
             'description' => $description,
             'source' => $isGenerated
                 ? '现代程序验证案例'
-                : '《六壬大全》正文案例 · '.(string) ($case['source'] ?? '第一法'),
+                : '《六壬大全》正文案例 · '.(string) ($case['source'] ?? '本法'),
             'status' => $isExecutable
                 ? ['label' => '可查看排盘', 'tone' => self::TONE_SUCCESS]
                 : ['label' => '原文参考盘 · 尚未完整复现', 'tone' => self::TONE_WARNING],

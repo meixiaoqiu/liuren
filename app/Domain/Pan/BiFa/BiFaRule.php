@@ -42,10 +42,11 @@ interface BiFaRule
      * 返回该法的程序定义：
      *
      *  - description  :string    现代汉语总纲；
-     *  - foundations  :list      古籍分格定义（9 类古籍分格）；
+     *  - foundations  :list      本法成立基础/分格定义；
      *  - judgments    :list      命中后的吉凶判断（多数毕法不在程序里硬定）；
+     *  - sections     :list      本法专属的用户展示说明；
      *
-     * @return array{description: string, foundations: list<array{code: string, title: string, description: string}>, judgments: list<array<string, mixed>>}
+     * @return array{description: string, foundations: list<array{code: string, title: string, description: string}>, judgments: list<array<string, mixed>>, sections?: list<array{title: string, content: string}>}
      */
     public function definition(): array;
 

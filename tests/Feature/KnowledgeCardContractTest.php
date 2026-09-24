@@ -50,37 +50,15 @@ test('KnowledgeCard 仅暴露用户可读字段，不泄漏 rule code / matcher 
         ->not->toContain('BiFaKnowledgeCardFactory', '不应泄漏工厂类名');
 });
 
-test('KnowledgeCard 类型使用稳定内部枚举，UI 不得基于此字段判断', function () {
+test('KnowledgeCard type 使用稳定内部类型键，UI 不得基于此字段判断', function () {
     $pan = (new PanCalculator)->calculate('2000-01-23 13:00:00');
     $match = (new QianHouYinCongRule)->match(PanFacts::from($pan));
     $card = app(BiFaKnowledgeCardFactory::class)->fromMatch($match);
 
-    expect($card->type)->toBe('bifa')              // 内部稳定枚举
+    expect($card->type)->toBe('bifa')              // 稳定内部类型键
         ->and($card->typeLabel)->toBe('毕法')         // 展示中文由 Factory 注入
         // 排盘上下文不展示法序号，仅 type；法序号由 fromDetail() 注入
         ->and($card->label)->toBe('');
-});
-
-test('KnowledgeCard 保留 code() 历史兼容别名，等价于 label', function () {
-    $pan = (new PanCalculator)->calculate('2000-01-23 13:00:00');
-    $match = (new QianHouYinCongRule)->match(PanFacts::from($pan));
-    $card = app(BiFaKnowledgeCardFactory::class)->fromMatch($match);
-
-    // fromMatch() 排盘上下文 label 为空；code() 兼容别名也为空
-    expect($card->code())->toBe($card->label)
-        ->and($card->code())->toBe('');
-
-    $array = $card->toArray();
-    expect($array['code'])->toBe($card->label)   // 序列化同时保留 code 别名
-        ->and($array['label'])->toBe($card->label);
-
-    // fromDetail() 详情上下文 label 含法序号
-    $law = BiFaCatalog::findByCode('bifa.01');
-    $detailCard = app(BiFaKnowledgeCardFactory::class)->fromDetail($law, [
-        'description' => '测试', 'foundations' => [],
-    ]);
-    expect($detailCard->code())->toBe('第 1 法')
-        ->and($detailCard->label)->toBe('第 1 法');
 });
 
 test('KnowledgeCard status.tone 必须是 success / warning / info / neutral 枚举之一', function () {
@@ -155,12 +133,42 @@ test('KnowledgeCard 全部公开字段都是 toArray 可序列化、类型稳定
     $array = $card->toArray();
 
     expect($array)->toHaveKeys([
-        'type', 'type_label', 'code', 'label', 'title', 'summary',
+        'type', 'type_label', 'label', 'title', 'summary',
         'status', 'conditions', 'evidence', 'sections', 'examples', 'actions',
-    ])->and($array['type'])->toBeString()
+    ])->not->toHaveKey('code')
+        ->and($array['type'])->toBeString()
         ->and($array['type_label'])->toBeString()
         ->and($array['label'])->toBeString()
         ->and($array['title'])->toBeString()
         ->and($array['conditions'])->toBeArray()
         ->and($array['examples'])->toBeArray();
+});
+
+test('BiFaKnowledgeCardFactory fromDetail 只转换 definition 提供的法条知识', function () {
+    $law = BiFaCatalog::findByCode('bifa.02');
+    expect($law)->not->toBeNull();
+
+    $card = app(BiFaKnowledgeCardFactory::class)->fromDetail($law, [
+        'description' => '第二法测试说明',
+        'foundations' => [[
+            'code' => 'fake_route',
+            'title' => '测试分格',
+            'description' => '测试条件',
+        ]],
+        'judgments' => [],
+        'sections' => [[
+            'title' => '测试说明',
+            'content' => '这是第二法专属说明',
+        ]],
+    ]);
+
+    $payload = json_encode($card->toArray(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+    expect($payload)
+        ->toContain('测试分格', '测试说明', '第二法专属说明')
+        ->not->toContain('引从天干')
+        ->not->toContain('初末引从地支')
+        ->not->toContain('9 类古籍分格')
+        ->not->toContain('引从课')
+        ->not->toContain('第一法');
 });

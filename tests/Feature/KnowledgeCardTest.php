@@ -45,7 +45,6 @@ test('KnowledgeCard fromDetail provides 第 N 法 label as the user-facing numbe
     $card = app(BiFaKnowledgeCardFactory::class)->fromDetail($law, $definition);
 
     expect($card->label)->toBe('第 1 法')
-        ->and($card->code())->toBe('第 1 法')  // 历史兼容别名
         ->and($card->title)->toBe('前后引从升迁吉')
         ->and($card->type)->toBe('bifa');
 });

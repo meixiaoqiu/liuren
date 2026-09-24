@@ -72,7 +72,8 @@ final class QianHouYinCongRule implements BiFaRule
      * @return array{
      *     description: string,
      *     foundations: list<array{code: string, title: string, description: string}>,
-     *     judgments: list<array<string, mixed>>
+     *     judgments: list<array<string, mixed>>,
+     *     sections: list<array{title: string, content: string}>
      * }
      */
     public function definition(): array
@@ -92,6 +93,10 @@ final class QianHouYinCongRule implements BiFaRule
                 ['code' => 'gan_zhi_bing_chu_zhong_gui',     'title' => '干支并初中拱地盘贵人',           'description' => '干支夹拱昼夜贵人之一，且初传、中传也夹拱同一昼夜贵人；昼夜贵不得互换。'],
             ],
             'judgments' => [],
+            'sections' => [[
+                'title' => '成立条件说明',
+                'content' => '引从天干与初末引从地支均须“初在前、末在后”，前后方向不可互换；其余夹拱结构不区分两端次序。本法与课经“引从课”虽有相近结构，但属于不同知识体系。',
+            ]],
         ];
     }
 

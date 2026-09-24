@@ -1,5 +1,7 @@
 <?php
 
+use App\Data\PanResult;
+use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Livewire\Pan\CreatePan;
 use App\Support\BiFaCaseCatalog;
 use Livewire\Livewire;
@@ -47,8 +49,8 @@ test('every executable bifa.01 case reproduces all of its declared routes throug
             ->test(CreatePan::class)
             ->assertHasNoErrors();
 
-        $bifa = collect($component->get('bifaMatches'))
-            ->firstWhere('code', 'bifa.01');
+        $bifa = collect(app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan'))))
+            ->first(fn ($match): bool => $match->code === 'bifa.01');
 
         if ($bifa === null) {
             $failures[] = "case_id={$case['case_id']}: 起盘后 bifa.01 必须命中";
@@ -56,7 +58,7 @@ test('every executable bifa.01 case reproduces all of its declared routes throug
             continue;
         }
 
-        $matchedRoutes = $bifa['matched_routes'] ?? [];
+        $matchedRoutes = $bifa->matchedRoutes;
         foreach ($case['routes'] as $route) {
             if ($route === '') {
                 continue;

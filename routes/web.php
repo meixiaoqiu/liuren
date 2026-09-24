@@ -84,7 +84,9 @@ Route::get('/bifa/{law}', function (
     return view('bifa.show', [
         'law' => $page,
         'researched' => $researched,
-        'knowledgeCard' => $cardFactory->fromDetail($page, $definition)->toArray(),
+        'knowledgeCard' => $researched
+            ? $cardFactory->fromDetail($page, $definition)->toArray()
+            : null,
         'original' => $original,
         'previousLaw' => $lawIndex > 0 ? $pages[$lawIndex - 1] : null,
         'nextLaw' => $lawIndex < count($pages) - 1 ? $pages[$lawIndex + 1] : null,

@@ -19,18 +19,9 @@
    - $card: array<string, mixed>
 --}}
 
-@use('App\Support\Knowledge\KnowledgeCard')
-
 @props(['card'])
 
 @php
-    $toneMeta = [
-        KnowledgeCard::TONE_SUCCESS => ['icon' => '✔️', 'textClass' => 'font-bold text-base-content'],
-        KnowledgeCard::TONE_WARNING => ['icon' => '⏳', 'textClass' => 'font-medium text-base-content/70'],
-        KnowledgeCard::TONE_INFO => ['icon' => 'ℹ️', 'textClass' => 'font-medium text-base-content/70'],
-        KnowledgeCard::TONE_NEUTRAL => ['icon' => '❌', 'textClass' => 'font-normal text-base-content/45'],
-    ];
-    $typeMarker = mb_substr((string) ($card['type_label'] ?? ''), 0, 1) ?: '·';
     $status = $card['status'] ?? null;
     $conditions = $card['conditions'] ?? [];
     $sections = $card['sections'] ?? [];
@@ -62,10 +53,8 @@
 
     {{-- 4. 成立状态 --}}
     @if ($status !== null)
-        @php($statusMeta = $toneMeta[$status['tone']] ?? $toneMeta[KnowledgeCard::TONE_NEUTRAL])
-        <div class="mt-3 flex items-center gap-1.5 text-sm {{ $statusMeta['textClass'] }}">
-            <span aria-hidden="true">{{ $statusMeta['icon'] }}</span>
-            {{ $status['label'] }}
+        <div class="mt-3">
+            <x-knowledge.knowledge-status :status="$status" />
         </div>
     @endif
 

@@ -8,33 +8,18 @@
    - $examples: list<array{title: string, description: string, source: string, status: array{label: string, tone: string}, url: ?string}>
 --}}
 
-@use('App\Support\Knowledge\KnowledgeCard')
-
 @props(['examples'])
-
-@php
-    $toneMeta = [
-        KnowledgeCard::TONE_SUCCESS => ['icon' => '✔️', 'textClass' => 'font-bold text-base-content'],
-        KnowledgeCard::TONE_WARNING => ['icon' => '⏳', 'textClass' => 'font-medium text-base-content/70'],
-        KnowledgeCard::TONE_INFO => ['icon' => 'ℹ️', 'textClass' => 'font-medium text-base-content/70'],
-        KnowledgeCard::TONE_NEUTRAL => ['icon' => '❌', 'textClass' => 'font-normal text-base-content/45'],
-    ];
-@endphp
 
 @if (! empty($examples))
     <section class="mt-5" aria-label="相关案例">
         <h3 class="text-sm font-semibold tracking-wide text-base-content/70">相关案例</h3>
         <ul class="mt-3 space-y-3" role="list">
             @foreach ($examples as $example)
-                @php($meta = $toneMeta[$example['status']['tone']] ?? $toneMeta[KnowledgeCard::TONE_NEUTRAL])
                 <li>
                     <div class="flex flex-wrap items-center gap-2">
                         <strong>{{ $example['title'] }}</strong>
                         <span class="text-xs text-base-content/55">{{ $example['source'] }}</span>
-                        <span class="flex items-center gap-1 text-xs {{ $meta['textClass'] }}">
-                            <span aria-hidden="true">{{ $meta['icon'] }}</span>
-                            {{ $example['status']['label'] }}
-                        </span>
+                        <x-knowledge.knowledge-status :status="$example['status']" size="text-xs" />
                     </div>
                     <p class="mt-1 text-sm leading-6 text-base-content/60">{{ $example['description'] }}</p>
                     @if (! empty($example['url']))

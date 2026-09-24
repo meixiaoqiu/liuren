@@ -8,18 +8,7 @@
    - $conditions: list<array{marker: string, title: string, description: string, status: ?array, detail: ?string}>
 --}}
 
-@use('App\Support\Knowledge\KnowledgeCard')
-
 @props(['conditions'])
-
-@php
-    $toneMeta = [
-        KnowledgeCard::TONE_SUCCESS => ['icon' => '✔️', 'textClass' => 'font-bold text-base-content'],
-        KnowledgeCard::TONE_WARNING => ['icon' => '⏳', 'textClass' => 'font-medium text-base-content/70'],
-        KnowledgeCard::TONE_INFO => ['icon' => 'ℹ️', 'textClass' => 'font-medium text-base-content/70'],
-        KnowledgeCard::TONE_NEUTRAL => ['icon' => '❌', 'textClass' => 'font-normal text-base-content/45'],
-    ];
-@endphp
 
 @if (! empty($conditions))
     <section class="mt-5" aria-label="成立条件">
@@ -33,11 +22,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <strong>{{ $condition['title'] ?? '' }}</strong>
                             @if (! empty($condition['status']))
-                                @php($meta = $toneMeta[$condition['status']['tone']] ?? $toneMeta[KnowledgeCard::TONE_NEUTRAL])
-                                <span class="flex items-center gap-1.5 text-sm {{ $meta['textClass'] }}">
-                                    <span aria-hidden="true">{{ $meta['icon'] }}</span>
-                                    {{ $condition['status']['label'] }}
-                                </span>
+                                <x-knowledge.knowledge-status :status="$condition['status']" />
                             @endif
                         </div>
                         <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $condition['description'] ?? '' }}</p>
