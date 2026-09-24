@@ -35,6 +35,7 @@ final readonly class BiFaKnowledgeCardFactory
                     $needsPeople = ! empty($subMatch['requires_people']) && ! empty($subMatch['people_missing']);
 
                     return [
+                        'marker' => '⏺',
                         'title' => (string) ($subMatch['title'] ?? ''),
                         'description' => (string) ($subMatch['description'] ?? ''),
                         'status' => ! empty($subMatch['matched'])
@@ -93,6 +94,7 @@ final readonly class BiFaKnowledgeCardFactory
             status: ['label' => '已完成研究', 'tone' => 'info'],
             conditions: array_values(array_map(
                 static fn (array $foundation): array => [
+                    'marker' => '⏺',
                     'title' => (string) ($foundation['title'] ?? ''),
                     'description' => (string) ($foundation['description'] ?? ''),
                     'status' => null,

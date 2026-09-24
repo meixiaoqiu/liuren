@@ -2,12 +2,13 @@
 
 @php
     $statusMeta = static fn (string $tone): array => match ($tone) {
-        'success' => ['icon' => 'o-check-circle', 'iconClass' => 'text-success', 'textClass' => 'text-base-content'],
-        'warning' => ['icon' => 'o-clock', 'iconClass' => 'text-warning', 'textClass' => 'text-base-content/70'],
-        'info' => ['icon' => 'o-information-circle', 'iconClass' => 'text-info', 'textClass' => 'text-base-content/70'],
-        default => ['icon' => 'o-x-circle', 'iconClass' => 'text-base-content/35', 'textClass' => 'text-base-content/45'],
+        'success' => ['icon' => '✔️', 'textClass' => 'font-bold text-base-content'],
+        'warning' => ['icon' => '⏳', 'textClass' => 'font-medium text-base-content/70'],
+        'info' => ['icon' => 'ℹ️', 'textClass' => 'font-medium text-base-content/70'],
+        default => ['icon' => '❌', 'textClass' => 'font-normal text-base-content/45'],
     };
     $typeMarker = mb_substr($card['type'], 0, 1);
+    $stepMarkers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
 @endphp
 
 <div>
@@ -21,8 +22,8 @@
 
         @if ($card['status'] !== null)
             @php($meta = $statusMeta($card['status']['tone']))
-            <span class="flex items-center gap-1.5 text-sm font-medium {{ $meta['textClass'] }}">
-                <x-icon :name="$meta['icon']" class="size-5 {{ $meta['iconClass'] }}" />
+            <span class="flex items-center gap-1.5 text-sm {{ $meta['textClass'] }}">
+                <span aria-hidden="true">{{ $meta['icon'] }}</span>
                 {{ $card['status']['label'] }}
             </span>
         @endif
@@ -43,14 +44,16 @@
             <ol class="mt-4 space-y-4">
                 @foreach ($card['conditions'] as $index => $condition)
                     <li class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-2">
-                        <span class="grid size-7 place-items-center rounded-full bg-primary/12 text-xs font-semibold text-primary">{{ $index + 1 }}</span>
+                        <span class="grid size-7 place-items-center text-base" aria-hidden="true">
+                            {{ $condition['marker'] ?? ($stepMarkers[$index] ?? '⏺') }}
+                        </span>
                         <div>
                             <div class="flex flex-wrap items-center justify-between gap-2">
                                 <strong>{{ $condition['title'] }}</strong>
                                 @if ($condition['status'] !== null)
                                     @php($meta = $statusMeta($condition['status']['tone']))
-                                    <span class="flex items-center gap-1.5 text-sm font-medium {{ $meta['textClass'] }}">
-                                        <x-icon :name="$meta['icon']" class="size-5 {{ $meta['iconClass'] }}" />
+                                    <span class="flex items-center gap-1.5 text-sm {{ $meta['textClass'] }}">
+                                        <span aria-hidden="true">{{ $meta['icon'] }}</span>
                                         {{ $condition['status']['label'] }}
                                     </span>
                                 @endif
@@ -76,8 +79,8 @@
                             <strong>{{ $example['title'] }}</strong>
                             <span class="text-xs text-base-content/55">{{ $example['source'] }}</span>
                             @php($meta = $statusMeta($example['status']['tone']))
-                            <span class="flex items-center gap-1 text-xs font-medium {{ $meta['textClass'] }}">
-                                <x-icon :name="$meta['icon']" class="size-4 {{ $meta['iconClass'] }}" />
+                            <span class="flex items-center gap-1 text-xs {{ $meta['textClass'] }}">
+                                <span aria-hidden="true">{{ $meta['icon'] }}</span>
                                 {{ $example['status']['label'] }}
                             </span>
                         </div>

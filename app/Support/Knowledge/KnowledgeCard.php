@@ -12,7 +12,7 @@ final readonly class KnowledgeCard
 {
     /**
      * @param  array{label: string, tone: string}|null  $status
-     * @param  list<array{title: string, description: string, status: array{label: string, tone: string}|null, detail: ?string}>  $conditions
+     * @param  list<array{title: string, description: string, status: array{label: string, tone: string}|null, detail: ?string, marker?: string}>  $conditions
      * @param  list<array{label: string, detail: string}>  $evidence
      * @param  list<array{title: string, content: string}>  $sections
      * @param  list<array{title: string, description: string, source: string, status: array{label: string, tone: string}, url: ?string}>  $examples

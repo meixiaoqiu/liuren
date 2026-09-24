@@ -220,6 +220,10 @@ test('bifa panel renders the first law without numbering or unrelated cases', fu
     $component->assertSee('拱贵格');
     $component->assertSee('已成立');
     $component->assertSee('未成立');
+    $component->assertSee('✔️');
+    $component->assertSee('❌');
+    $component->assertSee('⏺');
+    $component->assertDontSee('1️⃣');
     $component->assertDontSee('分格命中');
     $component->assertDontSee('>不成立<', false);
     foreach (['yin_gan', 'gong_gui', 'bifa.01', 'BiFaRuleEngine', 'QianHouYinCongRule',

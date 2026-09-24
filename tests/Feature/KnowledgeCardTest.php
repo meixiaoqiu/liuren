@@ -20,6 +20,7 @@ test('KnowledgeCard can be generated from the first bifa match without internal 
         ->and($card->code)->toBe('第 1 法')
         ->and($card->title)->toBe('前后引从升迁吉')
         ->and($card->conditions)->toHaveCount(10)
+        ->and(array_unique(array_column($card->conditions, 'marker')))->toBe(['⏺'])
         ->and($contents)->toContain('引从天干')
         ->and($contents)->not->toContain('bifa.01')
         ->and($contents)->not->toContain('yin_gan')
