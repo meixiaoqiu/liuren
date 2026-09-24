@@ -43,10 +43,10 @@ interface BiFaRule
      *
      *  - description  :string    现代汉语总纲；
      *  - foundations  :list      本法成立基础/分格定义；
-     *  - judgments    :list      命中后的吉凶判断（多数毕法不在程序里硬定）；
+     *  - judgments    :list      命中后的吉凶判断及影响说明；
      *  - sections     :list      本法专属的用户展示说明；
      *
-     * @return array{description: string, foundations: list<array{code: string, title: string, description: string}>, judgments: list<array<string, mixed>>, sections?: list<array{title: string, content: string}>}
+     * @return array{description: string, foundations: list<array{code: string, title: string, description: string}>, judgments: list<array{label: string, description: string, effect?: string}>, sections?: list<array{title: string, content: string}>}
      */
     public function definition(): array;
 

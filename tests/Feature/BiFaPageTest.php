@@ -199,7 +199,49 @@ test('unresearched bifa detail does not construct a KnowledgeCard', function () 
     $response = $this->get(route('bifa.show', ['law' => $law['slug']]))->assertOk();
 
     expect($response->viewData('knowledgeCard'))->toBeNull();
+    expect($response->viewData('researched'))->toBeFalse();
     $response->assertSee('本法尚未研究');
+});
+
+test('researched but unimplemented bifa shows research material without a KnowledgeCard', function () {
+    $law = BiFaCatalog::findByCode('bifa.02');
+    expect($law)->not->toBeNull();
+
+    $law = [
+        ...$law,
+        'researched' => true,
+        'researchUrl' => 'https://example.test/bifa-02',
+    ];
+    $researched = true;
+    $implemented = false;
+    $knowledgeCard = null;
+    $response = $this->view('bifa.show', [
+        'law' => $law,
+        'researched' => $researched,
+        'implemented' => $implemented,
+        'knowledgeCard' => $knowledgeCard,
+        'original' => [
+            'status' => 'complete',
+            'content' => '第二法古籍原文测试内容',
+        ],
+        'previousLaw' => null,
+        'nextLaw' => null,
+    ]);
+
+    expect($knowledgeCard)->toBeNull()
+        ->and($researched)->toBeTrue()
+        ->and($implemented)->toBeFalse();
+    $response->assertSee('程序判定规则尚未实现')
+        ->assertSee('第二法古籍原文测试内容')
+        ->assertSee('打开完整研究记录');
+});
+
+test('researched and implemented first bifa constructs its KnowledgeCard', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'qian-hou-yin-cong']))->assertOk();
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($response->viewData('knowledgeCard'))->not->toBeNull();
 });
 
 test('bifa panel renders the first law without numbering or unrelated cases', function () {

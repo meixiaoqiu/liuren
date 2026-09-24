@@ -19,7 +19,7 @@
                         class="btn-ghost btn-sm"
                     />
 
-                    @if ($law['researched'])
+                    @if ($researched)
                         <x-button
                             label="打开完整研究记录"
                             icon="o-book-open"
@@ -38,14 +38,20 @@
                     @endif
                 </header>
 
-                @if (! $law['researched'])
+                @if (! $researched)
                     <x-card shadow class="pan-data-card">
                         <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
                             本法尚未研究：详情页仅保留目录信息，无分格定义、无盘面判定、无研究文档。后续按"逐法逐步实现"原则补齐。
                         </x-alert>
                     </x-card>
                 @else
-                    @if ($knowledgeCard !== null)
+                    @if (! $implemented)
+                        <x-card shadow class="pan-data-card">
+                            <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
+                                本法研究资料已整理，但程序判定规则尚未实现。
+                            </x-alert>
+                        </x-card>
+                    @elseif ($knowledgeCard !== null)
                         <x-knowledge-card :card="$knowledgeCard" />
                     @endif
 

@@ -71,7 +71,7 @@ Route::get('/bifa/{law}', function (
     $page = $pages[$lawIndex];
     $researched = $page['researched'] ?? false;
 
-    $definition = [];
+    $definition = null;
     foreach ($registry->rules() as $rule) {
         if ($rule->code() === $page['code']) {
             $definition = $rule->definition();
@@ -79,12 +79,15 @@ Route::get('/bifa/{law}', function (
         }
     }
 
+    $implemented = $definition !== null;
+
     $original = $research->original($page);
 
     return view('bifa.show', [
         'law' => $page,
         'researched' => $researched,
-        'knowledgeCard' => $researched
+        'implemented' => $implemented,
+        'knowledgeCard' => $researched && $implemented
             ? $cardFactory->fromDetail($page, $definition)->toArray()
             : null,
         'original' => $original,

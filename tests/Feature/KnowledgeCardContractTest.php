@@ -4,7 +4,6 @@ use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Services\PanCalculator;
 use App\Support\BiFaCatalog;
-use App\Support\BiFaResearchDocument;
 use App\Support\Knowledge\BiFaKnowledgeCardFactory;
 use App\Support\Knowledge\KnowledgeCard;
 
@@ -107,7 +106,6 @@ test('KnowledgeCard fromDetail 不输出内部 rule code / debug 字段', functi
     $law = collect(BiFaCatalog::laws())->first(fn (array $row): bool => $row['code'] === 'bifa.01');
     expect($law)->not->toBeNull();
 
-    $research = app(BiFaResearchDocument::class);
     $definition = [
         'description' => '测试用定义。',
         'foundations' => [
@@ -171,4 +169,44 @@ test('BiFaKnowledgeCardFactory fromDetail 只转换 definition 提供的法条�
         ->not->toContain('9 类古籍分格')
         ->not->toContain('引从课')
         ->not->toContain('第一法');
+});
+
+test('BiFaKnowledgeCardFactory 优先使用 definition description 并在空值时回退目录摘要', function () {
+    $law = BiFaCatalog::findByCode('bifa.02');
+    expect($law)->not->toBeNull();
+
+    $factory = app(BiFaKnowledgeCardFactory::class);
+    $definition = ['description' => '第二法现代汉语说明', 'foundations' => [], 'judgments' => []];
+    $card = $factory->fromDetail($law, $definition);
+
+    expect($card->summary)->toBe('第二法现代汉语说明');
+
+    $definition['description'] = '   ';
+    $fallbackCard = $factory->fromDetail($law, $definition);
+
+    expect($fallbackCard->summary)->toBe($law['summary']);
+});
+
+test('BiFaKnowledgeCardFactory 将 judgments 转为用户可读 sections 且不泄漏 effect', function () {
+    $law = BiFaCatalog::findByCode('bifa.02');
+    expect($law)->not->toBeNull();
+
+    $card = app(BiFaKnowledgeCardFactory::class)->fromDetail($law, [
+        'description' => '第二法现代汉语说明',
+        'foundations' => [],
+        'sections' => [['title' => '既有说明', 'content' => '既有内容']],
+        'judgments' => [[
+            'label' => '某增强条件',
+            'description' => '这是增强后的用户说明。',
+            'effect' => 'increase',
+        ]],
+    ]);
+    $payload = json_encode($card->toArray(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+    expect($card->sections)->toContain(['title' => '既有说明', 'content' => '既有内容'])
+        ->and($card->sections)->toContain([
+            'title' => '增强 · 某增强条件',
+            'content' => '这是增强后的用户说明。',
+        ])
+        ->and($payload)->not->toContain('increase');
 });

@@ -96,6 +96,11 @@ final readonly class BiFaKnowledgeCardFactory
 
         $foundations = $definition['foundations'] ?? [];
         $routeNames = $this->routeNames($foundations);
+        $description = trim((string) ($definition['description'] ?? ''));
+        $sections = array_values($definition['sections'] ?? []);
+        foreach ($definition['judgments'] ?? [] as $judgment) {
+            $sections[] = $this->judgmentSection($judgment);
+        }
         $original = $this->research->original($law);
         $actions = [];
         if (($law['researchUrl'] ?? '') !== '' && $original['status'] !== 'missing') {
@@ -112,7 +117,7 @@ final readonly class BiFaKnowledgeCardFactory
             typeLabel: self::TYPE_LABEL,
             label: '第 '.$catalogLaw['number'].' 法',
             title: $catalogLaw['name'],
-            summary: $catalogLaw['summary'],
+            summary: $description !== '' ? $description : $catalogLaw['summary'],
             status: ['label' => '已完成研究', 'tone' => self::TONE_INFO],
             conditions: array_values(array_map(
                 static fn (array $foundation): array => [
@@ -125,10 +130,28 @@ final readonly class BiFaKnowledgeCardFactory
                 $foundations,
             )),
             evidence: [],
-            sections: array_values($definition['sections'] ?? []),
+            sections: $sections,
             examples: $this->examples(BiFaCaseCatalog::casesForLaw((string) $law['code']), $routeNames),
             actions: $actions,
         );
+    }
+
+    /** @param array<string, mixed> $judgment @return array{title: string, content: string} */
+    private function judgmentSection(array $judgment): array
+    {
+        $effectLabels = [
+            'increase' => '增强',
+            'reduce' => '减损',
+            'resolve' => '例外',
+            'neutral' => '中性',
+        ];
+        $label = (string) ($judgment['label'] ?? '');
+        $effectLabel = $effectLabels[$judgment['effect'] ?? ''] ?? null;
+
+        return [
+            'title' => $effectLabel === null ? $label : $effectLabel.' · '.$label,
+            'content' => (string) ($judgment['description'] ?? ''),
+        ];
     }
 
     /**

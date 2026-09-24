@@ -11,7 +11,7 @@
     4. 成立状态（status）
     5. 成立条件（conditions）
     6. 命中依据（evidence）
-    7. 增益/减损或说明（sections）
+    7. 补充说明（sections）
     8. 课例（examples）
     9. 来源/详情入口（actions）
 
@@ -76,9 +76,9 @@
         </section>
     @endif
 
-    {{-- 7. 增益/减损或说明 --}}
+    {{-- 7. 补充说明 --}}
     @if (! empty($sections))
-        <section class="mt-5 space-y-3" aria-label="增益与减损说明">
+        <section class="mt-5 space-y-3" aria-label="补充说明">
             @foreach ($sections as $section)
                 <x-alert icon="o-information-circle" class="alert-soft">
                     <strong>{{ $section['title'] }}</strong>
