@@ -20,8 +20,6 @@ final readonly class BiFaKnowledgeCardFactory
             throw new LogicException('毕法目录与判定结果不一致。');
         }
 
-        $routeNames = $this->routeNames($match->subMatches);
-        $cases = BiFaCaseCatalog::casesByMatchedRoutes($match->code, $match->matchedRoutes);
         $matchedCount = count($match->matchedRoutes);
 
         return new KnowledgeCard(
@@ -30,7 +28,7 @@ final readonly class BiFaKnowledgeCardFactory
             title: $match->name,
             summary: $match->summary,
             status: $match->matchedRoutes !== []
-                ? ['label' => '本法成立（'.$matchedCount.' 个分格命中）', 'tone' => 'success']
+                ? ['label' => '已成立（'.$matchedCount.' 个分格成立）', 'tone' => 'success']
                 : ['label' => '待补充人物资料后评估', 'tone' => 'warning'],
             conditions: array_values(array_map(
                 static function (array $subMatch): array {
@@ -40,10 +38,10 @@ final readonly class BiFaKnowledgeCardFactory
                         'title' => (string) ($subMatch['title'] ?? ''),
                         'description' => (string) ($subMatch['description'] ?? ''),
                         'status' => ! empty($subMatch['matched'])
-                            ? ['label' => '命中', 'tone' => 'success']
+                            ? ['label' => '已成立', 'tone' => 'success']
                             : ($needsPeople
                                 ? ['label' => '待评估', 'tone' => 'warning']
-                                : ['label' => '不成立', 'tone' => 'neutral']),
+                                : ['label' => '未成立', 'tone' => 'neutral']),
                         'detail' => $subMatch['detail'] ?? ($needsPeople
                             ? '需要占测者本命或行年资料，当前资料不足。'
                             : null),
@@ -52,11 +50,8 @@ final readonly class BiFaKnowledgeCardFactory
                 $match->subMatches,
             )),
             evidence: [],
-            sections: [[
-                'title' => '判定说明',
-                'content' => '一张盘可以同时符合本法的多个分格；符合任一分格，本法即成立。',
-            ]],
-            examples: $this->examples($cases, $routeNames),
+            sections: [],
+            examples: [],
             actions: [[
                 'label' => '查看本法详解',
                 'url' => route('bifa.show', ['law' => $law['slug']]),

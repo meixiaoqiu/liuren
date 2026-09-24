@@ -188,7 +188,7 @@ test('unknown bifa slug returns 404', function () {
     $this->get('/bifa/not-a-real-law')->assertNotFound();
 });
 
-test('bifa panel renders related executable cases when first law matches and routes intersect', function () {
+test('bifa panel renders the first law without numbering or unrelated cases', function () {
     $component = Livewire::withQueryParams([
         'datetime' => '2000-01-23T13:00',
         'birth' => '1986-08-01T00:00',
@@ -207,12 +207,21 @@ test('bifa panel renders related executable cases when first law matches and rou
         ->and('前后引从升迁吉')->toBe($firstLaw['name'])
         ->and($firstLaw['matched_routes'])->toContain('yin_gan', 'gong_gui');
 
-    // 排盘块必须使用 number（"第 1 法"），不得用 code（"第 bifa.01 法"）。
-    $component->assertSee('第 1 法');
+    // 排盘块使用“毕 + 法名”的课经同款标题，不展示法序号。
+    $component->assertSee('毕');
+    $component->assertSee('前后引从升迁吉');
+    $component->assertDontSee('第 1 法');
     $component->assertDontSee('第 bifa.01 法');
     $component->assertDontSee('第 bifa.qian_hou_yin_cong 法');
+    $component->assertDontSee('判定说明');
+    $component->assertDontSee('命中依据');
+    $component->assertDontSee('相关案例');
     $component->assertSee('引从天干');
     $component->assertSee('拱贵格');
+    $component->assertSee('已成立');
+    $component->assertSee('未成立');
+    $component->assertDontSee('分格命中');
+    $component->assertDontSee('>不成立<', false);
     foreach (['yin_gan', 'gong_gui', 'bifa.01', 'BiFaRuleEngine', 'QianHouYinCongRule',
         'BiFaKnowledgeCardFactory', 'fromMatch', '$matchedRoutes', 'matched_routes', 'pending_routes',
         'case_id', 'reference_only', 'executable'] as $internalName) {
@@ -233,8 +242,8 @@ test('bifa panel renders related executable cases when first law matches and rou
             ->not->toBeEmpty('案例 routes 必须与当前命中 route 有交集');
     }
 
-    // 至少出现一个 executable 案例的"查看排盘 →"链接。
-    $component->assertSee('查看排盘');
+    // 相关案例属于规则研究材料，不进入当前盘卡片。
+    $component->assertDontSee('查看排盘');
 
     // 课经 ruleMatches 中不得混入毕法。
     $ruleMatches = $component->get('ruleMatches');

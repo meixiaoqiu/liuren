@@ -1,98 +1,94 @@
 @props(['card'])
 
 @php
-    $badgeClass = static fn (string $tone): string => match ($tone) {
-        'success' => 'badge-success badge-soft',
-        'warning' => 'badge-warning badge-soft',
-        'info' => 'badge-info badge-soft',
-        default => 'badge-ghost badge-soft',
+    $statusMeta = static fn (string $tone): array => match ($tone) {
+        'success' => ['icon' => 'o-check-circle', 'iconClass' => 'text-success', 'textClass' => 'text-base-content'],
+        'warning' => ['icon' => 'o-clock', 'iconClass' => 'text-warning', 'textClass' => 'text-base-content/70'],
+        'info' => ['icon' => 'o-information-circle', 'iconClass' => 'text-info', 'textClass' => 'text-base-content/70'],
+        default => ['icon' => 'o-x-circle', 'iconClass' => 'text-base-content/35', 'textClass' => 'text-base-content/45'],
     };
-    $cardId = md5($card['type'].$card['code'].$card['title']);
+    $typeMarker = mb_substr($card['type'], 0, 1);
 @endphp
 
-<x-card :title="$card['title']" :subtitle="$card['summary']" shadow>
-    <x-slot:menu>
-        <x-badge :value="$card['type']" class="badge-primary badge-soft" />
-        <x-badge :value="$card['code']" class="badge-ghost" />
+<div>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-3">
+            <span class="grid size-9 shrink-0 place-items-center bg-neutral text-sm font-semibold text-neutral-content">
+                {{ $typeMarker }}
+            </span>
+            <h2 class="text-lg font-semibold">{{ $card['title'] }}</h2>
+        </div>
+
         @if ($card['status'] !== null)
-            <x-badge
-                :value="$card['status']['label']"
-                class="{{ $badgeClass($card['status']['tone']) }}"
-            />
+            @php($meta = $statusMeta($card['status']['tone']))
+            <span class="flex items-center gap-1.5 text-sm font-medium {{ $meta['textClass'] }}">
+                <x-icon :name="$meta['icon']" class="size-5 {{ $meta['iconClass'] }}" />
+                {{ $card['status']['label'] }}
+            </span>
         @endif
-    </x-slot:menu>
+
+        <p class="w-full leading-7 text-base-content/65">{{ $card['summary'] }}</p>
+    </div>
 
     @foreach ($card['sections'] as $section)
-        <x-alert icon="o-information-circle" class="mb-3 alert-soft">
+        <x-alert icon="o-information-circle" class="mt-4 alert-soft">
             <strong>{{ $section['title'] }}</strong>
             <p class="mt-1 text-sm leading-6">{{ $section['content'] }}</p>
         </x-alert>
     @endforeach
 
     @if ($card['conditions'] !== [])
-        <x-collapse :id="'conditions-'.$cardId" collapse-plus-minus class="mt-4">
-            <x-slot:heading><strong>成立条件</strong></x-slot:heading>
-            <x-slot:content>
-                <ul class="space-y-3">
-                    @foreach ($card['conditions'] as $condition)
-                        <li>
-                            <div class="flex flex-wrap items-center gap-2">
+        <section class="mt-5 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $card['title'] }}：成立条件">
+            <h3 class="text-sm font-semibold tracking-wide text-base-content/70">成立条件</h3>
+            <ol class="mt-4 space-y-4">
+                @foreach ($card['conditions'] as $index => $condition)
+                    <li class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-2">
+                        <span class="grid size-7 place-items-center rounded-full bg-primary/12 text-xs font-semibold text-primary">{{ $index + 1 }}</span>
+                        <div>
+                            <div class="flex flex-wrap items-center justify-between gap-2">
                                 <strong>{{ $condition['title'] }}</strong>
                                 @if ($condition['status'] !== null)
-                                    <x-badge
-                                        :value="$condition['status']['label']"
-                                        class="{{ $badgeClass($condition['status']['tone']) }} badge-sm"
-                                    />
+                                    @php($meta = $statusMeta($condition['status']['tone']))
+                                    <span class="flex items-center gap-1.5 text-sm font-medium {{ $meta['textClass'] }}">
+                                        <x-icon :name="$meta['icon']" class="size-5 {{ $meta['iconClass'] }}" />
+                                        {{ $condition['status']['label'] }}
+                                    </span>
                                 @endif
                             </div>
                             <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $condition['description'] }}</p>
                             @if ($condition['detail'] !== null && $condition['detail'] !== '')
-                                <p class="mt-1 text-sm leading-6 text-base-content/55">当前盘：{{ $condition['detail'] }}</p>
+                                <p class="mt-1 text-xs leading-5 text-base-content/55">当前盘：{{ $condition['detail'] }}</p>
                             @endif
-                        </li>
-                    @endforeach
-                </ul>
-            </x-slot:content>
-        </x-collapse>
-    @endif
-
-    @if ($card['evidence'] !== [])
-        <x-collapse :id="'evidence-'.$cardId" collapse-plus-minus class="mt-3">
-            <x-slot:heading><strong>判定依据</strong></x-slot:heading>
-            <x-slot:content>
-                <ul class="space-y-2">
-                    @foreach ($card['evidence'] as $item)
-                        <li><strong>{{ $item['label'] }}</strong>：{{ $item['detail'] }}</li>
-                    @endforeach
-                </ul>
-            </x-slot:content>
-        </x-collapse>
+                        </div>
+                    </li>
+                @endforeach
+            </ol>
+        </section>
     @endif
 
     @if ($card['examples'] !== [])
-        <x-collapse :id="'examples-'.$cardId" collapse-plus-minus class="mt-3">
-            <x-slot:heading><strong>相关案例</strong></x-slot:heading>
-            <x-slot:content>
-                <ul class="space-y-3">
-                    @foreach ($card['examples'] as $example)
-                        <li>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <strong>{{ $example['title'] }}</strong>
-                                <x-badge :value="$example['source']" class="badge-primary badge-soft badge-sm" />
-                                <x-badge
-                                    :value="$example['status']['label']"
-                                    class="{{ $badgeClass($example['status']['tone']) }} badge-sm"
-                                />
-                            </div>
-                            <p class="mt-1 text-sm leading-6 text-base-content/60">{{ $example['description'] }}</p>
-                            @if ($example['url'] !== null)
-                                <x-button label="查看排盘" :link="$example['url']" class="mt-2 btn-ghost btn-xs" />
-                            @endif
-                        </li>
-                    @endforeach
-                </ul>
-            </x-slot:content>
-        </x-collapse>
+        <section class="mt-4 bg-base-200/45 px-4 py-4 sm:px-5" aria-label="{{ $card['title'] }}：相关案例">
+            <h3 class="text-sm font-semibold tracking-wide text-base-content/70">相关案例</h3>
+            <ul class="mt-3 space-y-4">
+                @foreach ($card['examples'] as $example)
+                    <li class="border-l-2 border-primary/35 pl-4">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <strong>{{ $example['title'] }}</strong>
+                            <span class="text-xs text-base-content/55">{{ $example['source'] }}</span>
+                            @php($meta = $statusMeta($example['status']['tone']))
+                            <span class="flex items-center gap-1 text-xs font-medium {{ $meta['textClass'] }}">
+                                <x-icon :name="$meta['icon']" class="size-4 {{ $meta['iconClass'] }}" />
+                                {{ $example['status']['label'] }}
+                            </span>
+                        </div>
+                        <p class="mt-1 text-sm leading-6 text-base-content/60">{{ $example['description'] }}</p>
+                        @if ($example['url'] !== null)
+                            <x-button label="查看排盘" :link="$example['url']" class="mt-2 btn-ghost btn-xs" />
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </section>
     @endif
 
     @if ($card['actions'] !== [])
@@ -108,4 +104,4 @@
             @endforeach
         </div>
     @endif
-</x-card>
+</div>
