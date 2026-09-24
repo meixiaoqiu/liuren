@@ -56,14 +56,27 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 3..100 法都尚未研究
-    $page = BiFaPageCatalog::findByCode('bifa.03');
+    // 第 4..100 法都尚未研究
+    $page = BiFaPageCatalog::findByCode('bifa.04');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 
     $result = (new BiFaResearchDocument)->original($page);
     expect($result['status'])->toBe('missing')
         ->and($result['content'])->toBeNull();
+});
+
+test('BiFaResearchDocument extracts verified original text for the third law', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.03');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('帘幕官者，如昼占乃夜贵，夜占乃昼贵')
+        ->and($content)->toContain('德入天门格')
+        ->and($content)->toContain('真朱雀格')
+        ->and($content)->toContain('六己日')
+        ->and($content)->not->toContain('## 三');
 });
 
 test('BiFaResearchDocument returns missing when researchPath does not exist', function () {
