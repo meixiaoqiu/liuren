@@ -9,13 +9,42 @@ use App\Support\BiFaCaseCatalog;
  *  - source_type 必须是 'daquan' 或 'generated'，无第三种；
  *  - source_type='daquan' 必须有古籍原文来源——source 字段必须含 "《六壬大全" 字样，
  *    且不得以 "程序验证"、"由…构造"、"自行构造" 等措辞结尾；
- *  - source_type='generated' 不得伪装成 daquan；
+ *  - source_type='generated' 不得伪装成 daquan，且 source 必须明示现代/程序复现性质；
  *  - case_id 命名空间必须是 bifa.*，不得包含 lesson.*（防 KeJingCatalog 越界）；
  *  - status 必须是 'executable' 或 'reference_only'；
  *  - executable 案例必须有 datetime / birth / gender；
  *  - reference_only 案例可缺 datetime；
- *  - routes 必须非空，且每条路由 route 必须属于已注册的 BiFaRule 的 definition。
+ *  - routes 必须非空；已实现法的 route 必须属于本法 definition，未实现法只允许 reference_only。
  */
+
+/**
+ * @param  list<array{case_id: string, law_code: string, status: string, routes: list<string>}>  $cases
+ * @param  array<string, list<string>>  $allowedRoutesByLaw
+ * @return list<string>
+ */
+function biFaCaseRouteContractErrors(array $cases, array $allowedRoutesByLaw): array
+{
+    $errors = [];
+
+    foreach ($cases as $case) {
+        if (! array_key_exists($case['law_code'], $allowedRoutesByLaw)) {
+            if ($case['status'] !== 'reference_only') {
+                $errors[] = "case_id={$case['case_id']} 所属法尚未实现时只能登记 reference_only";
+            }
+
+            continue;
+        }
+
+        foreach ($case['routes'] as $route) {
+            if (! in_array($route, $allowedRoutesByLaw[$case['law_code']], true)) {
+                $errors[] = "case_id={$case['case_id']} 声明 route={$route} 不属于 {$case['law_code']} 的 foundations";
+            }
+        }
+    }
+
+    return $errors;
+}
+
 test('BiFaCaseCatalog cases all have valid source_type / status / case_id format', function () {
     $allowedSources = ['daquan', 'generated'];
     $allowedStatus = ['executable', 'reference_only'];
@@ -47,7 +76,16 @@ test('BiFaCaseCatalog generated cases are not labeled as daquan', function () {
             continue;
         }
 
-        expect($case['source'])->not->toContain('正文完整课例');
+        $source = (string) $case['source'];
+        $looksGenerated = str_contains($source, '程序验证')
+            || str_contains($source, '现代生产复现')
+            || str_contains($source, '程序复现')
+            || str_contains($source, '现代复现');
+
+        expect($source)->not->toContain('正文完整课例')
+            ->and($looksGenerated)->toBeTrue(
+                "case_id={$case['case_id']} 的 generated source 必须明示现代/程序复现性质",
+            );
     }
 });
 
@@ -73,18 +111,27 @@ test('BiFaCaseCatalog routes only contain codes registered for their own law', f
         }
     }
 
-    foreach (BiFaCaseCatalog::cases() as $case) {
-        expect(array_key_exists($case['law_code'], $allowedRoutesByLaw))->toBeTrue(
-            "case_id={$case['case_id']} 声明 executable route，但 law_code={$case['law_code']} 没有已注册 rule",
-        );
+    expect(biFaCaseRouteContractErrors(BiFaCaseCatalog::cases(), $allowedRoutesByLaw))->toBe([]);
+});
 
-        foreach ($case['routes'] as $route) {
-            expect($route)->toBeIn(
-                $allowedRoutesByLaw[$case['law_code']],
-                "case_id={$case['case_id']} 声明 route={$route} 不属于 {$case['law_code']} 的 foundations",
-            );
-        }
-    }
+test('BiFaCaseCatalog allows only reference_only cases for laws without a registered rule', function () {
+    $referenceOnly = [[
+        'case_id' => 'bifa.03.reference',
+        'law_code' => 'bifa.03',
+        'status' => 'reference_only',
+        'routes' => ['future_route_not_defined_yet'],
+    ]];
+    $executable = [[
+        'case_id' => 'bifa.03.executable',
+        'law_code' => 'bifa.03',
+        'status' => 'executable',
+        'routes' => ['future_route_not_defined_yet'],
+    ]];
+
+    expect(biFaCaseRouteContractErrors($referenceOnly, []))->toBe([])
+        ->and(biFaCaseRouteContractErrors($executable, []))->toBe([
+            'case_id=bifa.03.executable 所属法尚未实现时只能登记 reference_only',
+        ]);
 });
 
 test('BiFaCaseCatalog case_ids do not collide with KeJingCatalog cases', function () {

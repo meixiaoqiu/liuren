@@ -480,8 +480,8 @@ final class BiFaCaseCatalog
             'gender' => 'male',
             'people' => [],
             'routes' => ['tianxin_four_establishments_in_lessons'],
-            'reason' => '古籍给出甲子年七月乙巳日酉时的天心格条件材料，但没有给出可直接对应现代公历 datetime 的完整课例。本盘四建为太岁子、月建申、日支巳、占时酉，皆在四课地支集合内。本案例 datetime 为使用 PanCalculator 搜索并验证得到的现代生产复现时间。',
-            'source' => '基于《六壬大全·毕法赋》第二法正文结构示例的现代生产复现',
+            'reason' => '古籍《六壬大全·课经·盘珠课》给出甲子年七月乙巳日酉时巳将的天心格案例材料；它不是《毕法赋》第二法直接给出的现代完整课例。本盘四建为太岁子、月建申、日支巳、占时酉，皆在四课地支集合内；2044-08-24T17:00 是使用 PanCalculator 搜索并验证得到的现代生产复现时间。',
+            'source' => '基于《六壬大全·课经·盘珠课》天心格正文示例的现代生产复现',
         ],
         [
             'case_id' => 'bifa.02.huihuan-xin-hai',
@@ -495,7 +495,7 @@ final class BiFaCaseCatalog
             'people' => [],
             'routes' => ['huihuan_transmissions_in_lessons'],
             'reason' => '古籍给出辛亥日三传戌酉申的回还格结构，但没有给出可直接对应现代公历 datetime 的完整课例。本盘四课地支集合含 {酉、申、亥、戌}，三传尽在集合内。本案例 datetime 为使用 PanCalculator 搜索并验证得到的现代生产复现时间。',
-            'source' => '基于《六壬大全·毕法赋》第二法正文结构示例的现代生产复现',
+            'source' => '基于《六壬大全·毕法赋》第二法直接记载的辛亥日回还格结构的现代生产复现',
         ],
     ];
 }

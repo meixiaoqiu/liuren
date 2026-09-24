@@ -52,9 +52,7 @@
                             </x-alert>
                         </x-card>
                     @elseif ($knowledgeCard !== null)
-                        <x-card shadow class="pan-data-card">
-                            <x-knowledge-card :card="$knowledgeCard" />
-                        </x-card>
+                        <x-knowledge-card :card="$knowledgeCard" />
                     @endif
 
                     @if (! empty($original))

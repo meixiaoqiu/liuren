@@ -259,6 +259,8 @@ test('researched and implemented second bifa constructs its KnowledgeCard and sh
         ->and($card['conditions'][2]['title'])->toBe('天心格')
         ->and($card['conditions'][3]['title'])->toBe('回还格');
 
+    $response->assertSee('毕法 · 第 2 法');
+
     $contents = (string) json_encode($card, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
 
     // 详情页不应泄漏内部 route code / 工厂类名。
