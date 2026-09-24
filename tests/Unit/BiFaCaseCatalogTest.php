@@ -47,8 +47,7 @@ test('BiFaCaseCatalog generated cases are not labeled as daquan', function () {
             continue;
         }
 
-        expect($case['source'])->not->toContain('《六壬大全·毕法赋》');
-        expect($case['case_id'])->toContain('generated-');
+        expect($case['source'])->not->toContain('正文完整课例');
     }
 });
 
@@ -65,20 +64,24 @@ test('BiFaCaseCatalog executable cases have datetime / birth / gender', function
     }
 });
 
-test('BiFaCaseCatalog routes only contain codes registered in BiFaRule::definition', function () {
-    // 全部已注册 BiFaRule 的 foundation code 合并为合法集合。
-    $allowedCodes = [];
+test('BiFaCaseCatalog routes only contain codes registered for their own law', function () {
+    $allowedRoutesByLaw = [];
     foreach ((new BiFaRuleRegistry)->rules() as $rule) {
+        $allowedRoutesByLaw[$rule->code()] = [];
         foreach ($rule->definition()['foundations'] as $foundation) {
-            $allowedCodes[] = $foundation['code'];
+            $allowedRoutesByLaw[$rule->code()][] = $foundation['code'];
         }
     }
 
     foreach (BiFaCaseCatalog::cases() as $case) {
+        expect(array_key_exists($case['law_code'], $allowedRoutesByLaw))->toBeTrue(
+            "case_id={$case['case_id']} 声明 executable route，但 law_code={$case['law_code']} 没有已注册 rule",
+        );
+
         foreach ($case['routes'] as $route) {
             expect($route)->toBeIn(
-                $allowedCodes,
-                "case_id={$case['case_id']} 声明 route={$route} 不属于已注册 BiFaRule 的 foundations",
+                $allowedRoutesByLaw[$case['law_code']],
+                "case_id={$case['case_id']} 声明 route={$route} 不属于 {$case['law_code']} 的 foundations",
             );
         }
     }

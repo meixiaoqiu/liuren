@@ -355,38 +355,49 @@ test('definition() foundations code 与 route 完全一致', function () {
         );
 });
 
-test('十个古籍指定日不作为硬编码前置条件', function () {
-    // 第二法 matcher 不应有"日柱白名单"。
-    // 任意构造一个非十个日柱的盘面，只要满足结构条件也应当命中相应 route。
-    // 这里使用庚辰日（rigan=6, rizhi=4），甲戌旬 xunHead=10, xunTail=7。
-    // 庚寄申(lodging=8)；让 tianpan[8]=7(xunTail), tianpan[4]=10(xunHead) → A 路命中。
-    $match = swxj_match([
-        'rigan' => 6,
-        'rizhi' => 4,
-        'tianpan' => [9, 10, 11, 0, 10, 4, 5, 6, 7, 8, 1, 2],
-        'sike' => [6, 7, 8, 10, 4, 10, 4, 7],
-    ]);
+test('60 日乘 12 种合法天盘穷尽推出十日且 A B 永远互斥', function () {
+    $stemNames = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+    $branchNames = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+    $aDays = [];
+    $bDays = [];
+    $both = [];
 
-    expect($match)->not->toBeNull()
-        ->and($match->matchedRoutes)->toContain('xun_tail_on_stem_xun_head_on_branch');
+    for ($dayIndex = 0; $dayIndex < 60; $dayIndex++) {
+        $rigan = $dayIndex % 10;
+        $rizhi = $dayIndex % 12;
+        $dayName = $stemNames[$rigan].$branchNames[$rizhi];
 
-    // 顺手再用丙子日（rigan=2, rizhi=0）验证 B 路：
-    // 丙子日 → 甲戌旬 xunHead=10 (戌), xunTail=7 (酉)；
-    // 丙寄巳(lodging=5)；让 tianpan[5]=10 (xunHead), tianpan[0]=7 (xunTail) → B 路命中。
-    // 让 nianzhi=10, yuezhi=11, shizhi=1 → C 不命中；D 不命中。
-    $matchB = swxj_match([
-        'rigan' => 2,
-        'rizhi' => 0,
-        'tianpan' => [7, 1, 2, 3, 4, 10, 6, 7, 8, 5, 10, 11],
-        'sike' => [2, 7, 5, 10, 0, 7, 0, 0],
-        'nianzhi' => 10,
-        'yuezhi' => 11,
-        'shizhi' => 1,
-        'sanchuan0' => 2,
-        'sanchuan1' => 3,
-        'sanchuan2' => 4,
-    ]);
+        for ($offset = 0; $offset < 12; $offset++) {
+            $tianpan = [];
+            for ($ground = 0; $ground < 12; $ground++) {
+                $tianpan[] = ($ground + $offset) % 12;
+            }
 
-    expect($matchB)->not->toBeNull()
-        ->and($matchB->matchedRoutes)->toContain('xun_head_on_stem_xun_tail_on_branch');
+            $match = swxj_match([
+                'rigan' => $rigan,
+                'rizhi' => $rizhi,
+                'tianpan' => $tianpan,
+            ]);
+            $routes = $match?->matchedRoutes ?? [];
+            $a = in_array('xun_tail_on_stem_xun_head_on_branch', $routes, true);
+            $b = in_array('xun_head_on_stem_xun_tail_on_branch', $routes, true);
+
+            if ($a) {
+                $aDays[$dayName] = true;
+            }
+            if ($b) {
+                $bDays[$dayName] = true;
+            }
+            if ($a && $b) {
+                $both[] = "{$dayName}@{$offset}";
+            }
+        }
+    }
+
+    expect(array_keys($aDays))->toHaveCount(5)
+        ->and(array_keys($aDays))->toEqualCanonicalizing(['乙未', '辛丑', '丙申', '壬寅', '戊申'])
+        ->and(array_keys($bDays))->toHaveCount(5)
+        ->and(array_keys($bDays))->toEqualCanonicalizing(['乙丑', '辛未', '丙寅', '戊寅', '壬申'])
+        ->and(array_intersect(array_keys($aDays), array_keys($bDays)))->toBe([])
+        ->and($both)->toBe([]);
 });

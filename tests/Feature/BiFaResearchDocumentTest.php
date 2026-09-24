@@ -38,6 +38,23 @@ test('BiFaResearchDocument extracts the 古籍原文 section for the researched 
         ->and($content)->not->toContain('工程裁决');
 });
 
+test('BiFaResearchDocument extracts only the verified original text for the second law', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.02');
+    expect($page)->not->toBeNull();
+
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('谓干上有旬尾，支上有旬首')
+        ->and($content)->toContain('惟乙未、辛丑、丙申、壬寅、戊申五日有之')
+        ->and($content)->toContain('回还格，乃三传在四课之中')
+        ->and($content)->not->toContain('象曰：先凶后吉')
+        ->and($content)->not->toContain('结构穷尽')
+        ->and($content)->not->toContain('现代生产复现')
+        ->and($content)->not->toContain('## 三');
+});
+
 test('BiFaResearchDocument returns missing for unresearched law', function () {
     // 第 3..100 法都尚未研究
     $page = BiFaPageCatalog::findByCode('bifa.03');

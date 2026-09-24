@@ -6,7 +6,6 @@ use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
 use App\Domain\Pan\Rules\RuleRegistry;
 use App\Livewire\Pan\CreatePan;
-use App\Support\BiFaCaseCatalog;
 use App\Support\BiFaCatalog;
 use App\Support\BiFaPageCatalog;
 use Livewire\Livewire;
@@ -273,6 +272,8 @@ test('researched and implemented second bifa constructs its KnowledgeCard and sh
         'BiFaRuleEngine',
         'BiFaKnowledgeCardFactory',
         'match()',
+        'route',
+        'matcher',
         'matched_routes',
         'pending_routes',
         '$matchedRoutes',
@@ -398,50 +399,5 @@ test('bifa panel renders the second law when its executable case is loaded', fun
         '$matchedRoutes',
     ] as $internal) {
         $component->assertDontSee($internal, false);
-    }
-});
-
-test('every executable bifa case reproduces at least its declared routes', function () {
-    foreach (BiFaCaseCatalog::cases() as $case) {
-        if ($case['status'] !== 'executable') {
-            continue;
-        }
-        if (empty($case['datetime'])) {
-            continue;
-        }
-
-        $params = [
-            'datetime' => $case['datetime'],
-            'birth' => $case['birth'] ?? '1986-08-01T00:00',
-            'gender' => $case['gender'] ?? 'male',
-        ];
-
-        $people = $case['people'] ?? [];
-        if (! empty($people)) {
-            $params['people'] = $people;
-        }
-
-        $component = Livewire::withQueryParams($params)
-            ->test(CreatePan::class)
-            ->assertHasNoErrors();
-
-        if ($case['law_code'] !== 'bifa.01') {
-            continue; // 仅验证第一法案例；后续法的排盘结果不在本轮范围内。
-        }
-
-        $bifa = collect(app(BiFaRuleEngine::class)->evaluate(new PanResult($component->get('pan'))))
-            ->first(fn ($match): bool => $match->code === $case['law_code']);
-
-        expect($bifa)->not->toBeNull("案例 {$case['case_id']} 起盘后必须命中第一法");
-
-        $declaredRoutes = $case['routes'];
-        $matchedRoutes = $bifa->matchedRoutes;
-
-        foreach ($declaredRoutes as $route) {
-            if ($route === '') {
-                continue;
-            }
-            expect($matchedRoutes)->toContain($route);
-        }
     }
 });

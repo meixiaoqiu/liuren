@@ -28,81 +28,80 @@
     $examples = $card['examples'] ?? [];
     $actions = $card['actions'] ?? [];
     $evidence = $card['evidence'] ?? [];
-    $badgeValue = trim((string) ($card['type_label'] ?? ''));
-    $badgeNumber = trim((string) ($card['label'] ?? ''));
-    if ($badgeNumber !== '') {
-        $badgeValue = $badgeValue === '' ? $badgeNumber : ($badgeValue . ' · ' . $badgeNumber);
-    }
+    $typeLabel = trim((string) ($card['type_label'] ?? ''));
+    $typeMarker = mb_substr($typeLabel, 0, 1);
 @endphp
 
-<x-card shadow class="pan-data-card">
-    {{-- 1. 类型 + 编号（label 为空时只显示 type） --}}
-    @if ($badgeValue !== '')
-        <x-badge value="{{ $badgeValue }}" class="badge-primary badge-soft badge-sm gap-1" />
-    @endif
-
-    {{-- 2. 标题 --}}
-    <h2 class="mt-2 text-xl font-semibold tracking-wide text-base-content sm:text-2xl">
-        {{ $card['title'] ?? '' }}
-    </h2>
-
-    {{-- 3. 简述 --}}
-    @if (! empty($card['summary']))
-        <p class="mt-2 max-w-3xl text-sm leading-7 text-base-content/65">{{ $card['summary'] }}</p>
-    @endif
-
-    {{-- 4. 成立状态 --}}
-    @if ($status !== null)
-        <div class="mt-3">
-            <x-knowledge.knowledge-status :status="$status" />
+{{-- 1–2. 体系字标 + 标题，与课经标题行保持一致 --}}
+<div class="flex items-start gap-3">
+    @if ($typeMarker !== '')
+        <div class="flex h-9 shrink-0 items-stretch">
+            <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">
+                {{ $typeMarker }}
+            </span>
         </div>
     @endif
+    <div class="min-w-0 flex items-baseline gap-2">
+        <h2 class="text-lg font-semibold">{{ $card['title'] ?? '' }}</h2>
+    </div>
+</div>
 
-    {{-- 5. 成立条件 --}}
-    <x-knowledge.knowledge-condition-list :conditions="$conditions" />
+{{-- 3. 简述 --}}
+@if (! empty($card['summary']))
+    <p class="mt-2 max-w-3xl text-sm leading-7 text-base-content/65">{{ $card['summary'] }}</p>
+@endif
 
-    {{-- 6. 命中依据 --}}
-    @if (! empty($evidence))
-        <section class="mt-4" aria-label="命中依据">
-            <h3 class="text-sm font-semibold tracking-wide text-base-content/70">命中依据</h3>
-            <div class="mt-3 space-y-2">
-                @foreach ($evidence as $item)
-                    <x-alert icon="o-light-bulb" class="alert-soft">
-                        <strong>{{ $item['label'] }}</strong>
-                        <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $item['detail'] }}</p>
-                    </x-alert>
-                @endforeach
-            </div>
-        </section>
-    @endif
+{{-- 4. 成立状态 --}}
+@if ($status !== null)
+    <div class="mt-3">
+        <x-knowledge.knowledge-status :status="$status" />
+    </div>
+@endif
 
-    {{-- 7. 补充说明 --}}
-    @if (! empty($sections))
-        <section class="mt-5 space-y-3" aria-label="补充说明">
-            @foreach ($sections as $section)
-                <x-alert icon="o-information-circle" class="alert-soft">
-                    <strong>{{ $section['title'] }}</strong>
-                    <p class="mt-1 text-sm leading-6">{{ $section['content'] }}</p>
+{{-- 5. 成立条件 --}}
+<x-knowledge.knowledge-condition-list :conditions="$conditions" />
+
+{{-- 6. 命中依据 --}}
+@if (! empty($evidence))
+    <section class="mt-4" aria-label="命中依据">
+        <h3 class="text-sm font-semibold tracking-wide text-base-content/70">命中依据</h3>
+        <div class="mt-3 space-y-2">
+            @foreach ($evidence as $item)
+                <x-alert icon="o-light-bulb" class="alert-soft">
+                    <strong>{{ $item['label'] }}</strong>
+                    <p class="mt-1 text-sm leading-6 text-base-content/65">{{ $item['detail'] }}</p>
                 </x-alert>
             @endforeach
-        </section>
-    @endif
-
-    {{-- 8. 课例 --}}
-    <x-knowledge.knowledge-example-list :examples="$examples" />
-
-    {{-- 9. 来源/详情入口 --}}
-    @if (! empty($actions))
-        <div class="mt-4 flex flex-wrap justify-end gap-2">
-            @foreach ($actions as $action)
-                <x-button
-                    :label="$action['label']"
-                    :link="$action['url']"
-                    :icon-right="$action['icon'] ?? null"
-                    :external="$action['external'] ?? false"
-                    class="btn-ghost btn-sm"
-                />
-            @endforeach
         </div>
-    @endif
-</x-card>
+    </section>
+@endif
+
+{{-- 7. 补充说明 --}}
+@if (! empty($sections))
+    <section class="mt-5 space-y-3" aria-label="补充说明">
+        @foreach ($sections as $section)
+            <x-alert icon="o-information-circle" class="alert-soft">
+                <strong>{{ $section['title'] }}</strong>
+                <p class="mt-1 text-sm leading-6">{{ $section['content'] }}</p>
+            </x-alert>
+        @endforeach
+    </section>
+@endif
+
+{{-- 8. 课例 --}}
+<x-knowledge.knowledge-example-list :examples="$examples" />
+
+{{-- 9. 来源/详情入口 --}}
+@if (! empty($actions))
+    <div class="mt-4 flex flex-wrap justify-end gap-2">
+        @foreach ($actions as $action)
+            <x-button
+                :label="$action['label']"
+                :link="$action['url']"
+                :icon-right="$action['icon'] ?? null"
+                :external="$action['external'] ?? false"
+                class="btn-ghost btn-sm"
+            />
+        @endforeach
+    </div>
+@endif
