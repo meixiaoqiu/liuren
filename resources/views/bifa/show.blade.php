@@ -45,9 +45,7 @@
                         </x-alert>
                     </x-card>
                 @else
-                    <x-card shadow class="pan-data-card">
-                        <x-knowledge-card :card="$knowledgeCard" />
-                    </x-card>
+                    <x-knowledge-card :card="$knowledgeCard" />
 
                     @if (! empty($original))
                         <section class="mt-6">

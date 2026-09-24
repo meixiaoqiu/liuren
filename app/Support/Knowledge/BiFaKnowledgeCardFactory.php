@@ -8,9 +8,27 @@ use App\Support\BiFaCatalog;
 use App\Support\BiFaResearchDocument;
 use LogicException;
 
-/** 将毕法领域结果、目录、案例及研究资料适配为统一知识卡片。 */
+/**
+ * 将毕法领域结果、目录、案例及研究资料适配为统一知识卡片。
+ *
+ * 本工厂的所有用户可见字符串（typeLabel、status.label、conditions.title、marker、
+ * examples.source、status label 等）由本类负责生成；Blade 不做业务判断、不区分体系、
+ * 不硬编码任何"毕法 / 课经 / 格"中文。
+ */
 final readonly class BiFaKnowledgeCardFactory
 {
+    public const TYPE = 'bifa';
+
+    public const TYPE_LABEL = '毕法';
+
+    private const TONE_SUCCESS = KnowledgeCard::TONE_SUCCESS;
+
+    private const TONE_WARNING = KnowledgeCard::TONE_WARNING;
+
+    private const TONE_INFO = KnowledgeCard::TONE_INFO;
+
+    private const TONE_NEUTRAL = KnowledgeCard::TONE_NEUTRAL;
+
     public function __construct(private BiFaResearchDocument $research) {}
 
     public function fromMatch(BiFaRuleMatch $match): KnowledgeCard
@@ -22,14 +40,17 @@ final readonly class BiFaKnowledgeCardFactory
 
         $matchedCount = count($match->matchedRoutes);
 
+        // 排盘块使用"毕 + 法名"的课经同款标题，不展示法序号；
+        // 法序号仅出现在毕法详情页（由 fromDetail 提供）。
         return new KnowledgeCard(
-            type: '毕法',
-            code: '第 '.$match->number.' 法',
+            type: self::TYPE,
+            typeLabel: self::TYPE_LABEL,
+            label: '',
             title: $match->name,
             summary: $match->summary,
             status: $match->matchedRoutes !== []
-                ? ['label' => '已成立（'.$matchedCount.' 个分格成立）', 'tone' => 'success']
-                : ['label' => '待补充人物资料后评估', 'tone' => 'warning'],
+                ? ['label' => '已成立（'.$matchedCount.' 个分格成立）', 'tone' => self::TONE_SUCCESS]
+                : ['label' => '待补充人物资料后评估', 'tone' => self::TONE_WARNING],
             conditions: array_values(array_map(
                 static function (array $subMatch): array {
                     $needsPeople = ! empty($subMatch['requires_people']) && ! empty($subMatch['people_missing']);
@@ -39,10 +60,10 @@ final readonly class BiFaKnowledgeCardFactory
                         'title' => (string) ($subMatch['title'] ?? ''),
                         'description' => (string) ($subMatch['description'] ?? ''),
                         'status' => ! empty($subMatch['matched'])
-                            ? ['label' => '已成立', 'tone' => 'success']
+                            ? ['label' => '已成立', 'tone' => self::TONE_SUCCESS]
                             : ($needsPeople
-                                ? ['label' => '待评估', 'tone' => 'warning']
-                                : ['label' => '未成立', 'tone' => 'neutral']),
+                                ? ['label' => '待评估', 'tone' => self::TONE_WARNING]
+                                : ['label' => '未成立', 'tone' => self::TONE_NEUTRAL]),
                         'detail' => $subMatch['detail'] ?? ($needsPeople
                             ? '需要占测者本命或行年资料，当前资料不足。'
                             : null),
@@ -87,11 +108,12 @@ final readonly class BiFaKnowledgeCardFactory
         }
 
         return new KnowledgeCard(
-            type: '毕法',
-            code: '第 '.$catalogLaw['number'].' 法',
+            type: self::TYPE,
+            typeLabel: self::TYPE_LABEL,
+            label: '第 '.$catalogLaw['number'].' 法',
             title: $catalogLaw['name'],
             summary: $catalogLaw['summary'],
-            status: ['label' => '已完成研究', 'tone' => 'info'],
+            status: ['label' => '已完成研究', 'tone' => self::TONE_INFO],
             conditions: array_values(array_map(
                 static fn (array $foundation): array => [
                     'marker' => '⏺',
@@ -110,7 +132,7 @@ final readonly class BiFaKnowledgeCardFactory
                 ],
                 [
                     'title' => '成立条件（9 类古籍分格）',
-                    'content' => '引从天干与初末引从地支均须“初在前、末在后”，前后方向不可互换；其余夹拱结构不区分两端次序。本法与课经“引从课”虽有相近结构，但属于不同知识体系。',
+                    'content' => '引从天干与初末引从地支均须"初在前、末在后"，前后方向不可互换；其余夹拱结构不区分两端次序。本法与课经"引从课"虽有相近结构，但属于不同知识体系。',
                 ],
             ],
             examples: $this->examples(BiFaCaseCatalog::casesForLaw((string) $law['code']), $routeNames),
@@ -169,7 +191,7 @@ final readonly class BiFaKnowledgeCardFactory
         $description = $isGenerated
             ? ($names === []
                 ? '本案例用于说明本法不成立且无需继续评估的情形。'
-                : '本案例用于说明“'.implode('、', $names).'”的成立或边界情形。')
+                : '本案例用于说明"'.implode('、', $names).'"的成立或边界情形。')
             : (string) ($case['reason'] ?? '');
 
         $url = null;
@@ -190,8 +212,8 @@ final readonly class BiFaKnowledgeCardFactory
                 ? '现代程序验证案例'
                 : '《六壬大全》正文案例 · '.(string) ($case['source'] ?? '第一法'),
             'status' => $isExecutable
-                ? ['label' => '可查看排盘', 'tone' => 'success']
-                : ['label' => '原文参考盘 · 尚未完整复现', 'tone' => 'warning'],
+                ? ['label' => '可查看排盘', 'tone' => self::TONE_SUCCESS]
+                : ['label' => '原文参考盘 · 尚未完整复现', 'tone' => self::TONE_WARNING],
             'url' => $url,
         ];
     }

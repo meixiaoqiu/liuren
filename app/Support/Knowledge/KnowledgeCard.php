@@ -2,16 +2,39 @@
 
 namespace App\Support\Knowledge;
 
+use InvalidArgumentException;
+
 /**
  * 课经、毕法与格共用的纯展示 DTO。
  *
- * 所有属性只能保存可以直接呈现给用户的内容，不承载规则 code、类名、方法名、
- * 原始证据数组或调试数据。code 表示“第一法”等用户可读编号。
+ * 设计原则（避免未来模型被任一知识体系污染）：
+ *
+ *  - 所有属性只能保存可以直接呈现给用户的内容，不承载规则 code、类名、方法名、
+ *    原始证据数组或调试数据；
+ *  - `type` 为内部稳定枚举字符串（`bifa` / `kejing` / `pattern` …），用于跨体系判断；
+ *    UI 不得基于此字符串做业务分支判断；
+ *  - `typeLabel` 为中文展示名（"毕法" / "课经" / "格"），由 Factory 提供，Blade 仅展示；
+ *  - `label` 为面向用户的展示编号（"第 1 法" / "第 22 课" / "格·三光"），不是程序 code；
+ *  - `status.tone` 必须是以下枚举之一：`success` / `warning` / `info` / `neutral`，
+ *    禁止任意字符串。
+ *
+ * 兼容：仍提供 `code()` 访问器（指向 `label`）以及 `getCode()` 旧别名，
+ *       避免历史调用立即崩溃；新代码请直接读取 `label` 与 `typeLabel`。
  */
 final readonly class KnowledgeCard
 {
+    public const TONE_SUCCESS = 'success';
+
+    public const TONE_WARNING = 'warning';
+
+    public const TONE_INFO = 'info';
+
+    public const TONE_NEUTRAL = 'neutral';
+
+    private const VALID_TONES = [self::TONE_SUCCESS, self::TONE_WARNING, self::TONE_INFO, self::TONE_NEUTRAL];
+
     /**
-     * @param  array{label: string, tone: string}|null  $status
+     * @param  array{label: string, tone: string}|null  $status  tone 必须是 VALID_TONES 之一
      * @param  list<array{title: string, description: string, status: array{label: string, tone: string}|null, detail: ?string, marker?: string}>  $conditions
      * @param  list<array{label: string, detail: string}>  $evidence
      * @param  list<array{title: string, content: string}>  $sections
@@ -20,7 +43,8 @@ final readonly class KnowledgeCard
      */
     public function __construct(
         public string $type,
-        public string $code,
+        public string $typeLabel,
+        public string $label,
         public string $title,
         public string $summary,
         public ?array $status = null,
@@ -29,14 +53,68 @@ final readonly class KnowledgeCard
         public array $sections = [],
         public array $examples = [],
         public array $actions = [],
-    ) {}
+    ) {
+        if ($this->type === '') {
+            throw new InvalidArgumentException('KnowledgeCard type 不能为空。');
+        }
+        if ($this->typeLabel === '') {
+            throw new InvalidArgumentException('KnowledgeCard typeLabel 不能为空（由 Factory 注入展示中文）。');
+        }
+        // label 可为空字符串：详情页注入 "第 N 法" / "第 N 课"，排盘块省略法序号。
+        if ($this->status !== null) {
+            self::assertValidStatus($this->status);
+        }
+        foreach ($this->conditions as $condition) {
+            if (($condition['status'] ?? null) !== null) {
+                self::assertValidStatus($condition['status']);
+            }
+        }
+        foreach ($this->examples as $example) {
+            if (($example['status'] ?? null) !== null) {
+                self::assertValidStatus($example['status']);
+            }
+        }
+    }
+
+    /**
+     * 历史兼容：以前 code 字段实际存放面向用户的展示编号（"第 1 法"）。
+     * 改名 label 后保持旧别名，避免既有调用立即崩溃。
+     */
+    public function code(): string
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param  array{label: string, tone: string}  $status
+     */
+    public static function assertValidStatus(array $status): void
+    {
+        if (! isset($status['label'], $status['tone'])) {
+            throw new InvalidArgumentException('KnowledgeCard status 必须含 label 与 tone。');
+        }
+        if (! in_array($status['tone'], self::VALID_TONES, true)) {
+            throw new InvalidArgumentException(
+                'KnowledgeCard status.tone 必须是 '.implode(' / ', self::VALID_TONES).' 之一，收到：'.$status['tone'],
+            );
+        }
+    }
+
+    /** @return list<string> */
+    public static function validTones(): array
+    {
+        return self::VALID_TONES;
+    }
 
     /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
             'type' => $this->type,
-            'code' => $this->code,
+            'type_label' => $this->typeLabel,
+            // 历史别名：旧调用继续可读 `code` 字段，新代码用 `label`。
+            'code' => $this->label,
+            'label' => $this->label,
             'title' => $this->title,
             'summary' => $this->summary,
             'status' => $this->status,
