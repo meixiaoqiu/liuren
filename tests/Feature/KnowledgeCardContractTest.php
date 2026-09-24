@@ -172,19 +172,25 @@ test('BiFaKnowledgeCardFactory fromDetail 只转换 definition 提供的法条�
 });
 
 test('BiFaKnowledgeCardFactory 优先使用 definition description 并在空值时回退目录摘要', function () {
-    $law = BiFaCatalog::findByCode('bifa.02');
+    // 必须用目录摘要非空的法律（如第一法）来验证 fallback，
+    // 否则若用 bifa.02（summary=''），断言 '' === '' 即使 fallback 完全失效也会通过。
+    $law = BiFaCatalog::findByCode('bifa.01');
     expect($law)->not->toBeNull();
+    expect($law['summary'])->not->toBe('');
 
     $factory = app(BiFaKnowledgeCardFactory::class);
-    $definition = ['description' => '第二法现代汉语说明', 'foundations' => [], 'judgments' => []];
+    $definition = ['description' => '第一法现代汉语说明', 'foundations' => [], 'judgments' => []];
     $card = $factory->fromDetail($law, $definition);
 
-    expect($card->summary)->toBe('第二法现代汉语说明');
+    expect($card->summary)->toBe('第一法现代汉语说明');
 
+    // description 为空白字符串也应回退到目录摘要——这条断言必须用真实非空目录摘要，
+    // 才能锁死"只有 definition description 真正可用时才采用"的契约。
     $definition['description'] = '   ';
     $fallbackCard = $factory->fromDetail($law, $definition);
 
-    expect($fallbackCard->summary)->toBe($law['summary']);
+    expect($fallbackCard->summary)
+        ->toBe('初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。');
 });
 
 test('BiFaKnowledgeCardFactory 将 judgments 转为用户可读 sections 且不泄漏 effect', function () {
@@ -209,4 +215,30 @@ test('BiFaKnowledgeCardFactory 将 judgments 转为用户可读 sections 且不�
             'content' => '这是增强后的用户说明。',
         ])
         ->and($payload)->not->toContain('increase');
+});
+
+test('BiFaKnowledgeCardFactory 对未知 judgment effect 不泄漏内部值到前台', function () {
+    // 未来若新增 effect 分类（如 future_internal_effect）但 Factory 尚未同步翻译，
+    // 该内部值必须落到普通标题上，绝不直接显示给用户、绝不进入序列化。
+    $law = BiFaCatalog::findByCode('bifa.02');
+    expect($law)->not->toBeNull();
+
+    $card = app(BiFaKnowledgeCardFactory::class)->fromDetail($law, [
+        'description' => '第二法现代汉语说明',
+        'foundations' => [],
+        'judgments' => [[
+            'label' => '未知判断',
+            'description' => '未知效果测试',
+            'effect' => 'future_internal_effect',
+        ]],
+    ]);
+    $payload = json_encode($card->toArray(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+    // 未知 effect 必须退化为"只展示用户标签"，不得拼接任何 effect 前缀
+    expect($card->sections)->toContain([
+        'title' => '未知判断',
+        'content' => '未知效果测试',
+    ])->and($payload)->not->toContain('future_internal_effect')
+        ->and($payload)->not->toContain('future_internal')
+        ->and($payload)->not->toContain('internal_effect');
 });
