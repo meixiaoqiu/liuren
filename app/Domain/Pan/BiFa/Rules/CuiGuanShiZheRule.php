@@ -310,19 +310,21 @@ final class CuiGuanShiZheRule implements BiFaRule
         // 乙卯日特例：昼贵子落旬空、且本命中 parent 路径只覆盖「昼贵子作父母爻」时，
         // 视为该路径不可用。
         $yiMaoDayNobleVoided = self::isYiMaoDayNobleVoided($facts, $rigan, $period);
-        $route3FilteredByYiMao = false;
+        $yiMaoFilteredHits = [];
         if ($yiMaoDayNobleVoided) {
             foreach ($parentHits as $key => $hit) {
                 if ($hit['branch'] === self::DAY_NOBLE[$rigan]
                     && $facts->generalRidingBranch($hit['branch']) === 0) {
+                    $yiMaoFilteredHits[$key] = $hit;
                     unset($parentHits[$key]);
-                    $route3FilteredByYiMao = true;
                 }
             }
         }
         $route3Matched = $parentHits !== [];
+        // 乙卯特例：昼贵子过滤后命中被吃光时，必须仍在 pendingRoutes 中以便展示特殊 detail。
+        $yiMaoFallback = $yiMaoDayNobleVoided && $yiMaoFilteredHits !== [] && ! $route3Matched;
         $route3Pending = ! $route3Matched
-            && ($person['xingnian'] ?? null) === null;
+            && (($person['xingnian'] ?? null) === null || $yiMaoFallback);
 
         // ---------- Route 4：长生作贵人 ----------
         $jiMaoOriginVoided = self::isJiMaoOriginVoided($facts, $rigan, $period);
@@ -404,20 +406,26 @@ final class CuiGuanShiZheRule implements BiFaRule
             $talismanPending);
 
         $parentLocations = [];
-        $yiMaoBranch = self::DAY_NOBLE[$rigan] ?? null;
         foreach ($parentHits as $hit) {
             $branch = $hit['branch'];
-            // 乙卯日特例：若整条 Route 3 完全由空阴昼贵子承载，则该唯一命中不应展示。
-            if ($route3FilteredByYiMao && $yiMaoBranch !== null && $branch === $yiMaoBranch) {
-                continue;
-            }
             $parentLocations[] = sprintf('%s%s', $hit['label'], self::BRANCH_NAMES[$branch]);
         }
+        // Route 3 detail 三态：
+        //   - 过滤后仍有命中：列出有效父母爻位置；
+        //   - 过滤前有命中、过滤后为空：乙卯特例展示「仅见空阴昼贵子」；
+        //   - 本无命中：不展示特殊 detail（待评估 detail 在下方构造时单独写）。
         $parentDetail = $route3Matched && $parentLocations !== []
             ? '父母爻出现在'.implode('、', $parentLocations).'。'
-            : ($route3FilteredByYiMao && $parentHits !== []
-                ? '仅有乙卯日昼贵子作父母爻路径，但昼贵子旬空，正文明确「不用」，故 Route 3 不成立。'
-                : null);
+            : null;
+        $yiMaoSpecialShown = false;
+        if (! $route3Matched && $yiMaoDayNobleVoided && $yiMaoFilteredHits !== []) {
+            $parentDetail = '仅见乙卯日空亡昼贵子作父母爻，正文明确「不用」，故 Route 3 不成立。';
+            $yiMaoSpecialShown = true;
+        }
+        if ($route3Pending && ! $yiMaoSpecialShown) {
+            // Route 3 不查本命，只缺行年；不复用公共 fallback「本命或行年」。
+            $parentDetail = '前五处未见父母爻，需要补充占测者行年资料后评估。';
+        }
         $sub[] = self::subMatch('patron_parent_line', '恩主举荐·父母爻',
             $route3Matched,
             '父母爻出现在干上神、支上神、初传、中传、末传或行年上神任一处。',
@@ -448,7 +456,7 @@ final class CuiGuanShiZheRule implements BiFaRule
             $matchedJudgments[] = ['label' => '四时返本煞', 'effect' => 'reduce', 'description' => '三传组成当时返本局，主赴任迟滞、迁延反复。'];
         }
         if ($matchedRoutes !== [] && $fanyin) {
-            $matchedJudgments[] = ['label' => '返吟', 'effect' => 'reduce', 'description' => '赴任得返吟，主任期难满或赴任反复。'];
+            $matchedJudgments[] = ['label' => '返吟附加', 'effect' => 'reduce', 'description' => '赴任得返吟，主任期难满或赴任反复。'];
         }
 
         return new BiFaRuleMatch(

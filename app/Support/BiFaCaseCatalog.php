@@ -690,7 +690,7 @@ final class BiFaCaseCatalog
             'label' => '程序验证·丁丑日·催官符·亥官临干+三传巳酉丑金局',
             'source_type' => 'generated',
             'status' => 'executable',
-            'datetime' => '2000-01-20T09:00',
+            'datetime' => '2000-01-20T17:00',
             'birth' => '1986-08-01T00:00',
             'gender' => 'male',
             'people' => [],
