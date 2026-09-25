@@ -360,6 +360,43 @@ test('eighth bifa detail exposes one Chinese foundation three reduction judgment
     }
 });
 
+test('ninth bifa detail exposes nine Chinese foundations cases and no internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'bi-nan-tao-sheng']))->assertOk();
+    $card = $response->viewData('knowledgeCard');
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($card['conditions'])->toHaveCount(9);
+
+    foreach (['避难逃生须弃旧', '就干上之生', '就支上之生', '日干坐地盘之生',
+        '本命乘丁坐长生', '日干下临财乡', '避难逃生而终不能逃生', '舍益就损', '舍就皆不可',
+        '墓作太阳', '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        $response->assertSee($visible);
+    }
+
+    foreach (['bifa.09', 'escape_to_stem_support', 'escape_to_branch_support', 'escape_to_ground_support',
+        'fate_ding_on_growth', 'escape_to_wealth', 'escape_failed', 'abandon_benefit_for_loss',
+        'neither_stay_nor_leave', 'grave_as_sun', 'BiNanTaoShengRule', 'matched_routes', 'pending_routes',
+        'case_id', 'match()', 'PanCalculator', 'DAY_ORIGIN', 'DAY_GRAVE', 'DAY_LU'] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
+test('ninth bifa pan card shows Chinese routes and judgments without internal fields', function () {
+    $component = Livewire::withQueryParams([
+        'datetime' => '2031-01-01T19:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male',
+    ])->test(CreatePan::class)->assertHasNoErrors();
+
+    foreach (['避难逃生须弃旧', '就干上之生', '日干坐地盘之生', '墓作太阳', '难中有援'] as $visible) {
+        $component->assertSee($visible);
+    }
+    foreach (['bifa.09', 'escape_to_stem_support', 'escape_to_ground_support', 'grave_as_sun',
+        'BiNanTaoShengRule', 'matched_routes', 'pending_routes', 'case_id', 'match()', 'PanCalculator',
+        'DAY_ORIGIN', 'DAY_GRAVE', 'DAY_LU'] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
+});
+
 test('researched and implemented third bifa shows eight Chinese foundations and no internal fields', function () {
     $response = $this->get(route('bifa.show', ['law' => 'lian-mu-gui-ren']))->assertOk();
     expect($response->viewData('researched'))->toBeTrue()

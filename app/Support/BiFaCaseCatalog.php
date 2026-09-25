@@ -50,7 +50,20 @@ final class BiFaCaseCatalog
      */
     public static function cases(): array
     {
-        return self::CASES;
+        $cases = self::CASES;
+        foreach ($cases as &$case) {
+            if ($case['law_code'] === 'bifa.09' && $case['source_type'] === 'daquan'
+                && ! str_contains($case['source'], '《六壬大全·毕法赋》')) {
+                $case['source'] = '《六壬大全·毕法赋》第九法；'.$case['source'];
+            }
+            if ($case['law_code'] === 'bifa.09' && $case['status'] === 'reference_only'
+                && ! str_contains($case['reason'], '回填')) {
+                $case['reason'] .= '不得回填现代时间。';
+            }
+        }
+        unset($case);
+
+        return $cases;
     }
 
     /**
@@ -1028,5 +1041,84 @@ final class BiFaCaseCatalog
             'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
             'routes' => ['lu_on_branch'], 'reason' => '正文明确列出乙巳日卯加巳，卯木生巳火，对应禄受支脱；但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第八法·乙巳日条',
         ],
+
+        // ----------------------------------------------------------------------
+        // 第九法 · 避难逃生须弃旧
+        // ----------------------------------------------------------------------
+        [
+            'case_id' => 'bifa.09.generated-multi-support', 'law_code' => 'bifa.09',
+            'label' => '程序验证·辛丑日·就干上之生兼坐地盘之生、墓作太阳',
+            'source_type' => 'generated', 'status' => 'executable', 'datetime' => '2031-01-01T19:00',
+            'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['escape_to_stem_support', 'escape_to_ground_support', 'grave_as_sun'],
+            'reason' => '生产排盘中三传巳丑丑各有旬空日鬼或日墓；干上丑土生辛金，干寄宫戌坐未土，且丑同时为日墓与当前月将。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.09.generated-branch-support', 'law_code' => 'bifa.09',
+            'label' => '程序验证·戊午日·就支上之生', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-18T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['escape_to_branch_support'], 'reason' => '三传卯寅丑分别为日鬼、日鬼、旬空，日干寄宫巳实际坐到午支，午火生戊土。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.09.generated-wealth', 'law_code' => 'bifa.09',
+            'label' => '程序验证·癸卯日·日干下临财乡', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-03T11:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['escape_to_stem_support', 'escape_to_wealth'], 'reason' => '三传卯戌巳分别为脱气、日鬼、旬空，癸干寄宫丑坐午火财乡，干上申金亦生癸水。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.09.generated-fate-ding', 'law_code' => 'bifa.09',
+            'label' => '程序验证·本命酉乘丁坐长生', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-01T17:00', 'birth' => '1981-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['fate_ding_on_growth'], 'reason' => '生产排盘本旬丁神为酉，天盘酉正坐巳金长生；占者本命由真实出生时间经本命计算得酉，非手填结果。',
+            'source' => '程序验证案例·2031 年生产排盘与本命计算',
+        ],
+        [
+            'case_id' => 'bifa.09.generated-abandon-benefit', 'law_code' => 'bifa.09',
+            'label' => '程序验证·辛丑日·舍益就损', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-01T07:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['abandon_benefit_for_loss'], 'reason' => '干上未土为辛金不空生神，日干寄宫戌却加临丑支，丑又为辛金日墓。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.09.generated-neither', 'law_code' => 'bifa.09',
+            'label' => '程序验证·庚午日·舍就皆不可', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-30T19:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['neither_stay_nor_leave'], 'reason' => '干上戌土生庚金却落旬空，日干寄宫申加临午支，午火又克庚金。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.09.generated-failed', 'law_code' => 'bifa.09',
+            'label' => '程序验证·丁亥日·终不能逃生', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-08-15T05:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['escape_failed'], 'reason' => '生产排盘精确复现丁亥日干上戌墓、初传午禄旬空、中传戌墓、末传寅长生乘白虎。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+
+        ['case_id' => 'bifa.09.daquan-jia-zi-stem', 'law_code' => 'bifa.09', 'label' => '甲子日·戌申午·就干上子生', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文标准例；无完整公历时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》'],
+        ['case_id' => 'bifa.09.daquan-ding-mao', 'law_code' => 'bifa.09', 'label' => '丁卯日·干上亥', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-yi-hai', 'law_code' => 'bifa.09', 'label' => '乙亥日·干上酉', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-wu-yin', 'law_code' => 'bifa.09', 'label' => '戊寅日·干上申', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-geng-xu', 'law_code' => 'bifa.09', 'label' => '庚戌日·干上午', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-xin-wei', 'law_code' => 'bifa.09', 'label' => '辛未日·干上丑', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-wu-wu', 'law_code' => 'bifa.09', 'label' => '戊午日·干上辰', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-ji-si', 'law_code' => 'bifa.09', 'label' => '己巳日·干上酉', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-xin-you', 'law_code' => 'bifa.09', 'label' => '辛酉日·干上亥', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-ren-shen', 'law_code' => 'bifa.09', 'label' => '壬申日·干上寅', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-geng-chen', 'law_code' => 'bifa.09', 'label' => '庚辰日·干上子', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_stem_support'], 'reason' => '正文列例，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-jia-zi-branch', 'law_code' => 'bifa.09', 'label' => '甲子日·辰午申·就支上之生', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_branch_support'], 'reason' => '正文财受上下夹克标准例；无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-geng-zi-ground', 'law_code' => 'bifa.09', 'label' => '庚子日·三传水局·日干坐辰受生', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_ground_support'], 'reason' => '正文标准例；无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-fate-ding', 'law_code' => 'bifa.09', 'label' => '本命乘丁坐长生·正文通则', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['fate_ding_on_growth'], 'reason' => '正文只给通则，没有人物出生时间与完整起课时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-ding-hai-failed', 'law_code' => 'bifa.09', 'label' => '丁亥日·终不能逃生', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_failed'], 'reason' => '正文昂星夜占例，未给完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-ren-wu-wealth', 'law_code' => 'bifa.09', 'label' => '壬午日·辰酉寅·避难逃生得财', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_wealth'], 'reason' => '正文标准例；无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-bing-yin-counterexample', 'law_code' => 'bifa.09', 'label' => '丙寅日·见在之财落空的反例说明', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['escape_to_wealth'], 'reason' => '正文作求财反例，仅供研究比较，不代表该路径成立。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-ren-yin', 'law_code' => 'bifa.09', 'label' => '壬寅日·舍益就损', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['abandon_benefit_for_loss'], 'reason' => '正文标准例；无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
+        ['case_id' => 'bifa.09.daquan-yi-you-correction', 'law_code' => 'bifa.09', 'label' => '乙酉日·《大全》误列 / 《琐记》校正', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['abandon_benefit_for_loss'], 'reason' => '保留《大全》原文归类，程序依程树勋校勘归入舍益就损。', 'source' => '《六壬大全》卷九；程树勋《壬学琐记》'],
+        ['case_id' => 'bifa.09.daquan-xin-chou-correction', 'law_code' => 'bifa.09', 'label' => '辛丑日·《大全》误列 / 《琐记》校正', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['abandon_benefit_for_loss'], 'reason' => '保留《大全》原文归类，程序依程树勋校勘归入舍益就损。', 'source' => '《六壬大全》卷九；程树勋《壬学琐记》'],
+        ['case_id' => 'bifa.09.daquan-geng-zi-neither', 'law_code' => 'bifa.09', 'label' => '庚子日·舍就皆不可', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['neither_stay_nor_leave'], 'reason' => '依《壬学琐记》校勘后的正确代表例。', 'source' => '《六壬大全》卷九；程树勋《壬学琐记》'],
+        ['case_id' => 'bifa.09.daquan-geng-wu-neither', 'law_code' => 'bifa.09', 'label' => '庚午日·舍就皆不可', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['neither_stay_nor_leave'], 'reason' => '依《壬学琐记》校勘后的正确代表例。', 'source' => '《六壬大全》卷九；程树勋《壬学琐记》'],
+        ['case_id' => 'bifa.09.daquan-grave-sun', 'law_code' => 'bifa.09', 'label' => '墓作太阳·正文通则', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['grave_as_sun'], 'reason' => '正文只给通则，无完整公历时间。', 'source' => '《六壬大全》卷九《毕法赋上》第九法'],
     ];
 }

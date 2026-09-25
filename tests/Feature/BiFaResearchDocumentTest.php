@@ -56,14 +56,39 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 9..100 法尚未研究（前 8 法已研究）
-    $page = BiFaPageCatalog::findByCode('bifa.09');
+    // 第 10..100 法尚未研究（前 9 法已研究）
+    $page = BiFaPageCatalog::findByCode('bifa.10');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 
     $result = (new BiFaResearchDocument)->original($page);
     expect($result['status'])->toBe('missing')
         ->and($result['content'])->toBeNull();
+});
+
+test('ninth law original extraction keeps the complete Daquan text and excludes later analysis', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.09');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+    $document = (string) file_get_contents(base_path($page['researchPath']));
+
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('避难逃生，须弃旧')
+        ->and($content)->toContain('甲子日，戌加子，作初传')
+        ->and($content)->toContain('财受上下夹克')
+        ->and($content)->toContain('避难逃生而终不能逃生者')
+        ->and($content)->toContain('舍益就损格')
+        ->and($content)->toContain('舍就皆不可格')
+        ->and($content)->toContain('墓作太阳格')
+        ->and($content)->not->toContain('朽木难雕别作为')
+        ->and($content)->not->toContain('程树勋')
+        ->and($content)->not->toContain('程序判定')
+        ->and($content)->not->toContain('## 三')
+        ->and($document)->toContain('《大全》原文把乙酉、辛丑列入「舍就皆不可」')
+        ->and($document)->toContain('程树勋《壬学琐记》指出')
+        ->and($document)->toContain('程序判定采用程树勋校勘后的分类');
 });
 
 test('seventh law original extraction contains only verified original text', function () {
