@@ -459,6 +459,11 @@ test('researched and implemented fourth bifa shows four Chinese foundations and 
         'pending_routes',
         'case_id',
         'GuimuRule::DAY_GHOSTS',
+        'matcher',
+        'Route 1',
+        'Route 2',
+        'Route 3',
+        'Route 4',
     ] as $internal) {
         $response->assertDontSee($internal, false);
     }

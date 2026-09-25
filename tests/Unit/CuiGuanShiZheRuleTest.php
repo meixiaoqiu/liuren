@@ -189,7 +189,7 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（C�
 });
 
 test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（D：普通日父母爻旬空）', function () {
-    // C. 丙辰日（甲辰旬空 = 寅卯）+ 干上神 = 寅（父母爻且旬空）+ 非乙卯特例
+    // D. 丙午日（甲辰旬空 = 寅卯）+ 干上神 = 寅（父母爻且旬空）+ 非乙卯特例
     $pan = range(0, 11);
     $generals = range(0, 11);
     [$pan[5], $pan[2]] = [$pan[2], $pan[5]]; // 干上神 = 寅
@@ -199,14 +199,17 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（D�
     sort($sortedGenerals);
     expect($sortedPan)->toBe(range(0, 11))->and($sortedGenerals)->toBe(range(0, 11));
 
-    $match = cgsz_match([
-        'rigan' => 2, 'rizhi' => 4, 'guirenPeriod' => 'day',
+    $data = [
+        'rigan' => 2, 'rizhi' => 6, 'yuezhi' => 2, 'guirenPeriod' => 'day',
         'sanchuan0' => 5, 'sanchuan1' => 6, 'sanchuan2' => 7,
         'tianpan' => $pan, 'tianjiang' => $generals,
         'context' => ['people' => [['role' => 'querent', 'xingnian' => 7]]],
-    ]);
+    ];
+    $facts = PanFacts::from(new PanResult($data));
+    $match = (new CuiGuanShiZheRule)->match($facts);
 
-    expect($match?->matchedRoutes ?? [])->toContain('patron_parent_line')
+    expect($facts->isBranchXunVoid(2))->toBeTrue()
+        ->and($match?->matchedRoutes ?? [])->toContain('patron_parent_line')
         ->and($match?->evidence['parent_hits'] ?? [])->toContain('ganShang')
         ->and($match?->evidence['yi_mao_day_noble_voided'] ?? null)->toBeFalse();
 });
@@ -358,8 +361,14 @@ test('只有返本煞不得成立第四法', function () {
  */
 test('只有返吟不得成立第四法', function () {
     // 壬日 + 三传非三合（避免 fanben）+ fanyin 板式 + 同样避免所有正式 route
-    $pan = [1, 2, 3, 2, 5, 6, 7, 0, 9, 10, 11, 0];
+    $pan = range(0, 11);
     $generals = range(0, 11);
+    $sortedPan = $pan;
+    $sortedGenerals = $generals;
+    sort($sortedPan);
+    sort($sortedGenerals);
+    expect($sortedPan)->toBe(range(0, 11))->and($sortedGenerals)->toBe(range(0, 11));
+
     $match = (new CuiGuanShiZheRule)->match(PanFacts::from(new PanResult([
         'rigan' => 8, 'rizhi' => 0, 'yuezhi' => 2,
         'guirenPeriod' => 'day',
