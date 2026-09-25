@@ -855,7 +855,7 @@ final class BiFaCaseCatalog
             'case_id' => 'bifa.07.generated-closed-mouth', 'law_code' => 'bifa.07',
             'label' => '程序验证·辛未日·闭口禄', 'source_type' => 'generated', 'status' => 'executable',
             'datetime' => '2031-01-31T01:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
-            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中辛禄酉正临干，酉由本旬旬首自然推得为旬尾；本盘同时乘白虎，两项判断并存。',
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中辛禄酉正临干，酉由本旬旬首自然推得为旬尾；闭口禄解除守禄判断，白虎只作减损，因此本盘有闭口禄与旺禄乘白虎而无宜守旺禄。',
             'source' => '程序验证案例·2031 年生产排盘扫描',
         ],
         [
@@ -869,7 +869,7 @@ final class BiFaCaseCatalog
             'case_id' => 'bifa.07.generated-baihu', 'law_code' => 'bifa.07',
             'label' => '程序验证·辛丑日·旺禄乘白虎', 'source_type' => 'generated', 'status' => 'executable',
             'datetime' => '2031-01-01T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
-            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中辛禄酉正临干并乘白虎，追加旺禄乘白虎判断。',
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中辛禄酉正临干并乘白虎；主体旺禄临身成立，白虎作为减损判断，同时仍保留宜守旺禄的基本判断。',
             'source' => '程序验证案例·2031 年生产排盘扫描',
         ],
         [

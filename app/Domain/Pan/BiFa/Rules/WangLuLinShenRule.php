@@ -47,12 +47,12 @@ final class WangLuLinShenRule implements BiFaRule
                 ['label' => '旺禄旬空', 'effect' => 'resolve', 'description' => '日禄虽临干而落旬空，已有之禄不足恃，不再单以守禄论，应转察三传。'],
                 ['label' => '闭口禄', 'effect' => 'resolve', 'description' => '日禄本身为本旬旬尾，虽禄临干亦不可安守。'],
                 ['label' => '禄被玄武夺', 'effect' => 'resolve', 'description' => '旺禄乘玄武，古籍称禄被元夺，已有之禄不可安守。'],
-                ['label' => '旺禄乘白虎', 'effect' => 'resolve', 'description' => '旺禄乘白虎，禄受其威，亦不可单以守禄论。'],
+                ['label' => '旺禄乘白虎', 'effect' => 'reduce', 'description' => '旺禄乘白虎，守禄之象受损，仍须结合课传制化判断，不可仅凭白虎一项即断禄不可守。'],
             ],
             'sections' => [
                 ['title' => '为什么只取阴干', 'content' => '本法专取乙、丁、己、辛、癸五个阴干。甲、丙、戊、庚、壬五个阳干即使日禄临干，也天然属于伏吟结构，古籍明确称其不在本例。'],
                 ['title' => '旺禄不取月令旺相', 'content' => '这里的旺禄专指本干日禄临于干上，不另查月令，也不以旺、相、休、囚、死或三传发用增减成立条件。'],
-                ['title' => '破坏因素不取消成立', 'content' => '旬空、闭口、乘玄武或乘白虎都表示临身之禄不可安守，只改变成立后的判断，不取消旺禄临身本身。多种破坏因素可以同时保留。'],
+                ['title' => '特殊判断不取消成立', 'content' => '旬空、闭口禄、玄武夺禄可解除普通“宜守旺禄”的判断；白虎乘禄只作为减损条件，本身不足以一律推翻守禄结论，还须结合课传制化判断。多种特殊判断可以同时保留，均不取消旺禄临身本身。'],
                 ['title' => '闭口禄与闭口课不同', 'content' => '闭口禄只看日禄是否等于本旬旬尾，不复用课经闭口课的判定，也不要求旬尾加旬首、发用或乘玄武。'],
             ],
         ];
@@ -73,13 +73,13 @@ final class WangLuLinShenRule implements BiFaRule
             return null;
         }
 
-        $luVoid = $facts->isBranchXunVoid($dayLu) === true;
+        $luVoid = $facts->isBranchXunVoid($dayLu);
         $xunHead = $facts->dayXunHeadBranch();
         $xunTail = $xunHead === null ? null : ($xunHead + 9) % 12;
-        $closedMouthLu = $dayLu === $xunTail;
+        $closedMouthLu = $xunTail === null ? null : $dayLu === $xunTail;
         $luGeneral = $facts->generalRidingBranch($dayLu);
-        $xuanwu = $luGeneral === self::GENERAL_XUANWU;
-        $baihu = $luGeneral === self::GENERAL_BAIHU;
+        $xuanwu = $luGeneral === null ? null : $luGeneral === self::GENERAL_XUANWU;
+        $baihu = $luGeneral === null ? null : $luGeneral === self::GENERAL_BAIHU;
 
         $judgments = [];
         if ($luVoid) {
@@ -91,10 +91,13 @@ final class WangLuLinShenRule implements BiFaRule
         if ($xuanwu) {
             $judgments[] = ['label' => '禄被玄武夺', 'effect' => 'resolve', 'description' => '旺禄乘玄武，古籍称禄被元夺，已有之禄不可安守。'];
         }
-        if ($baihu) {
-            $judgments[] = ['label' => '旺禄乘白虎', 'effect' => 'resolve', 'description' => '旺禄乘白虎，禄受其威，亦不可单以守禄论。'];
+        if ($baihu === true) {
+            $judgments[] = ['label' => '旺禄乘白虎', 'effect' => 'reduce', 'description' => '旺禄乘白虎，守禄之象受损，仍须结合课传制化判断，不可仅凭白虎一项即断禄不可守。'];
         }
-        if ($judgments === []) {
+
+        $factsComplete = $luVoid !== null && $closedMouthLu !== null && $xuanwu !== null;
+        $hardResolvers = $luVoid === true || $closedMouthLu === true || $xuanwu === true;
+        if ($factsComplete && ! $hardResolvers) {
             $judgments[] = ['label' => '宜守旺禄', 'effect' => 'neutral', 'description' => '日禄正临日干，现有根基已有可守之处，宜守成，不宜舍近逐远、另谋妄动。'];
         }
 

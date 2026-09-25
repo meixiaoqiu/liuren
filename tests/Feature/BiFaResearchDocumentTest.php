@@ -85,6 +85,21 @@ test('seventh law original extraction contains only verified original text', fun
         ->and($content)->not->toContain('阴干白名单');
 });
 
+test('seventh law research keeps source ownership and white tiger reduction outside original text', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.07');
+    $document = (string) file_get_contents(base_path($page['researchPath']));
+    $original = (new BiFaResearchDocument)->original($page);
+
+    expect($document)->toContain('维基文库《六壬大全》卷十一《毕法赋》上')
+        ->and($document)->toContain('识典古籍《御定六壬直指·毕法赋》')
+        ->and($document)->toContain('康立波国学《御定六壬直指》第六十三卷')
+        ->and($document)->toContain('此格单就六阴日干说')
+        ->and($document)->toContain('白虎乘禄只作减损，不独立取消「宜守旺禄」')
+        ->and($document)->toContain('白虎受制、仍以守成为主')
+        ->and((string) $original['content'])->not->toContain('白虎乘禄只作减损')
+        ->and((string) $original['content'])->not->toContain('御定六壬直指');
+});
+
 test('sixth law 古籍原文 sections are the full BiFa article and liuchun side-evidence stays separate', function () {
     $page = BiFaPageCatalog::findByCode('bifa.06');
     expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();

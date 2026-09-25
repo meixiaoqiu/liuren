@@ -82,15 +82,20 @@ test('日禄不等于旬尾不会误报闭口禄', function () {
 test('旺禄乘玄武追加禄被玄武夺且不宜守', function () {
     $match = wlls_match(['tianjiang' => wlls_general_on_lu(3, 9)]);
     $labels = array_column($match->matchedJudgments, 'label');
+    $effects = array_column($match->matchedJudgments, 'effect', 'label');
 
-    expect($labels)->toContain('禄被玄武夺')->not->toContain('宜守旺禄');
+    expect($labels)->toContain('禄被玄武夺')->not->toContain('宜守旺禄')
+        ->and($effects['禄被玄武夺'])->toBe('resolve');
 });
 
-test('旺禄乘白虎追加旺禄乘白虎且不宜守', function () {
+test('旺禄只乘白虎时作减损并仍然宜守', function () {
     $match = wlls_match(['tianjiang' => wlls_general_on_lu(3, 7)]);
     $labels = array_column($match->matchedJudgments, 'label');
+    $effects = array_column($match->matchedJudgments, 'effect', 'label');
 
-    expect($labels)->toContain('旺禄乘白虎')->not->toContain('宜守旺禄');
+    expect($labels)->toContain('旺禄乘白虎', '宜守旺禄')
+        ->and($effects['旺禄乘白虎'])->toBe('reduce')
+        ->and($effects['宜守旺禄'])->toBe('neutral');
 });
 
 test('普通旺禄只输出宜守旺禄', function () {
@@ -99,15 +104,49 @@ test('普通旺禄只输出宜守旺禄', function () {
     expect(array_column($match->matchedJudgments, 'label'))->toBe(['宜守旺禄']);
 });
 
-test('多个破坏因素可以并存但不输出宜守旺禄', function () {
+test('旬空与白虎可以并存且由旬空解除宜守', function () {
     $match = wlls_match([
         'rigan' => 7, 'rizhi' => 5, 'sike' => [7, 9],
         'tianjiang' => wlls_general_on_lu(9, 7),
     ]);
     $labels = array_column($match->matchedJudgments, 'label');
+    $effects = array_column($match->matchedJudgments, 'effect', 'label');
 
     expect($labels)->toContain('旺禄旬空', '旺禄乘白虎')
-        ->not->toContain('宜守旺禄');
+        ->not->toContain('宜守旺禄')
+        ->and($effects['旺禄旬空'])->toBe('resolve')
+        ->and($effects['旺禄乘白虎'])->toBe('reduce');
+});
+
+test('闭口禄与白虎可以并存且由闭口禄解除宜守', function () {
+    $match = wlls_match([
+        'rigan' => 7, 'rizhi' => 7, 'sike' => [7, 9],
+        'tianjiang' => wlls_general_on_lu(9, 7),
+    ]);
+    $labels = array_column($match->matchedJudgments, 'label');
+    $effects = array_column($match->matchedJudgments, 'effect', 'label');
+
+    expect($labels)->toContain('闭口禄', '旺禄乘白虎')
+        ->not->toContain('宜守旺禄')
+        ->and($effects['闭口禄'])->toBe('resolve')
+        ->and($effects['旺禄乘白虎'])->toBe('reduce');
+});
+
+test('主体成立但特殊判断事实不完整时不伪造宜守判断', function () {
+    $match = wlls_match([
+        'rizhi' => null,
+        'tianpan' => null,
+        'tianjiang' => null,
+    ]);
+
+    expect($match)->not->toBeNull()
+        ->and($match->matchedRoutes)->toBe(['wang_lu_on_stem'])
+        ->and($match->evidence['xun_head'])->toBeNull()
+        ->and($match->evidence['xun_tail'])->toBeNull()
+        ->and($match->evidence['lu_void'])->toBeNull()
+        ->and($match->evidence['closed_mouth_lu'])->toBeNull()
+        ->and($match->evidence['lu_general'])->toBeNull()
+        ->and($match->matchedJudgments)->toBe([]);
 });
 
 test('非法四课或日干安全返回空结果', function (array $overrides) {
