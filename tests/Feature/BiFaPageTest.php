@@ -382,6 +382,27 @@ test('ninth bifa detail exposes nine Chinese foundations cases and no internal f
     }
 });
 
+test('ninth bifa detail keeps the bing-yin counterexample copy purely Chinese without engineering terms', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'bi-nan-tao-sheng']))->assertOk();
+
+    // 丙寅反例的中文业务说明必须出现。
+    foreach ([
+        '丙寅日·见在之财落空的反例说明',
+        '正文作求财反例',
+        '仅供研究比较',
+        '不代表「日干下临财乡」成立',
+        '仅作原文参考',
+        '不回填现代时间',
+    ] as $visible) {
+        $response->assertSee($visible);
+    }
+
+    // 工程术语不得泄漏到详情页。
+    foreach (['routes 留空', 'routes 筛选', 'routes筛选', 'routes留空'] as $forbidden) {
+        $response->assertDontSee($forbidden);
+    }
+});
+
 test('ninth bifa pan card shows Chinese routes and judgments without internal fields', function () {
     $component = Livewire::withQueryParams([
         'datetime' => '2031-01-01T19:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male',

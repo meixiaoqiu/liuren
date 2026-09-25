@@ -14,7 +14,12 @@ use App\Support\BiFaCaseCatalog;
  *  - status 必须是 'executable' 或 'reference_only'；
  *  - executable 案例必须有 datetime / birth / gender；
  *  - reference_only 案例可缺 datetime；
- *  - routes 必须非空；已实现法的 route 必须属于本法 definition，未实现法只允许 reference_only。
+ *  - routes 语义约束：
+ *      * status='executable' 或 source_type='generated' 的成立案例：routes 必须非空，
+ *        已实现法的 route 必须属于本法 definition；
+ *      * status='reference_only' 的正文反例：允许 routes 留空——前提是该案例是
+ *        正文中明确作为反例登记的（如 bifa.09.daquan-bing-yin-counterexample）；
+ *  - 未实现法只允许登记 reference_only。
  */
 
 /**
@@ -178,4 +183,84 @@ test('BingYin counterexample is a reference_only case with empty routes and is e
     $allForLaw = BiFaCaseCatalog::casesForLaw('bifa.09');
     $allIds = array_column($allForLaw, 'case_id');
     expect($allIds)->toContain('bifa.09.daquan-bing-yin-counterexample');
+});
+
+test('BiFaCaseCatalog routes contract: routes=[] is forbidden except for explicitly registered reference_only counterexamples', function () {
+    // 契约：
+    //   1. status='executable' 的案例不得 routes=[]；
+    //   2. status='reference_only' 但 source_type='generated' 的案例，默认不得 routes=[]；
+    //   3. 唯一允许 routes=[] 的例外是下方白名单内"明确登记的反例"；
+    //   4. 白名单以外的任何案例一旦 routes=[] 都必须失败。
+    //
+    // 当前白名单仅含两条已注册的反例：
+    //   - bifa.01.generated-no-match-no-pending：generated 反例，覆盖 BiFaRuleEngine 在
+    //     matched_routes / pending_routes 同时为空时返回 null 的契约；
+    //   - bifa.09.daquan-bing-yin-counterexample：daquan 反例，覆盖丙寅日「日干下临财乡」
+    //     求财不成立。
+    // 新增合法空 routes 案例时必须同时更新本白名单并补充 contract 注释。
+    $allowedEmptyRoutesCaseIds = [
+        'bifa.01.generated-no-match-no-pending',
+        'bifa.09.daquan-bing-yin-counterexample',
+    ];
+
+    foreach (BiFaCaseCatalog::cases() as $case) {
+        if ($case['routes'] !== []) {
+            continue;
+        }
+
+        expect($case['status'])->toBe(
+            'reference_only',
+            "case_id={$case['case_id']} routes=[] 仅允许 reference_only 状态"
+        );
+
+        expect(in_array($case['case_id'], $allowedEmptyRoutesCaseIds, true))->toBeTrue(
+            "case_id={$case['case_id']} 的 routes=[] 必须是白名单内的 reference_only 反例"
+        );
+    }
+});
+
+test('BiFaCaseCatalog routes contract: executable and non-whitelisted generated cases must declare non-empty routes', function () {
+    $allowedEmptyRoutesCaseIds = [
+        'bifa.01.generated-no-match-no-pending',
+        'bifa.09.daquan-bing-yin-counterexample',
+    ];
+
+    foreach (BiFaCaseCatalog::cases() as $case) {
+        // 白名单内的反例跳过——它们的 routes=[] 是有意为之。
+        if (in_array($case['case_id'], $allowedEmptyRoutesCaseIds, true)) {
+            continue;
+        }
+
+        if ($case['status'] === 'executable') {
+            expect($case['routes'])->not->toBe(
+                [],
+                "executable case_id={$case['case_id']} 必须声明至少一条 route，不允许 routes=[]"
+            );
+        }
+
+        if ($case['source_type'] === 'generated') {
+            expect($case['routes'])->not->toBe(
+                [],
+                "generated case_id={$case['case_id']} 必须声明至少一条 route，不允许 routes=[]"
+            );
+        }
+    }
+});
+
+test('BiFaCaseCatalog bing-yin counterexample is one of the legal empty-routes cases', function () {
+    $emptyRoutesCases = array_values(array_filter(
+        BiFaCaseCatalog::cases(),
+        static fn (array $case): bool => $case['routes'] === [],
+    ));
+
+    $emptyRoutesIds = array_column($emptyRoutesCases, 'case_id');
+    expect($emptyRoutesIds)->toContain('bifa.09.daquan-bing-yin-counterexample');
+
+    // 锁死丙寅反例自身的字段，确保它不会被未来误改。
+    $bingyin = BiFaCaseCatalog::findByCaseId('bifa.09.daquan-bing-yin-counterexample');
+    expect($bingyin)->not->toBeNull()
+        ->and($bingyin['law_code'])->toBe('bifa.09')
+        ->and($bingyin['source_type'])->toBe('daquan')
+        ->and($bingyin['status'])->toBe('reference_only')
+        ->and($bingyin['routes'])->toBe([]);
 });
