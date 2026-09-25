@@ -337,6 +337,27 @@ test('seventh bifa detail exposes one Chinese foundation judgments and cases wit
     }
 });
 
+test('eighth bifa detail exposes one Chinese foundation three reduction judgments and cases without internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'quan-she-bu-zheng']))->assertOk();
+    $card = $response->viewData('knowledgeCard');
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($card['conditions'])->toHaveCount(1)
+        ->and($card['conditions'][0]['title'])->toBe('日禄临支');
+
+    foreach (['权摄不正禄临支', '日禄临支', '禄受墓', '禄受支克', '禄受支脱',
+        '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        $response->assertSee($visible);
+    }
+
+    foreach (['bifa.08', 'lu_on_branch', 'QuanSheBuZhengRule', 'matched_routes', 'pending_routes',
+        'case_id', 'matcher', 'match()', 'DAY_LU', 'lu_tombed_by_branch',
+        'lu_controlled_by_branch', 'lu_drained_by_branch', 'PanCalculator'] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
 test('researched and implemented third bifa shows eight Chinese foundations and no internal fields', function () {
     $response = $this->get(route('bifa.show', ['law' => 'lian-mu-gui-ren']))->assertOk();
     expect($response->viewData('researched'))->toBeTrue()

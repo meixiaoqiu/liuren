@@ -7,6 +7,7 @@ use App\Domain\Pan\BiFa\Rules\LianMuGuiRenRule;
 use App\Domain\Pan\BiFa\Rules\LiuYangShuZuRule;
 use App\Domain\Pan\BiFa\Rules\LiuYinXiangJiRule;
 use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
+use App\Domain\Pan\BiFa\Rules\QuanSheBuZhengRule;
 use App\Domain\Pan\BiFa\Rules\ShouWeiXiangJianRule;
 use App\Domain\Pan\BiFa\Rules\WangLuLinShenRule;
 
@@ -22,8 +23,9 @@ use App\Domain\Pan\BiFa\Rules\WangLuLinShenRule;
  *  - LiuYangShuZuRule            第五法 · 六阳数足须公用
  *  - LiuYinXiangJiRule           第六法 · 六阴相继尽昏迷
  *  - WangLuLinShenRule           第七法 · 旺禄临身徒妄作
+ *  - QuanSheBuZhengRule          第八法 · 权摄不正禄临支
  *
- * 后续第 8..100 法的实现逐步追加；严禁把课经 PanRule 加入本注册表——
+ * 后续第 9..100 法的实现逐步追加；严禁把课经 PanRule 加入本注册表——
  * 课经与毕法是两套独立体系，混入会污染"解盘信息"与"毕法"两个独立区块。
  */
 final class BiFaRuleRegistry
@@ -39,6 +41,7 @@ final class BiFaRuleRegistry
             new LiuYangShuZuRule,
             new LiuYinXiangJiRule,
             new WangLuLinShenRule,
+            new QuanSheBuZhengRule,
         ];
     }
 }

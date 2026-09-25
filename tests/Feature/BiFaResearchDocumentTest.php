@@ -56,8 +56,8 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 8..100 法尚未研究（前 7 法已研究）
-    $page = BiFaPageCatalog::findByCode('bifa.08');
+    // 第 9..100 法尚未研究（前 8 法已研究）
+    $page = BiFaPageCatalog::findByCode('bifa.09');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 
@@ -173,4 +173,22 @@ test('BiFaResearchDocument returns missing when researchPath does not exist', fu
 
     expect($result['status'])->toBe('missing')
         ->and($result['content'])->toBeNull();
+});
+
+test('eighth law original extraction contains only verified original text without program semantics', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.08');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('权摄不正禄临支第八')
+        ->and($content)->toContain('日干禄神加临支辰')
+        ->and($content)->toContain('禄被支墓克脱')
+        ->and($content)->not->toContain('## 三')
+        ->and($content)->not->toContain('程序语义')
+        ->and($content)->not->toContain('工程裁决')
+        ->and($content)->not->toContain('DAY_LU')
+        ->and($content)->not->toContain('lu_on_branch');
 });

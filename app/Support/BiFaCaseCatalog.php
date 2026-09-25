@@ -957,5 +957,76 @@ final class BiFaCaseCatalog
             'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
             'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出辛未日干上酉、夜乘白虎及三传结构，但无实际占时和完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·辛未日条',
         ],
+
+        // ----------------------------------------------------------------------
+        // 第八法 · 权摄不正禄临支
+        // ----------------------------------------------------------------------
+        [
+            'case_id' => 'bifa.08.generated-plain', 'law_code' => 'bifa.08',
+            'label' => '程序验证·甲辰日·日禄临支·普通', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-04T05:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '生产排盘中甲禄寅正临支上，支辰为土，不墓、不克、不脱禄神，故为普通日禄临支，不追加任何减损判断。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.08.generated-tombed', 'law_code' => 'bifa.08',
+            'label' => '程序验证·辛丑日·日禄临支·禄受墓', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-01T09:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '生产排盘中辛禄酉正临支，丑为金墓，故主体成立并追加"禄受墓"减损判断。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.08.generated-controlled', 'law_code' => 'bifa.08',
+            'label' => '程序验证·癸丑日·日禄临支·禄受支克', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-13T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '生产排盘中癸禄子正临支，子水被丑土所克，故主体成立并追加"禄受支克"减损判断。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.08.generated-drained', 'law_code' => 'bifa.08',
+            'label' => '程序验证·壬寅日·日禄临支·禄受支脱', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-02T07:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '生产排盘中壬禄亥正临支，亥水生寅木，故主体成立并追加"禄受支脱"减损判断。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.08.generated-tombed-controlled', 'law_code' => 'bifa.08',
+            'label' => '程序验证·壬辰日·日禄临支·禄受墓兼禄受支克', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-02-21T07:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '生产排盘中壬禄亥正临支，辰为水土之墓且土克水，主体成立并同时追加"禄受墓"与"禄受支克"两项独立减损判断；用于验证三项判定非互斥。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.08.generated-tombed-drained', 'law_code' => 'bifa.08',
+            'label' => '程序验证·丙戌日·日禄临支·禄受墓兼禄受支脱', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-02-15T09:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '生产排盘中丙禄巳正临支，戌为火墓且火生土，主体成立并同时追加"禄受墓"与"禄受支脱"两项独立减损判断；用于验证三项判定非互斥。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.08.daquan-jia-zi-lu-on-branch', 'law_code' => 'bifa.08', 'label' => '甲子日寅加子',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '正文只给日干支与"寅加子"结构，没有完整公历 datetime，故为 reference_only，绝不回填现代时间。', 'source' => '《六壬大全·毕法赋》第八法·甲子日条',
+        ],
+        [
+            'case_id' => 'bifa.08.daquan-yi-chou-lu-on-branch', 'law_code' => 'bifa.08', 'label' => '乙丑日卯加丑',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '正文明确列出乙丑日卯加丑，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第八法·乙丑日条',
+        ],
+        [
+            'case_id' => 'bifa.08.daquan-xin-chou-lu-tombed', 'law_code' => 'bifa.08', 'label' => '辛丑日酉加丑·禄受墓',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '正文明确列出辛丑日酉加丑，丑为金墓，对应禄受墓；但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第八法·辛丑日条',
+        ],
+        [
+            'case_id' => 'bifa.08.daquan-yi-you-lu-controlled', 'law_code' => 'bifa.08', 'label' => '乙酉日卯加酉·禄受支克',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '正文明确列出乙酉日卯加酉，酉金克卯木，对应禄受支克；但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第八法·乙酉日条',
+        ],
+        [
+            'case_id' => 'bifa.08.daquan-yi-si-lu-drained', 'law_code' => 'bifa.08', 'label' => '乙巳日卯加巳·禄受支脱',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['lu_on_branch'], 'reason' => '正文明确列出乙巳日卯加巳，卯木生巳火，对应禄受支脱；但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第八法·乙巳日条',
+        ],
     ];
 }

@@ -61,7 +61,7 @@ final class BiFaCatalog
             self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', '四课四上神与中末传六位全阳，或五阳一阴而本命、行年得阳填实，主公用明白、利公不利私。'),
             self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', '四课四上神与中末传六位全阴，或五阴得阴支年命填实，或四课与三传逐层相生，主昏迷与脱耗之象。'),
             self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', '阴干日禄临干，原则上宜守现有之禄；禄空、闭口或被玄武夺则不可拘守，乘白虎则减力而须兼察制化。'),
-            self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', ''),
+            self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', '日干之禄正临日支之上，自身禄利寄于支方；若支辰又墓、克或泄耗禄神，则禄气进一步受损。'),
             self::law(9, '不修而修禄临干', 'bu-xi-u-xiu', ''),
             self::law(10, '任信丁马俱来', 'ren-xin-ding-ma', ''),
             self::law(11, '虎临干鬼凶无比', 'hu-lin-gang-gui', ''),
