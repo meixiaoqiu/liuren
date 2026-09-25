@@ -74,6 +74,9 @@ test('every executable bifa case reproduces all of its declared routes through t
         if ($case['law_code'] === 'bifa.05' && $case['routes'] !== $matchedRoutes) {
             $failures[] = "case_id={$case['case_id']}: 第五法 routes 必须完整且顺序一致（声明：".implode(',', $case['routes']).'；实际：'.implode(',', $matchedRoutes).'）';
         }
+        if ($case['law_code'] === 'bifa.06' && $case['routes'] !== $matchedRoutes) {
+            $failures[] = "case_id={$case['case_id']}: 第六法 routes 必须完整且顺序一致（声明：".implode(',', $case['routes']).'；实际：'.implode(',', $matchedRoutes).'）';
+        }
     }
 
     expect($failures)->toBe([], "executable 案例必须自动命中声明 route：\n".implode("\n", $failures));
