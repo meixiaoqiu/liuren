@@ -59,7 +59,7 @@ final class BiFaCatalog
             self::law(3, '帘幕贵人高甲第', 'lian-mu-gui-ren', '昼夜反取帘幕贵人，兼察旬首、斗鬼、亚魁、德入天门、真朱雀与二贵拱年命，主科名之象。'),
             self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', '官星乘白虎临干年命为催官使者，或得催官符、父母爻、长生贵人，主赴任催促与恩主举荐之象。'),
             self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', '四课四上神与中末传六位全阳，或五阳一阴而本命、行年得阳填实，主公用明白、利公不利私。'),
-            self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', ''),
+            self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', '四课四上神与中末传六位全阴，或五阴得阴支年命填实，或四课与三传逐层相生，主昏迷与脱耗之象。'),
             self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', ''),
             self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', ''),
             self::law(9, '不修而修禄临干', 'bu-xi-u-xiu', ''),

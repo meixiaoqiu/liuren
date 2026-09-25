@@ -296,6 +296,26 @@ test('researched and implemented second bifa constructs its KnowledgeCard and sh
         ->assertSee('辛亥日');
 });
 
+test('sixth bifa detail uses only Chinese business language and exposes three foundations', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'liu-yin-xiang-ji']))->assertOk();
+    $card = $response->viewData('knowledgeCard');
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($card['conditions'])->toHaveCount(3)
+        ->and(array_column($card['conditions'], 'title'))->toBe(['六阴格', '五阴年命填实', '源消根断格']);
+
+    $response->assertSee('六阴相继尽昏迷')
+        ->assertSee('自昼传夜')
+        ->assertSee('盈阳')
+        ->assertSee('止四日四课')
+        ->assertDontSee('six_yin', false)
+        ->assertDontSee('source_exhausted_root_severed', false)
+        ->assertDontSee('LiuYinXiangJiRule', false)
+        ->assertDontSee('matched_routes', false)
+        ->assertDontSee('case_id', false);
+});
+
 test('researched and implemented third bifa shows eight Chinese foundations and no internal fields', function () {
     $response = $this->get(route('bifa.show', ['law' => 'lian-mu-gui-ren']))->assertOk();
     expect($response->viewData('researched'))->toBeTrue()
@@ -563,4 +583,22 @@ test('fifth bifa pan page shows real route and judgments without leaking interna
     '六阳悖戾' => ['2031-01-04T05:00', ['六阳格', '悖戾格', '减损']],
     '五阳自夜传昼' => ['2031-01-04T01:00', ['五阳年命填实', '自夜传昼', '增强']],
     '六阳双断义' => ['2031-01-14T05:00', ['六阳格', '悖戾格', '自夜传昼']],
+]);
+
+test('sixth bifa pan page shows real routes without leaking internal fields', function (string $datetime, array $visible) {
+    $component = Livewire::withQueryParams([
+        'datetime' => $datetime, 'birth' => '1986-08-01T00:00', 'gender' => 'male',
+    ])->test(CreatePan::class)->assertHasNoErrors()
+        ->assertSee('六阴相继尽昏迷');
+
+    foreach ($visible as $text) {
+        $component->assertSee($text);
+    }
+    foreach (['bifa.06', 'six_yin', 'five_yin_filled_by_person', 'source_exhausted_root_severed',
+        'LiuYinXiangJiRule', 'case_id', 'matched_routes', 'pending_routes'] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
+})->with([
+    '己卯六阴' => ['2031-02-08T19:00', ['六阴格']],
+    '癸卯源消根断' => ['2031-01-03T21:00', ['源消根断格', '根源不断向外泄生']],
 ]);

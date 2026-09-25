@@ -56,14 +56,29 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 6..100 法尚未研究（前 5 法已研究）
-    $page = BiFaPageCatalog::findByCode('bifa.06');
+    // 第 7..100 法尚未研究（前 6 法已研究）
+    $page = BiFaPageCatalog::findByCode('bifa.07');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 
     $result = (new BiFaResearchDocument)->original($page);
     expect($result['status'])->toBe('missing')
         ->and($result['content'])->toBeNull();
+});
+
+test('sixth law research separates strict source exhausted definition from later expansion', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.06');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+    $result = (new BiFaResearchDocument)->original($page);
+    $document = (string) file_get_contents(base_path($page['researchPath']));
+
+    expect($result['status'])->toBe('complete')
+        ->and($result['content'])->toContain('六阴相继尽昏迷')
+        ->and($result['content'])->toContain('丑卯巳为出户')
+        ->and($result['content'])->not->toContain('甲辰日干上午')
+        ->and($document)->toContain('止四日四课')
+        ->and($document)->toContain('甲辰日干上午')
+        ->and($document)->toContain('不进入代码');
 });
 
 test('BiFaResearchDocument extracts verified original text for the third law', function () {

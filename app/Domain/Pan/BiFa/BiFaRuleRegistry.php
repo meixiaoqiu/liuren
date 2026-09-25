@@ -5,6 +5,7 @@ namespace App\Domain\Pan\BiFa;
 use App\Domain\Pan\BiFa\Rules\CuiGuanShiZheRule;
 use App\Domain\Pan\BiFa\Rules\LianMuGuiRenRule;
 use App\Domain\Pan\BiFa\Rules\LiuYangShuZuRule;
+use App\Domain\Pan\BiFa\Rules\LiuYinXiangJiRule;
 use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
 use App\Domain\Pan\BiFa\Rules\ShouWeiXiangJianRule;
 
@@ -33,6 +34,7 @@ final class BiFaRuleRegistry
             new LianMuGuiRenRule,
             new CuiGuanShiZheRule,
             new LiuYangShuZuRule,
+            new LiuYinXiangJiRule,
         ];
     }
 }

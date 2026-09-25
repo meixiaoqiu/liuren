@@ -789,5 +789,49 @@ final class BiFaCaseCatalog
             'reason' => '生产排盘四课上神子、戌、子、戌，三传戌、申、午；六位全阳，三传连续逆退二位，且由夜地戌传入昼方午。',
             'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
         ],
+
+        // ----------------------------------------------------------------------
+        // 第六法 · 六阴相继尽昏迷
+        // ----------------------------------------------------------------------
+        [
+            'case_id' => 'bifa.06.generated-ji-mao-six-yin', 'law_code' => 'bifa.06',
+            'label' => '程序验证·己卯日·六阴格·三传亥丑卯', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-02-08T19:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['six_yin'],
+            'reason' => '生产排盘四课上神酉、亥、巳、未，中末传丑、卯，六位全阴；四课虽全部下生上，三传亥丑卯并非连续相生，故不成立源消根断。',
+            'source' => '程序验证案例·2031 年完整日时组合扫描',
+        ],
+        [
+            'case_id' => 'bifa.06.generated-gui-mao-source-exhausted', 'law_code' => 'bifa.06',
+            'label' => '程序验证·癸卯日干上卯·源消根断', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-03T21:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['source_exhausted_root_severed'],
+            'reason' => '生产排盘自然复现《六壬大全》所列癸卯日干上卯，四课逐课下生上且三传连续相生。',
+            'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
+        ],
+        [
+            'case_id' => 'bifa.06.generated-gui-wei-source-exhausted', 'law_code' => 'bifa.06',
+            'label' => '程序验证·癸未日干上卯·源消根断', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-02-12T19:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['source_exhausted_root_severed'],
+            'reason' => '生产排盘自然复现《六壬大全》所列癸未日干上卯，四课逐课下生上且三传连续相生。',
+            'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
+        ],
+        [
+            'case_id' => 'bifa.06.generated-xin-mao-source-exhausted', 'law_code' => 'bifa.06',
+            'label' => '程序验证·辛卯日干上子·源消根断', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-02-20T17:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['source_exhausted_root_severed'],
+            'reason' => '生产排盘自然复现《六壬大全》所列辛卯日干上子，四课逐课下生上且三传连续相生。',
+            'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
+        ],
+        [
+            'case_id' => 'bifa.06.generated-gui-si-source-exhausted', 'law_code' => 'bifa.06',
+            'label' => '程序验证·癸巳日干上卯·源消根断', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-02-22T17:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['source_exhausted_root_severed'],
+            'reason' => '生产排盘自然复现《六壬大全》所列癸巳日干上卯，四课逐课下生上且三传连续相生。',
+            'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
+        ],
     ];
 }
