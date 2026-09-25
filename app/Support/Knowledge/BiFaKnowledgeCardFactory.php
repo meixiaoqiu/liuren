@@ -144,7 +144,6 @@ final readonly class BiFaKnowledgeCardFactory
     {
         $effectLabels = [
             'increase' => '增强',
-            'enhance' => '增强',
             'reduce' => '减损',
             'resolve' => '例外',
             'neutral' => '中性',

@@ -18,7 +18,8 @@ function lysz_match(array $overrides = []): mixed
 test('第五法公开两条有序且互斥的成立路线', function () {
     $definition = (new LiuYangShuZuRule)->definition();
     expect(array_column($definition['foundations'], 'code'))->toBe(['six_yang', 'five_yang_filled_by_person'])
-        ->and(array_column($definition['judgments'], 'label'))->toBe(['公用明白·利公不利私', '悖戾格', '自夜传昼']);
+        ->and(array_column($definition['judgments'], 'label'))->toBe(['公用明白·利公不利私', '悖戾格', '自夜传昼'])
+        ->and(collect($definition['judgments'])->firstWhere('label', '自夜传昼')['effect'])->toBe('increase');
 });
 
 test('六阳六位全阳且重复阳支合法并不依赖人物资料', function () {
@@ -76,7 +77,9 @@ test('退间传不取消六阳并产生悖戾格减损断义', function () {
 
 test('夜地初传与昼方末传产生自夜传昼且不受贵人昼夜影响', function (string $period) {
     $match = lysz_match(['sike' => [0, 0, 0, 2, 0, 4, 0, 6], 'sanchuan0' => 0, 'sanchuan1' => 8, 'sanchuan2' => 6, 'guirenPeriod' => $period]);
-    expect(array_column($match?->matchedJudgments ?? [], 'label'))->toContain('自夜传昼');
+    $judgment = collect($match?->matchedJudgments ?? [])->firstWhere('label', '自夜传昼');
+    expect($judgment)->not->toBeNull()
+        ->and($judgment['effect'])->toBe('increase');
 })->with(['day', 'night']);
 
 test('昼方初传与昼方末传不误判自夜传昼', function () {

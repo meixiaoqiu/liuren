@@ -82,6 +82,23 @@ test('BiFaResearchDocument extracts verified original text for the third law', f
         ->and($content)->not->toContain('## 三');
 });
 
+test('fifth law separates bifa original text from the liuchun corroboration section', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.05');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+    $document = (string) file_get_contents(base_path($page['researchPath']));
+
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('《六壬大全·毕法赋》第五法')
+        ->and($content)->toContain('庚子日')
+        ->and($content)->toContain('五阳格')
+        ->and($content)->not->toContain('课经“六纯课”旁证')
+        ->and($document)->toContain('## 三、课经“六纯课”旁证')
+        ->and($document)->toContain('不是《毕法赋》第五法正文');
+});
+
 test('BiFaResearchDocument returns missing when researchPath does not exist', function () {
     $result = (new BiFaResearchDocument)->original([
         'researchPath' => 'docs/毕法/non-existent.md',

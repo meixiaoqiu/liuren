@@ -45,7 +45,7 @@ final class LiuYangShuZuRule implements BiFaRule
             'judgments' => [
                 ['label' => '公用明白·利公不利私', 'effect' => 'neutral', 'description' => '第五法成立，事主公用明白；利于公干，不利私谋。'],
                 ['label' => '悖戾格', 'effect' => 'reduce', 'description' => '三传退间，又称倒拔蛇；第五法仍然成立，但事情间阻、艰辛。'],
-                ['label' => '自夜传昼', 'effect' => 'enhance', 'description' => '三传由夜地传入昼方，事情尤为明白。'],
+                ['label' => '自夜传昼', 'effect' => 'increase', 'description' => '三传由夜地传入昼方，事情尤为明白。'],
             ],
             'sections' => [
                 ['title' => '六位与初传', 'content' => '六位是四课四上神加中传、末传。初传本来就是四课之一发用，须确认它在四课上神中，但不再重复计为第七个阴阳位置。'],
@@ -118,7 +118,7 @@ final class LiuYangShuZuRule implements BiFaRule
             $judgments[] = ['label' => '悖戾格', 'effect' => 'reduce', 'description' => '三传退间，又称倒拔蛇；第五法仍然成立，但事情间阻、艰辛。'];
         }
         if ($nightToDay) {
-            $judgments[] = ['label' => '自夜传昼', 'effect' => 'enhance', 'description' => '三传由夜地传入昼方，事情尤为明白。'];
+            $judgments[] = ['label' => '自夜传昼', 'effect' => 'increase', 'description' => '三传由夜地传入昼方，事情尤为明白。'];
         }
 
         $law = $this->law();
