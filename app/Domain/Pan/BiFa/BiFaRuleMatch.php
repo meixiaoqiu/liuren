@@ -31,6 +31,7 @@ final readonly class BiFaRuleMatch
      * @param  list<string>  $matchedRoutes
      * @param  list<string>  $pendingRoutes  满足前置条件但因人物资料缺失而未评估的 route
      * @param  array<string, mixed>  $evidence
+     * @param  list<array{label: string, effect: string, description: string}>  $matchedJudgments
      */
     public function __construct(
         public string $code,
@@ -41,6 +42,7 @@ final readonly class BiFaRuleMatch
         public array $matchedRoutes,
         public array $pendingRoutes = [],
         public array $evidence = [],
+        public array $matchedJudgments = [],
     ) {}
 
     /**
@@ -53,7 +55,8 @@ final readonly class BiFaRuleMatch
         sub_matches: list<SubMatch>,
         matched_routes: list<string>,
         pending_routes: list<string>,
-        evidence: array<string, mixed>
+        evidence: array<string, mixed>,
+        matched_judgments: list<array{label: string, effect: string, description: string}>
      * }
      */
     public function toArray(): array
@@ -68,6 +71,7 @@ final readonly class BiFaRuleMatch
             'matched_routes' => $this->matchedRoutes,
             'pending_routes' => $this->pendingRoutes,
             'evidence' => $this->evidence,
+            'matched_judgments' => $this->matchedJudgments,
         ];
     }
 }

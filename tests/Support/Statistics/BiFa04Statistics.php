@@ -105,17 +105,17 @@ foreach ($modes as $mode => $usePerson) {
         }
     }
     ksort($overlap);
-    $results[$mode] = compact(
-        'denominator',
-        'total',
-        'counts',
-        'overlap',
-        'examples',
-        'messenger_void',
-        'fanben_hits',
-        'fanyin_attached',
-        'pending_total',
-    );
+    $results[$mode] = [
+        'denominator' => $denominator,
+        'total' => $total,
+        'counts' => $counts,
+        'overlap' => $overlap,
+        'examples' => $examples,
+        'messenger_void' => $messengerVoid,
+        'fanben_hits' => $fanbenHits,
+        'fanyin_attached' => $fanyinAttached,
+        'pending_total' => $pendingTotal,
+    ];
 }
 
 $output = json_encode($results, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)."\n";

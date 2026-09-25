@@ -72,7 +72,10 @@ final readonly class BiFaKnowledgeCardFactory
                 $match->subMatches,
             )),
             evidence: [],
-            sections: [],
+            sections: array_values(array_map(
+                fn (array $judgment): array => $this->judgmentSection($judgment),
+                $match->matchedJudgments,
+            )),
             examples: [],
             actions: [[
                 'label' => '查看本法详解',

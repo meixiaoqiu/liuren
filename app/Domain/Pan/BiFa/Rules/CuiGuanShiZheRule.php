@@ -21,7 +21,7 @@ use LogicException;
  *      官星加临干支/本命/行年，且三传组成完整三合局，局五行生官星五行。
  *
  *  - 3. 恩主举荐·父母爻          → route patron_parent_line
- *      父母爻出现在干上神、支上神、初传、中传、末传、本命上神或行年上神任一处。
+ *      父母爻出现在干上神、支上神、初传、中传、末传或行年上神任一处。
  *
  *  - 4. 恩主举荐·长生作贵人      → route patron_noble_as_growth
  *      当前所用天乙贵人地支等于日干六壬五行长生支。
@@ -175,11 +175,11 @@ final class CuiGuanShiZheRule implements BiFaRule
     public function definition(): array
     {
         return [
-            'description' => '日鬼或官星乘白虎加临干支年命为催官使者；或官星临干年命而三传组成三合局、局生官星为催官符；或父母爻见于日辰三传年命，或长生作贵人，皆为恩主举荐、赴任催促之象。',
+            'description' => '日鬼或官星乘白虎加临日干或年命为催官使者；或官星临日干年命而三传组成三合局、局生官星为催官符；或父母爻见于日辰、三传、行年，或长生作贵人，皆为恩主举荐、赴任催促之象。',
             'foundations' => [
                 ['code' => 'cui_guan_messenger', 'title' => '催官使者', 'description' => '日鬼或官星乘白虎，加临日干寄宫、本命或行年。官星按普通五行官鬼表取用，不复用课经鬼墓课特殊日鬼表。'],
                 ['code' => 'cui_guan_talisman', 'title' => '催官符', 'description' => '官星加临日干寄宫、本命或行年，且三传组成完整三合局，局五行生官星五行。'],
-                ['code' => 'patron_parent_line', 'title' => '恩主举荐·父母爻', 'description' => '父母爻（按日干五行所生五行对应地支）出现在干上神、支上神、初传、中传、末传、本命上神或行年上神任一处。'],
+                ['code' => 'patron_parent_line', 'title' => '恩主举荐·父母爻', 'description' => '父母爻（生日干者）出现在干上神、支上神、初传、中传、末传或行年上神任一处。'],
                 ['code' => 'patron_noble_as_growth', 'title' => '恩主举荐·长生作贵人', 'description' => '当前所用天乙贵人的天盘地支恰为日干的六壬五行长生支。'],
             ],
             'judgments' => [
@@ -188,9 +188,9 @@ final class CuiGuanShiZheRule implements BiFaRule
                 ['label' => '返吟附加', 'effect' => 'reduce', 'description' => '盘面呈现返吟格（课式），第四法已成立后增加此减损断义：赴任得返吟，多主任期难满或赴任反复。'],
             ],
             'sections' => [
-                ['title' => '日鬼与鬼墓课日鬼表的区分', 'content' => '第四法沿用普通五行官鬼定义：木日克者为金（申、酉），火日克者为水（亥、子），土日克者为木（寅、卯），金日克者为火（巳、午），水日克者为土（辰、戌、丑、未）。课经「鬼墓课」使用《六壬大全》课经的同性单鬼表（甲日专取申、乙日专取酉、丙日专取子、丁日专取亥、戊日专取卯、己日专取寅、庚日专取午、辛日专取巳、壬日专取辰、癸日专取戌），与第四法不同；本法严格不调用课经鬼墓课的内部日鬼表实现。'],
+                ['title' => '日鬼与鬼墓课日鬼表的区分', 'content' => '第四法沿用普通五行官鬼定义，即克日干者为官鬼：木日取金，火日取水，土日取木，金日取火，水日取土。课经鬼墓课采用该课冻结的同性相克日鬼表，本法不复用。'],
                 ['title' => '催官符的「三传合局生官」解释', 'content' => '催官符按《六壬粹言·毕法赋》解释：辛未日午为官星，三传亥卯未成木局，木局整体生午火官星，故为催官符。因此程序按「三传组成完整三合局，且局五行生官星五行」判定，不按「初、中、末分别生官星」分别生克判定。三合局五行映射：申子辰水、亥卯未木、寅午戌火、巳酉丑金；五行相生：木→火→土→金→水→木。'],
-                ['title' => '人物资料与待评估规则', 'content' => 'Route 1、2 的人物路径仅涉及本命/行年一项即可命中；日干路径独立且优先。日干已命中即直接成立。日干不成立且本命/行年全缺时，对应 route 标记待评估。Route 3、4 不依赖本命/行年（Route 3 包含但非必需，Route 4 永不依赖），因此本法几乎不存在 pending 状态。'],
+                ['title' => '人物资料与待评估规则', 'content' => '催官使者、催官符在固定条件具备且日干路径未命中、本命与行年全缺时待评估。父母爻先查日辰与三传五处；五处均未命中且行年缺失时待评估，本命不参与此路。长生作贵人不依赖人物资料。'],
                 ['title' => '返本煞只作迟任判断、不作成立入口', 'content' => '返本煞不参与第四法 matcher。若盘面已因 Route 1～4 任一成立而命中第四法，恰好三传又组成当季返本局，则附加一条返本煞减损断义。返本煞绝不单独触发第四法。'],
                 ['title' => '《六壬大全》与《六壬粹言》返本煞异说', 'content' => '《六壬大全·毕法赋》返本煞四季口径：春金、夏水、秋火、冬土（《御定六壬直指》按「土局与火同」处理冬为寅午戌）。《六壬粹言》另作春金、夏水、秋木、冬火，与本项目主体依据的《大全》口径不同，属异说。本项目不采用《粹言》异说，仅在研究文档中如实记录。'],
                 ['title' => '乙卯昼贵空、己卯夜贵空的特殊边界', 'content' => '「不用」二字是正文明确给出的特例：乙卯日昼贵子落入甲辰旬空时，仅当某个恩主举荐判断完全依靠该昼贵子作父母爻时，不得据此成立；其他父母爻路径不受影响。己卯日夜贵申落入甲申旬空时，长生贵人 route 整体不成立，但 Route 3 父母爻仍可由其它落点成立。这两个特例不扩展到「所有父母爻旬空都不成立」或「所有长生贵人旬空都不成立」。'],
@@ -274,7 +274,7 @@ final class CuiGuanShiZheRule implements BiFaRule
             }
         }
         $officialBranch = $talismanOfficialBranch;
-        $officialElement = $officialBranch !== null ? $facts->branchElement($officialBranch) : null;
+        $officialElement = self::officialElementForDayStem($rigan);
         $sanheElement = null;
         $sanheTriple = BranchRelations::sanheTriple($initial, $middle, $final);
         if ($sanheTriple !== null) {
@@ -289,10 +289,12 @@ final class CuiGuanShiZheRule implements BiFaRule
         // 催官符的人物缺失处理：日干路径不成立且本命/行年全缺时标记待评估。
         $talismanStemHit = is_int($tianpan[$lodging] ?? null)
             && in_array($tianpan[$lodging], $officials, true);
+        $sanheGeneratesOfficial = $sanheElement !== null
+            && $officialElement !== null
+            && self::ELEMENT_SHENG[$sanheElement] === $officialElement;
         $talismanPending = ! $talismanStemHit
             && self::isPersonCompletelyMissing($person)
-            && $sanheElement !== null
-            && $officialElement !== null;
+            && $sanheGeneratesOfficial;
 
         // ---------- Route 3：恩主举荐·父母爻 ----------
         $parentHits = [];
@@ -308,24 +310,19 @@ final class CuiGuanShiZheRule implements BiFaRule
         // 乙卯日特例：昼贵子落旬空、且本命中 parent 路径只覆盖「昼贵子作父母爻」时，
         // 视为该路径不可用。
         $yiMaoDayNobleVoided = self::isYiMaoDayNobleVoided($facts, $rigan, $period);
-        $route3Matched = false;
-        $route3FilteredByYiMao = $yiMaoDayNobleVoided && $parentHits !== [];
-        if ($route3FilteredByYiMao) {
-            // 仅当所有命中位置都依赖空阴昼贵子时，整条 route 才被屏蔽；
-            // 任何其它父母爻落点都保留 route 命中。
-            $allFromYiMao = true;
-            foreach ($parentHits as $hit) {
-                if ($hit['branch'] !== self::DAY_NOBLE[$rigan]) {
-                    $allFromYiMao = false;
-                    break;
+        $route3FilteredByYiMao = false;
+        if ($yiMaoDayNobleVoided) {
+            foreach ($parentHits as $key => $hit) {
+                if ($hit['branch'] === self::DAY_NOBLE[$rigan]
+                    && $facts->generalRidingBranch($hit['branch']) === 0) {
+                    unset($parentHits[$key]);
+                    $route3FilteredByYiMao = true;
                 }
             }
-            if (! $allFromYiMao) {
-                $route3Matched = true;
-            }
-        } else {
-            $route3Matched = $parentHits !== [];
         }
+        $route3Matched = $parentHits !== [];
+        $route3Pending = ! $route3Matched
+            && ($person['xingnian'] ?? null) === null;
 
         // ---------- Route 4：长生作贵人 ----------
         $jiMaoOriginVoided = self::isJiMaoOriginVoided($facts, $rigan, $period);
@@ -334,7 +331,7 @@ final class CuiGuanShiZheRule implements BiFaRule
         // ---------- Plate patterns (返本煞、返吟) ----------
         $fanyin = $facts->hasPlatePattern('fanyin');
         $seasonal = $facts->seasonalPeriod();
-        $fanbenTriple = self::fanbenTripleForSeason($seasonal['key'] ?? null);
+        $fanbenTriple = self::fanbenTripleForSeason($seasonal['key'] ?? null, $facts->get('yuezhi'));
         $fanbenHit = $fanbenTriple !== null
             && BranchRelations::sanheTriple($initial, $middle, $final) !== null
             && BranchRelations::sanheTriple($initial, $middle, $final) === $fanbenTriple;
@@ -354,6 +351,8 @@ final class CuiGuanShiZheRule implements BiFaRule
         }
         if ($route3Matched) {
             $matchedRoutes[] = 'patron_parent_line';
+        } elseif ($route3Pending) {
+            $pendingRoutes[] = 'patron_parent_line';
         }
         if ($route4Matched) {
             $matchedRoutes[] = 'patron_noble_as_growth';
@@ -421,10 +420,10 @@ final class CuiGuanShiZheRule implements BiFaRule
                 : null);
         $sub[] = self::subMatch('patron_parent_line', '恩主举荐·父母爻',
             $route3Matched,
-            '父母爻出现在干上神、支上神、初传、中传、末传、本命上神或行年上神任一处。',
+            '父母爻出现在干上神、支上神、初传、中传、末传或行年上神任一处。',
             $parentDetail,
-            false,
-            false);
+            $route3Pending,
+            $route3Pending);
 
         $nobleDetail = null;
         if ($route4Matched) {
@@ -440,6 +439,17 @@ final class CuiGuanShiZheRule implements BiFaRule
             $nobleDetail,
             false,
             false);
+
+        $matchedJudgments = [];
+        if ($messengerMatched && $messengerIsVoid) {
+            $matchedJudgments[] = ['label' => '催官使者空亡', 'effect' => 'reduce', 'description' => '使者所乘官星落入本旬空亡，主虚信或另有差遣。'];
+        }
+        if ($matchedRoutes !== [] && $fanbenHit) {
+            $matchedJudgments[] = ['label' => '四时返本煞', 'effect' => 'reduce', 'description' => '三传组成当时返本局，主赴任迟滞、迁延反复。'];
+        }
+        if ($matchedRoutes !== [] && $fanyin) {
+            $matchedJudgments[] = ['label' => '返吟', 'effect' => 'reduce', 'description' => '赴任得返吟，主任期难满或赴任反复。'];
+        }
 
         return new BiFaRuleMatch(
             code: $this->code(),
@@ -474,6 +484,7 @@ final class CuiGuanShiZheRule implements BiFaRule
                 'nianming' => $person['nianming'] ?? null,
                 'xingnian' => $person['xingnian'] ?? null,
             ],
+            matchedJudgments: $matchedJudgments,
         );
     }
 
@@ -556,9 +567,6 @@ final class CuiGuanShiZheRule implements BiFaRule
             'final' => ['label' => '末传', 'branch' => $final],
         ];
         if ($person !== null) {
-            if ($person['nianming'] !== null) {
-                $candidates['nianming'] = ['label' => '本命上神', 'branch' => (int) ($tianpan[$person['nianming']] ?? -1)];
-            }
             if ($person['xingnian'] !== null) {
                 $candidates['xingnian'] = ['label' => '行年上神', 'branch' => (int) ($tianpan[$person['xingnian']] ?? -1)];
             }
@@ -635,13 +643,35 @@ final class CuiGuanShiZheRule implements BiFaRule
      *
      * @return list<int>|null
      */
-    private static function fanbenTripleForSeason(?string $seasonKey): ?array
+    private static function fanbenTripleForSeason(?string $seasonKey, mixed $monthBranch = null): ?array
     {
+        if ($seasonKey === 'soil') {
+            $seasonKey = match ($monthBranch) {
+                4 => 'spring',
+                7 => 'summer',
+                10 => 'autumn',
+                1 => 'winter',
+                default => null,
+            };
+        }
+
         return match ($seasonKey) {
             'spring' => [3, 7, 11],
             'summer' => [0, 4, 8],
             'autumn' => [2, 6, 10],
             'winter' => [2, 6, 10],
+            default => null,
+        };
+    }
+
+    private static function officialElementForDayStem(int $dayStem): ?int
+    {
+        return match ($dayStem) {
+            0, 1 => 3,
+            2, 3 => 4,
+            4, 5 => 0,
+            6, 7 => 1,
+            8, 9 => 2,
             default => null,
         };
     }

@@ -4,11 +4,8 @@ use App\Data\PanResult;
 use App\Domain\Pan\BiFa\BiFaRule;
 use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\BiFa\BiFaRuleRegistry;
-use App\Domain\Pan\BiFa\Rules\CuiGuanShiZheRule;
-use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\Rules\RuleRegistry;
 use App\Livewire\Pan\CreatePan;
-use App\Services\PanCalculator;
 use App\Support\BiFaCatalog;
 use App\Support\BiFaPageCatalog;
 use Livewire\Livewire;
@@ -468,39 +465,8 @@ test('researched and implemented fourth bifa shows four Chinese foundations and 
 });
 
 test('fourth bifa pan page renders the matched foundation titles and avoids internal codes', function () {
-    // 找一个第四法命中的现代 datetime；先扫描 2000..2031 找到 cui_guan_messenger 命中
-    $calc = new PanCalculator;
-    $found = null;
-    for ($y = 2000; $y <= 2031 && $found === null; $y++) {
-        for ($m = 1; $m <= 12 && $found === null; $m++) {
-            for ($d = 1; $d <= 28 && $found === null; $d++) {
-                foreach ([13, 15] as $h) {
-                    try {
-                        $data = $calc->calculate(sprintf('%04d-%02d-%02d %02d:00:00', $y, $m, $d, $h))->toArray();
-                    } catch (Throwable $e) {
-                        continue;
-                    }
-                    $data['context'] = ['people' => []];
-                    $facts = PanFacts::from(new PanResult($data));
-                    $match = (new CuiGuanShiZheRule)->match($facts);
-                    if ($match !== null && in_array('cui_guan_messenger', $match->matchedRoutes, true)) {
-                        $found = sprintf('%04d-%02d-%02dT%02d:00', $y, $m, $d, $h);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if ($found === null) {
-        // 找不到时跳过本测试（不应发生；2000-01-05T15:00 已验证）
-        expect(true)->toBeTrue();
-
-        return;
-    }
-
     $component = Livewire::withQueryParams([
-        'datetime' => $found,
+        'datetime' => '2000-01-05T03:00',
         'birth' => '1986-08-01T00:00',
         'gender' => 'male',
     ])->test(CreatePan::class)
@@ -530,3 +496,25 @@ test('fourth bifa pan page renders the matched foundation titles and avoids inte
         $component->assertDontSee($internal, false);
     }
 });
+
+test('fourth bifa pan page renders only triggered dynamic judgments', function (string $datetime, string $visible, array $hidden) {
+    $component = Livewire::withQueryParams([
+        'datetime' => $datetime,
+        'birth' => '1986-08-01T00:00',
+        'gender' => 'male',
+    ])->test(CreatePan::class)->assertHasNoErrors()
+        ->assertSee('催官使者赴官期')
+        ->assertSee('减损')
+        ->assertSee($visible);
+
+    foreach ($hidden as $text) {
+        $component->assertDontSee($text);
+    }
+    foreach (['matched_routes', 'pending_routes', 'case_id', 'messenger_is_void', 'fanben_hit', 'CuiGuanShiZheRule'] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
+})->with([
+    '催官使者空亡' => ['2031-02-01T01:00', '催官使者空亡', ['四时返本煞', '返吟']],
+    '四时返本煞' => ['2031-01-02T09:00', '四时返本煞', ['催官使者空亡', '返吟']],
+    '返吟' => ['2031-01-01T13:00', '返吟', ['催官使者空亡', '四时返本煞']],
+]);
