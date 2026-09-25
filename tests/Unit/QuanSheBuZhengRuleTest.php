@@ -45,7 +45,7 @@ test('第八法定义只有日禄临支一条成立路线且包含三项减损�
 });
 
 test('十个天干各自日禄临支全部成立（含甲丙戊庚壬五个阳干）', function (int $stem, int $lu, int $branch) {
-    // sike[5] = 日禄；日支取与日禄不同且不构成墓/克/脱的支以避免多余判断混入。
+    // sike[5] = 日禄。本测试只证明十干均可触发主体；是否顺带命中 judgment 不在断言范围。
     $match = qsbz_match([
         'rigan' => $stem, 'rizhi' => $branch,
         'sike' => [$stem, 0, 0, 0, $branch, $lu, $lu, $lu],
@@ -56,16 +56,17 @@ test('十个天干各自日禄临支全部成立（含甲丙戊庚壬五个阳�
         ->and($match->evidence['day_lu'])->toBe($lu)
         ->and($match->evidence['branch_upper'])->toBe($lu);
 })->with([
-    '甲寅' => [0, 2, 9],   // 甲 日支亥：水不墓木/不克木/木不生水
-    '乙卯' => [1, 3, 10],  // 乙 日支戌：火不墓木/不克木/木不生火
-    '丙巳' => [2, 5, 0],   // 丙 日支子：水不墓火/不克火/火不生水
-    '丁午' => [3, 6, 0],   // 丁 日支子：水不墓火/不克火/火不生水
-    '戊巳' => [4, 5, 0],   // 戊 日支子：水不墓火/不克火/火不生水
-    '己午' => [5, 6, 0],   // 己 日支子：水不墓火/不克火/火不生水
-    '庚申' => [6, 8, 3],   // 庚 日支卯：木不墓金/不克金/金不生木
-    '辛酉' => [7, 9, 0],   // 辛 日支子：水不墓金/水不克金/金不生水
-    '壬亥' => [8, 11, 8],  // 壬 日支申：金不墓水/不克水/水不生金
-    '癸子' => [9, 0, 8],   // 癸 日支申：金不墓水/不克水/水不生金
+    // 日干 → 日禄 → 日支（仅要求主体命中，不保证无减损）
+    '甲寅' => [0, 2, 9],   // 甲 日支亥
+    '乙卯' => [1, 3, 10],  // 乙 日支戌
+    '丙巳' => [2, 5, 0],   // 丙 日支子
+    '丁午' => [3, 6, 0],   // 丁 日支子
+    '戊巳' => [4, 5, 0],   // 戊 日支子
+    '己午' => [5, 6, 0],   // 己 日支子
+    '庚申' => [6, 8, 3],   // 庚 日支卯
+    '辛酉' => [7, 9, 0],   // 辛 日支子
+    '壬亥' => [8, 11, 8],  // 壬 日支申
+    '癸子' => [9, 0, 8],   // 癸 日支申
 ]);
 
 test('支上神不是日禄时不成立', function () {
@@ -223,18 +224,30 @@ test('三项判定独立：墓+克与墓+脱可重叠，但克+脱组合理论�
         ->and($flags['丙戌'])->toBe(['t' => true, 'c' => false, 'd' => true]);
 });
 
-test('日干五行虽被支克但日禄五行不被支克时不误报禄受支克', function () {
-    // 甲日（甲木）/日支卯（木）/支上卯=甲禄卯：
-    //  - 日干五行木 = 日支五行木：比和，不是支克；
-    //  - 日禄五行木 卯 vs 日支五行木 卯：相等，不是支克。
+test('墓克脱必须看日禄五行而不是日干五行', function () {
+    // 戊寅日：日干戊=土（4），日支寅=木（0），戊禄巳=火（1）。
+    // 若程序错误按"日干五行"判断：
+    //   - 受支脱：branchElement(木0) === (stemElement(土4)+1)%5 = 0 → true（误报）
+    //   - 受支克：stemElement(土4) === (branchElement(木0)+2)%5 = 2 → false
+    //   - 墓：土墓辰=4，rizhi=寅=2 → false
+    // 若按"日禄五行"判断（正确）：
+    //   - 受支脱：branchElement(木0) === (luElement(火1)+1)%5 = 2 → false
+    //   - 受支克：luElement(火1) === (branchElement(木0)+2)%5 = 2 → false
+    //   - 墓：火墓戌=10，rizhi=寅=2 → false
+    // 因此 lu_drained_by_branch 必须为 false，证明算法锁定在日禄五行。
     $match = qsbz_match([
-        'rigan' => 0, 'rizhi' => 3, // 甲子日寄宫在寅，与日支卯不相干；这里只看 sike[5]
-        'sike' => [0, 0, 0, 0, 3, 2, 2, 2], // 支上 = 寅 = 甲禄
+        'rigan' => 4, 'rizhi' => 2, // 戊寅
+        'sike' => [4, 0, 0, 0, 2, 5, 5, 5], // 支上 = 巳 = 戊禄
     ]);
 
     expect($match->matchedRoutes)->toBe(['lu_on_branch'])
         ->and($match->matchedJudgments)->toBe([])
-        ->and($match->evidence['lu_controlled_by_branch'])->toBeFalse();
+        ->and($match->evidence['day_lu'])->toBe(5) // 戊禄巳
+        ->and($match->evidence['lu_element'])->toBe(1) // 巳火
+        ->and($match->evidence['branch_element'])->toBe(0) // 寅木
+        ->and($match->evidence['lu_drained_by_branch'])->toBeFalse()
+        ->and($match->evidence['lu_controlled_by_branch'])->toBeFalse()
+        ->and($match->evidence['lu_tombed_by_branch'])->toBeFalse();
 });
 
 test('输入防御：非法输入安全返回 null', function (array $overrides) {

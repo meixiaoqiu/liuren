@@ -353,7 +353,8 @@ test('eighth bifa detail exposes one Chinese foundation three reduction judgment
 
     foreach (['bifa.08', 'lu_on_branch', 'QuanSheBuZhengRule', 'matched_routes', 'pending_routes',
         'case_id', 'matcher', 'match()', 'DAY_LU', 'lu_tombed_by_branch',
-        'lu_controlled_by_branch', 'lu_drained_by_branch', 'PanCalculator'] as $internal) {
+        'lu_controlled_by_branch', 'lu_drained_by_branch', 'PanCalculator',
+        'sike[5]', '项目四课数据'] as $internal) {
         $response->assertDontSee($internal, false);
     }
 });

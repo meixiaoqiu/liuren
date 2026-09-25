@@ -190,5 +190,13 @@ test('eighth law original extraction contains only verified original text withou
         ->and($content)->not->toContain('程序语义')
         ->and($content)->not->toContain('工程裁决')
         ->and($content)->not->toContain('DAY_LU')
-        ->and($content)->not->toContain('lu_on_branch');
+        ->and($content)->not->toContain('lu_on_branch')
+        // 防止混入其他整理本的"第 X 局"批注
+        ->and($content)->not->toContain('第11局')
+        ->and($content)->not->toContain('第5局')
+        ->and($content)->not->toContain('第7局')
+        ->and($content)->not->toContain('第3局')
+        // 防止将墓/克/脱三种情况混写成同一种结果
+        ->and($content)->toContain('失其禄')
+        ->and($content)->toContain('以禄偿债');
 });
