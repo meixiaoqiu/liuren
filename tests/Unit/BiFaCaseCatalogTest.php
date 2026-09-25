@@ -158,3 +158,24 @@ test('BiFaCaseCatalog counts by source_type / status', function () {
     // 首法应至少有几条 daquan 案例（《六壬大全·毕法赋》原文确实列了若干日）。
     expect($bySource['daquan'] ?? 0)->toBeGreaterThanOrEqual(5);
 });
+
+test('BingYin counterexample is a reference_only case with empty routes and is excluded by escape_to_wealth filter', function () {
+    // 丙寅日见在之财落空是《六壬大全》明确的求财反例，不代表 escape_to_wealth 成立。
+    $case = BiFaCaseCatalog::findByCaseId('bifa.09.daquan-bing-yin-counterexample');
+    expect($case)->not->toBeNull()
+        ->and($case['law_code'])->toBe('bifa.09')
+        ->and($case['source_type'])->toBe('daquan')
+        ->and($case['status'])->toBe('reference_only')
+        ->and($case['routes'])->toBe([])
+        ->and($case['source'])->toContain('《六壬大全·毕法赋》');
+
+    // 反例不得被 casesByMatchedRoutes('bifa.09', ['escape_to_wealth']) 返回。
+    $matched = BiFaCaseCatalog::casesByMatchedRoutes('bifa.09', ['escape_to_wealth']);
+    $matchedIds = array_column($matched, 'case_id');
+    expect($matchedIds)->not->toContain('bifa.09.daquan-bing-yin-counterexample');
+
+    // 反例仍出现在 casesForLaw 中（属于 bifa.09 的目录条目），只是 routes 为空。
+    $allForLaw = BiFaCaseCatalog::casesForLaw('bifa.09');
+    $allIds = array_column($allForLaw, 'case_id');
+    expect($allIds)->toContain('bifa.09.daquan-bing-yin-counterexample');
+});
