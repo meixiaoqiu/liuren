@@ -2,6 +2,7 @@
 
 use App\Data\PanResult;
 use App\Domain\Pan\BiFa\Rules\CuiGuanShiZheRule;
+use App\Domain\Pan\BranchRelations;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Services\PanCalculator;
 
@@ -27,8 +28,8 @@ function cgsz_match_route1(array $overrides = []): mixed
 {
     $pan = range(0, 11);
     $generals = range(0, 11);
-    $pan[2] = 8;       // 干上神 = 申
-    $generals[2] = 7;  // 白虎 = 申
+    [$pan[2], $pan[8]] = [$pan[8], $pan[2]];             // 干上神 = 申
+    [$generals[2], $generals[7]] = [$generals[7], $generals[2]]; // 白虎 = 申
 
     return cgsz_match(array_replace([
         'tianpan' => $pan,
@@ -94,10 +95,11 @@ test('父母爻只查日辰三传与行年六处并支持待评估', function ()
 });
 
 /**
- * 乙卯昼贵空的三组生产语义测试：
+ * 乙卯昼贵空的四组生产语义测试：
  *  - A. 唯一父母爻 = 子且子实际乘贵人 → Route 3 不成立，special detail 出现；
  *  - B. 同时还有亥父母爻 → Route 3 仍成立，parent_hits 只保留有效命中；
- *  - C. 非乙卯日普通父母爻旬空 → Route 3 正常成立，未被一刀切取消。
+ *  - C. 行年缺失 → Route 3 待评估；
+ *  - D. 非乙卯日普通父母爻旬空 → Route 3 正常成立，未被一刀切取消。
  *
  * 全部使用合法生产盘：不人为改写天将序号去模拟生产不可能的「子支不乘贵人」状态。
  */
@@ -105,8 +107,14 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（A�
     // A. 乙卯日 + 昼占 + 甲寅旬空(子丑) + 子实际乘贵人 + 唯一父母爻命中为子
     $pan = range(0, 11);
     $generals = range(0, 11);
-    $pan[4] = 0;       // 干上神 = 子（乙 lodging=4 辰寄宫）
-    $generals[4] = 0;  // 贵人坐在子位 → 子为「父母爻且实际乘贵人」的特殊命中
+    [$pan[4], $pan[0]] = [$pan[0], $pan[4]];             // 干上神 = 子
+    [$generals[4], $generals[0]] = [$generals[0], $generals[4]]; // 贵人坐在子位
+    [$generals[9], $generals[7]] = [$generals[7], $generals[9]]; // 白虎乘酉，供 Route 1 保留整张毕法卡
+    $sortedPan = $pan;
+    $sortedGenerals = $generals;
+    sort($sortedPan);
+    sort($sortedGenerals);
+    expect($sortedPan)->toBe(range(0, 11))->and($sortedGenerals)->toBe(range(0, 11));
 
     // xingnian=7 → tianpan[7]=7（未），非父母爻，确保 route3Pending=false，
     // 乙卯特例 detail 才能展示而非被 pending detail 覆盖。
@@ -114,7 +122,7 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（A�
         'rigan' => 1, 'rizhi' => 3, 'guirenPeriod' => 'day',
         'sanchuan0' => 5, 'sanchuan1' => 6, 'sanchuan2' => 7,
         'tianpan' => $pan, 'tianjiang' => $generals,
-        'context' => ['people' => [['role' => 'querent', 'xingnian' => 7]]],
+        'context' => ['people' => [['role' => 'querent', 'nianming' => 9, 'xingnian' => 7]]],
     ]);
 
     expect($match?->matchedRoutes ?? [])->not->toContain('patron_parent_line');
@@ -122,7 +130,8 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（A�
     expect($sub['detail'] ?? null)
         ->toContain('乙卯日')
         ->and($sub['detail'] ?? null)->toContain('不用')
-        ->and($sub['detail'] ?? null)->toContain('Route 3 不成立');
+        ->and($sub['detail'] ?? null)->toContain('故本路不成立')
+        ->and($match?->pendingRoutes ?? [])->not->toContain('patron_parent_line');
     expect($match?->evidence['yi_mao_day_noble_voided'] ?? null)->toBeTrue();
 });
 
@@ -130,9 +139,14 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（B�
     // B. 乙卯日 + 子路径被过滤 + 支上神额外出现亥父母爻
     $pan = range(0, 11);
     $generals = range(0, 11);
-    $pan[4] = 0;       // 干上神 = 子 → 被过滤
-    $pan[3] = 11;      // 支上神 = 亥 → 父母爻命中且保留
-    $generals[4] = 0;  // 贵人坐在子位 → 子是「实际乘贵人」的命中
+    [$pan[4], $pan[0]] = [$pan[0], $pan[4]];             // 干上神 = 子
+    [$pan[3], $pan[11]] = [$pan[11], $pan[3]];           // 支上神 = 亥
+    [$generals[4], $generals[0]] = [$generals[0], $generals[4]]; // 贵人坐在子位
+    $sortedPan = $pan;
+    $sortedGenerals = $generals;
+    sort($sortedPan);
+    sort($sortedGenerals);
+    expect($sortedPan)->toBe(range(0, 11))->and($sortedGenerals)->toBe(range(0, 11));
 
     $match = cgsz_match([
         'rigan' => 1, 'rizhi' => 3, 'guirenPeriod' => 'day',
@@ -150,11 +164,40 @@ test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（B�
         ->and($sub['detail'] ?? null)->not->toContain('乙卯'); // 已成立时不展示特例
 });
 
-test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（C：普通日父母爻旬空）', function () {
+test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（C：行年缺失则待评估）', function () {
+    $pan = range(0, 11);
+    $generals = range(0, 11);
+    [$pan[4], $pan[0]] = [$pan[0], $pan[4]];
+    [$generals[4], $generals[0]] = [$generals[0], $generals[4]];
+    $sortedPan = $pan;
+    $sortedGenerals = $generals;
+    sort($sortedPan);
+    sort($sortedGenerals);
+    expect($sortedPan)->toBe(range(0, 11))->and($sortedGenerals)->toBe(range(0, 11));
+
+    $match = cgsz_match([
+        'rigan' => 1, 'rizhi' => 3, 'guirenPeriod' => 'day',
+        'sanchuan0' => 5, 'sanchuan1' => 6, 'sanchuan2' => 7,
+        'tianpan' => $pan, 'tianjiang' => $generals,
+        'context' => ['people' => []],
+    ]);
+
+    expect($match?->matchedRoutes ?? [])->not->toContain('patron_parent_line')
+        ->and($match?->pendingRoutes ?? [])->toContain('patron_parent_line');
+    $sub = collect($match?->subMatches ?? [])->firstWhere('code', 'patron_parent_line');
+    expect($sub['detail'] ?? null)->toContain('仍需补充占测者行年资料后评估');
+});
+
+test('乙卯昼贵空只排除实际乘贵人的子且保留普通子和亥（D：普通日父母爻旬空）', function () {
     // C. 丙辰日（甲辰旬空 = 寅卯）+ 干上神 = 寅（父母爻且旬空）+ 非乙卯特例
     $pan = range(0, 11);
     $generals = range(0, 11);
-    $pan[5] = 2;       // 干上神 = 寅（丙 lodging=5 巳寄宫）
+    [$pan[5], $pan[2]] = [$pan[2], $pan[5]]; // 干上神 = 寅
+    $sortedPan = $pan;
+    $sortedGenerals = $generals;
+    sort($sortedPan);
+    sort($sortedGenerals);
+    expect($sortedPan)->toBe(range(0, 11))->and($sortedGenerals)->toBe(range(0, 11));
 
     $match = cgsz_match([
         'rigan' => 2, 'rizhi' => 4, 'guirenPeriod' => 'day',
@@ -209,15 +252,11 @@ test('Route 3 pending 明确为行年缺失而非本命或行年', function () {
  * 返本煞四季映射确定性测试。
  *
  * 真实命中要求 seasonalPeriod() 返回对应 key 且 sanchuan 与 fanbenTripleForSeason()
- * 返回值严格相等。production 当前实现 fanbenTripleForSeason()：
- *  - spring → [3, 7, 11]（亥卯未木局）
+ * 返回值严格相等。production 实现 fanbenTripleForSeason()：
+ *  - spring → [1, 5, 9]（巳酉丑金局）
  *  - summer → [0, 4, 8]（申子辰水局）
  *  - autumn → [2, 6, 10]（寅午戌火局）
  *  - winter → [2, 6, 10]（寅午戌火局，按《御定六壬直指》「土局与火同」处理）
- *
- * 本测试仅锁住当前实际行为；spring 与《六壬大全》正文「春得金局」及研究文档
- * 「春 = 巳酉丑」之差异属另一议题（不在本轮 matcher 修订范围），由本测试快照下来，
- * 待用户单独裁决后另起一轮修复。
  */
 test('返本煞四季映射：每季对应三合局确实让 fanben_hit === true', function (
     string $time,
@@ -236,11 +275,29 @@ test('返本煞四季映射：每季对应三合局确实让 fanben_hit === true
         ->and($match->evidence['season_key'] ?? null)->toBe($expectedSeason)
         ->and($match->evidence['fanben_triple'] ?? null)->toBe($sanchuan);
 })->with([
-    '春 → [3,7,11]' => ['2024-03-15T12:00:00', 'spring', [3, 7, 11]],
+    '春 → [1,5,9]' => ['2024-03-15T12:00:00', 'spring', [1, 5, 9]],
     '夏 → [0,4,8]' => ['2024-06-15T12:00:00', 'summer', [0, 4, 8]],
     '秋 → [2,6,10]' => ['2024-09-15T12:00:00', 'autumn', [2, 6, 10]],
     '冬 → [2,6,10]' => ['2024-12-15T12:00:00', 'winter', [2, 6, 10]],
 ]);
+
+test('返本煞三合索引不变量锁定金局与木局', function () {
+    expect(BranchRelations::sanheTriple(1, 5, 9))->toBe([1, 5, 9])
+        ->and(BranchRelations::sanheTriple(3, 7, 11))->toBe([3, 7, 11]);
+
+    $springGold = cgsz_match_route1([
+        'sanchuan0' => 1, 'sanchuan1' => 5, 'sanchuan2' => 9,
+        'calculationTime' => '2024-03-15T12:00:00',
+    ]);
+    $springWood = cgsz_match_route1([
+        'sanchuan0' => 3, 'sanchuan1' => 7, 'sanchuan2' => 11,
+        'calculationTime' => '2024-03-15T12:00:00',
+    ]);
+
+    expect($springGold?->evidence['fanben_triple'] ?? null)->toBe([1, 5, 9])
+        ->and($springGold?->evidence['fanben_hit'] ?? null)->toBeTrue()
+        ->and($springWood?->evidence['fanben_hit'] ?? null)->toBeFalse();
+});
 
 /**
  * 返本煞 soil 映射：四库月建 (辰/未/戌/丑) 分别映射回春/夏/秋/冬。
@@ -267,7 +324,7 @@ test('返本煞 soil 映射：四库月建确实让 fanben_hit === true', functi
         ->and($match->evidence['season_key'] ?? null)->toBe('soil')
         ->and($match->evidence['fanben_triple'] ?? null)->toBe($sanchuan);
 })->with([
-    '辰月 soil → 春 → [3,7,11]' => ['2024-04-25T12:00:00', 4, [3, 7, 11], 'spring'],
+    '辰月 soil → 春 → [1,5,9]' => ['2024-04-25T12:00:00', 4, [1, 5, 9], 'spring'],
     '未月 soil → 夏 → [0,4,8]' => ['2024-07-25T12:00:00', 7, [0, 4, 8], 'summer'],
     '戌月 soil → 秋 → [2,6,10]' => ['2024-10-25T12:00:00', 10, [2, 6, 10], 'autumn'],
     '丑月 soil → 冬 → [2,6,10]' => ['2024-01-25T12:00:00', 1, [2, 6, 10], 'winter'],
@@ -277,22 +334,20 @@ test('返本煞 soil 映射：四库月建确实让 fanben_hit === true', functi
  * 只有返本煞命中但无任何正式 route、无 pending 时，第四法不成立。
  */
 test('只有返本煞不得成立第四法', function () {
-    // 壬日（rigan=8, lodging=11 亥寄宫, officials [4,10,1,7], parents [8,9]）
-    // 三传 [3,7,11] = 亥卯未木局，与壬 parents 不相交 → 无 Route 3 命中
-    // 干上神 = 子（tianpan[11]=0），不在壬 officials → 无 Route 1/Route 2
-    // 给出 xingnian=4（辰）→ tianpan[4]=2（寅）不在壬 officials → 无 Route 1
-    // season=spring → fanbenTriple=[3,7,11]，sanhe 命中 → fanben_hit=true
+    // 甲日父母亥子、官星申酉；三传巳酉丑为春返本金局但不含父母爻。
+    // 日干寄宫、日支、行年上神均避开官星与父母爻，四条正式 route 全部不成立。
+    // season=spring → fanbenTriple=[1,5,9]，sanhe 命中 → fanben_hit=true
     // xingnian 已设 → route3Pending=false → pendingRoutes 空 → match 应返回 null
-    $pan = [1, 2, 3, 2, 5, 6, 7, 0, 9, 10, 11, 0]; // tianpan[4]=2, tianpan[7]=0, tianpan[11]=0
+    $pan = range(0, 11);
     $generals = range(0, 11);
 
     $match = (new CuiGuanShiZheRule)->match(PanFacts::from(new PanResult([
-        'rigan' => 8, 'rizhi' => 0, 'yuezhi' => 2,
+        'rigan' => 0, 'rizhi' => 4, 'yuezhi' => 2,
         'guirenPeriod' => 'day',
-        'sanchuan0' => 3, 'sanchuan1' => 7, 'sanchuan2' => 11,
+        'sanchuan0' => 1, 'sanchuan1' => 5, 'sanchuan2' => 9,
         'tianpan' => $pan, 'tianjiang' => $generals,
         'calculationTime' => '2024-03-15T12:00:00', // 春
-        'context' => ['people' => [['role' => 'querent', 'xingnian' => 4]]],
+        'context' => ['people' => [['role' => 'querent', 'xingnian' => 6]]],
     ])));
 
     expect($match)->toBeNull();
@@ -322,7 +377,7 @@ test('只有返吟不得成立第四法', function () {
  */
 test('正式 Route 1 命中且三传组成返本局 → matchedJudgments 含「四时返本煞」', function () {
     $match = cgsz_match_route1([
-        'sanchuan0' => 3, 'sanchuan1' => 7, 'sanchuan2' => 11,
+        'sanchuan0' => 1, 'sanchuan1' => 5, 'sanchuan2' => 9,
         'calculationTime' => '2024-03-15T12:00:00',
     ]);
 

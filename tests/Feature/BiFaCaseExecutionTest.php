@@ -2,6 +2,8 @@
 
 use App\Data\PanResult;
 use App\Domain\Pan\BiFa\BiFaRuleEngine;
+use App\Domain\Pan\BiFa\Rules\CuiGuanShiZheRule;
+use App\Domain\Pan\Facts\PanFacts;
 use App\Livewire\Pan\CreatePan;
 use App\Support\BiFaCaseCatalog;
 use Livewire\Livewire;
@@ -75,6 +77,31 @@ test('every executable bifa case reproduces all of its declared routes through t
     }
 
     expect($failures)->toBe([], "executable 案例必须自动命中声明 route：\n".implode("\n", $failures));
+});
+
+test('fourth bifa talisman fixture at 17:00 matches through both direct rule evaluation and the pan page', function () {
+    $case = collect(BiFaCaseCatalog::cases())
+        ->firstWhere('case_id', 'bifa.04.generated-cui-guan-talisman');
+
+    expect($case)->not->toBeNull()
+        ->and($case['datetime'])->toBe('2000-01-20T17:00');
+
+    $params = [
+        'datetime' => $case['datetime'],
+        'birth' => $case['birth'],
+        'gender' => $case['gender'],
+    ];
+    $component = Livewire::withQueryParams($params)
+        ->test(CreatePan::class)
+        ->assertHasNoErrors();
+    $pan = new PanResult($component->get('pan'));
+
+    $direct = (new CuiGuanShiZheRule)->match(PanFacts::from($pan));
+    $fromPage = collect(app(BiFaRuleEngine::class)->evaluate($pan))
+        ->first(fn ($match): bool => $match->code === 'bifa.04');
+
+    expect($direct?->matchedRoutes ?? [])->toContain('cui_guan_talisman')
+        ->and($fromPage?->matchedRoutes ?? [])->toContain('cui_guan_talisman');
 });
 
 test('executable bifa cases do not require manual people override (querent is auto-created)', function () {

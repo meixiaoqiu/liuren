@@ -307,7 +307,7 @@ final class CuiGuanShiZheRule implements BiFaRule
             }
         }
 
-        // 乙卯日特例：昼贵子落旬空、且本命中 parent 路径只覆盖「昼贵子作父母爻」时，
+        // 乙卯日特例：昼贵子落旬空、且本次命中的父母爻路径包含「昼贵子作父母爻」时，
         // 视为该路径不可用。
         $yiMaoDayNobleVoided = self::isYiMaoDayNobleVoided($facts, $rigan, $period);
         $yiMaoFilteredHits = [];
@@ -321,10 +321,8 @@ final class CuiGuanShiZheRule implements BiFaRule
             }
         }
         $route3Matched = $parentHits !== [];
-        // 乙卯特例：昼贵子过滤后命中被吃光时，必须仍在 pendingRoutes 中以便展示特殊 detail。
-        $yiMaoFallback = $yiMaoDayNobleVoided && $yiMaoFilteredHits !== [] && ! $route3Matched;
         $route3Pending = ! $route3Matched
-            && (($person['xingnian'] ?? null) === null || $yiMaoFallback);
+            && ($person['xingnian'] ?? null) === null;
 
         // ---------- Route 4：长生作贵人 ----------
         $jiMaoOriginVoided = self::isJiMaoOriginVoided($facts, $rigan, $period);
@@ -410,19 +408,19 @@ final class CuiGuanShiZheRule implements BiFaRule
             $branch = $hit['branch'];
             $parentLocations[] = sprintf('%s%s', $hit['label'], self::BRANCH_NAMES[$branch]);
         }
-        // Route 3 detail 三态：
+        // Route 3 detail 四态：
         //   - 过滤后仍有命中：列出有效父母爻位置；
-        //   - 过滤前有命中、过滤后为空：乙卯特例展示「仅见空阴昼贵子」；
-        //   - 本无命中：不展示特殊 detail（待评估 detail 在下方构造时单独写）。
+        //   - 仅有空贵子且行年已知：确定不成立；
+        //   - 空贵子被过滤且行年缺失：仍待行年；
+        //   - 普通五处无命中且行年缺失：普通待评估。
         $parentDetail = $route3Matched && $parentLocations !== []
             ? '父母爻出现在'.implode('、', $parentLocations).'。'
             : null;
-        $yiMaoSpecialShown = false;
         if (! $route3Matched && $yiMaoDayNobleVoided && $yiMaoFilteredHits !== []) {
-            $parentDetail = '仅见乙卯日空亡昼贵子作父母爻，正文明确「不用」，故 Route 3 不成立。';
-            $yiMaoSpecialShown = true;
-        }
-        if ($route3Pending && ! $yiMaoSpecialShown) {
+            $parentDetail = $route3Pending
+                ? '乙卯日空亡昼贵子作父母爻，正文明确「不用」；前五处暂无其它有效父母爻，仍需补充占测者行年资料后评估。'
+                : '仅见乙卯日空亡昼贵子作父母爻，正文明确「不用」，其它规定位置及行年均未见有效父母爻，故本路不成立。';
+        } elseif ($route3Pending) {
             // Route 3 不查本命，只缺行年；不复用公共 fallback「本命或行年」。
             $parentDetail = '前五处未见父母爻，需要补充占测者行年资料后评估。';
         }
@@ -664,7 +662,7 @@ final class CuiGuanShiZheRule implements BiFaRule
         }
 
         return match ($seasonKey) {
-            'spring' => [3, 7, 11],
+            'spring' => [1, 5, 9],
             'summer' => [0, 4, 8],
             'autumn' => [2, 6, 10],
             'winter' => [2, 6, 10],
