@@ -347,9 +347,10 @@ test('eighth bifa detail exposes one Chinese foundation three reduction judgment
         ->and($card['conditions'][0]['title'])->toBe('日禄临支');
 
     foreach (['权摄不正禄临支', '日禄临支', '禄受墓', '禄受支克', '禄受支脱',
-        '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        '因起盖房宅而失禄', '以禄偿债', '古籍原文', '正文案例', '程序验证案例'] as $visible) {
         $response->assertSee($visible);
     }
+    $response->assertDontSee('用于宅舍营建之占时');
 
     foreach (['bifa.08', 'lu_on_branch', 'QuanSheBuZhengRule', 'matched_routes', 'pending_routes',
         'case_id', 'matcher', 'match()', 'DAY_LU', 'lu_tombed_by_branch',

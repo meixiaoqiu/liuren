@@ -99,17 +99,17 @@ test('排盘页 judgment description 与 definition 一致：失禄 / 以禄偿�
         'bifa.08.generated-tombed' => [
             'datetime' => '2031-01-01T09:00',
             'label' => '禄受墓',
-            'snippet' => '因宅而失禄',
+            'snippet' => '因起盖房宅而失禄',
         ],
         'bifa.08.generated-controlled' => [
             'datetime' => '2031-01-13T03:00',
             'label' => '禄受支克',
-            'snippet' => '因宅而失禄',
+            'snippet' => '因起盖房宅而失禄',
         ],
         'bifa.08.generated-drained' => [
             'datetime' => '2031-01-02T07:00',
             'label' => '禄受支脱',
-            'snippet' => '以禄偿债',
+            'snippet' => '因起盖房宅而以禄偿债',
         ],
     ];
 
@@ -121,17 +121,14 @@ test('排盘页 judgment description 与 definition 一致：失禄 / 以禄偿�
         $labels = array_column($match->matchedJudgments, 'label');
         expect($labels)->toContain($expect['label']);
 
-        $description = '';
+        $matchDescription = '';
         foreach ($match->matchedJudgments as $judgment) {
             if ($judgment['label'] === $expect['label']) {
-                $description = $judgment['description'];
+                $matchDescription = $judgment['description'];
                 break;
             }
         }
 
-        expect($description)->toContain($expect['snippet']);
-
-        // 同时 definition() 自身必须包含同样的 snippet，禁止 description 漂移。
         $definitionDescription = '';
         foreach ($rule->definition()['judgments'] ?? [] as $judgment) {
             if ($judgment['label'] === $expect['label']) {
@@ -139,6 +136,10 @@ test('排盘页 judgment description 与 definition 一致：失禄 / 以禄偿�
                 break;
             }
         }
-        expect($definitionDescription)->toContain($expect['snippet']);
+
+        expect($matchDescription)
+            ->toBe($definitionDescription)
+            ->toContain($expect['snippet'])
+            ->not->toContain('用于宅舍营建之占时');
     }
 });

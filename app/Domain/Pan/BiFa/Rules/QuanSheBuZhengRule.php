@@ -23,9 +23,9 @@ use LogicException;
  *
  * 成立后的减损判断（均为独立判定，不互斥，可重叠）：
  *
- *  - 禄受墓：日支五行 == 日禄五行之墓（十二支墓：木未/火戌/金丑/水土辰）。
- *    由于日禄五行恒为木、火、金、水四种之一，土墓戌/辰只对应火墓与水墓，
- *    而日禄本不为土支，本项实际不会出现"土墓"问题。
+ *  - 禄受墓：日支 == 日禄所属五行的墓支。
+ *    五行墓：木墓未、火墓戌、土墓辰、金墓丑、水墓辰。
+ *    本法日禄只属木、火、金、水，因此实际只使用未、戌、丑、辰四种墓支，不涉及土禄。
  *  - 禄受支克：日支五行 克 日禄五行，对应 luElement === (branchElement + 2) % 5；
  *  - 禄受支脱：日禄五行 生 日支五行，对应 branchElement === (luElement + 1) % 5。
  */
@@ -45,7 +45,7 @@ final class QuanSheBuZhengRule implements BiFaRule
         9 => 0,  // 癸禄子
     ];
 
-    /** 十二地支五行之墓：木未=7、火戌=10、金丑=1、水土辰=4。 */
+    /** 本法日禄所属五行之墓：木未=7、火戌=10、金丑=1、水辰=4。 */
     private const LU_GRAVE = [
         0 => 7,  // 木墓未
         1 => 10, // 火墓戌
@@ -78,9 +78,9 @@ final class QuanSheBuZhengRule implements BiFaRule
                 'description' => '日支上神恰为本干日禄。十干全部参与，不分阴阳。',
             ]],
             'judgments' => [
-                ['label' => '禄受墓', 'effect' => 'reduce', 'description' => '日支为日禄五行之墓，禄神受墓。原文用于宅舍营建之占时，有因宅而失禄之象。'],
-                ['label' => '禄受支克', 'effect' => 'reduce', 'description' => '日支五行克日禄五行，禄神受支方克制。原文用于宅舍营建之占时，有因宅而失禄之象。'],
-                ['label' => '禄受支脱', 'effect' => 'reduce', 'description' => '日禄五行生日支五行，禄气泄于支方。原文用于宅舍营建之占时，有以禄偿债之象。'],
+                ['label' => '禄受墓', 'effect' => 'reduce', 'description' => '日支为日禄五行之墓，禄神受墓。原文断有因起盖房宅而失禄之象。'],
+                ['label' => '禄受支克', 'effect' => 'reduce', 'description' => '日支五行克日禄五行，禄神受支方克制。原文断有因起盖房宅而失禄之象。'],
+                ['label' => '禄受支脱', 'effect' => 'reduce', 'description' => '日禄五行生日支五行，禄气泄于支方。原文断有因起盖房宅而以禄偿债之象。'],
             ],
             'sections' => [
                 ['title' => '主体唯一路线', 'content' => '本法只以日禄是否正临日支之上作为成立条件。三传、干上神、天将、月令、本命、行年等均不参与主体成立。'],
@@ -126,13 +126,13 @@ final class QuanSheBuZhengRule implements BiFaRule
 
         $judgments = [];
         if ($luTombed) {
-            $judgments[] = ['label' => '禄受墓', 'effect' => 'reduce', 'description' => '日支为日禄五行之墓，禄神受墓。原文用于宅舍营建之占时，有因宅而失禄之象。'];
+            $judgments[] = ['label' => '禄受墓', 'effect' => 'reduce', 'description' => '日支为日禄五行之墓，禄神受墓。原文断有因起盖房宅而失禄之象。'];
         }
         if ($luControlled) {
-            $judgments[] = ['label' => '禄受支克', 'effect' => 'reduce', 'description' => '日支五行克日禄五行，禄神受支方克制。原文用于宅舍营建之占时，有因宅而失禄之象。'];
+            $judgments[] = ['label' => '禄受支克', 'effect' => 'reduce', 'description' => '日支五行克日禄五行，禄神受支方克制。原文断有因起盖房宅而失禄之象。'];
         }
         if ($luDrained) {
-            $judgments[] = ['label' => '禄受支脱', 'effect' => 'reduce', 'description' => '日禄五行生日支五行，禄气泄于支方。原文用于宅舍营建之占时，有以禄偿债之象。'];
+            $judgments[] = ['label' => '禄受支脱', 'effect' => 'reduce', 'description' => '日禄五行生日支五行，禄气泄于支方。原文断有因起盖房宅而以禄偿债之象。'];
         }
 
         $law = $this->law();
