@@ -38,24 +38,24 @@ final class LiuYinXiangJiRule implements BiFaRule
     public function definition(): array
     {
         return [
-            'description' => '四课四上神与中、末传六位全阴，或六位恰五阴一阳而占人本命、行年得阴填实，或四课逐课下生上且三传连续相生，皆属第六法。',
+            'description' => '初传属于四课上神之一，且四课四上神与中、末传六位全阴；或六位恰五阴一阳而占人本命、行年得阴填实；或四课逐课下生上且三传连续相生，皆属第六法。',
             'foundations' => [
-                ['code' => 'six_yin', 'title' => '六阴格', 'description' => '四课四上神、中传、末传六个位置全部属阴；允许重复，不要求六种阴支齐全。'],
-                ['code' => 'five_yin_filled_by_person', 'title' => '五阴年命填实', 'description' => '六位恰五阴一阳，且占人本命或行年本身属阴。'],
+                ['code' => 'six_yin', 'title' => '六阴格', 'description' => '初传属于四课四上神之一，且四课四上神、中传、末传六个位置全部属阴；允许重复，不要求六种阴支齐全。'],
+                ['code' => 'five_yin_filled_by_person', 'title' => '五阴年命填实', 'description' => '初传属于四课四上神之一，六位恰五阴一阳，且占人本命或行年本身属阴。'],
                 ['code' => 'source_exhausted_root_severed', 'title' => '源消根断格', 'description' => '四课逐课下神生上神，同时初传生中传、中传生末传。'],
             ],
             'judgments' => [
-                ['label' => '昏迷不明', 'effect' => 'neutral', 'description' => '六阴相继，事情多见昏暗不明、进退难决。'],
-                ['label' => '五阴年命填实', 'effect' => 'neutral', 'description' => '六位已有五阴，又得占人阴支本命或行年填实，亦主事情幽暗、难以明察。'],
+                ['label' => '六阴格', 'effect' => 'neutral', 'description' => '利阴谋私干，不利公闻，昏迷。'],
+                ['label' => '五阴年命填实', 'effect' => 'neutral', 'description' => '利私不利公，利小人不利君子。'],
                 ['label' => '自昼传夜', 'effect' => 'increase', 'description' => '初传在昼位、末传入夜位，昏迷愈甚。'],
                 ['label' => '出户、盈阳、励明、回明', 'effect' => 'reduce', 'description' => '三传符合减损格时，未可以昏迷断之，凶中有吉。'],
                 ['label' => '源消根断', 'effect' => 'neutral', 'description' => '根源不断向外泄生，凡占多主脱耗、日渐消铄。'],
             ],
             'sections' => [
-                ['title' => '六位的确定', 'content' => '六位固定取四课四个上神与中传、末传。初传来自四课上神之一，不重复计入；判断位置阴阳，允许地支重复。'],
-                ['title' => '五阴与年命', 'content' => '五阴只要求六位恰五阴一阳，并由占人本命或行年中的阴支填实，不要求补某个特定地支。人物资料不足时保留为待评估。'],
+                ['title' => '六位的确定', 'content' => '六位固定取四课四个上神与中传、末传。初传来自四课上神之一，不重复计入；初传不属于四课上神时，六阴与五阴均不成立，但源消根断不受此约束。'],
+                ['title' => '五阴与年命', 'content' => '五阴只要求初传属于四课上神、六位恰五阴一阳，并由占人本命或行年中的阴支填实，不要求补某个特定地支。人物资料不足时保留为待评估。'],
                 ['title' => '加重与减损', 'content' => '自昼传夜只看初、末传所在昼夜方位。出户、盈阳、励明、回明严格按三传完整顺序判断，只减损六阴的昏迷断义，不取消六阴成立。'],
-                ['title' => '源消根断的严格口径', 'content' => '本项目采用《六壬大全》口径：四课全部下生上，且三传继续初生中、中生末；《大全》明称止四日四课。后世仅以四课下生上立格的扩大解释不进入判定。'],
+                ['title' => '源消根断的严格口径', 'content' => '本项目采用《六壬大全》口径：四课全部下生上，且三传继续初生中、中生末；《大全》卷一《补论》明称止四日四课。后世仅以四课下生上立格的扩大解释不进入判定。'],
             ],
         ];
     }
@@ -81,6 +81,7 @@ final class LiuYinXiangJiRule implements BiFaRule
         }
 
         [$initial, $middle, $final] = $transmissions;
+        $initialFromLesson = in_array($initial, $uppers, true);
         $positions = [...$uppers, $middle, $final];
         $yinCount = count(array_filter($positions, static fn (int $branch): bool => $branch % 2 === 1));
         $person = self::resolvePerson($facts);
@@ -89,8 +90,8 @@ final class LiuYinXiangJiRule implements BiFaRule
         $personMissing = $person === null || ($person['nianming'] === null && $person['xingnian'] === null);
         $personPartlyMissing = $person !== null && ($person['nianming'] === null || $person['xingnian'] === null);
 
-        $sixYin = $yinCount === 6;
-        $fiveYinCandidate = $yinCount === 5;
+        $sixYin = $initialFromLesson && $yinCount === 6;
+        $fiveYinCandidate = $initialFromLesson && $yinCount === 5;
         $fiveYin = $fiveYinCandidate && $personYin;
         $fiveYinPending = $fiveYinCandidate && ! $personYin && ($personMissing || $personPartlyMissing);
         $lessonGenerations = [];
@@ -108,9 +109,12 @@ final class LiuYinXiangJiRule implements BiFaRule
             && ! in_array(false, $transmissionGenerations, true);
 
         $subMatches = [
-            self::subMatch('six_yin', '六阴格', $sixYin, false, false, $sixYin ? '四课四上神与中、末传共六位皆为阴支。' : null),
-            self::subMatch('five_yin_filled_by_person', '五阴年命填实', $fiveYin, true, $fiveYinPending, $fiveYin ? self::personEvidence($person) : null),
-            self::subMatch('source_exhausted_root_severed', '源消根断格', $sourceExhausted, false, false, $sourceExhausted ? '四课逐课下生上，三传又连续初生中、中生末。' : null),
+            self::subMatch('six_yin', '六阴格', $sixYin, false, false,
+                $sixYin ? '初传属于四课上神之一，四课四上神与中、末传共六位皆为阴支。' : null),
+            self::subMatch('five_yin_filled_by_person', '五阴年命填实', $fiveYin, true, $fiveYinPending,
+                $fiveYin ? self::personEvidence($person) : null),
+            self::subMatch('source_exhausted_root_severed', '源消根断格', $sourceExhausted, false, false,
+                $sourceExhausted ? '四课逐课下生上，三传又连续初生中、中生末。' : null),
         ];
         $matchedRoutes = array_values(array_map(
             static fn (array $sub): string => $sub['code'],
@@ -122,6 +126,12 @@ final class LiuYinXiangJiRule implements BiFaRule
         }
 
         $judgments = [];
+        if ($sixYin) {
+            $judgments[] = ['label' => '六阴格', 'effect' => 'neutral', 'description' => '利阴谋私干，不利公闻，昏迷。'];
+        }
+        if ($fiveYin) {
+            $judgments[] = ['label' => '五阴年命填实', 'effect' => 'neutral', 'description' => '利私不利公，利小人不利君子。'];
+        }
         $dayToNight = in_array($initial, [3, 4, 5, 6, 7, 8], true)
             && in_array($final, [9, 10, 11, 0, 1, 2], true);
         if ($sixYin && $dayToNight) {
@@ -142,7 +152,8 @@ final class LiuYinXiangJiRule implements BiFaRule
             subMatches: $subMatches, matchedRoutes: $matchedRoutes, pendingRoutes: $pendingRoutes,
             evidence: [
                 'lesson_lowers' => $lowers, 'lesson_uppers' => $uppers, 'positions' => $positions,
-                'yin_count' => $yinCount, 'person' => $person,
+                'yin_count' => $yinCount, 'initial_from_lesson' => $initialFromLesson,
+                'person' => $person,
                 'lesson_generations' => $lessonGenerations,
                 'transmission_generations' => $transmissionGenerations,
                 'day_to_night' => $dayToNight, 'reduction' => $reduction === false ? null : $reduction,

@@ -66,19 +66,37 @@ test('BiFaResearchDocument returns missing for unresearched law', function () {
         ->and($result['content'])->toBeNull();
 });
 
-test('sixth law research separates strict source exhausted definition from later expansion', function () {
+test('sixth law 古籍原文 sections are the full BiFa article and liuchun side-evidence stays separate', function () {
     $page = BiFaPageCatalog::findByCode('bifa.06');
     expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+
     $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
     $document = (string) file_get_contents(base_path($page['researchPath']));
 
     expect($result['status'])->toBe('complete')
-        ->and($result['content'])->toContain('六阴相继尽昏迷')
-        ->and($result['content'])->toContain('丑卯巳为出户')
-        ->and($result['content'])->not->toContain('甲辰日干上午')
+        ->and($result['heading'])->toContain('古籍原文')
+        // 完整《毕法赋》第六法正文的四个关键句必须在 古籍原文 节中。
+        ->and($content)->toContain('六阴相继尽昏迷第六')
+        ->and($content)->toContain('六阴格 谓课传皆居六阴之位是也')
+        ->and($content)->toContain('五阴格 课传止五阴者')
+        ->and($content)->toContain('源消根断格 如癸卯、癸未、癸巳')
+        ->and($content)->toContain('又如辛卯日干上子')
+        ->and($content)->toContain('凡占利私不利公，利小人不利君子')
+        // 课经 六纯课 旁证 不得混入 古籍原文 节。
+        ->and($content)->not->toContain('丑卯巳为出户')
+        ->and($content)->not->toContain('课经')
+        ->and($content)->not->toContain('旁证')
+        ->and($content)->not->toContain('甲辰日干上午')
+        // 课经 六纯课 旁证 必须作为独立章节存在于文档中（但不进入 original()）。
+        ->and($document)->toContain('## 三、课经')
+        ->and($document)->toContain('不是《毕法赋》第六法正文')
+        // 「止四日四课」正式出处改为《六壬大全》卷一《补论》。
+        ->and($document)->toContain('《六壬大全》卷一《补论》')
         ->and($document)->toContain('止四日四课')
-        ->and($document)->toContain('甲辰日干上午')
-        ->and($document)->toContain('不进入代码');
+        // 后续章节标题不得泄漏到 古籍原文 节。
+        ->and($content)->not->toContain('## 三')
+        ->and($content)->not->toContain('## 四');
 });
 
 test('BiFaResearchDocument extracts verified original text for the third law', function () {
