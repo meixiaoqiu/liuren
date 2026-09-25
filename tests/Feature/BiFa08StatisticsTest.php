@@ -6,11 +6,15 @@ use App\Services\PanCalculator;
 
 /**
  * 2031 全年 4380 样本扫描：
- *   - 命中率约 1/12；
- *   - 十个天干均有命中；
- *   - 命中样本 sike[5] === DAY_LU[rigan]，非命中样本绝不被误报。
+ *   - 命中率约 1/12（已精确冻结为 365 / 4380，因生产 23:00 换日覆盖 366 个生产日柱）；
+ *   - 十个天干均有命中（精确分布已锁定）；
+ *   - 命中样本 sike[5] === DAY_LU[rigan]，非命中样本绝不被误报；
+ *   - 八个互斥组合桶已精确冻结到总数 365。
+ *
+ * 数字与研究文档 docs/毕法/08-权摄不正禄临支.md 严格对齐；任何 `PanCalculator`、
+ * 日界口径或 matcher 调整导致数字漂移时，本测试必须第一时间红灯，提示文档重新研究。
  */
-test('2031 全年样本主体命中率与 1/12 接近且十干全部命中', function () {
+test('2031 全年样本精确命中数 365 与十干精确分布', function () {
     $calculator = new PanCalculator;
     $rule = new QuanSheBuZhengRule;
 
@@ -49,22 +53,36 @@ test('2031 全年样本主体命中率与 1/12 接近且十干全部命中', fun
         }
     }
 
+    // 总样本与总命中精确冻结。
     expect($total)->toBe(4380)
-        ->and($matched)->toBeGreaterThan(360)
-        ->and($matched)->toBeLessThan(370)
+        ->and($matched)->toBe(365)
         ->and(abs($matched / $total - 1 / 12))->toBeLessThan(0.001, '命中率应接近 1/12');
 
-    foreach ($byStem as $i => $c) {
-        expect($c)->toBeGreaterThan(30, "stem={$i} 必须有命中");
-        expect($c)->toBeLessThan(45, "stem={$i} 命中数偏高");
-    }
+    // 十干精确分布冻结（与 docs/毕法/08-权摄不正禄临支.md 第十二节一致）。
+    expect($byStem)->toBe([
+        0 => 36, // 甲
+        1 => 37, // 乙
+        2 => 37, // 丙
+        3 => 36, // 丁
+        4 => 36, // 戊
+        5 => 36, // 己
+        6 => 36, // 庚
+        7 => 37, // 辛
+        8 => 37, // 壬
+        9 => 37, // 癸
+    ]);
 
-    expect($patterns['plain'])->toBeGreaterThan(150)
-        ->and($patterns['tombed'])->toBeGreaterThan(10)
-        ->and($patterns['controlled'])->toBeGreaterThan(50)
-        ->and($patterns['drained'])->toBeGreaterThan(60)
-        ->and($patterns['tombed+controlled'])->toBeGreaterThan(0, '应至少出现墓+克重叠案例')
-        ->and($patterns['tombed+drained'])->toBeGreaterThan(0, '应至少出现墓+脱重叠案例');
+    // 八个互斥组合桶精确冻结；六桶合计 365 等于总命中。
+    expect($patterns)->toBe([
+        'plain' => 193,
+        'tombed' => 13,
+        'controlled' => 66,
+        'drained' => 75,
+        'tombed+controlled' => 6,
+        'tombed+drained' => 12,
+        'controlled+drained' => 0,
+        'tombed+controlled+drained' => 0,
+    ]);
 });
 
 test('所有命中样本的 day_lu 都严格等于支上神', function () {

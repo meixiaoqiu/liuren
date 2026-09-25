@@ -224,17 +224,16 @@ test('三项判定独立：墓+克与墓+脱可重叠，但克+脱组合理论�
         ->and($flags['丙戌'])->toBe(['t' => true, 'c' => false, 'd' => true]);
 });
 
-test('墓克脱必须看日禄五行而不是日干五行', function () {
-    // 戊寅日：日干戊=土（4），日支寅=木（0），戊禄巳=火（1）。
-    // 若程序错误按"日干五行"判断：
-    //   - 受支脱：branchElement(木0) === (stemElement(土4)+1)%5 = 0 → true（误报）
-    //   - 受支克：stemElement(土4) === (branchElement(木0)+2)%5 = 2 → false
-    //   - 墓：土墓辰=4，rizhi=寅=2 → false
-    // 若按"日禄五行"判断（正确）：
-    //   - 受支脱：branchElement(木0) === (luElement(火1)+1)%5 = 2 → false
-    //   - 受支克：luElement(火1) === (branchElement(木0)+2)%5 = 2 → false
-    //   - 墓：火墓戌=10，rizhi=寅=2 → false
-    // 因此 lu_drained_by_branch 必须为 false，证明算法锁定在日禄五行。
+test('【克】戊寅边界：受支克必须看日禄五行而不是日干五行', function () {
+    // 编码约定：
+    //   rigan 戊 = 4（天干索引），stemElement(戊) = 2（土）
+    //   rizhi 寅 = 2（地支索引），branchElement(寅) = 0（木）
+    //   戊禄巳 = 5（地支索引），branchElement(巳) = 1（火）
+    // 错误按"日干五行"（土 2）：
+    //   - 受支克：stemElement(土 2) === (branchElement(木 0)+2)%5 = 2 → true（误报）
+    // 正确按"日禄五行"（火 1）：
+    //   - 受支克：luElement(火 1) === (branchElement(木 0)+2)%5 = 2 → false
+    // 因此 lu_controlled_by_branch 必须为 false，证明克判断锁定在日禄五行。
     $match = qsbz_match([
         'rigan' => 4, 'rizhi' => 2, // 戊寅
         'sike' => [4, 0, 0, 0, 2, 5, 5, 5], // 支上 = 巳 = 戊禄
@@ -245,9 +244,59 @@ test('墓克脱必须看日禄五行而不是日干五行', function () {
         ->and($match->evidence['day_lu'])->toBe(5) // 戊禄巳
         ->and($match->evidence['lu_element'])->toBe(1) // 巳火
         ->and($match->evidence['branch_element'])->toBe(0) // 寅木
-        ->and($match->evidence['lu_drained_by_branch'])->toBeFalse()
         ->and($match->evidence['lu_controlled_by_branch'])->toBeFalse()
-        ->and($match->evidence['lu_tombed_by_branch'])->toBeFalse();
+        ->and($match->evidence['lu_tombed_by_branch'])->toBeFalse()
+        ->and($match->evidence['lu_drained_by_branch'])->toBeFalse();
+});
+
+test('【墓】戊辰边界：禄受墓必须看日禄五行而不是日干五行', function () {
+    // 编码约定：
+    //   rigan 戊 = 4，stemElement(戊) = 2（土）
+    //   rizhi 辰 = 4，branchElement(辰) = 2（土）
+    //   戊禄巳 = 5，branchElement(巳) = 1（火）
+    // 错误按"日干五行"（土 2）：
+    //   - 墓：土墓辰=4，rizhi=辰=4 → lu_tombed_by_branch=true（误报）
+    // 正确按"日禄五行"（火 1）：
+    //   - 墓：火墓戌=10，rizhi=辰=4 ≠ 10 → lu_tombed_by_branch=false
+    // 因此 lu_tombed_by_branch 必须为 false，lu_grave 必须为 10（戌）。
+    // （戊辰日同时会触发"禄受支脱"，因火生土；本测试只锁住墓维度，其他维度在本盘位下属于正确行为。）
+    $match = qsbz_match([
+        'rigan' => 4, 'rizhi' => 4, // 戊辰
+        'sike' => [4, 0, 0, 0, 4, 5, 5, 5], // 支上 = 巳 = 戊禄
+    ]);
+
+    expect($match->matchedRoutes)->toBe(['lu_on_branch'])
+        ->and($match->evidence['day_lu'])->toBe(5) // 戊禄巳
+        ->and($match->evidence['lu_element'])->toBe(1) // 巳火
+        ->and($match->evidence['branch_element'])->toBe(2) // 辰土
+        ->and($match->evidence['lu_grave'])->toBe(10) // 火墓戌
+        ->and($match->evidence['lu_tombed_by_branch'])->toBeFalse()
+        ->and($match->evidence['lu_controlled_by_branch'])->toBeFalse();
+});
+
+test('【脱】戊申边界：受支脱必须看日禄五行而不是日干五行', function () {
+    // 编码约定：
+    //   rigan 戊 = 4，stemElement(戊) = 2（土）
+    //   rizhi 申 = 8，branchElement(申) = 3（金）
+    //   戊禄巳 = 5，branchElement(巳) = 1（火）
+    // 错误按"日干五行"（土 2）：
+    //   - 受支脱：branchElement(金 3) === (stemElement(土 2)+1)%5 = 3 → true（误报）
+    // 正确按"日禄五行"（火 1）：
+    //   - 受支脱：branchElement(金 3) === (luElement(火 1)+1)%5 = 2 → false
+    // 因此 lu_drained_by_branch 必须为 false，证明脱判断锁定在日禄五行。
+    $match = qsbz_match([
+        'rigan' => 4, 'rizhi' => 8, // 戊申
+        'sike' => [4, 0, 0, 0, 8, 5, 5, 5], // 支上 = 巳 = 戊禄
+    ]);
+
+    expect($match->matchedRoutes)->toBe(['lu_on_branch'])
+        ->and($match->matchedJudgments)->toBe([])
+        ->and($match->evidence['day_lu'])->toBe(5) // 戊禄巳
+        ->and($match->evidence['lu_element'])->toBe(1) // 巳火
+        ->and($match->evidence['branch_element'])->toBe(3) // 申金
+        ->and($match->evidence['lu_drained_by_branch'])->toBeFalse()
+        ->and($match->evidence['lu_tombed_by_branch'])->toBeFalse()
+        ->and($match->evidence['lu_controlled_by_branch'])->toBeFalse();
 });
 
 test('输入防御：非法输入安全返回 null', function (array $overrides) {

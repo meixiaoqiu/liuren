@@ -89,3 +89,56 @@ test('六个可执行案例均能在排盘组件中自动命中 lu_on_branch', f
             ->and($match->evidence['day_lu'])->toBe($match->evidence['branch_upper']);
     }
 });
+
+test('排盘页 judgment description 与 definition 一致：失禄 / 以禄偿债', function () {
+    // 防止以后只改 definition 忘记同步 match() 的 matchedJudgments.description。
+    $calculator = new PanCalculator;
+    $rule = new QuanSheBuZhengRule;
+
+    $cases = [
+        'bifa.08.generated-tombed' => [
+            'datetime' => '2031-01-01T09:00',
+            'label' => '禄受墓',
+            'snippet' => '因宅而失禄',
+        ],
+        'bifa.08.generated-controlled' => [
+            'datetime' => '2031-01-13T03:00',
+            'label' => '禄受支克',
+            'snippet' => '因宅而失禄',
+        ],
+        'bifa.08.generated-drained' => [
+            'datetime' => '2031-01-02T07:00',
+            'label' => '禄受支脱',
+            'snippet' => '以禄偿债',
+        ],
+    ];
+
+    foreach ($cases as $caseId => $expect) {
+        $pan = $calculator->calculate(str_replace('T', ' ', $expect['datetime']));
+        $match = $rule->match(PanFacts::from($pan));
+        expect($match)->not->toBeNull();
+
+        $labels = array_column($match->matchedJudgments, 'label');
+        expect($labels)->toContain($expect['label']);
+
+        $description = '';
+        foreach ($match->matchedJudgments as $judgment) {
+            if ($judgment['label'] === $expect['label']) {
+                $description = $judgment['description'];
+                break;
+            }
+        }
+
+        expect($description)->toContain($expect['snippet']);
+
+        // 同时 definition() 自身必须包含同样的 snippet，禁止 description 漂移。
+        $definitionDescription = '';
+        foreach ($rule->definition()['judgments'] ?? [] as $judgment) {
+            if ($judgment['label'] === $expect['label']) {
+                $definitionDescription = $judgment['description'];
+                break;
+            }
+        }
+        expect($definitionDescription)->toContain($expect['snippet']);
+    }
+});

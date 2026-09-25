@@ -126,13 +126,13 @@ final class QuanSheBuZhengRule implements BiFaRule
 
         $judgments = [];
         if ($luTombed) {
-            $judgments[] = ['label' => '禄受墓', 'effect' => 'reduce', 'description' => '日支为日禄五行之墓：日禄归墓于支方，禄气被收纳。'];
+            $judgments[] = ['label' => '禄受墓', 'effect' => 'reduce', 'description' => '日支为日禄五行之墓，禄神受墓。原文用于宅舍营建之占时，有因宅而失禄之象。'];
         }
         if ($luControlled) {
-            $judgments[] = ['label' => '禄受支克', 'effect' => 'reduce', 'description' => '日支五行克日禄五行：支方主导禄神，自身禄位受制。'];
+            $judgments[] = ['label' => '禄受支克', 'effect' => 'reduce', 'description' => '日支五行克日禄五行，禄神受支方克制。原文用于宅舍营建之占时，有因宅而失禄之象。'];
         }
         if ($luDrained) {
-            $judgments[] = ['label' => '禄受支脱', 'effect' => 'reduce', 'description' => '日禄五行生日支五行：禄气泄于支方，本身消耗。'];
+            $judgments[] = ['label' => '禄受支脱', 'effect' => 'reduce', 'description' => '日禄五行生日支五行，禄气泄于支方。原文用于宅舍营建之占时，有以禄偿债之象。'];
         }
 
         $law = $this->law();
