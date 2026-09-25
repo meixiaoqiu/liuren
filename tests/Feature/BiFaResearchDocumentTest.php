@@ -56,14 +56,33 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 7..100 法尚未研究（前 6 法已研究）
-    $page = BiFaPageCatalog::findByCode('bifa.07');
+    // 第 8..100 法尚未研究（前 7 法已研究）
+    $page = BiFaPageCatalog::findByCode('bifa.08');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 
     $result = (new BiFaResearchDocument)->original($page);
     expect($result['status'])->toBe('missing')
         ->and($result['content'])->toBeNull();
+});
+
+test('seventh law original extraction contains only verified original text', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.07');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('旺禄临身徒妄作第七')
+        ->and($content)->toContain('谓日之禄神，又作日之旺神，临于干上者')
+        ->and($content)->toContain('虽不系己土旺神，亦可用也')
+        ->and($content)->toContain('禄被元夺格')
+        ->and($content)->not->toContain('## 三')
+        ->and($content)->not->toContain('程序语义')
+        ->and($content)->not->toContain('工程裁决')
+        ->and($content)->not->toContain('正式算法')
+        ->and($content)->not->toContain('阴干白名单');
 });
 
 test('sixth law 古籍原文 sections are the full BiFa article and liuchun side-evidence stays separate', function () {

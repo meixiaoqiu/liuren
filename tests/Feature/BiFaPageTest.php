@@ -316,6 +316,25 @@ test('sixth bifa detail uses only Chinese business language and exposes three fo
         ->assertDontSee('case_id', false);
 });
 
+test('seventh bifa detail exposes one Chinese foundation judgments and cases without internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'wang-lu-lin-shen']))->assertOk();
+    $card = $response->viewData('knowledgeCard');
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($card['conditions'])->toHaveCount(1)
+        ->and($card['conditions'][0]['title'])->toBe('旺禄临身');
+
+    foreach (['旺禄临身徒妄作', '旺禄临身', '旺禄旬空', '闭口禄', '禄被玄武夺', '旺禄乘白虎',
+        '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        $response->assertSee($visible);
+    }
+    foreach (['bifa.07', 'wang_lu_on_stem', 'WangLuLinShenRule', 'matched_routes', 'pending_routes',
+        'case_id', 'matcher', 'match()', 'PanCalculator', 'BikouRule', 'DAY_LU'] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
 test('researched and implemented third bifa shows eight Chinese foundations and no internal fields', function () {
     $response = $this->get(route('bifa.show', ['law' => 'lian-mu-gui-ren']))->assertOk();
     expect($response->viewData('researched'))->toBeTrue()
@@ -602,3 +621,19 @@ test('sixth bifa pan page shows real routes without leaking internal fields', fu
     '己卯六阴' => ['2031-02-08T19:00', ['六阴格']],
     '癸卯源消根断' => ['2031-01-03T21:00', ['源消根断格', '根源不断向外泄生']],
 ]);
+
+test('seventh bifa pan page shows real executable case without leaking its route', function () {
+    $component = Livewire::withQueryParams([
+        'datetime' => '2031-01-07T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male',
+    ])->test(CreatePan::class)->assertHasNoErrors();
+
+    $component->assertSee('毕')
+        ->assertSee('旺禄临身徒妄作')
+        ->assertSee('旺禄临身')
+        ->assertSee('已成立')
+        ->assertDontSee('bifa.07', false)
+        ->assertDontSee('wang_lu_on_stem', false)
+        ->assertDontSee('WangLuLinShenRule', false)
+        ->assertDontSee('matched_routes', false)
+        ->assertDontSee('case_id', false);
+});

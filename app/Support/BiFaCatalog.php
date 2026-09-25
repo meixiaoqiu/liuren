@@ -60,7 +60,7 @@ final class BiFaCatalog
             self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', '官星乘白虎临干年命为催官使者，或得催官符、父母爻、长生贵人，主赴任催促与恩主举荐之象。'),
             self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', '四课四上神与中末传六位全阳，或五阳一阴而本命、行年得阳填实，主公用明白、利公不利私。'),
             self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', '四课四上神与中末传六位全阴，或五阴得阴支年命填实，或四课与三传逐层相生，主昏迷与脱耗之象。'),
-            self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', ''),
+            self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', '阴干日禄临干，原则上宜守现有之禄；若禄空、闭口或乘玄武白虎，则不可拘守。'),
             self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', ''),
             self::law(9, '不修而修禄临干', 'bu-xi-u-xiu', ''),
             self::law(10, '任信丁马俱来', 'ren-xin-ding-ma', ''),

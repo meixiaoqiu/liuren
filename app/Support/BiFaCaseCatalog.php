@@ -833,5 +833,129 @@ final class BiFaCaseCatalog
             'reason' => '生产排盘自然复现《六壬大全》所列癸巳日干上卯。六阴格与源消根断格同时成立：六位皆阴，且四课逐课下生上、三传又连续初生中、中生末。',
             'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
         ],
+
+        // ----------------------------------------------------------------------
+        // 第七法 · 旺禄临身徒妄作
+        // ----------------------------------------------------------------------
+        [
+            'case_id' => 'bifa.07.generated-ordinary', 'law_code' => 'bifa.07',
+            'label' => '程序验证·丁未日·宜守旺禄', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-07T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中丁禄午正临干，且不旬空、不为闭口禄、不乘玄武或白虎，故为普通旺禄。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.07.generated-void', 'law_code' => 'bifa.07',
+            'label' => '程序验证·乙巳日·旺禄旬空', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-05T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中乙禄卯正临干且落旬空，主体仍成立，并追加旺禄旬空判断。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.07.generated-closed-mouth', 'law_code' => 'bifa.07',
+            'label' => '程序验证·辛未日·闭口禄', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-31T01:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中辛禄酉正临干，酉由本旬旬首自然推得为旬尾；本盘同时乘白虎，两项判断并存。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.07.generated-xuanwu', 'law_code' => 'bifa.07',
+            'label' => '程序验证·癸卯日·禄被玄武夺', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-03T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中癸禄子正临干并乘玄武，追加禄被玄武夺判断。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.07.generated-baihu', 'law_code' => 'bifa.07',
+            'label' => '程序验证·辛丑日·旺禄乘白虎', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-01T03:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '生产排盘中辛禄酉正临干并乘白虎，追加旺禄乘白虎判断。',
+            'source' => '程序验证案例·2031 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-yi-mao', 'law_code' => 'bifa.07', 'label' => '乙卯日干上卯·普通旺禄',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文只给日干支与干上神结构，没有完整公历 datetime，故登记为 reference_only，绝不回填现代时间。', 'source' => '《六壬大全·毕法赋》第七法·乙卯日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-yi-you', 'law_code' => 'bifa.07', 'label' => '乙酉日干上卯',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出乙酉日干上卯，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·乙酉日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-yi-hai', 'law_code' => 'bifa.07', 'label' => '乙亥日干上卯',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出乙亥日干上卯，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·乙亥日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-gui-si', 'law_code' => 'bifa.07', 'label' => '癸巳日干上子',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出癸巳日干上子，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·癸巳日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-gui-chou', 'law_code' => 'bifa.07', 'label' => '癸丑日干上子',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出癸丑日干上子，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·癸丑日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-xin-mao', 'law_code' => 'bifa.07', 'label' => '辛卯日干上酉·玄武或白虎破禄',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文给出辛卯日干上酉及昼乘玄武、夜乘白虎，但未给实际占时，无法唯一映射公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·辛卯日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-xin-chou', 'law_code' => 'bifa.07', 'label' => '辛丑日干上酉',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出辛丑日干上酉，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·辛丑日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-xin-you', 'law_code' => 'bifa.07', 'label' => '辛酉日干上酉',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出辛酉日干上酉，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·辛酉日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-ji-hai', 'law_code' => 'bifa.07', 'label' => '己亥日干上午',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出己亥日干上午，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·己亥日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-ji-you', 'law_code' => 'bifa.07', 'label' => '己酉日干上午',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出己酉日干上午，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·己酉日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-ji-si', 'law_code' => 'bifa.07', 'label' => '己巳日干上午',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出己巳日干上午，并说明午虽非己土传统旺神亦可用；未给完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·己巳日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-xin-si', 'law_code' => 'bifa.07', 'label' => '辛巳日干上酉·旺禄旬空',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确给出辛巳日旺禄旬空结构，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·辛巳日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-gui-hai', 'law_code' => 'bifa.07', 'label' => '癸亥日干上子·旺禄旬空',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确给出癸亥日旺禄旬空及后续三传解释，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·癸亥日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-ding-hai', 'law_code' => 'bifa.07', 'label' => '丁亥日干上午·旺禄旬空',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文以同例列出丁亥日旺禄旬空结构，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·丁亥日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-yi-si', 'law_code' => 'bifa.07', 'label' => '乙巳日干上卯·旺禄旬空',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文以同例列出乙巳日旺禄旬空结构，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·乙巳日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-yi-wei', 'law_code' => 'bifa.07', 'label' => '乙未日干上卯·闭口禄',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确给出乙未日闭口禄结构及后续三传解释，但无完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·乙未日条',
+        ],
+        [
+            'case_id' => 'bifa.07.daquan-xin-wei', 'law_code' => 'bifa.07', 'label' => '辛未日干上酉·闭口禄兼白虎破禄',
+            'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [],
+            'routes' => ['wang_lu_on_stem'], 'reason' => '正文明确列出辛未日干上酉、夜乘白虎及三传结构，但无实际占时和完整公历 datetime，故为 reference_only。', 'source' => '《六壬大全·毕法赋》第七法·辛未日条',
+        ],
     ];
 }
