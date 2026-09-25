@@ -806,7 +806,7 @@ final class BiFaCaseCatalog
             'label' => '程序验证·癸卯日干上卯·六阴格与源消根断格同时成立', 'source_type' => 'generated', 'status' => 'executable',
             'datetime' => '2031-01-03T21:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
             'routes' => ['six_yin', 'source_exhausted_root_severed'],
-            'reason' => '生产排盘自然复现《六壬大全》所列癸卯日干上卯。六阴格与源消根断格同时成立：四课四上神与中、末传共六位皆为阴支（卯、巳、未、酉、亥、卯皆阴），且四课逐课下生上、三传又连续初生中、中生末。',
+            'reason' => '生产排盘自然复现《六壬大全》所列癸卯日干上卯。六阴格与源消根断格同时成立：四课四上神与中、末传共六位皆为阴支（卯、巳、巳、未、酉、亥），且四课逐课下生上、三传又连续初生中、中生末。',
             'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
         ],
         [
@@ -822,7 +822,7 @@ final class BiFaCaseCatalog
             'label' => '程序验证·辛卯日干上子·源消根断', 'source_type' => 'generated', 'status' => 'executable',
             'datetime' => '2031-02-20T17:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
             'routes' => ['source_exhausted_root_severed'],
-            'reason' => '生产排盘自然复现《六壬大全》所列辛卯日干上子。四课逐课下生上、三传又连续初生中、中生末；干上子（阳）与中末传中含阳支，故六阴不成立。',
+            'reason' => '生产排盘自然复现《六壬大全》所列辛卯日干上子。四课逐课下生上、三传又连续初生中、中生末；但四课上神含子、寅两个阳支，故六个检查位不全阴，六阴格不成立。',
             'source' => '程序验证案例·《六壬大全》四日四课的现代生产复现',
         ],
         [
