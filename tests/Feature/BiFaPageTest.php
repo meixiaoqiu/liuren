@@ -518,3 +518,44 @@ test('fourth bifa pan page renders only triggered dynamic judgments', function (
     '四时返本煞' => ['2031-01-02T09:00', '四时返本煞', ['催官使者空亡', '返吟']],
     '返吟' => ['2031-01-01T13:00', '返吟', ['催官使者空亡', '四时返本煞']],
 ]);
+
+test('researched and implemented fifth bifa shows Chinese foundations cases and no internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'liu-yang-shu-zu']))->assertOk();
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($response->viewData('knowledgeCard')['conditions'])->toHaveCount(2);
+
+    foreach (['六阳格', '五阳年命填实', '公用明白·利公不利私', '悖戾格', '自夜传昼'] as $text) {
+        $response->assertSee($text);
+    }
+    $response->assertSee('庚子日·六阳格')
+        ->assertSee('甲午日·六阳遇退间传·倒拔蛇·悖戾格')
+        ->assertSee('甲戌日·六阳·自夜传昼')
+        ->assertSee('程序验证·五阳年命填实·兼自夜传昼')
+        ->assertSee('程序验证·六阳格·悖戾格');
+
+    foreach (['bifa.05', 'six_yang', 'five_yang_filled_by_person', 'LiuYangShuZuRule',
+        'match()', 'case_id', 'matched_routes', 'pending_routes', 'internal enum'] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
+test('fifth bifa pan page shows real route and judgments without leaking internal fields', function (string $datetime, array $visible) {
+    $component = Livewire::withQueryParams([
+        'datetime' => $datetime, 'birth' => '1986-08-01T00:00', 'gender' => 'male',
+    ])->test(CreatePan::class)->assertHasNoErrors()
+        ->assertSee('六阳数足须公用');
+
+    foreach ($visible as $text) {
+        $component->assertSee($text);
+    }
+    foreach (['bifa.05', 'six_yang', 'five_yang_filled_by_person', 'LiuYangShuZuRule',
+        'case_id', 'matched_routes', 'pending_routes'] as $internal) {
+        $component->assertDontSee($internal, false);
+    }
+})->with([
+    '六阳悖戾' => ['2031-01-04T05:00', ['六阳格', '悖戾格', '减损']],
+    '五阳自夜传昼' => ['2031-01-04T01:00', ['五阳年命填实', '自夜传昼', '增强']],
+    '六阳双断义' => ['2031-01-14T05:00', ['六阳格', '悖戾格', '自夜传昼']],
+]);

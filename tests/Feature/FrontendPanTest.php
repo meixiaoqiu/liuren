@@ -1506,6 +1506,17 @@ test('frontend shows fixed real production birth mixed and death mixed pans', fu
         ->assertSee('辰加卯');
 });
 
+test('frontend shows fifth bifa independently beside the unchanged liuchun result', function () {
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2031-01-04T05:00')
+        ->set('birthDatetime', '1986-08-01T00:00')->set('gender', 'male')
+        ->call('calculate')->assertHasNoErrors()
+        ->assertSee('六纯课')->assertSee('六阳课')
+        ->assertSee('六阳数足须公用')->assertSee('六阳格')->assertSee('悖戾格')
+        ->assertDontSee('six_yang')->assertDontSee('five_yang_filled_by_person')
+        ->assertDontSee('LiuYangShuZuRule')->assertDontSee('matched_routes');
+});
+
 test('frontend shows wulei complete daquan jia-yin transmission generals', function () {
     Livewire::test(CreatePan::class)
         ->set('datetime', '2031-11-10T07:00')

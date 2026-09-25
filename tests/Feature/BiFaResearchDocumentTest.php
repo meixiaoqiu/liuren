@@ -56,8 +56,8 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 5..100 法都尚未研究（4 法已研究）
-    $page = BiFaPageCatalog::findByCode('bifa.05');
+    // 第 6..100 法尚未研究（前 5 法已研究）
+    $page = BiFaPageCatalog::findByCode('bifa.06');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 

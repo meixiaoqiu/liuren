@@ -740,5 +740,54 @@ final class BiFaCaseCatalog
             'reason' => '同盘同时命中催官使者（官星戌乘白虎临日干寄宫亥）与父母爻（壬癸日父母爻申酉：支上神戌不入、中传酉入父母爻）；用于锁定多 route 同时命中时顺序稳定（按成立条件定义顺序）。',
             'source' => '程序验证案例·2000..2031 PanCalculator 扫描得到的现代生产复现',
         ],
+
+        // ----------------------------------------------------------------------
+        // 第五法 · 六阳数足须公用
+        // ----------------------------------------------------------------------
+        [
+            'case_id' => 'bifa.05.daquan-geng-zi-six-yang', 'law_code' => 'bifa.05',
+            'label' => '庚子日·六阳格', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['six_yang'],
+            'reason' => '正文记庚子日六阳结构，但未给足可唯一回填现代公历的完整时将，故仅作 reference_only，不硬编 datetime。',
+            'source' => '《六壬大全·毕法赋》第五法正文',
+        ],
+        [
+            'case_id' => 'bifa.05.daquan-jia-wu-retreating', 'law_code' => 'bifa.05',
+            'label' => '甲午日·六阳遇退间传·倒拔蛇·悖戾格', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['six_yang'],
+            'reason' => '正文给甲午日干上子、三传戌申午；对应天地盘在生产排盘中因涉害取用传统差异取寅子戌，无法复现原传，故降级为 reference_only，不修改核心排盘。',
+            'source' => '《六壬大全·毕法赋》第五法正文',
+        ],
+        [
+            'case_id' => 'bifa.05.daquan-jia-xu-night-to-day', 'law_code' => 'bifa.05',
+            'label' => '甲戌日·六阳·自夜传昼', 'source_type' => 'daquan', 'status' => 'reference_only',
+            'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['six_yang'],
+            'reason' => '正文记甲戌日六阳自夜传昼，但未给足可唯一回填现代公历的完整时将，故仅作 reference_only。',
+            'source' => '《六壬大全·毕法赋》第五法正文',
+        ],
+        [
+            'case_id' => 'bifa.05.generated-five-yang-filled', 'law_code' => 'bifa.05',
+            'label' => '程序验证·五阳年命填实·兼自夜传昼', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-04T01:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['five_yang_filled_by_person'],
+            'reason' => '生产排盘六位寅、寅、辰、辰、巳、申，恰五阳一阴；自动占人本命寅、行年戌均为阳支，年命填实。初传寅属夜地，末传申属昼方。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.05.generated-six-yang-retreating', 'law_code' => 'bifa.05',
+            'label' => '程序验证·六阳格·悖戾格', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-04T05:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['six_yang'],
+            'reason' => '生产排盘四课上神子、戌、寅、子，三传寅、子、戌；六位全阳，且三传连续逆退二位，同时验证六阳与悖戾格。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
+        [
+            'case_id' => 'bifa.05.generated-six-yang-multi-judgment', 'law_code' => 'bifa.05',
+            'label' => '程序验证·六阳格·悖戾格·自夜传昼', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2031-01-14T05:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['six_yang'],
+            'reason' => '生产排盘四课上神子、戌、子、戌，三传戌、申、午；六位全阳，三传连续逆退二位，且由夜地戌传入昼方午。',
+            'source' => '程序验证案例·2031 年生产 PanCalculator 扫描',
+        ],
     ];
 }
