@@ -32,19 +32,20 @@
     $typeMarker = mb_substr($typeLabel, 0, 1);
 @endphp
 
-{{-- 1–2. 体系字标 + 标题，与课经标题行保持一致 --}}
-<div class="flex items-start gap-3">
-    @if ($typeMarker !== '')
-        <div class="flex h-9 shrink-0 items-stretch">
-            <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">
-                {{ $typeMarker }}
-            </span>
-        </div>
-    @endif
-    <div class="min-w-0 flex items-baseline gap-2">
-        <h2 class="text-lg font-semibold">{{ $card['title'] ?? '' }}</h2>
+{{-- 1–2. 体系字标 + 标题行：长方形框里直接放标题，去掉单独的 H2 --}}
+@php
+    $cardTitle = trim((string) ($card['title'] ?? ''));
+@endphp
+@if ($typeMarker !== '')
+    <div class="flex h-9 shrink-0 items-stretch">
+        <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">
+            {{ $typeMarker }}
+        </span>
+        @if ($cardTitle !== '')
+            <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $cardTitle }}</span>
+        @endif
     </div>
-</div>
+@endif
 
 {{-- 3. 简述 --}}
 @if (! empty($card['summary']))

@@ -10,6 +10,11 @@
         <div class="pan-classical-shell">
             @include('partials.pan-header')
 
+            @php
+                $originalCases = array_merge($law['daquanCases'] ?? [], $law['referenceOnlyCases'] ?? []);
+                $generatedCases = $law['generatedCases'] ?? [];
+            @endphp
+
             <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <x-button
@@ -32,11 +37,75 @@
 
                 <header class="mb-6">
                     <p class="text-xs tracking-[0.18em] text-base-content/40">第 {{ $law['number'] }} 法 · 毕法体系</p>
-                    <h1 class="mt-1 text-3xl font-semibold tracking-wide text-base-content sm:text-4xl">{{ $law['name'] }}</h1>
-                    @if ($law['summary'] !== '')
-                        <p class="mt-3 max-w-3xl text-sm leading-7 text-base-content/65">{{ $law['summary'] }}</p>
-                    @endif
+                    <h1 class="mt-2 text-3xl font-semibold tracking-wide text-base-content sm:text-4xl">{{ $law['name'] }}</h1>
                 </header>
+
+                {{-- 古籍原文：紧贴 H1 下方，位于知识卡片（含"毕"字标识）上方；按段落优雅展示 --}}
+                @if (! empty($original) && $original['status'] !== 'missing')
+                    <section class="mb-8" aria-label="古籍原文">
+                        @if ($original['status'] === 'complete')
+                            <x-card shadow class="pan-data-card">
+                                <div class="mb-4 flex items-center gap-3">
+                                    <div class="flex h-9 shrink-0 items-stretch">
+                                        <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">典</span>
+                                        <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">古籍原文</span>
+                                    </div>
+                                </div>
+                                @php
+                                    // markdown 引用块（每行以 `>` 开头）的分段：先把每行去掉 `> ` 前缀，
+                                    // 再按"空行（含仅含 `>` 的行）"切段，渲染为多个 <p>。
+                                    $rawLines = preg_split('/\R/u', (string) $original['content']) ?: [];
+                                    $normalized = array_map(
+                                        static fn (string $line): string => preg_replace('/^\s*>\s?/u', '', $line) ?? $line,
+                                        $rawLines,
+                                    );
+                                    $originalParagraphs = [];
+                                    $buffer = [];
+                                    foreach ($normalized as $line) {
+                                        if (trim($line) === '') {
+                                            if ($buffer !== []) {
+                                                $originalParagraphs[] = trim(implode("\n", $buffer));
+                                                $buffer = [];
+                                            }
+                                        } else {
+                                            $buffer[] = $line;
+                                        }
+                                    }
+                                    if ($buffer !== []) {
+                                        $originalParagraphs[] = trim(implode("\n", $buffer));
+                                    }
+                                @endphp
+                                @if ($originalParagraphs === [])
+                                    <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/75">{{ $original['content'] }}</div>
+                                @else
+                                    <div class="space-y-4 font-serif text-[0.95rem] leading-8 text-base-content/80">
+                                        @foreach ($originalParagraphs as $paragraph)
+                                            <p class="whitespace-pre-line indent-8">{{ $paragraph }}</p>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </x-card>
+                        @elseif ($original['status'] === 'excerpt')
+                            <x-card shadow class="pan-data-card">
+                                <div class="mb-4 flex items-center gap-3">
+                                    <div class="flex h-9 shrink-0 items-stretch">
+                                        <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">典</span>
+                                        <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">古籍原文</span>
+                                    </div>
+                                </div>
+                                <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
+                                    现有研究文档只有"{{ $original['heading'] }}"整理段，尚未按"《六壬大全》完整原文"结构化录入。为避免把摘录冒充完整原文，本页明确标记为未完成。
+                                </x-alert>
+                                <x-collapse collapse-plus-minus class="mt-4">
+                                    <x-slot:heading><strong>查看现有正文整理 / 摘录</strong></x-slot:heading>
+                                    <x-slot:content>
+                                        <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/70">{{ $original['content'] }}</div>
+                                    </x-slot:content>
+                                </x-collapse>
+                            </x-card>
+                        @endif
+                    </section>
+                @endif
 
                 @if (! $researched)
                     <x-card shadow class="pan-data-card">
@@ -56,43 +125,37 @@
                             <x-knowledge-card :card="$knowledgeCard" />
                         </x-card>
                     @endif
-
-                    @if (! empty($original))
-                        <section class="mt-6">
-                            <x-card title="古籍原文" shadow class="pan-data-card">
-                                @if ($original['status'] === 'complete')
-                                    <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/75">{{ $original['content'] }}</div>
-                                @elseif ($original['status'] === 'excerpt')
-                                    <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
-                                        现有研究文档只有"{{ $original['heading'] }}"整理段，尚未按"《六壬大全》完整原文"结构化录入。为避免把摘录冒充完整原文，本页明确标记为未完成。
-                                    </x-alert>
-                                    <x-collapse collapse-plus-minus class="mt-4">
-                                        <x-slot:heading><strong>查看现有正文整理 / /</strong></x-slot:heading>
-                                        <x-slot:content>
-                                            <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/70">{{ $original['content'] }}</div>
-                                        </x-slot:content>
-                                    </x-collapse>
-                                @else
-                                    <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
-                                        当前研究文档尚未结构化录入"《六壬大全》完整原文"。本页不会根据摘要或旁证反向拼接古文；补入研究文档后，这里会自动显示。
-                                    </x-alert>
-                                @endif
-
-                                <div class="mt-4">
-                                    <x-button
-                                        label="打开完整研究记录"
-                                        icon="o-book-open"
-                                        :link="$law['researchUrl']"
-                                        external
-                                        class="btn-ghost btn-sm"
-                                    />
-                                </div>
-                            </x-card>
-                        </section>
-                    @endif
                 @endif
 
-                <nav class="mt-8 flex flex-wrap items-center justify-between gap-3" aria-label="毕法前后导航">
+                {{-- 案例大区块：与古籍原文 / 知识卡片区块风格一致，统一"例"字标识 + 长方形标题框，下方 list 横向一行展示 --}}
+                @if ($researched && ($originalCases !== [] || $generatedCases !== []))
+                    <section class="mt-8" aria-label="案例">
+                        <x-card shadow class="pan-data-card">
+                            <div class="mb-4 flex items-center gap-3">
+                                <div class="flex h-9 shrink-0 items-stretch">
+                                    <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">例</span>
+                                    <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $law['name'] }} · 案例</span>
+                                </div>
+                                <span class="ml-auto text-xs text-base-content/45">共 {{ count($originalCases) + count($generatedCases) }} 条</span>
+                            </div>
+
+                            <ul role="list" class="divide-y divide-base-content/10">
+                                @foreach ($originalCases as $case)
+                                    <li>
+                                        @include('bifa.partials.case-row', ['case' => $case, 'sourceLabel' => '《六壬大全》正文案例'])
+                                    </li>
+                                @endforeach
+                                @foreach ($generatedCases as $case)
+                                    <li>
+                                        @include('bifa.partials.case-row', ['case' => $case, 'sourceLabel' => '程序验证案例'])
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </x-card>
+                    </section>
+                @endif
+
+                <nav class="mt-10 flex flex-wrap items-center justify-between gap-3" aria-label="毕法前后导航">
                         @if (! empty($previousLaw))
                             <x-button
                                 :label="'← 上一法 · '.$previousLaw['name']"

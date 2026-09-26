@@ -121,7 +121,7 @@ final readonly class BiFaKnowledgeCardFactory
             label: '第 '.$catalogLaw['number'].' 法',
             title: $catalogLaw['name'],
             summary: $description !== '' ? $description : $catalogLaw['summary'],
-            status: ['label' => '已完成研究', 'tone' => self::TONE_INFO],
+            status: null,
             conditions: array_values(array_map(
                 static fn (array $foundation): array => [
                     'marker' => '⏺',
@@ -134,7 +134,7 @@ final readonly class BiFaKnowledgeCardFactory
             )),
             evidence: [],
             sections: $sections,
-            examples: $this->examples(BiFaCaseCatalog::casesForLaw((string) $law['code']), $routeNames),
+            examples: [],
             actions: $actions,
         );
     }
