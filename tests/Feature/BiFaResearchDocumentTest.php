@@ -56,14 +56,37 @@ test('BiFaResearchDocument extracts only the verified original text for the seco
 });
 
 test('BiFaResearchDocument returns missing for unresearched law', function () {
-    // 第 10..100 法尚未研究（前 9 法已研究）
-    $page = BiFaPageCatalog::findByCode('bifa.10');
+    // 第 11..100 法尚未研究（前 10 法已研究）
+    $page = BiFaPageCatalog::findByCode('bifa.11');
     expect($page)->not->toBeNull();
     expect($page['researched'])->toBeFalse();
 
     $result = (new BiFaResearchDocument)->original($page);
     expect($result['status'])->toBe('missing')
         ->and($result['content'])->toBeNull();
+});
+
+test('tenth law original extraction keeps both classical distinctions and excludes program analysis', function () {
+    $page = BiFaPageCatalog::findByCode('bifa.10');
+    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
+
+    $result = (new BiFaResearchDocument)->original($page);
+    $content = (string) $result['content'];
+    $document = (string) file_get_contents(base_path($page['researchPath']));
+
+    expect($result['status'])->toBe('complete')
+        ->and($content)->toContain('朽木难雕别作为第十')
+        ->and($content)->toContain('庚戌日卯加申')
+        ->and($content)->toContain('辛亥日卯加辛')
+        ->and($content)->toContain('癸丑日卯加申发用')
+        ->and($content)->toContain('丁丑日卯加申为发用')
+        ->and($content)->toContain('非朽木难雕之例')
+        ->and($content)->not->toContain('程序解释')
+        ->and($content)->not->toContain('精确判定')
+        ->and($content)->not->toContain('## 三')
+        ->and($document)->toContain('斫轮，卯加庚辛申酉发用')
+        ->and($document)->toContain('辛寄戌宫')
+        ->and($document)->toContain('不修改课经第21课斫轮代码');
 });
 
 test('ninth law original extraction keeps the complete Daquan text and excludes later analysis', function () {

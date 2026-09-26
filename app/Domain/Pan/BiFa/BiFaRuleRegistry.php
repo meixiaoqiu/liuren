@@ -11,6 +11,7 @@ use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
 use App\Domain\Pan\BiFa\Rules\QuanSheBuZhengRule;
 use App\Domain\Pan\BiFa\Rules\ShouWeiXiangJianRule;
 use App\Domain\Pan\BiFa\Rules\WangLuLinShenRule;
+use App\Domain\Pan\BiFa\Rules\XiuMuNanDiaoRule;
 
 /**
  * 文件作用：登记毕法规则引擎每次起盘需要执行的具体规则。
@@ -26,8 +27,9 @@ use App\Domain\Pan\BiFa\Rules\WangLuLinShenRule;
  *  - WangLuLinShenRule           第七法 · 旺禄临身徒妄作
  *  - QuanSheBuZhengRule          第八法 · 权摄不正禄临支
  *  - BiNanTaoShengRule           第九法 · 避难逃生须弃旧
+ *  - XiuMuNanDiaoRule            第十法 · 朽木难雕别作为
  *
- * 后续第 10..100 法的实现逐步追加；严禁把课经 PanRule 加入本注册表——
+ * 后续第 11..100 法的实现逐步追加；严禁把课经 PanRule 加入本注册表——
  * 课经与毕法是两套独立体系，混入会污染"解盘信息"与"毕法"两个独立区块。
  */
 final class BiFaRuleRegistry
@@ -45,6 +47,7 @@ final class BiFaRuleRegistry
             new WangLuLinShenRule,
             new QuanSheBuZhengRule,
             new BiNanTaoShengRule,
+            new XiuMuNanDiaoRule,
         ];
     }
 }

@@ -1114,5 +1114,25 @@ final class BiFaCaseCatalog
         ['case_id' => 'bifa.09.daquan-geng-zi-neither', 'law_code' => 'bifa.09', 'label' => '庚子日·舍就皆不可', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['neither_stay_nor_leave'], 'reason' => '依《壬学琐记》校勘后的正确代表例。无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》；程树勋《壬学琐记》'],
         ['case_id' => 'bifa.09.daquan-geng-wu-neither', 'law_code' => 'bifa.09', 'label' => '庚午日·舍就皆不可', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['neither_stay_nor_leave'], 'reason' => '依《壬学琐记》校勘后的正确代表例。无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》；程树勋《壬学琐记》'],
         ['case_id' => 'bifa.09.daquan-grave-sun', 'law_code' => 'bifa.09', 'label' => '墓作太阳·正文通则', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['grave_as_sun'], 'reason' => '正文只给通则，无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》'],
+
+        [
+            'case_id' => 'bifa.10.generated-rotten-wood-xu', 'law_code' => 'bifa.10',
+            'label' => '程序验证·戊申日·卯临戌·朽木难雕', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2000-02-20T11:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['rotten_wood'], 'reason' => '初传卯；卯临戌宫（辛寄宫）；本日旬空包含卯，因此成立朽木难雕。',
+            'source' => '程序验证案例·2000—2035 年生产排盘扫描',
+        ],
+        [
+            'case_id' => 'bifa.10.generated-axe-unfavorable', 'law_code' => 'bifa.10',
+            'label' => '程序验证·丁丑日·卯临申·斧斤不利', 'source_type' => 'generated', 'status' => 'executable',
+            'datetime' => '2000-01-20T11:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
+            'routes' => ['axe_unfavorable'], 'reason' => '初传卯临申宫；本日申酉为空而卯不空，因此属于斧斤不利，不属于朽木难雕。',
+            'source' => '程序验证案例·2000—2035 年生产排盘扫描',
+        ],
+
+        ['case_id' => 'bifa.10.daquan-geng-xu-rotten-wood', 'law_code' => 'bifa.10', 'label' => '庚戌日·卯加申·朽木难雕', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['rotten_wood'], 'reason' => '正文列卯加申且卯木旬空的朽木难雕正例；无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
+        ['case_id' => 'bifa.10.daquan-xin-hai-rotten-wood', 'law_code' => 'bifa.10', 'label' => '辛亥日·卯加辛·朽木难雕', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['rotten_wood'], 'reason' => '正文列卯加辛的朽木难雕正例；辛寄戌宫，无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
+        ['case_id' => 'bifa.10.daquan-gui-chou-rotten-wood', 'law_code' => 'bifa.10', 'label' => '癸丑日·卯加申发用·朽木难雕', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['rotten_wood'], 'reason' => '正文列卯加申发用且卯木旬空的朽木难雕例；无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
+        ['case_id' => 'bifa.10.daquan-ding-chou-axe-unfavorable', 'law_code' => 'bifa.10', 'label' => '丁丑日·卯加申·申酉空亡·斧斤不利', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['axe_unfavorable'], 'reason' => '正文列卯木不空而所临申宫落空的斧斤不利例，并明确说并非朽木难雕；无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
     ];
 }

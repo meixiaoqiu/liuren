@@ -264,3 +264,29 @@ test('BiFaCaseCatalog bing-yin counterexample is one of the legal empty-routes c
         ->and($bingyin['status'])->toBe('reference_only')
         ->and($bingyin['routes'])->toBe([]);
 });
+
+test('tenth law keeps four classical references separate from two executable reproductions', function () {
+    $cases = BiFaCaseCatalog::casesForLaw('bifa.10');
+    $byId = [];
+    foreach ($cases as $case) {
+        $byId[$case['case_id']] = $case;
+    }
+
+    foreach ([
+        'bifa.10.daquan-geng-xu-rotten-wood' => ['rotten_wood'],
+        'bifa.10.daquan-xin-hai-rotten-wood' => ['rotten_wood'],
+        'bifa.10.daquan-gui-chou-rotten-wood' => ['rotten_wood'],
+        'bifa.10.daquan-ding-chou-axe-unfavorable' => ['axe_unfavorable'],
+    ] as $caseId => $routes) {
+        expect($byId)->toHaveKey($caseId)
+            ->and($byId[$caseId]['source_type'])->toBe('daquan')
+            ->and($byId[$caseId]['status'])->toBe('reference_only')
+            ->and($byId[$caseId]['datetime'])->toBeNull()
+            ->and($byId[$caseId]['routes'])->toBe($routes);
+    }
+
+    expect($byId['bifa.10.generated-rotten-wood-xu']['datetime'])->toBe('2000-02-20T11:00')
+        ->and($byId['bifa.10.generated-rotten-wood-xu']['routes'])->toBe(['rotten_wood'])
+        ->and($byId['bifa.10.generated-axe-unfavorable']['datetime'])->toBe('2000-01-20T11:00')
+        ->and($byId['bifa.10.generated-axe-unfavorable']['routes'])->toBe(['axe_unfavorable']);
+});

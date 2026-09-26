@@ -382,6 +382,25 @@ test('ninth bifa detail exposes nine Chinese foundations cases and no internal f
     }
 });
 
+test('tenth bifa detail separates rotten wood and unfavorable axe without internal fields', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'xiu-mu-nan-diao']))->assertOk();
+    $card = $response->viewData('knowledgeCard');
+
+    expect($response->viewData('researched'))->toBeTrue()
+        ->and($response->viewData('implemented'))->toBeTrue()
+        ->and($response->viewData('law')['number'])->toBe(10)
+        ->and(array_column($card['conditions'], 'title'))->toBe(['朽木难雕', '斧斤不利']);
+
+    foreach (['朽木难雕别作为', '朽木难雕', '斧斤不利', '古籍原文', '正文案例', '程序验证案例', '非朽木难雕之例'] as $visible) {
+        $response->assertSee($visible);
+    }
+
+    foreach (['bifa.10', 'rotten_wood', 'axe_unfavorable', 'XiuMuNanDiaoRule', 'matched_routes',
+        'pending_routes', 'case_id', 'match()', 'PanCalculator', 'mao_ground', 'mao_void'] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
 test('ninth bifa detail keeps the bing-yin counterexample copy purely Chinese without engineering terms', function () {
     $response = $this->get(route('bifa.show', ['law' => 'bi-nan-tao-sheng']))->assertOk();
 
