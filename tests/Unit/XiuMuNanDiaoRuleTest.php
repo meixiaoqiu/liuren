@@ -39,7 +39,7 @@ test('第十法定义、法号和法名固定为两个独立分格', function ()
         ->and(array_column($definition['foundations'], 'title'))->toBe(['朽木难雕', '斧斤不利']);
 });
 
-test('卯发用且卯临申酉戌并旬空均成立朽木难雕', function (int $ground) {
+test('卯发用且卯临申或戌并旬空成立朽木难雕', function (int $ground) {
     // 庚戌日为甲辰旬，寅卯空；旬空由真实日干支推得。
     $match = xmnd_match(['tianpan' => xmnd_plate($ground)]);
 
@@ -56,29 +56,42 @@ test('卯发用且卯临申酉戌并旬空均成立朽木难雕', function (int 
         ]);
 })->with([
     '卯加申' => [8],
-    '卯加酉' => [9],
     '卯加辛位即戌宫' => [10],
 ]);
 
-test('丁丑日口径卯临申或酉且金地旬空成立斧斤不利', function (int $ground) {
+test('丁丑日口径卯临申且申地旬空成立斧斤不利', function () {
     // 丁丑日为甲戌旬，申酉空而卯不空。
     $match = xmnd_match([
         'rigan' => 3,
         'rizhi' => 1,
-        'tianpan' => xmnd_plate($ground),
+        'tianpan' => xmnd_plate(8),
     ]);
 
     expect($match)->not->toBeNull()
         ->and($match->matchedRoutes)->toBe(['axe_unfavorable'])
         ->and($match->subMatches[0]['title'])->toBe('斧斤不利')
         ->and(array_column($match->matchedJudgments, 'label'))->toBe(['斧斤不利'])
-        ->and($match->evidence['mao_ground'])->toBe($ground)
+        ->and($match->evidence['mao_ground'])->toBe(8)
         ->and($match->evidence['mao_void'])->toBeFalse()
         ->and($match->evidence['mao_ground_void'])->toBeTrue();
-})->with(['申空' => [8], '酉空' => [9]]);
+});
 
-test('卯空但不临申酉戌不得成立', function () {
+test('卯空但不临申戌不得成立', function () {
     expect(xmnd_match(['tianpan' => xmnd_plate(7)]))->toBeNull();
+});
+
+test('第十法不得依据订讹把卯临酉扩张为朽木难雕', function () {
+    // 庚戌日为甲辰旬，卯空；但第十法正文没有卯加酉结构。
+    expect(xmnd_match(['tianpan' => xmnd_plate(9)]))->toBeNull();
+});
+
+test('斧斤不利不得由申酉空亡自行扩张为卯临酉', function () {
+    // 丁丑日申酉空、卯不空；正文实际发用结构只有卯临申。
+    expect(xmnd_match([
+        'rigan' => 3,
+        'rizhi' => 1,
+        'tianpan' => xmnd_plate(9),
+    ]))->toBeNull();
 });
 
 test('斫轮位置成立但卯与刀斧地均不空不得成立', function () {
@@ -91,7 +104,7 @@ test('初传不是卯不得成立', function () {
 });
 
 test('卯临戌且戌空而卯不空不得扩张为斧斤不利', function () {
-    // 甲子日戌亥空；戌宫不属于本轮斧斤不利的申酉范围。
+    // 甲子日戌亥空；正文斧斤不利只实现卯临申。
     expect(xmnd_match([
         'rigan' => 0,
         'rizhi' => 0,

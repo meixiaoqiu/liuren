@@ -142,12 +142,20 @@
                             <ul role="list" class="divide-y divide-base-content/10">
                                 @foreach ($originalCases as $case)
                                     <li>
-                                        @include('bifa.partials.case-row', ['case' => $case, 'sourceLabel' => '《六壬大全》正文案例'])
+                                        @include('bifa.partials.case-row', [
+                                            'case' => $case,
+                                            'kindLabel' => '《六壬大全》正文案例',
+                                            'kindTone' => 'primary',
+                                        ])
                                     </li>
                                 @endforeach
                                 @foreach ($generatedCases as $case)
                                     <li>
-                                        @include('bifa.partials.case-row', ['case' => $case, 'sourceLabel' => '程序验证案例'])
+                                        @include('bifa.partials.case-row', [
+                                            'case' => $case,
+                                            'kindLabel' => '程序验证案例',
+                                            'kindTone' => 'ghost',
+                                        ])
                                     </li>
                                 @endforeach
                             </ul>

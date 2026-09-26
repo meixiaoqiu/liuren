@@ -85,6 +85,7 @@ test('tenth law original extraction keeps both classical distinctions and exclud
         ->and($content)->not->toContain('精确判定')
         ->and($content)->not->toContain('## 三')
         ->and($document)->toContain('斫轮，卯加庚辛申酉发用')
+        ->and($document)->toContain('暂不以《订讹》扩张程序 matcher')
         ->and($document)->toContain('辛寄戌宫')
         ->and($document)->toContain('不修改课经第21课斫轮代码');
 });

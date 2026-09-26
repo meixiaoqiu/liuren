@@ -13,13 +13,13 @@ final class XiuMuNanDiaoRule implements BiFaRule
 {
     private const MAO = 3;
 
-    private const ZHUOLUN_GROUNDS = [8, 9, 10];
+    private const ZHUOLUN_GROUNDS = [8, 10];
 
-    private const AXE_GROUNDS = [8, 9];
+    private const AXE_GROUNDS = [8];
 
     private const ROUTES = [
         'rotten_wood' => ['朽木难雕', '斫轮发用而作为车轮的卯木本身旬空。'],
-        'axe_unfavorable' => ['斧斤不利', '卯木本身不空，而所临申、酉刀斧之地旬空。'],
+        'axe_unfavorable' => ['斧斤不利', '卯木本身不空，而所临申地旬空。'],
     ];
 
     public function code(): string
@@ -40,7 +40,7 @@ final class XiuMuNanDiaoRule implements BiFaRule
     public function definition(): array
     {
         return [
-            'description' => '本法先以初传卯临申、酉、戌认定斫轮结构，再严格区分卯木本身旬空的「朽木难雕」与卯不空而所临申、酉金地旬空的「斧斤不利」。',
+            'description' => '本法依第十法正文，以初传卯临申、戌认定可程序化的斫轮结构，再严格区分卯木本身旬空的「朽木难雕」与卯不空而所临申地旬空的「斧斤不利」。',
             'foundations' => array_map(
                 static fn (array $route, string $code): array => [
                     'code' => $code,
@@ -55,10 +55,10 @@ final class XiuMuNanDiaoRule implements BiFaRule
                 ['label' => '斧斤不利', 'effect' => 'reduce', 'description' => '木本身未空，而刀斧所临金地落空；原文断凡谋不遂。'],
             ],
             'sections' => [
-                ['title' => '先辨斫轮结构', 'content' => '初传必须为卯，且卯实际临于申、酉、戌宫。单纯卯旬空而不具此结构，不成立本法。'],
-                ['title' => '两格不可合并', 'content' => '卯木本身旬空才是朽木难雕；卯不空而所临申、酉金地旬空才是斧斤不利，正文明确后者并非朽木难雕。'],
+                ['title' => '先辨正文结构', 'content' => '初传必须为卯，且卯实际临于申、戌宫。单纯卯旬空而不具正文直接出现的结构，不成立本法。'],
+                ['title' => '两格不可合并', 'content' => '卯木本身旬空才是朽木难雕；卯不空而所临申地旬空才是斧斤不利，正文明确后者并非朽木难雕。'],
                 ['title' => '辛寄戌宫', 'content' => '卯加辛按辛所寄的戌宫判断，不要求当天必须为辛日；戌宫只参与朽木难雕，不把戌空推广为斧斤不利。'],
-                ['title' => '本轮边界', 'content' => '不吸收斫轮课中的伤斧、伤轮、旧轮再斫，以及吉将、驿马、印绶等其他课义。'],
+                ['title' => '本轮边界', 'content' => '《订讹》只作研究旁证，不据其卯加酉等说法扩张程序条件；也不吸收斫轮课中的伤斧、伤轮、旧轮再斫，以及吉将、驿马、印绶等其他课义。'],
             ],
         ];
     }

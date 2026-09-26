@@ -422,6 +422,31 @@ test('ninth bifa detail keeps the bing-yin counterexample copy purely Chinese wi
     }
 });
 
+test('ninth bifa detail exposes precise per-case source from BiFaCaseCatalog instead of a hardcoded label', function () {
+    $response = $this->get(route('bifa.show', ['law' => 'bi-nan-tao-sheng']))->assertOk();
+
+    // 第九法部分案例的真实来源含《壬学琐记》校勘——用户必须看到具体来源，不能被简化为"《六壬大全》正文案例"。
+    $response->assertSee('程树勋《壬学琐记》');
+
+    // 案例标签仍可作为简洁分类标识存在（用于列表行左侧）。
+    $response->assertSee('《六壬大全》正文案例');
+    $response->assertSee('程序验证案例');
+
+    // 详情页不得泄漏 case 内部字段名 / 工程术语。
+    foreach ([
+        'case_id',
+        'source_type',
+        'reference_only',
+        'executable',
+        'routes',
+        'matched_routes',
+        'pending_routes',
+        'BiFaCaseCatalog',
+    ] as $internal) {
+        $response->assertDontSee($internal, false);
+    }
+});
+
 test('ninth bifa pan card shows Chinese routes and judgments without internal fields', function () {
     $component = Livewire::withQueryParams([
         'datetime' => '2031-01-01T19:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male',

@@ -193,16 +193,4 @@
             font-size: 4.5rem;
         }
     }
-
-    .pan-case-card {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        height: 100%;
-    }
-
-    .pan-case-card:hover,
-    .pan-case-card:focus-visible {
-        text-decoration: none;
-    }
 }

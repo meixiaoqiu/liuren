@@ -6,13 +6,13 @@
 
   展示顺序（所有知识卡片必须遵守，禁止未来毕法/课经/格自行调整）：
     1. 类型 + 编号（type_label + label）
-    2. 标题（title）
+    2. 标题（title，与体系字标合在同一行内，长方形框承载，h2 语义）
     3. 简述（summary）
     4. 成立状态（status）
     5. 成立条件（conditions）
     6. 命中依据（evidence）
     7. 补充说明（sections）
-    8. 课例（examples）
+    8. 课例（examples，由详情页大区块独立渲染时不渲染）
     9. 来源/详情入口（actions）
 
   props:
@@ -32,7 +32,7 @@
     $typeMarker = mb_substr($typeLabel, 0, 1);
 @endphp
 
-{{-- 1–2. 体系字标 + 标题行：长方形框里直接放标题，去掉单独的 H2 --}}
+{{-- 1–2. 体系字标 + 标题行：长方形框里直接放标题，使用 h2 保留 heading 语义 --}}
 @php
     $cardTitle = trim((string) ($card['title'] ?? ''));
 @endphp
@@ -42,7 +42,7 @@
             {{ $typeMarker }}
         </span>
         @if ($cardTitle !== '')
-            <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $cardTitle }}</span>
+            <h2 class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $cardTitle }}</h2>
         @endif
     </div>
 @endif

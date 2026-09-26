@@ -3,17 +3,19 @@
 namespace App\Support\Knowledge;
 
 use App\Domain\Pan\BiFa\BiFaRuleMatch;
-use App\Support\BiFaCaseCatalog;
 use App\Support\BiFaCatalog;
 use App\Support\BiFaResearchDocument;
 use LogicException;
 
 /**
- * 将毕法领域结果、目录、案例及研究资料适配为统一知识卡片。
+ * 将毕法领域结果、目录、研究资料适配为统一知识卡片。
  *
  * 本工厂的所有用户可见字符串（typeLabel、status.label、conditions.title、marker、
- * examples.source、status label 等）由本类负责生成；Blade 不做业务判断、不区分体系、
+ * status label 等）由本类负责生成；Blade 不做业务判断、不区分体系、
  * 不硬编码任何"毕法 / 课经 / 格"中文。
+ *
+ * 案例展示由 bifa/show.blade.php 配合 BiFaCaseCatalog 直接渲染（详见
+ * resources/views/bifa/partials/case-row.blade.php），不在本工厂内构造 examples。
  */
 final readonly class BiFaKnowledgeCardFactory
 {
@@ -98,7 +100,6 @@ final readonly class BiFaKnowledgeCardFactory
         }
 
         $foundations = $definition['foundations'] ?? [];
-        $routeNames = $this->routeNames($foundations);
         $description = trim((string) ($definition['description'] ?? ''));
         $sections = array_values($definition['sections'] ?? []);
         foreach ($definition['judgments'] ?? [] as $judgment) {
@@ -154,69 +155,6 @@ final readonly class BiFaKnowledgeCardFactory
         return [
             'title' => $effectLabel === null ? $label : $effectLabel.' · '.$label,
             'content' => (string) ($judgment['description'] ?? ''),
-        ];
-    }
-
-    /**
-     * @param  list<array<string, mixed>>  $cases
-     * @param  array<string, string>  $routeNames
-     * @return list<array{title: string, description: string, source: string, status: array{label: string, tone: string}, url: ?string}>
-     */
-    public function examples(array $cases, array $routeNames): array
-    {
-        return array_values(array_map(
-            fn (array $case): array => $this->example($case, $routeNames),
-            $cases,
-        ));
-    }
-
-    /** @param list<array<string, mixed>> $items @return array<string, string> */
-    private function routeNames(array $items): array
-    {
-        $names = [];
-        foreach ($items as $item) {
-            $names[(string) ($item['code'] ?? '')] = (string) ($item['title'] ?? '');
-        }
-
-        return $names;
-    }
-
-    /** @param array<string, mixed> $case @param array<string, string> $routeNames @return array<string, mixed> */
-    private function example(array $case, array $routeNames): array
-    {
-        $isExecutable = ($case['status'] ?? '') === 'executable';
-        $isGenerated = ($case['source_type'] ?? '') === 'generated';
-        $names = array_values(array_filter(array_map(
-            static fn (string $route): string => $routeNames[$route] ?? '',
-            array_map('strval', $case['routes'] ?? []),
-        )));
-        $description = $isGenerated
-            ? ($names === []
-                ? '本案例用于说明本法不成立且无需继续评估的情形。'
-                : '本案例用于说明"'.implode('、', $names).'"的成立或边界情形。')
-            : (string) ($case['reason'] ?? '');
-
-        $url = null;
-        if ($isExecutable) {
-            $params = array_filter([
-                'datetime' => $case['datetime'] ?? null,
-                'birth' => $case['birth'] ?? null,
-                'gender' => $case['gender'] ?? null,
-                'people' => empty($case['people']) ? null : $case['people'],
-            ], static fn ($value): bool => $value !== null && $value !== '');
-            $url = route('pan.create', $params);
-        }
-
-        return [
-            'title' => (string) ($case['label'] ?? ''),
-            'description' => $description,
-            'source' => $isGenerated
-                ? '现代程序验证案例'
-                : '《六壬大全》正文案例 · '.(string) ($case['source'] ?? '本法'),
-            'status' => $isExecutable
-                ? ['label' => '可查看排盘', 'tone' => self::TONE_SUCCESS]
-                : ['label' => '原文参考盘 · 尚未完整复现', 'tone' => self::TONE_WARNING],
-            'url' => $url,
         ];
     }
 }
