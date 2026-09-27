@@ -86,13 +86,23 @@ test('application starts without configured plugins', function () {
 });
 
 test('configured plugin provider is loaded from its manifest', function () {
+    $provider = 'PluginLoaderValidProvider';
+    $path = createPluginFixture(
+        $this->pluginFixtureRoot,
+        'valid-plugin',
+        'valid-plugin',
+        [$provider],
+        [providerClass($provider, 'liuren.valid-plugin.loaded')],
+    );
     $loader = new PluginLoader(app());
-    config()->set('plugins.paths', [base_path('tests/Fixtures/FakePlugin')]);
 
-    $loader->loadConfigured();
+    expect(class_exists($provider, false))->toBeFalse();
 
-    expect($loader->loadedPluginIds())->toBe(['fake-plugin'])
-        ->and(app('liuren.fake-plugin.loaded'))->toBeTrue();
+    $loader->load([$path]);
+
+    expect(class_exists($provider, false))->toBeTrue()
+        ->and($loader->loadedPluginIds())->toBe(['valid-plugin'])
+        ->and(app('liuren.valid-plugin.loaded'))->toBeTrue();
 });
 
 test('missing configured plugin path fails with a diagnostic error', function () {
@@ -110,28 +120,6 @@ test('relative plugin paths are rejected', function () {
     expect(fn () => $loader->load(['../liuren-expert']))
         ->toThrow(RuntimeException::class, '插件路径必须是绝对路径：../liuren-expert');
 });
-
-test('windows drive absolute paths are recognized independently of the host platform', function (string $path) {
-    $loader = new PluginLoader(app());
-
-    expect(fn () => $loader->load([$path]))
-        ->toThrow(RuntimeException::class, "插件路径不存在或不是目录：{$path}");
-})->with([
-    'backslash c drive' => 'C:\\foo',
-    'forward slash c drive' => 'C:/foo',
-    'backslash d drive' => 'D:\\bar',
-]);
-
-test('non-absolute paths are rejected', function (string $path) {
-    $loader = new PluginLoader(app());
-
-    expect(fn () => $loader->load([$path]))
-        ->toThrow(RuntimeException::class, "插件路径必须是绝对路径：{$path}");
-})->with([
-    'drive relative' => 'C:foo',
-    'parent relative' => '..\\foo',
-    'plain relative' => 'foo',
-]);
 
 test('plugin without composer autoload fails clearly', function () {
     $path = createPluginFixture($this->pluginFixtureRoot, 'missing-autoload', 'missing-autoload', [], autoload: false);

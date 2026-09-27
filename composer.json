@@ -35,10 +35,7 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        },
-        "exclude-from-classmap": [
-            "tests/Fixtures/FakePlugin/"
-        ]
+        }
     },
     "scripts": {
         "post-autoload-dump": [
