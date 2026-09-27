@@ -34,6 +34,10 @@ final class PluginLoader
                 throw new RuntimeException('插件路径必须是非空字符串。');
             }
 
+            if (! $this->isAbsolutePath($path)) {
+                throw new RuntimeException("插件路径必须是绝对路径：{$path}");
+            }
+
             $this->loadPath($path);
         }
     }
@@ -100,5 +104,11 @@ final class PluginLoader
         }
 
         $this->loadedPluginIds[] = $pluginId;
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return str_starts_with($path, '/')
+            || preg_match('/^[A-Za-z]:[\\\\\/]/', $path) === 1;
     }
 }
