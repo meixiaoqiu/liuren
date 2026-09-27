@@ -1,0 +1,9 @@
+{
+    "name": "tests/fake-plugin",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Tests\\Fixtures\\FakePlugin\\": "src/"
+        }
+    }
+}
