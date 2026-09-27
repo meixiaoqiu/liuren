@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Extensions\AbsolutePath;
+
 /**
  * 文件作用：从毕法研究文档中提取"古籍原文"小节，供详情页独立展示。
  *
@@ -21,13 +23,25 @@ namespace App\Support;
  *  - 节标题明确为 "古籍原文" 时，才标 complete；
  *  - 节标题缺失、或文档被混入"原文+整理"时，按 excerpt 展示，绝不冒充完整原文；
  *  - 文档不存在或为空时，status = missing。
+ *
+ * 研究文档路径（law['researchPath']）允许：
+ *  - 相对路径：相对 host base_path() 解析（默认公开 docs 目录）；
+ *  - 绝对路径：直接读取，由 BiFaExtensionRegistry 注入的私有仓库研究文档使用。
  */
 final class BiFaResearchDocument
 {
     /** @return array{status: 'complete'|'excerpt'|'missing', heading: ?string, content: ?string} */
     public function original(array $law): array
     {
-        $path = base_path((string) ($law['researchPath'] ?? ''));
+        $rawPath = (string) ($law['researchPath'] ?? '');
+        if ($rawPath === '') {
+            return ['status' => 'missing', 'heading' => null, 'content' => null];
+        }
+
+        $path = AbsolutePath::check($rawPath)
+            ? $rawPath
+            : base_path($rawPath);
+
         if (! is_file($path)) {
             return ['status' => 'missing', 'heading' => null, 'content' => null];
         }

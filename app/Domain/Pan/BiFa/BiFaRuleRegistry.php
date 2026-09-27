@@ -11,7 +11,7 @@ use App\Domain\Pan\BiFa\Rules\QianHouYinCongRule;
 use App\Domain\Pan\BiFa\Rules\QuanSheBuZhengRule;
 use App\Domain\Pan\BiFa\Rules\ShouWeiXiangJianRule;
 use App\Domain\Pan\BiFa\Rules\WangLuLinShenRule;
-use App\Domain\Pan\BiFa\Rules\XiuMuNanDiaoRule;
+use App\Extensions\BiFaExtensionRegistry;
 
 /**
  * 文件作用：登记毕法规则引擎每次起盘需要执行的具体规则。
@@ -27,17 +27,21 @@ use App\Domain\Pan\BiFa\Rules\XiuMuNanDiaoRule;
  *  - WangLuLinShenRule           第七法 · 旺禄临身徒妄作
  *  - QuanSheBuZhengRule          第八法 · 权摄不正禄临支
  *  - BiNanTaoShengRule           第九法 · 避难逃生须弃旧
- *  - XiuMuNanDiaoRule            第十法 · 朽木难雕别作为
  *
- * 后续第 11..100 法的实现逐步追加；严禁把课经 PanRule 加入本注册表——
- * 课经与毕法是两套独立体系，混入会污染"解盘信息"与"毕法"两个独立区块。
+ * 第十法等后续法由 BiFaExtensionRegistry 注入；本类负责合并内置与扩展部分，
+ * 并保证 code 不重复。BiFaRuleEngine 仍负责 duplicate code 兜底校验。
+ *
+ * 严禁把课经 PanRule 加入本注册表——课经与毕法是两套独立体系，
+ * 混入会污染"解盘信息"与"毕法"两个独立区块。
  */
 final class BiFaRuleRegistry
 {
+    public function __construct(private readonly BiFaExtensionRegistry $extensions) {}
+
     /** @return list<BiFaRule> */
     public function rules(): array
     {
-        return [
+        $builtIn = [
             new QianHouYinCongRule,
             new ShouWeiXiangJianRule,
             new LianMuGuiRenRule,
@@ -47,7 +51,19 @@ final class BiFaRuleRegistry
             new WangLuLinShenRule,
             new QuanSheBuZhengRule,
             new BiNanTaoShengRule,
-            new XiuMuNanDiaoRule,
         ];
+
+        $merged = [];
+        $seen = [];
+        foreach ([...$builtIn, ...$this->extensions->rules()] as $rule) {
+            $code = $rule->code();
+            if (isset($seen[$code])) {
+                throw new \LogicException('Duplicate BiFa rule code: '.$code);
+            }
+            $seen[$code] = true;
+            $merged[] = $rule;
+        }
+
+        return $merged;
     }
 }

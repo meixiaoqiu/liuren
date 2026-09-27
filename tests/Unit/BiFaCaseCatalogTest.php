@@ -109,7 +109,7 @@ test('BiFaCaseCatalog executable cases have datetime / birth / gender', function
 
 test('BiFaCaseCatalog routes only contain codes registered for their own law', function () {
     $allowedRoutesByLaw = [];
-    foreach ((new BiFaRuleRegistry)->rules() as $rule) {
+    foreach (app(BiFaRuleRegistry::class)->rules() as $rule) {
         $allowedRoutesByLaw[$rule->code()] = [];
         foreach ($rule->definition()['foundations'] as $foundation) {
             $allowedRoutesByLaw[$rule->code()][] = $foundation['code'];
@@ -265,28 +265,8 @@ test('BiFaCaseCatalog bing-yin counterexample is one of the legal empty-routes c
         ->and($bingyin['routes'])->toBe([]);
 });
 
-test('tenth law keeps four classical references separate from two executable reproductions', function () {
-    $cases = BiFaCaseCatalog::casesForLaw('bifa.10');
-    $byId = [];
-    foreach ($cases as $case) {
-        $byId[$case['case_id']] = $case;
-    }
-
-    foreach ([
-        'bifa.10.daquan-geng-xu-rotten-wood' => ['rotten_wood'],
-        'bifa.10.daquan-xin-hai-rotten-wood' => ['rotten_wood'],
-        'bifa.10.daquan-gui-chou-rotten-wood' => ['rotten_wood'],
-        'bifa.10.daquan-ding-chou-axe-unfavorable' => ['axe_unfavorable'],
-    ] as $caseId => $routes) {
-        expect($byId)->toHaveKey($caseId)
-            ->and($byId[$caseId]['source_type'])->toBe('daquan')
-            ->and($byId[$caseId]['status'])->toBe('reference_only')
-            ->and($byId[$caseId]['datetime'])->toBeNull()
-            ->and($byId[$caseId]['routes'])->toBe($routes);
-    }
-
-    expect($byId['bifa.10.generated-rotten-wood-xu']['datetime'])->toBe('2000-02-20T11:00')
-        ->and($byId['bifa.10.generated-rotten-wood-xu']['routes'])->toBe(['rotten_wood'])
-        ->and($byId['bifa.10.generated-axe-unfavorable']['datetime'])->toBe('2000-01-20T11:00')
-        ->and($byId['bifa.10.generated-axe-unfavorable']['routes'])->toBe(['axe_unfavorable']);
-});
+// 第十法「朽木难雕别作为」的所有案例元数据契约（含 executable + reference_only
+// 案例的数量、datetime、routes、source 字符串）已迁入 liuren-expert 私有仓库
+// 作为 XiuMuNanDiaoContribution 的一部分；公开底座不得继续断言第十法案例结构。
+// 在插件 OFF 模式下 BiFaCaseCatalog::casesForLaw('bifa.10') === []；
+// 插件 ON 模式由私有侧私有测试覆盖。

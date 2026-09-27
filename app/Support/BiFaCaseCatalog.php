@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Extensions\BiFaExtensionRegistry;
+
 /**
  * 文件作用：维护《毕法赋》"百法"案例目录——每条案例与一个法号绑定、与课经 KeJingCatalog
  * 完全独立。即使同一古籍盘同时属课经与毕法，也由两套独立目录分别登记，
@@ -53,7 +55,7 @@ final class BiFaCaseCatalog
         // 直接返回常量表——所有 source / reason 字段必须在登记时一次性写完整，
         // 不允许再走任何 getter 动态修补。古籍来源字段必须本身含有"《六壬大全·毕法赋》"字样，
         // reference_only 案例的 reason 必须显式说明"不得回填现代时间"。
-        return self::CASES;
+        return [...self::CASES, ...self::extensionCases()];
     }
 
     /**
@@ -134,6 +136,30 @@ final class BiFaCaseCatalog
             self::casesForLaw($lawCode),
             static fn (array $case): bool => array_intersect($case['routes'], $matchedRoutes) !== [],
         ));
+    }
+
+    /**
+     * 从 BiFaExtensionRegistry 取出扩展案例；插件未注入时返回空列表。
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function extensionCases(): array
+    {
+        if (! function_exists('app')) {
+            return [];
+        }
+
+        try {
+            $registry = app(BiFaExtensionRegistry::class);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        if (! $registry instanceof BiFaExtensionRegistry) {
+            return [];
+        }
+
+        return $registry->allCases();
     }
 
     /**
@@ -1115,24 +1141,8 @@ final class BiFaCaseCatalog
         ['case_id' => 'bifa.09.daquan-geng-wu-neither', 'law_code' => 'bifa.09', 'label' => '庚午日·舍就皆不可', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['neither_stay_nor_leave'], 'reason' => '依《壬学琐记》校勘后的正确代表例。无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》；程树勋《壬学琐记》'],
         ['case_id' => 'bifa.09.daquan-grave-sun', 'law_code' => 'bifa.09', 'label' => '墓作太阳·正文通则', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['grave_as_sun'], 'reason' => '正文只给通则，无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》'],
 
-        [
-            'case_id' => 'bifa.10.generated-rotten-wood-xu', 'law_code' => 'bifa.10',
-            'label' => '程序验证·戊申日·卯临戌·朽木难雕', 'source_type' => 'generated', 'status' => 'executable',
-            'datetime' => '2000-02-20T11:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
-            'routes' => ['rotten_wood'], 'reason' => '初传卯；卯临戌宫（辛寄宫）；本日旬空包含卯，因此成立朽木难雕。',
-            'source' => '程序验证案例·2000—2035 年生产排盘扫描',
-        ],
-        [
-            'case_id' => 'bifa.10.generated-axe-unfavorable', 'law_code' => 'bifa.10',
-            'label' => '程序验证·丁丑日·卯临申·斧斤不利', 'source_type' => 'generated', 'status' => 'executable',
-            'datetime' => '2000-01-20T11:00', 'birth' => '1986-08-01T00:00', 'gender' => 'male', 'people' => [],
-            'routes' => ['axe_unfavorable'], 'reason' => '初传卯临申宫；本日申酉为空而卯不空，因此属于斧斤不利，不属于朽木难雕。',
-            'source' => '程序验证案例·2000—2035 年生产排盘扫描',
-        ],
-
-        ['case_id' => 'bifa.10.daquan-geng-xu-rotten-wood', 'law_code' => 'bifa.10', 'label' => '庚戌日·卯加申·朽木难雕', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['rotten_wood'], 'reason' => '正文列卯加申且卯木旬空的朽木难雕正例；无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
-        ['case_id' => 'bifa.10.daquan-xin-hai-rotten-wood', 'law_code' => 'bifa.10', 'label' => '辛亥日·卯加辛·朽木难雕', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['rotten_wood'], 'reason' => '正文列卯加辛的朽木难雕正例；辛寄戌宫，无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
-        ['case_id' => 'bifa.10.daquan-gui-chou-rotten-wood', 'law_code' => 'bifa.10', 'label' => '癸丑日·卯加申发用·朽木难雕', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['rotten_wood'], 'reason' => '正文列卯加申发用且卯木旬空的朽木难雕例；无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
-        ['case_id' => 'bifa.10.daquan-ding-chou-axe-unfavorable', 'law_code' => 'bifa.10', 'label' => '丁丑日·卯加申·申酉空亡·斧斤不利', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['axe_unfavorable'], 'reason' => '正文列卯木不空而所临申宫落空的斧斤不利例，并明确说并非朽木难雕；无完整公历时间，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第十法·卷九《毕法赋上》'],
+        // 第十法「朽木难雕别作为」全部案例（2 executable + 4 reference_only）
+        // 已迁出至 liuren-expert 插件，运行时由 BiFaExtensionRegistry 注入回 BiFaCaseCatalog::cases()。
+        // 公开底座不得继续登记任何 bifa.10 案例元数据。
     ];
 }

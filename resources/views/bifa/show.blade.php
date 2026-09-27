@@ -24,7 +24,7 @@
                         class="btn-ghost btn-sm"
                     />
 
-                    @if ($researched)
+                    @if ($researched && ! empty($law['researchUrl']))
                         <x-button
                             label="打开完整研究记录"
                             icon="o-book-open"

@@ -66,29 +66,10 @@ test('BiFaResearchDocument returns missing for unresearched law', function () {
         ->and($result['content'])->toBeNull();
 });
 
-test('tenth law original extraction keeps both classical distinctions and excludes program analysis', function () {
-    $page = BiFaPageCatalog::findByCode('bifa.10');
-    expect($page)->not->toBeNull()->and($page['researched'])->toBeTrue();
-
-    $result = (new BiFaResearchDocument)->original($page);
-    $content = (string) $result['content'];
-    $document = (string) file_get_contents(base_path($page['researchPath']));
-
-    expect($result['status'])->toBe('complete')
-        ->and($content)->toContain('朽木难雕别作为第十')
-        ->and($content)->toContain('庚戌日卯加申')
-        ->and($content)->toContain('辛亥日卯加辛')
-        ->and($content)->toContain('癸丑日卯加申发用')
-        ->and($content)->toContain('丁丑日卯加申为发用')
-        ->and($content)->toContain('非朽木难雕之例')
-        ->and($content)->not->toContain('程序解释')
-        ->and($content)->not->toContain('精确判定')
-        ->and($content)->not->toContain('## 三')
-        ->and($document)->toContain('斫轮，卯加庚辛申酉发用')
-        ->and($document)->toContain('暂不以《订讹》扩张程序 matcher')
-        ->and($document)->toContain('辛寄戌宫')
-        ->and($document)->toContain('不修改课经第21课斫轮代码');
-});
+// 第十法「朽木难雕别作为」的研究文档抽取契约已迁入 liuren-expert 私有仓库
+// （XiuMuNanDiaoContribution 提供绝对路径的研究文档）。公开底座不再为 bifa.10
+// 维护 BiFaResearchDocument 抽取断言；插件 OFF 时 BiFaPageCatalog::findByCode('bifa.10')['researched']
+// 为 false，original() 返回 missing；插件 ON 时由私有侧测试覆盖古籍原文完整抽取。
 
 test('ninth law original extraction keeps the complete Daquan text and excludes later analysis', function () {
     $page = BiFaPageCatalog::findByCode('bifa.09');

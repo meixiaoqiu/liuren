@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Extensions\BiFaExtensionRegistry;
+
 /**
  * 文件作用：维护《毕法赋》"百法"的稳定编号目录。
  *
@@ -23,7 +25,8 @@ namespace App\Support;
  * 不得悄悄维护。
  *
  * 后续每法由各自独立研究文档 (`docs/毕法/NN-法名.md`) 补齐。未研究法的 summary
- * 保持空字符串，前台展示为"尚未研究"。
+ * 保持空字符串，前台展示为"尚未研究"。已研究法（包括由 BiFaExtensionRegistry 注入的
+ * 扩展法）的 summary 通过 BiFaExtensionRegistry::summaryFor(code) 覆盖空串。
  *
  * @see docs/毕法/01-前后引从升迁吉.md  第一法研究文档
  */
@@ -40,12 +43,58 @@ final class BiFaCatalog
      */
     public static function laws(): array
     {
-        static $laws = null;
-        if ($laws === null) {
-            $laws = self::buildLaws();
+        return self::applySummaries(self::buildLaws());
+    }
+
+    /**
+     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
+     */
+    public static function findBySlug(string $slug): ?array
+    {
+        foreach (self::laws() as $law) {
+            if ($law['slug'] === $slug) {
+                return $law;
+            }
         }
 
-        return $laws;
+        return null;
+    }
+
+    /**
+     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
+     */
+    public static function findByCode(string $code): ?array
+    {
+        foreach (self::laws() as $law) {
+            if ($law['code'] === $code) {
+                return $law;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
+     */
+    public static function findByNumber(int $number): ?array
+    {
+        foreach (self::laws() as $law) {
+            if ($law['number'] === $number) {
+                return $law;
+            }
+        }
+
+        return null;
+    }
+
+    public static function codeFor(int $number): string
+    {
+        if ($number < 1 || $number > 100) {
+            throw new \InvalidArgumentException('BiFaCatalog 法号必须介于 1..100。');
+        }
+
+        return 'bifa.'.str_pad((string) $number, 2, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -63,7 +112,7 @@ final class BiFaCatalog
             self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', '阴干日禄临干，原则上宜守现有之禄；禄空、闭口或被玄武夺则不可拘守，乘白虎则减力而须兼察制化。'),
             self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', '日干之禄正临日支之上，自身禄利寄于支方；若支辰又墓、克或泄耗禄神，则禄气进一步受损。'),
             self::law(9, '避难逃生须弃旧', 'bi-nan-tao-sheng', '课传无可取之处时，舍弃旧路而转就干上、支上、地盘之生，或本命丁神长生、日干下临财乡；并辨逃生失败、舍益就损、舍就皆不可及墓作太阳等变格。'),
-            self::law(10, '朽木难雕别作为', 'xiu-mu-nan-diao', '卯加申或卯加辛发用而卯木本身旬空，为朽木难雕，原文主宜改业别谋；若卯不空而卯加申、申地旬空，则另属斧斤不利。'),
+            self::law(10, '朽木难雕别作为', 'xiu-mu-nan-diao', ''),
             self::law(11, '虎临干鬼凶无比', 'hu-lin-gang-gui', ''),
             self::law(12, '蛇鬼乘墓终不吉', 'she-gui-cheng-mu', ''),
             self::law(13, '伏吟卦体定幽明', 'fu-yin-gua-ti', ''),
@@ -171,54 +220,43 @@ final class BiFaCatalog
         ];
     }
 
-    public static function codeFor(int $number): string
+    /**
+     * 应用扩展摘要覆盖——必须在每次 laws() 调用时执行，因为插件可在运行时贡献。
+     *
+     * @param  list<array{number: int, name: string, code: string, slug: string, summary: string}>  $laws
+     * @return list<array{number: int, name: string, code: string, slug: string, summary: string}>
+     */
+    private static function applySummaries(array $laws): array
     {
-        if ($number < 1 || $number > 100) {
-            throw new \InvalidArgumentException('BiFaCatalog 法号必须介于 1..100。');
+        $registry = self::resolveExtensionRegistry();
+        if ($registry === null) {
+            return $laws;
         }
 
-        return 'bifa.'.str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+        $overridden = [];
+        foreach ($laws as $law) {
+            $extensionSummary = $registry->summaryFor($law['code']);
+            if (is_string($extensionSummary) && $extensionSummary !== '') {
+                $law['summary'] = $extensionSummary;
+            }
+            $overridden[] = $law;
+        }
+
+        return $overridden;
     }
 
-    /**
-     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
-     */
-    public static function findBySlug(string $slug): ?array
+    private static function resolveExtensionRegistry(): ?BiFaExtensionRegistry
     {
-        foreach (self::laws() as $law) {
-            if ($law['slug'] === $slug) {
-                return $law;
-            }
+        if (! function_exists('app')) {
+            return null;
         }
 
-        return null;
-    }
-
-    /**
-     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
-     */
-    public static function findByCode(string $code): ?array
-    {
-        foreach (self::laws() as $law) {
-            if ($law['code'] === $code) {
-                return $law;
-            }
+        try {
+            $instance = app(BiFaExtensionRegistry::class);
+        } catch (\Throwable) {
+            return null;
         }
 
-        return null;
-    }
-
-    /**
-     * @return array{number: int, name: string, code: string, slug: string, summary: string}|null
-     */
-    public static function findByNumber(int $number): ?array
-    {
-        foreach (self::laws() as $law) {
-            if ($law['number'] === $number) {
-                return $law;
-            }
-        }
-
-        return null;
+        return $instance instanceof BiFaExtensionRegistry ? $instance : null;
     }
 }

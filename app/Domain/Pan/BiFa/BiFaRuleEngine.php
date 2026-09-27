@@ -24,7 +24,7 @@ use LogicException;
  */
 final class BiFaRuleEngine
 {
-    public function __construct(private BiFaRuleRegistry $registry = new BiFaRuleRegistry) {}
+    public function __construct(private BiFaRuleRegistry $registry) {}
 
     /** @return list<BiFaRuleMatch> */
     public function evaluate(PanResult $pan): array

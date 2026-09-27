@@ -106,7 +106,7 @@ test('BiFaCatalog findByCode finds every registered law', function () {
 });
 
 test('BiFaRuleEngine does not touch the pan rule registry', function () {
-    $registry = new BiFaRuleRegistry;
+    $registry = app(BiFaRuleRegistry::class);
     foreach ($registry->rules() as $rule) {
         expect($rule)->toBeInstanceOf(BiFaRule::class)
             ->and($rule->code())->toStartWith('bifa.');
@@ -380,25 +380,6 @@ test('ninth bifa detail exposes nine Chinese foundations cases and no internal f
         'fate_ding_on_growth', 'escape_to_wealth', 'escape_failed', 'abandon_benefit_for_loss',
         'neither_stay_nor_leave', 'grave_as_sun', 'BiNanTaoShengRule', 'matched_routes', 'pending_routes',
         'case_id', 'match()', 'PanCalculator', 'DAY_ORIGIN', 'DAY_GRAVE', 'DAY_LU'] as $internal) {
-        $response->assertDontSee($internal, false);
-    }
-});
-
-test('tenth bifa detail separates rotten wood and unfavorable axe without internal fields', function () {
-    $response = $this->get(route('bifa.show', ['law' => 'xiu-mu-nan-diao']))->assertOk();
-    $card = $response->viewData('knowledgeCard');
-
-    expect($response->viewData('researched'))->toBeTrue()
-        ->and($response->viewData('implemented'))->toBeTrue()
-        ->and($response->viewData('law')['number'])->toBe(10)
-        ->and(array_column($card['conditions'], 'title'))->toBe(['朽木难雕', '斧斤不利']);
-
-    foreach (['朽木难雕别作为', '朽木难雕', '斧斤不利', '古籍原文', '古籍案例', '程序验证案例', '非朽木难雕之例'] as $visible) {
-        $response->assertSee($visible);
-    }
-
-    foreach (['bifa.10', 'rotten_wood', 'axe_unfavorable', 'XiuMuNanDiaoRule', 'matched_routes',
-        'pending_routes', 'case_id', 'match()', 'PanCalculator', 'mao_ground', 'mao_void'] as $internal) {
         $response->assertDontSee($internal, false);
     }
 });
