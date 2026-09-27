@@ -2,6 +2,7 @@
 
 use App\Extensions\BiFaExtensionRegistry;
 use App\Extensions\PluginLoader;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
@@ -96,12 +97,20 @@ test('configured plugin provider is loaded from its manifest', function () {
         [providerClass($provider, 'liuren.valid-plugin.loaded')],
     );
     $loader = new PluginLoader(app());
+    $hostBasePath = base_path();
 
-    expect(class_exists($provider, false))->toBeFalse();
+    expect(getenv('APP_BASE_PATH'))->toBe($hostBasePath)
+        ->and($_ENV['APP_BASE_PATH'])->toBe($hostBasePath)
+        ->and($_SERVER['APP_BASE_PATH'])->toBe($hostBasePath)
+        ->and(class_exists($provider, false))->toBeFalse();
 
     $loader->load([$path]);
 
     expect(class_exists($provider, false))->toBeTrue()
+        ->and(Application::inferBasePath())->toBe($hostBasePath)
+        ->and(getenv('APP_BASE_PATH'))->toBe($hostBasePath)
+        ->and($_ENV['APP_BASE_PATH'])->toBe($hostBasePath)
+        ->and($_SERVER['APP_BASE_PATH'])->toBe($hostBasePath)
         ->and($loader->loadedPluginIds())->toBe(['valid-plugin'])
         ->and(app('liuren.valid-plugin.loaded'))->toBeTrue();
 });
