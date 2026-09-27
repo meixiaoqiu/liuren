@@ -69,6 +69,16 @@ final class PluginLoader
             throw new RuntimeException("插件缺少入口清单：{$manifestPath}");
         }
 
+        // 必须在 require_once autoloadPath 之前设置：插件 autoload 注册会改变
+        // Composer\Autoload\ClassLoader::$registeredLoaders 顺序，导致 Laravel
+        // Application::inferBasePath() 在测试上下文（Tests\TestCase::createApplication）
+        // 错误地把插件目录识别为宿主 basePath。用宿主自身 basePath() 注入 APP_BASE_PATH
+        // 是 Laravel 官方支持的兜底路径（参见 Application::inferBasePath 源码）。
+        $hostBase = $this->app->basePath();
+        $_ENV['APP_BASE_PATH'] = $hostBase;
+        $_SERVER['APP_BASE_PATH'] = $hostBase;
+        putenv("APP_BASE_PATH={$hostBase}");
+
         require_once $autoloadPath;
 
         $plugin = require $manifestPath;

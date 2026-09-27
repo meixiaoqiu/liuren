@@ -1141,8 +1141,7 @@ final class BiFaCaseCatalog
         ['case_id' => 'bifa.09.daquan-geng-wu-neither', 'law_code' => 'bifa.09', 'label' => '庚午日·舍就皆不可', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['neither_stay_nor_leave'], 'reason' => '依《壬学琐记》校勘后的正确代表例。无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》；程树勋《壬学琐记》'],
         ['case_id' => 'bifa.09.daquan-grave-sun', 'law_code' => 'bifa.09', 'label' => '墓作太阳·正文通则', 'source_type' => 'daquan', 'status' => 'reference_only', 'datetime' => null, 'birth' => null, 'gender' => null, 'people' => [], 'routes' => ['grave_as_sun'], 'reason' => '正文只给通则，无完整公历 datetime，不得回填现代时间。', 'source' => '《六壬大全·毕法赋》第九法·卷九《毕法赋上》'],
 
-        // 第十法「朽木难雕别作为」全部案例（2 executable + 4 reference_only）
-        // 已迁出至 liuren-expert 插件，运行时由 BiFaExtensionRegistry 注入回 BiFaCaseCatalog::cases()。
-        // 公开底座不得继续登记任何 bifa.10 案例元数据。
+        // 第十法「朽木难雕别作为」的全部专家案例由外部 BiFaExtensionRegistry contribution 提供；
+        // 公开底座不维护该法的任何案例元数据；插件未注入时 casesForLaw('bifa.10') === []。
     ];
 }

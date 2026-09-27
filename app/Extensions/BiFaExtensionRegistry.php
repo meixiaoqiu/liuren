@@ -8,11 +8,14 @@ use LogicException;
 /**
  * 文件作用：在公开宿主内登记外部插件对毕法体系的最小贡献。
  *
- * 本注册表只负责"存储"，不扫描任何路径、不读取任何 namespace、不感知任何私有仓库。
+ * 本注册表只负责"存储"，不扫描任何路径、不读取任何 namespace、不感知任何具体插件。
  * 任何插件均可在 ServiceProvider::register() 中：
  *
  *     $registry = $this->app->make(BiFaExtensionRegistry::class);
  *     $registry->contribute(new BiFaContribution(...));
+ *
+ * 契约：contribute() 必须在 register() 阶段完成；PluginLoader::loadConfigured() 返回时
+ * contribution 已可见，不依赖 boot() 阶段延后注入。
  *
  * 上层消费者按职责读取：
  *
@@ -23,7 +26,6 @@ use LogicException;
  *   - BiFaResearchDocument  -> 不感知 extension；由 BiFaPageCatalog 把绝对路径喂进来
  *
  * 本类没有 static mutable state；实例由 Laravel 容器管理。
- * 服务提供者必须在 PluginLoader 加载插件之后才读取本注册表，避免读到未注入的旧快照。
  */
 final class BiFaExtensionRegistry
 {

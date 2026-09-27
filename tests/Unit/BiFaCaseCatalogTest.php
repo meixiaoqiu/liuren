@@ -265,8 +265,7 @@ test('BiFaCaseCatalog bing-yin counterexample is one of the legal empty-routes c
         ->and($bingyin['routes'])->toBe([]);
 });
 
-// 第十法「朽木难雕别作为」的所有案例元数据契约（含 executable + reference_only
-// 案例的数量、datetime、routes、source 字符串）已迁入 liuren-expert 私有仓库
-// 作为 XiuMuNanDiaoContribution 的一部分；公开底座不得继续断言第十法案例结构。
+// 第十法「朽木难雕别作为」的所有专家案例由外部 BiFaExtensionRegistry contribution 提供；
+// 公开底座不维护第十法任何案例元数据（case_id、datetime、routes、source）。
 // 在插件 OFF 模式下 BiFaCaseCatalog::casesForLaw('bifa.10') === []；
-// 插件 ON 模式由私有侧私有测试覆盖。
+// 插件 ON 模式下的契约由外部插件自带测试覆盖。

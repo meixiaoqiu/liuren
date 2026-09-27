@@ -66,10 +66,10 @@ test('BiFaResearchDocument returns missing for unresearched law', function () {
         ->and($result['content'])->toBeNull();
 });
 
-// 第十法「朽木难雕别作为」的研究文档抽取契约已迁入 liuren-expert 私有仓库
-// （XiuMuNanDiaoContribution 提供绝对路径的研究文档）。公开底座不再为 bifa.10
-// 维护 BiFaResearchDocument 抽取断言；插件 OFF 时 BiFaPageCatalog::findByCode('bifa.10')['researched']
-// 为 false，original() 返回 missing；插件 ON 时由私有侧测试覆盖古籍原文完整抽取。
+// 第十法「朽木难雕别作为」的研究文档由外部 BiFaExtensionRegistry contribution 提供；
+// 公开底座不维护第十法 BiFaResearchDocument 抽取断言。
+// 插件 OFF 时 BiFaPageCatalog::findByCode('bifa.10')['researched'] === false，
+// original() 返回 missing；插件 ON 时由外部插件自带测试覆盖古籍原文完整抽取。
 
 test('ninth law original extraction keeps the complete Daquan text and excludes later analysis', function () {
     $page = BiFaPageCatalog::findByCode('bifa.09');

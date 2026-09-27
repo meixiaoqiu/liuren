@@ -1,5 +1,6 @@
 <?php
 
+use App\Extensions\BiFaExtensionRegistry;
 use App\Extensions\PluginLoader;
 use Illuminate\Support\Facades\File;
 
@@ -117,8 +118,8 @@ test('missing configured plugin path fails with a diagnostic error', function ()
 test('relative plugin paths are rejected', function () {
     $loader = new PluginLoader(app());
 
-    expect(fn () => $loader->load(['../liuren-expert']))
-        ->toThrow(RuntimeException::class, '插件路径必须是绝对路径：../liuren-expert');
+    expect(fn () => $loader->load(['../example-plugin']))
+        ->toThrow(RuntimeException::class, '插件路径必须是绝对路径：../example-plugin');
 });
 
 test('plugin without composer autoload fails clearly', function () {
@@ -228,4 +229,48 @@ test('all providers are validated before any provider is registered', function (
         ->toThrow(RuntimeException::class, '不是 Laravel 服务提供者')
         ->and(app()->bound('liuren.atomic-provider.registered'))->toBeFalse()
         ->and($loader->loadedPluginIds())->toBe([]);
+});
+
+test('register 阶段贡献：插件 provider 在 register() 中写入 extension registry，loadConfigured 返回时立即可见', function () {
+    $providerClass = 'PluginLoaderRegisterPhaseContributor';
+    $bindingKey = 'liuren.register-phase-contributor.loaded';
+    $extensionCode = 'bifa.test-register-phase';
+
+    $providerClassDefinition = <<<PHP
+class {$providerClass} extends \\Illuminate\\Support\\ServiceProvider
+{
+    public function register(): void
+    {
+        \$this->app->singleton('{$bindingKey}', static fn (): bool => true);
+        \$registry = \$this->app->make(\\App\\Extensions\\BiFaExtensionRegistry::class);
+        \$registry->registerSummary('{$extensionCode}', 'register 阶段立即可见的简介');
+        \$registry->registerRule(new class implements \\App\\Domain\\Pan\\BiFa\\BiFaRule {
+            public function code(): string { return '{$extensionCode}'; }
+            public function law(): array { return ['number'=>99,'name'=>'fake','code'=>'{$extensionCode}','slug'=>'fake-rule','summary'=>'']; }
+            public function definition(): array { return ['description'=>'','foundations'=>[],'judgments'=>[],'sections'=>[]]; }
+            public function match(\\App\\Domain\\Pan\\Facts\\PanFacts \$f): ?\\App\\Domain\\Pan\\BiFa\\BiFaRuleMatch { return null; }
+        });
+    }
+}
+PHP;
+
+    $path = createPluginFixture(
+        $this->pluginFixtureRoot,
+        'register-phase',
+        'register-phase-plugin',
+        [$providerClass],
+        [$providerClassDefinition],
+    );
+
+    $loader = new PluginLoader(app());
+    $loader->load([$path]);
+
+    expect($loader->loadedPluginIds())->toContain('register-phase-plugin')
+        ->and(app($bindingKey))->toBeTrue()
+        ->and(app(BiFaExtensionRegistry::class)->summaryFor($extensionCode))
+        ->toBe('register 阶段立即可见的简介')
+        ->and(collect(app(BiFaExtensionRegistry::class)->rules())
+            ->map(static fn ($rule): string => $rule->code())
+            ->all())
+        ->toContain($extensionCode);
 });

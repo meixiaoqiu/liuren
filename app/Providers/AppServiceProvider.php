@@ -15,7 +15,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // 单例必须在 PluginLoader 加载插件之前实例化——
         // ServiceProvider::register() 的执行顺序保证后续插件的 ServiceProvider
-        // 能够拿到同一个 BiFaExtensionRegistry 实例并向其中注入第十法等扩展。
+        // 在自己的 register() 阶段即可拿到同一个 BiFaExtensionRegistry 实例并 contribute()；
+        // loadConfigured() 返回时所有插件的 register() 已全部跑完，无需 boot() 延后注入。
         $this->app->singleton(BiFaExtensionRegistry::class);
 
         $loader = new PluginLoader($this->app);
