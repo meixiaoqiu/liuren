@@ -144,7 +144,7 @@
                                     <li>
                                         @include('bifa.partials.case-row', [
                                             'case' => $case,
-                                            'kindLabel' => '《六壬大全》正文案例',
+                                            'kindLabel' => '古籍案例',
                                             'kindTone' => 'primary',
                                         ])
                                     </li>

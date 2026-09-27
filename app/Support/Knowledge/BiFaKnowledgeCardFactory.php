@@ -4,11 +4,10 @@ namespace App\Support\Knowledge;
 
 use App\Domain\Pan\BiFa\BiFaRuleMatch;
 use App\Support\BiFaCatalog;
-use App\Support\BiFaResearchDocument;
 use LogicException;
 
 /**
- * 将毕法领域结果、目录、研究资料适配为统一知识卡片。
+ * 将毕法领域结果、目录适配为统一知识卡片。
  *
  * 本工厂的所有用户可见字符串（typeLabel、status.label、conditions.title、marker、
  * status label 等）由本类负责生成；Blade 不做业务判断、不区分体系、
@@ -16,6 +15,10 @@ use LogicException;
  *
  * 案例展示由 bifa/show.blade.php 配合 BiFaCaseCatalog 直接渲染（详见
  * resources/views/bifa/partials/case-row.blade.php），不在本工厂内构造 examples。
+ *
+ * 古籍原文的获取由 routes/web.php 通过 BiFaResearchDocument 独立完成；
+ * 详情页的"打开完整研究记录"按钮已统一在 show.blade.php 顶部渲染，
+ * 因此本工厂不再生成 research action（避免重复）。
  */
 final readonly class BiFaKnowledgeCardFactory
 {
@@ -27,11 +30,7 @@ final readonly class BiFaKnowledgeCardFactory
 
     private const TONE_WARNING = KnowledgeCard::TONE_WARNING;
 
-    private const TONE_INFO = KnowledgeCard::TONE_INFO;
-
     private const TONE_NEUTRAL = KnowledgeCard::TONE_NEUTRAL;
-
-    public function __construct(private BiFaResearchDocument $research) {}
 
     public function fromMatch(BiFaRuleMatch $match): KnowledgeCard
     {
@@ -105,16 +104,6 @@ final readonly class BiFaKnowledgeCardFactory
         foreach ($definition['judgments'] ?? [] as $judgment) {
             $sections[] = $this->judgmentSection($judgment);
         }
-        $original = $this->research->original($law);
-        $actions = [];
-        if (($law['researchUrl'] ?? '') !== '' && $original['status'] !== 'missing') {
-            $actions[] = [
-                'label' => '打开完整研究记录',
-                'url' => (string) $law['researchUrl'],
-                'icon' => 'o-book-open',
-                'external' => true,
-            ];
-        }
 
         return new KnowledgeCard(
             type: self::TYPE,
@@ -136,7 +125,7 @@ final readonly class BiFaKnowledgeCardFactory
             evidence: [],
             sections: $sections,
             examples: [],
-            actions: $actions,
+            actions: [],
         );
     }
 

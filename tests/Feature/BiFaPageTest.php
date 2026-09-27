@@ -155,8 +155,9 @@ test('bifa detail page renders the first law with foundations, cases, original t
         $response->assertDontSee($internalName, false);
     }
 
-    // 正文案例区域应展示已有案例。
-    $response->assertSee('《六壬大全》正文案例');
+    // 正文案例区域应展示已有案例：分类使用中性"古籍案例"标签，真实来源在下方展示。
+    $response->assertSee('古籍案例');
+    $response->assertDontSee('《六壬大全》正文案例');
     $response->assertSee('庚辰日');
     $response->assertSee('壬子日');
     $response->assertSee('丁酉日');
@@ -180,8 +181,9 @@ test('bifa detail page renders the first law with foundations, cases, original t
     $response->assertDontSee('现代汉语解释');
     $response->assertDontSee('分格 1：', false);
 
-    // 研究记录入口。
+    // 研究记录入口（详情页顶部按钮与 KnowledgeCard 内 actions 已统一去重，全页仅出现 1 次）。
     $response->assertSee('打开完整研究记录');
+    expect(substr_count($response->getContent(), '打开完整研究记录'))->toBe(1);
 
     // 上下法导航。
     $response->assertSee('下一法');
@@ -326,7 +328,7 @@ test('seventh bifa detail exposes one Chinese foundation judgments and cases wit
         ->and($card['conditions'][0]['title'])->toBe('旺禄临身');
 
     foreach (['旺禄临身徒妄作', '旺禄临身', '旺禄旬空', '闭口禄', '禄被玄武夺', '旺禄乘白虎',
-        '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        '古籍原文', '古籍案例', '程序验证案例'] as $visible) {
         $response->assertSee($visible);
     }
     $response->assertSee('减损 · 旺禄乘白虎')
@@ -347,7 +349,7 @@ test('eighth bifa detail exposes one Chinese foundation three reduction judgment
         ->and($card['conditions'][0]['title'])->toBe('日禄临支');
 
     foreach (['权摄不正禄临支', '日禄临支', '禄受墓', '禄受支克', '禄受支脱',
-        '因起盖房宅而失禄', '以禄偿债', '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        '因起盖房宅而失禄', '以禄偿债', '古籍原文', '古籍案例', '程序验证案例'] as $visible) {
         $response->assertSee($visible);
     }
     $response->assertDontSee('用于宅舍营建之占时');
@@ -370,7 +372,7 @@ test('ninth bifa detail exposes nine Chinese foundations cases and no internal f
 
     foreach (['避难逃生须弃旧', '就干上之生', '就支上之生', '日干坐地盘之生',
         '本命乘丁坐长生', '日干下临财乡', '避难逃生而终不能逃生', '舍益就损', '舍就皆不可',
-        '墓作太阳', '古籍原文', '正文案例', '程序验证案例'] as $visible) {
+        '墓作太阳', '古籍原文', '古籍案例', '程序验证案例'] as $visible) {
         $response->assertSee($visible);
     }
 
@@ -391,7 +393,7 @@ test('tenth bifa detail separates rotten wood and unfavorable axe without intern
         ->and($response->viewData('law')['number'])->toBe(10)
         ->and(array_column($card['conditions'], 'title'))->toBe(['朽木难雕', '斧斤不利']);
 
-    foreach (['朽木难雕别作为', '朽木难雕', '斧斤不利', '古籍原文', '正文案例', '程序验证案例', '非朽木难雕之例'] as $visible) {
+    foreach (['朽木难雕别作为', '朽木难雕', '斧斤不利', '古籍原文', '古籍案例', '程序验证案例', '非朽木难雕之例'] as $visible) {
         $response->assertSee($visible);
     }
 
@@ -428,8 +430,9 @@ test('ninth bifa detail exposes precise per-case source from BiFaCaseCatalog ins
     // 第九法部分案例的真实来源含《壬学琐记》校勘——用户必须看到具体来源，不能被简化为"《六壬大全》正文案例"。
     $response->assertSee('程树勋《壬学琐记》');
 
-    // 案例标签仍可作为简洁分类标识存在（用于列表行左侧）。
-    $response->assertSee('《六壬大全》正文案例');
+    // 案例分类使用中性"古籍案例"标签；不再出现具有误导性的统一来源标签。
+    $response->assertSee('古籍案例');
+    $response->assertDontSee('《六壬大全》正文案例');
     $response->assertSee('程序验证案例');
 
     // 详情页不得泄漏 case 内部字段名 / 工程术语。
