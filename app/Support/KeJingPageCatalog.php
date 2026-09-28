@@ -5,12 +5,9 @@ namespace App\Support;
 use App\Extensions\KeJingExtensionRegistry;
 
 /**
- * 文件作用：把 KeJingCatalog 的规则/课例数据整理成课经页面所需的编号、URL、文档来源与分组信息。
+ * 文件作用：把公开课经身份和扩展贡献整理成页面所需的编号、文档来源与分组信息。
  *
- * 课序优先读取 docs/课经/NN-课名.md 的 NN，并按该编号排序；因此页面顺序跟随《六壬大全》研究文档的正式课序，
- * 不依赖 Blade 中的循环位置。KeJingCatalog 仍是课名、卦名、课例与旁证的唯一目录数据源。
- *
- * 是否属于《六壬大全》正文课例的判断一律读取 KeJingCatalog 已写入的结构化 source_type 字段，
+ * 是否属于《六壬大全》正文课例的判断一律读取扩展贡献写入的结构化 source_type 字段，
  * 不再通过 label / reason / source 等文案临时推断。
  */
 final class KeJingPageCatalog
@@ -21,19 +18,14 @@ final class KeJingPageCatalog
     /** @return list<array<string, mixed>> */
     public static function lessons(): array
     {
-        $documents = self::researchDocuments();
         $pages = [];
 
-        foreach (array_values(KeJingCatalog::lessons()) as $index => $lesson) {
-            $publicDocument = $documents[$lesson['name']] ?? null;
-            $number = $publicDocument['number'] ?? (11 + $index);
+        foreach (KeJingCatalog::lessons() as $lesson) {
+            $number = $lesson['number'];
             $extensionDocument = self::extensionRegistry()?->researchDocument($number);
-            $document = $extensionDocument ?? $publicDocument;
-            $filename = $document['filename'] ?? sprintf('%02d-%s.md', $number, $lesson['name']);
-            $researchPath = $document['path'] ?? 'docs/课经/'.$filename;
-            $researchUrl = $extensionDocument !== null
-                ? ($extensionDocument['research_url'] ?? '')
-                : 'https://github.com/meixiaoqiu/liuren/blob/master/docs/%E8%AF%BE%E7%BB%8F/'.rawurlencode($filename);
+            $filename = $extensionDocument['filename'] ?? sprintf('%02d-%s.md', $number, $lesson['name']);
+            $researchPath = $extensionDocument['path'] ?? '';
+            $researchUrl = $extensionDocument['research_url'] ?? '';
             $cases = $lesson['cases'] ?? [];
             $sourceExamples = $lesson['source_examples'] ?? [];
 
@@ -108,27 +100,6 @@ final class KeJingPageCatalog
     private static function isDaquanSource(array $example): bool
     {
         return ($example['source_type'] ?? 'other') === 'daquan';
-    }
-
-    /** @return array<string, array{number: int, filename: string, path: string}> */
-    private static function researchDocuments(): array
-    {
-        $documents = [];
-
-        foreach (glob(base_path('docs/课经/*.md')) ?: [] as $path) {
-            $filename = basename($path);
-            if (preg_match('/^(\d+)-(.+)\.md$/u', $filename, $matches) !== 1) {
-                continue;
-            }
-
-            $documents[$matches[2]] = [
-                'number' => (int) $matches[1],
-                'filename' => $filename,
-                'path' => 'docs/课经/'.$filename,
-            ];
-        }
-
-        return $documents;
     }
 
     private static function extensionRegistry(): ?KeJingExtensionRegistry

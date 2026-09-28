@@ -27,22 +27,7 @@
                                 <div class="flex min-h-52 flex-col items-center justify-center text-center sm:min-h-56">
                                     <p class="mb-2 text-xs tracking-[0.18em] text-base-content/40">第 {{ $lesson['number'] }} 课</p>
 
-                                    @include('kejing.partials.gua-mark', [
-                                        'gua' => $lesson['gua'],
-                                        'guaSymbol' => $lesson['guaSymbol'],
-                                        'compact' => true,
-                                    ])
-
                                     <h2 class="mt-3 text-base font-semibold tracking-wide sm:text-lg">{{ $lesson['name'] }}</h2>
-
-                                    <p class="mt-1 h-5 text-sm text-base-content/45">
-                                        @if ($lesson['gua'] !== null)
-                                            {{ $lesson['gua'] }}卦
-                                        @else
-                                            <span class="invisible" aria-hidden="true">无卦</span>
-                                        @endif
-                                    </p>
-
                                 </div>
                             </x-card>
                         </a>

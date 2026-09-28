@@ -24,11 +24,9 @@ use App\Extensions\BiFaExtensionRegistry;
  * 中独立的 `EXPECTED_LAWS` 表逐项固定断言；任何改名必须先更新 EXPECTED_LAWS，
  * 不得悄悄维护。
  *
- * 后续每法由各自独立研究文档 (`docs/毕法/NN-法名.md`) 补齐。未研究法的 summary
- * 保持空字符串，前台展示为"尚未研究"。已研究法（包括由 BiFaExtensionRegistry 注入的
+ * 后续每法由扩展研究资产补齐。未研究法的 summary 保持空字符串，前台展示为"尚未研究"。
+ * 已研究法（包括由 BiFaExtensionRegistry 注入的
  * 扩展法）的 summary 通过 BiFaExtensionRegistry::summaryFor(code) 覆盖空串。
- *
- * @see docs/毕法/01-前后引从升迁吉.md  第一法研究文档
  */
 final class BiFaCatalog
 {
@@ -103,15 +101,15 @@ final class BiFaCatalog
     private static function buildLaws(): array
     {
         return [
-            self::law(1, '前后引从升迁吉', 'qian-hou-yin-cong', '初末传分临日干（或日支）前后宫，前引后从，主迁官进职、修宅迁居。'),
-            self::law(2, '首尾相见始终宜', 'shou-wei-xiang-jian', '旬首旬尾加临干支，或四建尽入四课，或三传尽入四课，主事绪前后相续、吉凶易成。'),
-            self::law(3, '帘幕贵人高甲第', 'lian-mu-gui-ren', '昼夜反取帘幕贵人，兼察旬首、斗鬼、亚魁、德入天门、真朱雀与二贵拱年命，主科名之象。'),
-            self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', '官星乘白虎临干年命为催官使者，或得催官符、父母爻、长生贵人，主赴任催促与恩主举荐之象。'),
-            self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', '四课四上神与中末传六位全阳，或五阳一阴而本命、行年得阳填实，主公用明白、利公不利私。'),
-            self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', '四课四上神与中末传六位全阴，或五阴得阴支年命填实，或四课与三传逐层相生，主昏迷与脱耗之象。'),
-            self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', '阴干日禄临干，原则上宜守现有之禄；禄空、闭口或被玄武夺则不可拘守，乘白虎则减力而须兼察制化。'),
-            self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', '日干之禄正临日支之上，自身禄利寄于支方；若支辰又墓、克或泄耗禄神，则禄气进一步受损。'),
-            self::law(9, '避难逃生须弃旧', 'bi-nan-tao-sheng', '课传无可取之处时，舍弃旧路而转就干上、支上、地盘之生，或本命丁神长生、日干下临财乡；并辨逃生失败、舍益就损、舍就皆不可及墓作太阳等变格。'),
+            self::law(1, '前后引从升迁吉', 'qian-hou-yin-cong', ''),
+            self::law(2, '首尾相见始终宜', 'shou-wei-xiang-jian', ''),
+            self::law(3, '帘幕贵人高甲第', 'lian-mu-gui-ren', ''),
+            self::law(4, '催官使者赴官期', 'cui-guan-shi-zhe', ''),
+            self::law(5, '六阳数足须公用', 'liu-yang-shu-zu', ''),
+            self::law(6, '六阴相继尽昏迷', 'liu-yin-xiang-ji', ''),
+            self::law(7, '旺禄临身徒妄作', 'wang-lu-lin-shen', ''),
+            self::law(8, '权摄不正禄临支', 'quan-she-bu-zheng', ''),
+            self::law(9, '避难逃生须弃旧', 'bi-nan-tao-sheng', ''),
             self::law(10, '朽木难雕别作为', 'xiu-mu-nan-diao', ''),
             self::law(11, '虎临干鬼凶无比', 'hu-lin-gang-gui', ''),
             self::law(12, '蛇鬼乘墓终不吉', 'she-gui-cheng-mu', ''),

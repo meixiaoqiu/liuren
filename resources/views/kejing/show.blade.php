@@ -10,271 +10,50 @@
         <div class="pan-classical-shell">
             @include('partials.pan-header')
 
-            @php
-                $interpretation = $detail['interpretation'];
-                $pan = $detail['pan'];
-                $xundunLabels = $detail['xundunLabels'];
-                $grids = $detail['grids'] ?? [];
-                $gridDefinitions = $detail['gridDefinitions'] ?? [];
-                $staticDefinition = $detail['staticDefinition'];
-                $hasStructuredDefinition = ($staticDefinition['foundations'] ?? []) !== []
-                    || ($staticDefinition['judgments'] ?? []) !== [];
-                $traceSpec = \App\Support\KeJingTraceView::for($interpretation);
-                $canonicalEvidenceFallback = false;
-                if ($traceSpec === null && ! $hasStructuredDefinition) {
-                    $name = (string) ($interpretation['name'] ?? '课经');
-                    $baseName = preg_replace('/课$/u', '', $name) ?: $name;
-                    $traceSpec = [
-                        'view' => 'livewire.pan.partials.lesson-trace',
-                        'title' => $baseName.'判断',
-                    ];
-                    $canonicalEvidenceFallback = true;
-                }
-                $dizhi = \App\Services\PanCalculator::$dizhi;
-                $tiangan = \App\Services\PanCalculator::$tiangan;
-                $wuxing = \App\Services\PanCalculator::$wuxing;
-                $wuxingTian = \App\Services\PanCalculator::$wuxingTian;
-                $wuxingDi = \App\Services\PanCalculator::$wuxingDi;
-                $jigong = \App\Services\PanCalculator::$jigong;
-                $tianjiangNames = \App\Services\PanCalculator::$tianjiang;
-                $liuqinNames = \App\Services\PanCalculator::$liuqin;
-            @endphp
-
             <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <x-button
-                        label="返回课经"
-                        icon="o-arrow-left"
-                        :link="route('kejing')"
-                        class="btn-ghost btn-sm"
-                    />
-                    <x-button
-                        label="完整研究记录"
-                        icon="o-book-open"
-                        :link="$lesson['researchUrl']"
-                        external
-                        class="btn-ghost btn-sm"
-                    />
+                    <x-button label="返回课经" icon="o-arrow-left" :link="route('kejing')" class="btn-ghost btn-sm" />
+                    @if (! empty($lesson['researchUrl']))
+                        <x-button label="打开完整研究记录" icon="o-book-open" :link="$lesson['researchUrl']" external class="btn-ghost btn-sm" />
+                    @endif
                 </div>
 
                 <header class="mb-6">
-                    <h1 class="text-3xl font-semibold tracking-wide text-base-content sm:text-4xl" data-kejing-page-number>
-                        第 {{ $lesson['number'] }} 课
-                    </h1>
+                    <p class="text-xs tracking-[0.18em] text-base-content/40">第 {{ $lesson['number'] }} 课 · 课经体系</p>
+                    <h1 class="mt-2 text-3xl font-semibold tracking-wide text-base-content sm:text-4xl">{{ $lesson['name'] }}</h1>
                 </header>
 
-                <x-card shadow class="pan-data-card">
-                    @include('kejing.partials.interpretation-summary', [
-                        'interpretation' => $interpretation,
-                        'lessonPage' => $lesson,
-                        'staticDefinition' => $detail['staticDefinition'],
-                        'mode' => 'detail',
-                    ])
-
-                    @if ($traceSpec !== null && $pan !== null && $detail['canonicalCase'] !== null)
-                        <div class="mt-5">
-                            <x-collapse collapse-plus-minus>
-                                <x-slot:heading>
-                                    <div>
-                                        @if ($canonicalEvidenceFallback)
-                                            <strong>标准课例命中证据（非完整定义）</strong>
-                                            <p class="mt-1 text-xs text-base-content/45">
-                                                {{ $detail['canonicalCase']['label'] }} · 这里只展示该课例当前 RuleMatch 的实际命中证据；完整静态课义尚未结构化录入。
-                                            </p>
-                                        @else
-                                            <strong>{{ $traceSpec['title'] }} · 标准课例判定细节</strong>
-                                            <p class="mt-1 text-xs text-base-content/45">{{ $detail['canonicalCase']['label'] }} · 与排盘“解盘信息”复用同一判定模板</p>
-                                        @endif
-                                    </div>
-                                </x-slot:heading>
-                                <x-slot:content>
-                                    @include($traceSpec['view'], [
-                                        'trace' => $interpretation['evidence'],
-                                        'title' => $traceSpec['title'],
-                                        'suppressCoreTrace' => $hasStructuredDefinition,
-                                    ])
-                                </x-slot:content>
-                            </x-collapse>
-                        </div>
-                    @endif
-                </x-card>
-
-                @if ($gridDefinitions !== [])
-                    <section class="mt-6">
-                        <x-card title="格" shadow class="pan-data-card">
-                            <p class="text-sm leading-6 text-base-content/50">
-                                以下为本课正式规则定义的全部格；标准课例实际命中项在下方单独标注。
-                            </p>
-
-                            @foreach ($gridDefinitions as $gridDefinition)
-                                @include('livewire.pan.partials.grid-trace', [
-                                    'title' => $gridDefinition['name'],
-                                    'trace' => ['detail' => $gridDefinition['description']],
-                                ])
-                            @endforeach
-
-                            @if ($grids !== [])
-                                <x-alert icon="o-check-circle" class="mt-4 alert-success alert-soft">
-                                    <strong>标准课例当前命中：{{ implode('、', array_column($grids, 'name')) }}</strong>
-                                    @foreach ($grids as $grid)
-                                        <span class="mt-1 block text-sm">{{ $grid['evidence']['detail'] }}</span>
-                                    @endforeach
-                                </x-alert>
-                            @endif
-                        </x-card>
-                    </section>
-                @endif
-
-                @if ($detail['uncovered'] !== [])
-                    <section class="mt-6">
-                        <x-card title="尚未程序化或尚待冻结的课义" shadow class="pan-data-card">
-                            <p class="text-sm leading-6 text-base-content/50">这些内容来自正式 RuleMatch 的未覆盖说明，不作为当前成课 Boolean，也不会被页面擅自补成规则。</p>
-                            <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-base-content/65">
-                                @foreach ($detail['uncovered'] as $item)
-                                    <li>{{ $item }}</li>
-                                @endforeach
-                            </ul>
-                        </x-card>
-                    </section>
-                @endif
-
-                <section class="mt-6">
-                    <x-card title="古籍相关课例与旁证" shadow class="pan-data-card">
-                        <p class="text-sm leading-6 text-base-content/50">
-                            此处仅保留与成课判定直接相关的古籍材料摘要；完整原文、冲突、取舍与统计见上方研究记录。
-                        </p>
-
-                        <div class="mt-6">
-                    <x-header
-                        title="《六壬大全》正文课例"
-                        subtitle="正文课例全部保留；能由正式程序复现者可直接点击排盘，原文材料则逐条列出。"
-                        size="text-lg"
-                    />
-
-                    @if ($lesson['daquanCases'] !== [])
-                        <div class="mt-3 grid gap-3 lg:grid-cols-2">
-                            @foreach ($lesson['daquanCases'] as $case)
-                                @include('kejing.partials.case-card', ['case' => $case, 'kind' => '正文现代复现'])
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if ($lesson['daquanExamples'] !== [])
-                        <div class="mt-4 grid gap-3 lg:grid-cols-2">
-                            @foreach ($lesson['daquanExamples'] as $example)
-                                <div class="pan-block bg-base-100/70 px-4 py-4">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <x-badge value="《大全》正文" class="badge-primary badge-soft badge-sm" />
-                                        <strong class="text-sm">{{ $example['label'] }}</strong>
-                                    </div>
-                                    @if (! empty($example['path'] ?? null))
-                                        <p class="mt-2 text-xs text-base-content/45">{{ $example['path'] }}</p>
-                                    @endif
-                                    <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $example['detail'] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if ($lesson['daquanCases'] === [] && $lesson['daquanExamples'] === [])
-                        <x-alert icon="o-exclamation-triangle" class="mt-3 alert-warning alert-soft">
-                            当前目录数据尚未结构化标注《六壬大全》正文课例；请以研究记录为准，页面不自行推定。
-                        </x-alert>
-                    @endif
-                        </div>
-
-                        <div class="mt-6 border-t border-base-300/70 pt-6">
-                    <x-header
-                        title="非正文课例与旁证"
-                        subtitle="程序补充课例、后世古籍旁证与研究用案例单独列出，避免与《大全》正文混淆。"
-                        size="text-lg"
-                    />
-
-                    @if ($lesson['otherCases'] !== [])
-                        <div class="mt-3 grid gap-3 lg:grid-cols-2">
-                            @foreach ($lesson['otherCases'] as $case)
-                                @include('kejing.partials.case-card', ['case' => $case, 'kind' => '非正文课例'])
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if ($lesson['otherExamples'] !== [])
-                        <div class="mt-4 grid gap-3 lg:grid-cols-2">
-                            @foreach ($lesson['otherExamples'] as $example)
-                                <div class="pan-block bg-base-100/70 px-4 py-4">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        @if (! empty($example['source'] ?? null))
-                                            <x-badge :value="$example['source']" class="badge-ghost badge-sm" />
-                                        @else
-                                            <x-badge value="研究旁证" class="badge-ghost badge-sm" />
-                                        @endif
-                                        <strong class="text-sm">{{ $example['label'] }}</strong>
-                                    </div>
-                                    @if (! empty($example['path'] ?? null))
-                                        <p class="mt-2 text-xs text-base-content/45">{{ $example['path'] }}</p>
-                                    @endif
-                                    <p class="mt-2 text-sm leading-6 text-base-content/60">{{ $example['detail'] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if ($lesson['otherCases'] === [] && $lesson['otherExamples'] === [])
-                        <p class="mt-3 text-sm text-base-content/45">当前没有另列非正文课例或旁证。</p>
-                    @endif
-                        </div>
+                @if (($lesson['summary'] ?? '') === '' && ($detail['staticDefinition']['foundations'] ?? []) === [] && $original['status'] === 'missing')
+                    <x-card shadow class="pan-data-card">
+                        <x-alert icon="o-information-circle" class="alert-info alert-soft">当前未加载专家研究内容。</x-alert>
                     </x-card>
-                </section>
+                @else
+                    <x-card shadow class="pan-data-card">
+                        @include('kejing.partials.interpretation-summary', [
+                            'interpretation' => $detail['interpretation'],
+                            'lessonPage' => $lesson,
+                            'staticDefinition' => $detail['staticDefinition'],
+                            'mode' => 'detail',
+                        ])
+                    </x-card>
+                @endif
 
-                <section class="mt-6">
-                    <x-card title="《六壬大全》完整原文" shadow class="pan-data-card">
-                        @if ($original['status'] === 'complete')
+                @if ($original['status'] !== 'missing')
+                    <section class="mt-6">
+                        <x-card title="《六壬大全》原文" shadow class="pan-data-card">
                             <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/75">{{ $original['content'] }}</div>
-                        @elseif ($original['status'] === 'excerpt')
-                            <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
-                                现有研究文档只有“{{ $original['heading'] }}”整理段，尚未按“《六壬大全》完整原文”结构化录入。为避免把摘录冒充完整原文，本页明确标记为未完成。
-                            </x-alert>
-                            <x-collapse collapse-plus-minus class="mt-4">
-                                <x-slot:heading><strong>查看现有正文整理 / 摘录</strong></x-slot:heading>
-                                <x-slot:content>
-                                    <div class="whitespace-pre-wrap font-serif text-[0.95rem] leading-8 text-base-content/70">{{ $original['content'] }}</div>
-                                </x-slot:content>
-                            </x-collapse>
-                        @else
-                            <x-alert icon="o-exclamation-triangle" class="alert-warning alert-soft">
-                                当前研究文档尚未结构化录入“《六壬大全》完整原文”。本页不会根据摘要或旁证反向拼接古文；补入研究文档后，这里会自动显示。
-                            </x-alert>
-                        @endif
-
-                        <div class="mt-4">
-                            <x-button
-                                label="打开完整研究记录"
-                                icon="o-book-open"
-                                :link="$lesson['researchUrl']"
-                                external
-                                class="btn-ghost btn-sm"
-                            />
-                        </div>
-                    </x-card>
-                </section>
+                        </x-card>
+                    </section>
+                @endif
 
                 <nav class="mt-8 flex flex-wrap items-center justify-between gap-3" aria-label="课经前后导航">
                     @if ($previousLesson !== null)
-                        <x-button
-                            :label="'← 上一课 · '.$previousLesson['name']"
-                            :link="route('kejing.show', ['lesson' => $previousLesson['slug']])"
-                            class="btn-ghost"
-                        />
+                        <x-button :label="'← 上一课 · '.$previousLesson['name']" :link="route('kejing.show', ['lesson' => $previousLesson['slug']])" class="btn-ghost" />
                     @else
                         <span></span>
                     @endif
-
                     @if ($nextLesson !== null)
-                        <x-button
-                            :label="$nextLesson['name'].' · 下一课 →'"
-                            :link="route('kejing.show', ['lesson' => $nextLesson['slug']])"
-                            class="btn-ghost ml-auto"
-                        />
+                        <x-button :label="$nextLesson['name'].' · 下一课 →'" :link="route('kejing.show', ['lesson' => $nextLesson['slug']])" class="btn-ghost ml-auto" />
                     @endif
                 </nav>
             </main>

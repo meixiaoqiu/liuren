@@ -50,7 +50,6 @@
   },
   "generator_file": "tools/generate_moon_palace_boundaries.mjs",
   "dataset_version": "moon-palace-1600-2499-v1",
-  "research_document": "docs/课经/43-二烦课-moonPalace天文基础研究.md",
   "boundary_count": 144377,
   "shards": [
     "1600.json",

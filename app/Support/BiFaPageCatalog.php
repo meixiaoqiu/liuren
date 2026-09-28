@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Extensions\AbsolutePath;
 use App\Extensions\BiFaExtensionRegistry;
 
 /**
@@ -42,14 +41,13 @@ final class BiFaPageCatalog
      */
     public static function laws(): array
     {
-        $documents = self::researchDocuments();
         $pages = [];
 
         foreach (BiFaCatalog::laws() as $law) {
             $filename = sprintf('%02d-%s.md', $law['number'], $law['name']);
-            $document = $documents[$law['number']] ?? null;
+            $document = self::extensionRegistry()?->researchDocument($law['number']);
             $resolvedFilename = $document['filename'] ?? $filename;
-            $resolvedPath = $document['path'] ?? ('docs/毕法/'.$filename);
+            $resolvedPath = $document['path'] ?? '';
             $resolvedUrl = $document['research_url'] ?? null;
 
             $cases = BiFaCaseCatalog::casesForLaw($law['code']);
@@ -134,73 +132,22 @@ final class BiFaPageCatalog
         return null;
     }
 
-    /**
-     * 合并公开仓库 docs/毕法/*.md 与 BiFaExtensionRegistry 注入的研究文档。
-     *
-     * 优先级：扩展注册表注入 > 公开 docs 目录；同一法号被两者覆盖时取扩展版本。
-     *
-     * @return array<string, array{number: int, filename: string, path: string, research_url: ?string}>
-     */
-    private static function researchDocuments(): array
-    {
-        $documents = [];
-
-        foreach (glob(base_path('docs/毕法/*.md')) ?: [] as $path) {
-            $filename = basename($path);
-            if (preg_match('/^(\d+)-(.+)\.md$/u', $filename, $matches) !== 1) {
-                continue;
-            }
-
-            $documents[(int) $matches[1]] = [
-                'number' => (int) $matches[1],
-                'filename' => $filename,
-                'path' => 'docs/毕法/'.$filename,
-                'research_url' => 'https://github.com/meixiaoqiu/liuren/blob/master/docs/'
-                    .'%E6%AF%95%E6%B3%95/'
-                    .rawurlencode($filename),
-            ];
-        }
-
-        foreach (self::extensionResearchDocuments() as $doc) {
-            $documents[(int) $doc['number']] = [
-                'number' => (int) $doc['number'],
-                'filename' => (string) $doc['filename'],
-                'path' => (string) $doc['path'],
-                'research_url' => $doc['research_url'] ?? null,
-            ];
-        }
-
-        return $documents;
-    }
-
-    /**
-     * @return list<array{number: int, filename: string, path: string, research_url?: ?string}>
-     */
-    private static function extensionResearchDocuments(): array
+    private static function extensionRegistry(): ?BiFaExtensionRegistry
     {
         if (! function_exists('app')) {
-            return [];
+            return null;
         }
 
         try {
             $registry = app(BiFaExtensionRegistry::class);
         } catch (\Throwable) {
-            return [];
+            return null;
         }
 
         if (! $registry instanceof BiFaExtensionRegistry) {
-            return [];
+            return null;
         }
 
-        $numbers = range(1, 100);
-        $all = [];
-        foreach ($numbers as $number) {
-            $doc = $registry->researchDocument($number);
-            if ($doc !== null) {
-                $all[] = $doc;
-            }
-        }
-
-        return $all;
+        return $registry;
     }
 }
