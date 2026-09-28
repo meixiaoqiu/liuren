@@ -260,3 +260,79 @@ test('kejing and bifa extension registries are distinct singleton lifecycles', f
         ->and($panRuleCodes)->toContain('lesson.fake_extension')
         ->and($panRuleCodes)->not->toContain('bifa.fake_extension');
 });
+
+test('extension source_examples without source_type auto classify via catalog source normalization', function () {
+    $registry = freshKeJingRegistry();
+    $registry->registerSourceExamples('lesson.sanguang', [[
+        'label' => '虚构正文旁证',
+        'source' => '《六壬大全》正文',
+        'detail' => '仅测试 source_type 自动归类',
+    ]]);
+    $this->app->instance(KeJingExtensionRegistry::class, $registry);
+
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
+    $page = collect(KeJingPageCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
+
+    expect($lesson['source_examples'][0]['source_type'])->toBe('daquan')
+        ->and($page['daquanExamples'][0]['label'])->toBe('虚构正文旁证')
+        ->and($page['otherExamples'])->toBe([]);
+});
+
+test('extension source_examples with unregistered source string throws LogicException', function () {
+    $registry = freshKeJingRegistry();
+    $registry->registerSourceExamples('lesson.sanguang', [[
+        'label' => '未知来源',
+        'source' => '《不存在的测试古籍》',
+        'detail' => '测试严格枚举',
+    ]]);
+    $this->app->instance(KeJingExtensionRegistry::class, $registry);
+
+    expect(fn () => KeJingCatalog::lessons())
+        ->toThrow(LogicException::class, '未登记的课经旁证来源：《不存在的测试古籍》');
+});
+
+test('extension source_examples with explicit source_type other without source is preserved', function () {
+    $registry = freshKeJingRegistry();
+    $registry->registerSourceExamples('lesson.sanguang', [[
+        'label' => '显式 other 旁证',
+        'detail' => '无 source 字段但显式声明 other',
+        'source_type' => 'other',
+    ]]);
+    $this->app->instance(KeJingExtensionRegistry::class, $registry);
+
+    $lesson = collect(KeJingCatalog::lessons())->firstWhere('code', 'lesson.sanguang');
+
+    expect($lesson['source_examples'][0]['source_type'])->toBe('other')
+        ->and($lesson['source_examples'][0]['label'])->toBe('显式 other 旁证');
+});
+
+test('plugin off preserves absence of source_examples key for 14 lessons and presence for 2 lessons', function () {
+    $lessons = KeJingCatalog::lessons();
+
+    $absentLessons = [
+        'lesson.sanguang',
+        'lesson.sanyang',
+        'lesson.sanqi',
+        'lesson.liuyi',
+        'lesson.shitai',
+        'lesson.longde',
+        'lesson.guanjue',
+        'lesson.fugui',
+        'lesson.xuangai',
+        'lesson.zhuyin',
+        'lesson.zhuolun',
+        'lesson.yincong',
+        'lesson.hengtong',
+        'lesson.fanchang',
+    ];
+
+    foreach ($absentLessons as $code) {
+        $lesson = collect($lessons)->firstWhere('code', $code);
+        expect(array_key_exists('source_examples', $lesson))->toBeFalse();
+    }
+
+    foreach (['lesson.he_huan', 'lesson.wulei'] as $code) {
+        $lesson = collect($lessons)->firstWhere('code', $code);
+        expect(array_key_exists('source_examples', $lesson))->toBeTrue();
+    }
+});

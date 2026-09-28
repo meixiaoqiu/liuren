@@ -1495,6 +1495,36 @@ final class KeJingCatalog
             ],
         ];
 
+        // 处理顺序：先合并扩展（summary / cases / source_examples），
+        // 最后对全部 source_examples 统一补齐结构化 source_type，
+        // 保证 Public 与 Extension 的来源都走完全相同的归一化逻辑。
+        $extensions = self::extensionRegistry();
+        if ($extensions !== null) {
+            foreach ($lessons as &$lesson) {
+                $summary = $extensions->summaryFor($lesson['code']);
+                if (is_string($summary) && trim($summary) !== '') {
+                    $lesson['summary'] = $summary;
+                }
+
+                $lesson['cases'] = [
+                    ...($lesson['cases'] ?? []),
+                    ...$extensions->casesForLesson($lesson['code']),
+                ];
+
+                // 不无条件补 source_examples 键：当前54课皆已有 cases，
+                // 但只有 40 课原本带 source_examples，14 课在 Plugin OFF 下
+                // 必须保持 array_key_exists === false；只有扩展真带来旁证时才合并。
+                $extensionExamples = $extensions->sourceExamplesForLesson($lesson['code']);
+                if ($extensionExamples !== []) {
+                    $lesson['source_examples'] = [
+                        ...($lesson['source_examples'] ?? []),
+                        ...$extensionExamples,
+                    ];
+                }
+            }
+            unset($lesson);
+        }
+
         // source_examples 在 catalog 层统一补齐结构化 source_type。
         // 没有 source 的旧条目按非正文材料处理；只要声明了 source，就必须在精确枚举表中登记。
         foreach ($lessons as &$lesson) {
@@ -1523,26 +1553,6 @@ final class KeJingCatalog
             unset($example);
         }
         unset($lesson);
-
-        $extensions = self::extensionRegistry();
-        if ($extensions !== null) {
-            foreach ($lessons as &$lesson) {
-                $summary = $extensions->summaryFor($lesson['code']);
-                if (is_string($summary) && trim($summary) !== '') {
-                    $lesson['summary'] = $summary;
-                }
-
-                $lesson['cases'] = [
-                    ...($lesson['cases'] ?? []),
-                    ...$extensions->casesForLesson($lesson['code']),
-                ];
-                $lesson['source_examples'] = [
-                    ...($lesson['source_examples'] ?? []),
-                    ...$extensions->sourceExamplesForLesson($lesson['code']),
-                ];
-            }
-            unset($lesson);
-        }
 
         return $lessons;
     }
