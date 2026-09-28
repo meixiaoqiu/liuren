@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Extensions\AbsolutePath;
+
 /**
  * 文件作用：从课经研究文档提取《六壬大全》原文区域供详情页展示。
  *
@@ -13,7 +15,12 @@ final class KeJingResearchDocument
     /** @return array{status: 'complete'|'excerpt'|'missing', heading: ?string, content: ?string} */
     public function original(array $lesson): array
     {
-        $path = base_path((string) ($lesson['researchPath'] ?? ''));
+        $rawPath = (string) ($lesson['researchPath'] ?? '');
+        if ($rawPath === '') {
+            return ['status' => 'missing', 'heading' => null, 'content' => null];
+        }
+
+        $path = AbsolutePath::check($rawPath) ? $rawPath : base_path($rawPath);
         if (! is_file($path)) {
             return ['status' => 'missing', 'heading' => null, 'content' => null];
         }

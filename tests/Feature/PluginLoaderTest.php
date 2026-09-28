@@ -1,6 +1,7 @@
 <?php
 
 use App\Extensions\BiFaExtensionRegistry;
+use App\Extensions\KeJingExtensionRegistry;
 use App\Extensions\PluginLoader;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\File;
@@ -282,4 +283,46 @@ PHP;
             ->map(static fn ($rule): string => $rule->code())
             ->all())
         ->toContain($extensionCode);
+});
+
+test('register 阶段的虚构课经贡献在 plugin load 返回时立即可见', function () {
+    $providerClass = 'PluginLoaderKeJingRegisterPhaseContributor';
+    $bindingKey = 'liuren.kejing-register-phase.loaded';
+    $extensionCode = 'lesson.fake_plugin';
+
+    $providerClassDefinition = <<<PHP
+class {$providerClass} extends \\Illuminate\\Support\\ServiceProvider
+{
+    public function register(): void
+    {
+        \$this->app->singleton('{$bindingKey}', static fn (): bool => true);
+        \$registry = \$this->app->make(\\App\\Extensions\\KeJingExtensionRegistry::class);
+        \$registry->registerSummary('{$extensionCode}', '虚构课经插件摘要');
+        \$registry->registerRule(new class implements \\App\\Domain\\Pan\\Rules\\PanRule {
+            public function code(): string { return '{$extensionCode}'; }
+            public function definition(): array { return ['description'=>'虚构','xiang'=>null,'foundations'=>[],'judgments'=>[]]; }
+            public function match(\\App\\Domain\\Pan\\Facts\\PanFacts \$facts): ?\\App\\Domain\\Pan\\Rules\\RuleMatch { return null; }
+        });
+    }
+}
+PHP;
+
+    $path = createPluginFixture(
+        $this->pluginFixtureRoot,
+        'kejing-register-phase',
+        'kejing-register-phase-plugin',
+        [$providerClass],
+        [$providerClassDefinition],
+    );
+
+    $loader = new PluginLoader(app());
+    $loader->load([$path]);
+
+    expect($loader->loadedPluginIds())->toContain('kejing-register-phase-plugin')
+        ->and(app($bindingKey))->toBeTrue()
+        ->and(app(KeJingExtensionRegistry::class)->summaryFor($extensionCode))->toBe('虚构课经插件摘要')
+        ->and(array_map(
+            static fn ($rule): string => $rule->code(),
+            app(KeJingExtensionRegistry::class)->rules(),
+        ))->toContain($extensionCode);
 });

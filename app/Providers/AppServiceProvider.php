@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Extensions\BiFaExtensionRegistry;
+use App\Extensions\KeJingExtensionRegistry;
 use App\Extensions\PluginLoader;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
         // 在自己的 register() 阶段即可拿到同一个 BiFaExtensionRegistry 实例并 contribute()；
         // loadConfigured() 返回时所有插件的 register() 已全部跑完，无需 boot() 延后注入。
         $this->app->singleton(BiFaExtensionRegistry::class);
+        $this->app->singleton(KeJingExtensionRegistry::class);
 
         $loader = new PluginLoader($this->app);
 

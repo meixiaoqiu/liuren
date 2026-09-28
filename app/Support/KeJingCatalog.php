@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Extensions\KeJingExtensionRegistry;
+
 /**
  * 文件作用：维护前台「课经」目录——每一课的成课条件、入选课例及其可点击的可执行链接。
  *
@@ -1522,7 +1524,42 @@ final class KeJingCatalog
         }
         unset($lesson);
 
+        $extensions = self::extensionRegistry();
+        if ($extensions !== null) {
+            foreach ($lessons as &$lesson) {
+                $summary = $extensions->summaryFor($lesson['code']);
+                if (is_string($summary) && trim($summary) !== '') {
+                    $lesson['summary'] = $summary;
+                }
+
+                $lesson['cases'] = [
+                    ...($lesson['cases'] ?? []),
+                    ...$extensions->casesForLesson($lesson['code']),
+                ];
+                $lesson['source_examples'] = [
+                    ...($lesson['source_examples'] ?? []),
+                    ...$extensions->sourceExamplesForLesson($lesson['code']),
+                ];
+            }
+            unset($lesson);
+        }
+
         return $lessons;
+    }
+
+    private static function extensionRegistry(): ?KeJingExtensionRegistry
+    {
+        if (! function_exists('app')) {
+            return null;
+        }
+
+        try {
+            $registry = app(KeJingExtensionRegistry::class);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $registry instanceof KeJingExtensionRegistry ? $registry : null;
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Extensions\KeJingExtensionRegistry;
+
 /**
  * 文件作用：把 KeJingCatalog 的规则/课例数据整理成课经页面所需的编号、URL、文档来源与分组信息。
  *
@@ -19,19 +21,19 @@ final class KeJingPageCatalog
     /** @return list<array<string, mixed>> */
     public static function lessons(): array
     {
-        static $pages = null;
-        if ($pages !== null) {
-            return $pages;
-        }
-
         $documents = self::researchDocuments();
         $pages = [];
 
         foreach (array_values(KeJingCatalog::lessons()) as $index => $lesson) {
-            $document = $documents[$lesson['name']] ?? null;
-            $number = $document['number'] ?? (11 + $index);
+            $publicDocument = $documents[$lesson['name']] ?? null;
+            $number = $publicDocument['number'] ?? (11 + $index);
+            $extensionDocument = self::extensionRegistry()?->researchDocument($number);
+            $document = $extensionDocument ?? $publicDocument;
             $filename = $document['filename'] ?? sprintf('%02d-%s.md', $number, $lesson['name']);
             $researchPath = $document['path'] ?? 'docs/课经/'.$filename;
+            $researchUrl = $extensionDocument !== null
+                ? ($extensionDocument['research_url'] ?? '')
+                : 'https://github.com/meixiaoqiu/liuren/blob/master/docs/%E8%AF%BE%E7%BB%8F/'.rawurlencode($filename);
             $cases = $lesson['cases'] ?? [];
             $sourceExamples = $lesson['source_examples'] ?? [];
 
@@ -41,7 +43,7 @@ final class KeJingPageCatalog
                 'slug' => self::slugFromCode($lesson['code']),
                 'researchFilename' => $filename,
                 'researchPath' => $researchPath,
-                'researchUrl' => 'https://github.com/meixiaoqiu/liuren/blob/master/docs/%E8%AF%BE%E7%BB%8F/'.rawurlencode($filename),
+                'researchUrl' => $researchUrl,
                 'daquanCases' => array_values(array_filter($cases, self::isDaquanCase(...))),
                 'otherCases' => array_values(array_filter($cases, static fn (array $case): bool => ! self::isDaquanCase($case))),
                 'daquanExamples' => array_values(array_filter($sourceExamples, self::isDaquanSource(...))),
@@ -127,5 +129,20 @@ final class KeJingPageCatalog
         }
 
         return $documents;
+    }
+
+    private static function extensionRegistry(): ?KeJingExtensionRegistry
+    {
+        if (! function_exists('app')) {
+            return null;
+        }
+
+        try {
+            $registry = app(KeJingExtensionRegistry::class);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $registry instanceof KeJingExtensionRegistry ? $registry : null;
     }
 }
