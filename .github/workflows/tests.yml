@@ -3,14 +3,10 @@ name: tests
 on:
   push:
     branches:
-      - develop
-      - main
-      - master
+      - public-clean-history
   pull_request:
     branches:
-      - develop
-      - main
-      - master
+      - public-clean-history
 
 permissions:
   contents: read

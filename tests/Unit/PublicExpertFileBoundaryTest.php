@@ -41,3 +41,13 @@ test('generic extension contracts and presentation adapters remain present', fun
         expect(is_file($path))->toBeTrue($path);
     }
 });
+
+test('no private or expert text paths exist in public source tree', function () {
+    expect(file_exists(base_path('docs/课经')))->toBeFalse();
+    expect(file_exists(base_path('docs/毕法')))->toBeFalse();
+    expect(is_dir(base_path('resources/views/kejing/trace')))->toBeFalse();
+    expect(is_dir(base_path('resources/docs/课经')))->toBeFalse();
+    expect(is_dir(base_path('resources/docs/毕法')))->toBeFalse();
+    expect(glob(base_path('app/KeJing/*')) ?: [])->toBe([]);
+    expect(glob(base_path('app/BiFa/*')) ?: [])->toBe([]);
+});
