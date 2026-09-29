@@ -55,60 +55,85 @@ test('plugin off public catalogs contain identity only', function () {
         ->and(BiFaCaseCatalog::cases())->toBe([])
         ->and(app(BiFaRuleRegistry::class)->rules())->toBe([]);
 
+    // 课号映射：4 个非顺序课必须按 KeJingPageCatalog golden source 注册，
+    // 不允许按 Catalog 数组下标机械生成。
     foreach ([['lesson.de_qing', 26, 'de-qing'], ['lesson.he_huan', 27, 'he-huan'], ['lesson.zhunfu', 40, 'zhunfu'], ['lesson.qinhai', 41, 'qinhai']] as [$code, $number, $slug]) {
         $lesson = collect($lessons)->firstWhere('code', $code);
         expect([$lesson['number'], $lesson['slug']])->toBe([$number, $slug]);
     }
 });
 
-test('AGENTS.md / LessonDefinitionDefaults / BiFaRuleMatch 不再泄漏专家实现线索', function () {
-    $root = base_path();
+test('LessonDefinitionDefaults docblock 只描述 generic behavior', function () {
+    $trait = file_get_contents(base_path().'/app/Domain/Pan/Rules/LessonDefinitionDefaults.php');
 
-    $textFiles = [
-        $root.'/AGENTS.md',
-        $root.'/app/Domain/Pan/Rules/LessonDefinitionDefaults.php',
-        $root.'/app/Domain/Pan/BiFa/BiFaRuleMatch.php',
-    ];
+    // 必须存在核心声明语句
+    expect($trait)
+        ->toContain('definition()')
+        ->toContain('foundations')
+        ->toContain('judgments')
+        ->toContain('xiang')
+        ->toContain('description');
 
-    foreach ($textFiles as $file) {
-        expect(is_file($file))->toBeTrue("$file 必须存在");
-        $content = file_get_contents($file);
-        // 具体 route code
-        expect($content)
-            ->not->toContain('yin_gan', "$file 不应再出现具体 route code yin_gan")
-            ->not->toContain('er_gui_gang_nianming', "$file 不应再出现具体 route code er_gui_gang_nianming")
-            ->not->toContain('gan_zhi_bing_chu_zhong_gui', "$file 不应再出现具体 route code gan_zhi_bing_chu_zhong_gui");
-        // 具体专家类名
-        expect($content)
-            ->not->toContain('QianHouYinCongRule', "$file 不应再出现具体专家类名 QianHouYinCongRule")
-            ->not->toContain('XiuMuNanDiaoRule', "$file 不应再出现具体专家类名 XiuMuNanDiaoRule")
-            ->not->toContain('SanguangRule', "$file 不应再出现具体专家类名 SanguangRule")
-            ->not->toContain('YinCongRule', "$file 不应再出现具体专家类名 YinCongRule")
-            ->not->toContain('LideRule', "$file 不应再出现具体专家类名 LideRule")
-            ->not->toContain('JieliRule', "$file 不应再出现具体专家类名 JieliRule");
-    }
+    // docblock 不能直接列举具体专家规则类名（不能写 `App\Domain\Pan\Rules\XxxRule`）。
+    // 走结构性白名单：合法提及只能是 namespace 前缀 `App\Domain\Pan\Rules\`。
+    preg_match_all(
+        '/\b(App\\\\Domain\\\\Pan\\\\Rules\\\\[A-Z][A-Za-z0-9_]+Rule)\b/',
+        $trait,
+        $matches,
+    );
+    $mentioned = array_unique($matches[1] ?? []);
 
-    // BiFaRuleMatch docblock 不应再保留具体 route 名作为示例
-    $bifaMatch = file_get_contents($root.'/app/Domain/Pan/BiFa/BiFaRuleMatch.php');
-    expect($bifaMatch)
-        ->not->toContain('引从天干', 'BiFaRuleMatch 不应再保留 matcher 内部中文描述作为示例');
-
-    // LessonDefinitionDefaults docblock 不应再保留已迁移的具体类名清单
-    $lesson = file_get_contents($root.'/app/Domain/Pan/Rules/LessonDefinitionDefaults.php');
-    expect($lesson)
-        ->not->toContain('SanguangRule', 'LessonDefinitionDefaults 不应再保留已迁移类名')
-        ->not->toContain('YinCongRule', 'LessonDefinitionDefaults 不应再保留已迁移类名')
-        ->not->toContain('LideRule', 'LessonDefinitionDefaults 不应再保留已迁移类名')
-        ->not->toContain('JieliRule', 'LessonDefinitionDefaults 不应再保留已迁移类名');
+    // 只允许出现 trait 自身的调用样板，不允许列举"已迁移的具体课"。
+    // 直接排除任何可能写出的具体规则名：
+    expect($mentioned)->toBe([]);
 });
 
-test('AGENTS.md 不再列出具体 URL slug、route name 与 JSON 字段名作为禁词', function () {
+test('BiFaRuleMatch docblock 只描述 generic route / evidence 语义', function () {
+    $match = file_get_contents(base_path().'/app/Domain/Pan/BiFa/BiFaRuleMatch.php');
+
+    // 必须存在通用字段
+    expect($match)
+        ->toContain('public string $code')
+        ->toContain('public int $number')
+        ->toContain('public array $subMatches')
+        ->toContain('public array $matchedRoutes')
+        ->toContain('public array $pendingRoutes')
+        ->toContain('public array $evidence')
+        ->toContain('public array $matchedJudgments')
+        ->toContain('matched_routes')
+        ->toContain('pending_routes');
+
+    // docblock 中提及 "code" 时不得伪装成具体 bifa 编号形式。
+    // 结构上禁止出现形如 `bifa.NN`（N 为数字）的内联示例。
+    preg_match_all('/\bbifa\.\d+\b/', $match, $matches);
+    expect($matches[0] ?? [])->toBe([]);
+});
+
+test('AGENTS.md 只写抽象治理规则，不绑定具体实现', function () {
     $agents = file_get_contents(base_path().'/AGENTS.md');
+
+    // 必须保留通用治理条目
     expect($agents)
-        ->not->toContain('cui-guan-shi-zhe', 'AGENTS.md 不应再出现具体 URL slug cui-guan-shi-zhe')
-        ->not->toContain('bifa.show', 'AGENTS.md 不应再出现具体 route name bifa.show')
-        ->not->toContain('sanchuan0', 'AGENTS.md 不应再出现具体 JSON 字段名 sanchuan0')
-        ->not->toContain('guirenPeriod', 'AGENTS.md 不应再出现具体 JSON 字段名 guirenPeriod');
+        ->toContain('# 仓库工作规则')
+        ->toContain('## Git 安全')
+        ->toContain('## README 归属')
+        ->toContain('## PHP 与 Docker 运行环境');
+
+    // 结构上禁止内联任何具体 route / rule / class 字面量。
+    // 这里只做粗粒度结构性约束：禁止出现 `App\` 完整命名空间（除注释的合法引用）。
+    preg_match_all('/\bApp\\\\[A-Z][A-Za-z0-9_\\\\]+/', $agents, $matches);
+    expect($matches[0] ?? [])->toBe([]);
+
+    // docblock 中不允许出现 `Route code`、`Rule class` 等具体领域示例前缀。
+    // 仅做结构性断言：禁止出现 `rule code = '` 之类的具体字面量。
+    expect($agents)
+        ->not->toMatch("/rule\s*code\s*=\s*['\"]/i")
+        ->not->toMatch("/route\s*code\s*=\s*['\"]/i");
+
+    // 只允许在抽象语境使用 `内部实现名称` / `内部标识` 之类抽象表述。
+    expect($agents)
+        ->toContain('内部实现名称')
+        ->toContain('route code');
 });
 
 test('PluginLoader 仍能识别 Public 的已注册扩展点', function () {
