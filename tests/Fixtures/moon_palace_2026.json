@@ -1,0 +1,66 @@
+{
+    "description": "Astronomy Engine 2.1.19 EQD moonPalace research outputs; numerical fields use degree units except the explicit arcminute field.",
+    "angular_tolerance_deg": 0.000001,
+    "cases": [
+        {
+            "input_time": "2026-09-13T01:10:00+08:00",
+            "utc_time": "2026-09-12T17:10:00.000Z",
+            "moon_ra_deg": 187.5257417775074,
+            "xu_ra_deg": 323.24291940270757,
+            "zi_center_ra_deg": 329.1565508159176,
+            "delta_ra_deg": 218.36919096158977,
+            "palace_index": 5,
+            "palace": "巳",
+            "nearest_boundary_distance_deg": 6.630809038410234,
+            "nearest_boundary_distance_arcmin": 397.84854230461406
+        },
+        {
+            "input_time": "2026-01-01T00:00:00Z",
+            "utc_time": "2026-01-01T00:00:00.000Z",
+            "moon_ra_deg": 63.92146703291985,
+            "xu_ra_deg": 323.23283990612094,
+            "zi_center_ra_deg": 329.146471319331,
+            "delta_ra_deg": 94.77499571358885,
+            "palace_index": 9,
+            "palace": "酉",
+            "nearest_boundary_distance_deg": 10.22500428641115,
+            "nearest_boundary_distance_arcmin": 613.500257184669
+        },
+        {
+            "input_time": "2026-03-20T12:00:00Z",
+            "utc_time": "2026-03-20T12:00:00.000Z",
+            "moon_ra_deg": 16.10586301063165,
+            "xu_ra_deg": 323.2359204339998,
+            "zi_center_ra_deg": 329.14955184720986,
+            "delta_ra_deg": 46.95631116342179,
+            "palace_index": 10,
+            "palace": "戌",
+            "nearest_boundary_distance_deg": 1.9563111634217876,
+            "nearest_boundary_distance_arcmin": 117.37866980530725
+        },
+        {
+            "input_time": "2026-06-21T00:00:00Z",
+            "utc_time": "2026-06-21T00:00:00.000Z",
+            "moon_ra_deg": 169.0319291908844,
+            "xu_ra_deg": 323.2395764586927,
+            "zi_center_ra_deg": 329.15320787190274,
+            "delta_ra_deg": 199.87872131898166,
+            "palace_index": 5,
+            "palace": "巳",
+            "nearest_boundary_distance_deg": 4.878721318981661,
+            "nearest_boundary_distance_arcmin": 292.72327913889967
+        },
+        {
+            "input_time": "2026-12-21T12:00:00Z",
+            "utc_time": "2026-12-21T12:00:00.000Z",
+            "moon_ra_deg": 49.787969436217395,
+            "xu_ra_deg": 323.24669748320616,
+            "zi_center_ra_deg": 329.1603288964162,
+            "delta_ra_deg": 80.62764053980118,
+            "palace_index": 9,
+            "palace": "酉",
+            "nearest_boundary_distance_deg": 5.6276405398011775,
+            "nearest_boundary_distance_arcmin": 337.65843238807065
+        }
+    ]
+}

@@ -1,0 +1,356 @@
+<div
+    class="pan-classical-shell"
+    x-data="{
+        storageKey: 'liuren.pan.inputs.v1',
+        ready: false,
+        init() {
+            if (! new URLSearchParams(window.location.search).has('datetime')) {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(this.storageKey) || 'null');
+                    if (saved && typeof saved === 'object') {
+                        if (typeof saved.datetime === 'string') $wire.set('datetime', saved.datetime, false);
+                        if (typeof saved.birthDatetime === 'string') $wire.set('birthDatetime', saved.birthDatetime, false);
+                        if (['male', 'female'].includes(saved.gender)) $wire.set('gender', saved.gender, false);
+                        if (Array.isArray(saved.people)) $wire.set('people', saved.people.slice(0, 10), false);
+                    }
+                } catch (error) {
+                    localStorage.removeItem(this.storageKey);
+                }
+            }
+            this.ready = true;
+        },
+        persist() {
+            if (! this.ready) return;
+            queueMicrotask(() => localStorage.setItem(this.storageKey, JSON.stringify({
+                datetime: $wire.datetime,
+                birthDatetime: $wire.birthDatetime,
+                gender: $wire.gender,
+                people: $wire.people,
+            })));
+        },
+    }"
+    x-on:input.debounce.300ms="persist()"
+    x-on:change="persist()"
+    x-on:click.debounce.50ms="persist()"
+>
+    @include('partials.pan-header')
+
+    <main class="mx-auto max-w-7xl px-0 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+        <div class="grid min-w-0 gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6">
+            <aside class="lg:sticky lg:top-6">
+                <x-card title="设置起课信息" subtitle="输入起课时间、出生时间与性别，自动推算年命行年。" class="pan-mobile-edge" shadow>
+                    <x-form wire:submit="calculate">
+                        @csrf
+                        <x-datetime
+                            label="北京时间"
+                            wire:model="datetime"
+                            type="datetime-local"
+                            icon="o-calendar-days"
+                            hint="系统按 Asia/Shanghai 时区计算"
+                            required
+                        />
+
+                        <x-datetime
+                            label="出生时间"
+                            wire:model="birthDatetime"
+                            type="datetime-local"
+                            icon="o-cake"
+                            hint="出生时间会写入当前网址并保存在此浏览器，请谨慎分享"
+                            required
+                        />
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <x-select
+                                label="性别"
+                                wire:model="gender"
+                                :options="$genderOptions"
+                                icon="o-user"
+                                required
+                            />
+                            <div class="self-end pb-1 text-sm leading-6 text-base-content/55">年命、行年将在排盘后自动显示。</div>
+                        </div>
+
+                        <div class="space-y-3">
+                            @foreach ($people as $index => $person)
+                                <div class="rounded-lg border border-base-300/80 bg-base-100 p-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-base-content/70">相关人物</span>
+                                        <button type="button" wire:click="removePerson({{ $index }})" class="text-xs text-base-content/50 hover:text-error">移除</button>
+                                    </div>
+                                    <div class="mt-2 grid grid-cols-2 gap-3">
+                                        <x-select
+                                            label="身份"
+                                            wire:model="people.{{ $index }}.role"
+                                            :options="$personRoleOptions"
+                                            icon="o-user-group"
+                                        />
+                                        <x-select
+                                            label="性别"
+                                            wire:model="people.{{ $index }}.gender"
+                                            :options="$genderOptions"
+                                            icon="o-user"
+                                        />
+                                    </div>
+                                    <x-datetime
+                                        label="出生时间"
+                                        wire:model="people.{{ $index }}.birth_datetime"
+                                        type="datetime-local"
+                                        icon="o-cake"
+                                    />
+                                </div>
+                            @endforeach
+
+                            <x-button label="添加相关人物" icon="o-plus" class="btn-outline btn-sm w-full" wire:click="addPerson" type="button" />
+                        </div>
+
+                        <x-slot:actions>
+                            <x-button label="立即排盘" type="submit" icon="o-sparkles" class="btn-primary w-full" spinner="calculate" />
+                        </x-slot:actions>
+                    </x-form>
+                </x-card>
+            </aside>
+
+            <section class="min-w-0" aria-live="polite">
+                @if ($pan === null)
+                    <x-card class="pan-mobile-edge min-h-96 bg-base-100/60">
+                        <div class="grid min-h-80 place-items-center text-center">
+                            <div class="max-w-sm">
+                                <div class="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-primary/10 text-2xl text-primary">课</div>
+                                <h1 class="text-2xl font-semibold">开始一次排盘</h1>
+                                <p class="mt-3 leading-7 text-base-content/60">选择起课时间并点击“立即排盘”，三传、四课与天地盘会在这里完整呈现。</p>
+                            </div>
+                        </div>
+                    </x-card>
+                @else
+                    @php
+                        $transmissions = [
+                            ['name' => '初传', 'index' => 0],
+                            ['name' => '中传', 'index' => 1],
+                            ['name' => '末传', 'index' => 2],
+                        ];
+                        $lessonColumns = [
+                            ['number' => 4, 'upper' => 7, 'relation' => 3, 'lowerType' => 'branch'],
+                            ['number' => 3, 'upper' => 5, 'relation' => 2, 'lowerType' => 'branch'],
+                            ['number' => 2, 'upper' => 3, 'relation' => 1, 'lowerType' => 'branch'],
+                            ['number' => 1, 'upper' => 1, 'relation' => 0, 'lowerType' => 'stem'],
+                        ];
+                        $palacePositions = [
+                            5 => '1 / 1', 6 => '1 / 2', 7 => '1 / 3', 8 => '1 / 4',
+                            4 => '2 / 1', 9 => '2 / 4', 3 => '3 / 1', 10 => '3 / 4',
+                            2 => '4 / 1', 1 => '4 / 2', 0 => '4 / 3', 11 => '4 / 4',
+                        ];
+                    @endphp
+
+                    <div class="pan-result-stack space-y-3 sm:space-y-6">
+                        <x-card class="pan-data-card pan-mobile-edge" shadow>
+                            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h1 id="pan-result-heading" class="text-2xl font-semibold tracking-wide sm:text-3xl">{{ $pan['sizhu'] }}</h1>
+                                    <p class="mt-2 text-sm text-base-content/55">{{ str_replace('T', ' ', $datetime) }} · 北京时间 · 年命{{ $dizhi[$pan['nianming']] }} · 行年{{ $dizhi[$pan['xingnian']] }}</p>
+                                </div>
+                                <div class="pan-block bg-primary/10 px-5 py-3 text-center">
+                                    <p class="text-xs tracking-widest text-primary/70">月将</p>
+                                    <p class="mt-1 text-2xl font-semibold text-primary">{{ $dizhi[$pan['yuejiang']] }}</p>
+                                </div>
+                            </div>
+                        </x-card>
+
+                        <div class="grid gap-6 xl:grid-cols-2">
+                            <x-card title="三传" class="pan-data-card pan-mobile-edge" shadow>
+                                <div>
+                                    @foreach ($transmissions as $transmission)
+                                        @php
+                                            $index = $transmission['index'];
+                                            $branch = $pan['sanchuan'.$index];
+                                        @endphp
+                                        <div class="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 py-4 first:pt-1 last:pb-1">
+                                            <span class="text-center text-sm font-medium text-base-content/55">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
+                                            <div class="text-center">
+                                                <span class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $tianjiangNames[$pan['sanchuan'.$index.'tianjiang']] }}</span>
+                                                <p class="mx-auto grid max-w-48 grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
+                                                    <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$branch] }}</span>
+                                                    <span class="text-2xl font-semibold text-primary">{{ $dizhi[$branch] }}</span>
+                                                    <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$branch]] }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </x-card>
+
+                            <x-card title="四课" subtitle="从右至左为一至四课" class="pan-data-card pan-mobile-edge" shadow>
+                                <div class="grid grid-cols-4 gap-2 text-center">
+                                    @foreach ($lessonColumns as $lessonColumn)
+                                        @php
+                                            $upperIndex = $lessonColumn['upper'];
+                                            $relation = $pan['wuxingShengke'.$lessonColumn['relation']];
+                                            $relationName = $relation[0] === 0 ? '不生不克' : $relation[1];
+                                            $upperGroundIndex = array_search($pan['sike'][$upperIndex], $pan['tianpan'], true);
+                                            $lessonTianjiang = $tianjiangNames[$pan['tianjiang'][$upperGroundIndex]];
+                                            $lowerTianpanBranch = $lessonColumn['lowerType'] === 'stem'
+                                                ? $jigong[$pan['sike'][0]]
+                                                : $pan['sike'][$upperIndex - 1];
+                                            $lowerGroundIndex = array_search($lowerTianpanBranch, $pan['tianpan'], true);
+                                            $lowerTianjiang = $tianjiangNames[$pan['tianjiang'][$lowerGroundIndex]];
+                                            $relationClass = match ($relation[0]) {
+                                                1, -1 => 'badge-error badge-soft',
+                                                2, -2 => 'badge-success badge-soft',
+                                                default => 'badge-ghost',
+                                            };
+                                        @endphp
+                                        <div class="pan-block bg-secondary/8 px-2 py-4">
+                                            <span
+                                                class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary"
+                                                aria-label="第{{ $lessonColumn['number'] }}课天将{{ $lessonTianjiang }}"
+                                            >{{ $lessonTianjiang }}</span>
+                                            <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
+                                                <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['sike'][$upperIndex]] }}</span>
+                                                <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex]] }}</span>
+                                                <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex]]] }}</span>
+                                            </p>
+                                            <div class="my-2 flex items-center gap-1">
+                                                <span class="min-w-0 flex-1 border-t border-dashed border-base-300"></span>
+                                                <x-badge :value="$relationName" class="{{ $relationClass }} h-auto px-1.5 py-0.5 text-[0.65rem] whitespace-nowrap" />
+                                                <span class="min-w-0 flex-1 border-t border-dashed border-base-300"></span>
+                                            </div>
+                                            <span
+                                                class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary"
+                                                aria-label="第{{ $lessonColumn['number'] }}课下层天将{{ $lowerTianjiang }}"
+                                            >{{ $lowerTianjiang }}</span>
+                                            <p class="grid grid-cols-[1fr_auto_1fr] items-baseline gap-1.5">
+                                                @if ($lessonColumn['lowerType'] === 'stem')
+                                                    <span></span>
+                                                    <span class="text-2xl font-semibold text-primary">{{ $tiangan[$pan['sike'][0]] }}</span>
+                                                    <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingTian[$pan['sike'][0]]] }}</span>
+                                                @else
+                                                    <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['sike'][$upperIndex - 1]] }}</span>
+                                                    <span class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['sike'][$upperIndex - 1]] }}</span>
+                                                    <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['sike'][$upperIndex - 1]]] }}</span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </x-card>
+                        </div>
+
+                        <x-card title="天地盘" subtitle="十二宫位 · 天盘在上，地盘在下" class="pan-data-card pan-mobile-edge" shadow>
+                            <div class="min-w-0 pb-1">
+                                <div class="pan-board mx-auto w-full">
+                                    @foreach ($palacePositions as $groundIndex => $position)
+                                        <div class="pan-palace isolate" style="grid-area: {{ $position }}">
+                                            <span class="pan-ground" aria-label="地盘{{ $dizhi[$groundIndex] }}">{{ $dizhi[$groundIndex] }}</span>
+                                            <div class="relative z-10 mb-1 flex flex-col">
+                                                <span class="flex h-9 items-center justify-center px-2.5 text-sm {{ $pan['shunni'] === 1 ? 'bg-primary/12 font-semibold text-primary' : 'bg-base-100 text-base-content/40' }}">{{ $tianjiangNames[$pan['tianjiangShun'][$groundIndex]] }}</span>
+                                                <span class="flex h-9 items-center justify-center px-2.5 text-sm {{ $pan['shunni'] === -1 ? 'bg-primary/12 font-semibold text-primary' : 'bg-base-100 text-base-content/40' }}">{{ $tianjiangNames[$pan['tianjiangNi'][$groundIndex]] }}</span>
+                                            </div>
+                                            <p class="relative z-10 grid w-full grid-cols-[1fr_auto_1fr] items-baseline gap-1 px-1">
+                                                <span class="justify-self-end text-xs font-medium text-secondary">{{ $xundunLabels[$pan['tianpan'][$groundIndex]] }}</span>
+                                                <strong class="text-2xl font-semibold text-primary">{{ $dizhi[$pan['tianpan'][$groundIndex]] }}</strong>
+                                                <span class="justify-self-start text-xs font-medium text-base-content/45">{{ $wuxing[$wuxingDi[$pan['tianpan'][$groundIndex]]] }}</span>
+                                            </p>
+                                        </div>
+                                    @endforeach
+
+                                    <div class="pan-center">
+                                        <span class="text-xs tracking-[0.3em] text-base-content/45">天将</span>
+                                        <strong class="mt-1 text-xl font-semibold tracking-wider {{ $pan['shunni'] === 1 ? 'text-primary' : 'text-secondary' }}">{{ $pan['shunni'] === 1 ? '顺行' : '逆行' }}</strong>
+                                        @if ($seasonalPeriod !== null)
+                                            <span class="mt-2 text-xs tracking-wider text-base-content/45">{{ $seasonalPeriod['name'] }}</span>
+                                            <span class="mt-1 text-sm font-medium text-base-content/70">{{ $wuxing[$seasonalPeriod['wang']] }}旺 · {{ $wuxing[$seasonalPeriod['xiang']] }}相</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </x-card>
+
+                        <x-card title="解盘信息" subtitle="课体名称与取用说明" class="pan-data-card pan-mobile-edge" shadow>
+                            <div class="space-y-4">
+                                @foreach ($coverageNotices as $notice)
+                                    <div class="pan-block bg-warning/10 px-5 py-4 text-sm text-warning-content">
+                                        {{ $notice }}
+                                    </div>
+                                @endforeach
+
+                                @if ($referenceCase !== null)
+                                    <div class="pan-block bg-warning/10 px-5 py-4 text-sm text-warning-content">
+                                        <strong>原文参考盘·尚未完整复现（{{ $referenceCase['lesson']['name'] }}）</strong>
+                                        <p class="mt-1">{{ $referenceCase['case']['reason'] }}</p>
+                                    </div>
+                                @endif
+
+                                @foreach ($lessonInterpretations as $interpretation)
+                                    <article class="flow-root py-1">
+                                        @php($kejingPage = \App\Support\KeJingPageCatalog::findByCode($interpretation['code']))
+                                        @if ($kejingPage !== null)
+                                            @include('kejing.partials.interpretation-summary', [
+                                                'interpretation' => $interpretation,
+                                                'lessonPage' => $kejingPage,
+                                                'mode' => 'pan',
+                                            ])
+                                        @else
+                                            @if ($interpretation['guaSymbol'] !== null)
+                                                <span class="float-right ml-4 mb-2 grid size-20 place-items-center bg-primary/10 text-4xl leading-none text-primary" aria-label="{{ $interpretation['gua'] }}卦卦符">
+                                                    {{ $interpretation['guaSymbol'] }}
+                                                </span>
+                                            @endif
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-9 shrink-0 items-stretch">
+                                                    <span class="grid size-9 place-items-center bg-neutral text-sm font-semibold text-neutral-content">{{ $interpretation['marker'] }}</span>
+                                                    @if ($interpretation['gua'] !== null)
+                                                        <span class="flex items-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">
+                                                            <span>{{ $interpretation['gua'] }}卦</span>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    <span class="text-xs text-base-content/45">{{ $interpretation['group'] }}</span>
+                                                    <h2 class="text-lg font-semibold">{{ $interpretation['name'] }}</h2>
+                                                </div>
+                                            </div>
+                                            <p class="mt-2 leading-7 text-base-content/65">{{ $interpretation['description'] }}</p>
+                                            @if ($interpretation['xiang'] !== null)
+                                                <p class="mt-2 italic leading-7 text-base-content/55">{{ $interpretation['xiang'] }}</p>
+                                            @endif
+                                        @endif
+                                        @php($traceSpec = \App\Support\KeJingTraceView::for($interpretation, 'pan'))
+                                        @php($suppressCoreTrace = (bool) ($traceSpec['specialized'] ?? false))
+                                        @if ($traceSpec !== null)
+                                            @include($traceSpec['view'], [
+                                                'trace' => $interpretation['evidence'], 'title' => $traceSpec['title'],
+                                                'tiangan' => \App\Services\PanCalculator::$tiangan, 'dizhi' => \App\Services\PanCalculator::$dizhi,
+                                                'wuxing' => \App\Services\PanCalculator::$wuxing, 'tianjiangNames' => \App\Services\PanCalculator::$tianjiang,
+                                                'suppressCoreTrace' => $suppressCoreTrace,
+                                            ])
+                                        @endif
+                                    </article>
+                                @endforeach
+
+                                @foreach ($notEvaluated as $pending)
+                                    <div class="pan-block bg-base-200/70 px-5 py-4 text-sm text-base-content/70">
+                                        <span class="font-medium text-base-content/80">{{ $pending['name'] }}</span>：{{ $pending['notice'] }}
+                                    </div>
+                                @endforeach
+
+                                @include('livewire.pan.partials.shehai-trace')
+                            </div>
+                        </x-card>
+
+                        @if (! empty($bifaInterpretations))
+                            <x-card title="毕法" subtitle="《毕法赋》独立判定 · 不与课经混用" class="pan-data-card pan-mobile-edge" shadow>
+                                <p class="mb-4 text-sm leading-6 text-base-content/55">
+                                    毕法体系与课经六十四课各自独立，命中与否由各毕法规则独立判定；本页不出现跨体系引用。
+                                </p>
+                                <div class="space-y-4">
+                                    @foreach ($bifaInterpretations as $bifa)
+                                        @include('livewire.pan.partials.bifa-trace', ['bifa' => $bifa])
+                                    @endforeach
+                                </div>
+                            </x-card>
+                        @endif
+                    </div>
+                @endif
+            </section>
+        </div>
+    </main>
+</div>
