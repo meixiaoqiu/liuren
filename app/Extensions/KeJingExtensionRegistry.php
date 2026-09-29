@@ -27,6 +27,12 @@ final class KeJingExtensionRegistry
     /** @var array<int, array{number: int, filename: string, path: string, research_url?: ?string}> */
     private array $researchDocuments = [];
 
+    /** @var array<string, array{gua: mixed, guaSymbol: mixed}> */
+    private array $lessonMetadata = [];
+
+    /** @var array<string, array{view: string, contexts: list<string>, title?: string}> */
+    private array $traceViews = [];
+
     public function contribute(KeJingContribution $contribution): void
     {
         $this->registerRules($contribution->rules);
@@ -34,6 +40,69 @@ final class KeJingExtensionRegistry
         $this->registerCasesBatch($contribution->cases);
         $this->registerSourceExamplesBatch($contribution->sourceExamples);
         $this->registerResearchDocuments($contribution->researchDocuments);
+        $this->registerLessonMetadataBatch($contribution->lessonMetadata);
+        $this->registerTraceViewsBatch($contribution->traceViews);
+    }
+
+    public function registerLessonMetadataBatch(array $metadata): void
+    {
+        foreach ($metadata as $code => $spec) {
+            $this->registerLessonMetadata($code, $spec);
+        }
+    }
+
+    public function registerLessonMetadata(string $code, array $metadata): void
+    {
+        if (array_key_exists($code, $this->lessonMetadata)) {
+            throw new LogicException('Duplicate KeJing lesson metadata code: '.$code);
+        }
+
+        $this->lessonMetadata[$code] = [
+            'gua' => $metadata['gua'] ?? null,
+            'guaSymbol' => $metadata['guaSymbol'] ?? null,
+        ];
+    }
+
+    public function lessonMetadataFor(string $code): ?array
+    {
+        return $this->lessonMetadata[$code] ?? null;
+    }
+
+    public function registerTraceViewsBatch(array $views): void
+    {
+        foreach ($views as $code => $spec) {
+            $this->registerTraceView($code, $spec);
+        }
+    }
+
+    public function registerTraceView(string $code, array $spec): void
+    {
+        if (array_key_exists($code, $this->traceViews)) {
+            throw new LogicException('Duplicate KeJing trace view code: '.$code);
+        }
+
+        $view = trim((string) ($spec['view'] ?? ''));
+        if ($view === '') {
+            throw new LogicException('KeJing trace view must not be empty: '.$code);
+        }
+
+        $contexts = array_values($spec['contexts'] ?? []);
+        foreach ($contexts as $context) {
+            if (! in_array($context, ['pan', 'detail'], true)) {
+                throw new LogicException('Unknown KeJing trace context: '.(string) $context);
+            }
+        }
+
+        $normalized = ['view' => $view, 'contexts' => $contexts];
+        if (isset($spec['title']) && trim((string) $spec['title']) !== '') {
+            $normalized['title'] = (string) $spec['title'];
+        }
+        $this->traceViews[$code] = $normalized;
+    }
+
+    public function traceViewFor(string $code): ?array
+    {
+        return $this->traceViews[$code] ?? null;
     }
 
     /** @param list<PanRule> $rules */

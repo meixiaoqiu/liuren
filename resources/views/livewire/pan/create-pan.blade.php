@@ -314,11 +314,16 @@
                                                 <p class="mt-2 italic leading-7 text-base-content/55">{{ $interpretation['xiang'] }}</p>
                                             @endif
                                         @endif
-                                        @if (! empty($interpretation['evidence']))
-                                            @include('livewire.pan.partials.lesson-trace', [
-                                                'title' => $interpretation['name'].'依据',
-                                                'trace' => $interpretation['evidence'],
+                                        @php($traceSpec = \App\Support\KeJingTraceView::for($interpretation, 'pan'))
+                                        @if ($traceSpec !== null)
+                                            @include($traceSpec['view'], [
+                                                'trace' => $interpretation['evidence'], 'title' => $traceSpec['title'],
+                                                'tiangan' => \App\Services\PanCalculator::$tiangan, 'dizhi' => \App\Services\PanCalculator::$dizhi,
+                                                'wuxing' => \App\Services\PanCalculator::$wuxing, 'tianjiangNames' => \App\Services\PanCalculator::$tianjiang,
+                                                'suppressCoreTrace' => true,
                                             ])
+                                        @elseif (! empty($interpretation['evidence']) && ! $suppressCoreTrace)
+                                            @include('livewire.pan.partials.lesson-trace', ['title' => $interpretation['name'].'依据', 'trace' => $interpretation['evidence']])
                                         @endif
                                     </article>
                                 @endforeach

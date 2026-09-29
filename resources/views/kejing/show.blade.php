@@ -21,6 +21,9 @@
                 <header class="mb-6">
                     <p class="text-xs tracking-[0.18em] text-base-content/40">第 {{ $lesson['number'] }} 课 · 课经体系</p>
                     <h1 class="mt-2 text-3xl font-semibold tracking-wide text-base-content sm:text-4xl">{{ $lesson['name'] }}</h1>
+                    @if (($lesson['summary'] ?? '') !== '')
+                        <p class="mt-3 max-w-3xl leading-7 text-base-content/65">{{ $lesson['summary'] }}</p>
+                    @endif
                 </header>
 
                 @if (($lesson['summary'] ?? '') === '' && ($detail['staticDefinition']['foundations'] ?? []) === [] && $original['status'] === 'missing')
@@ -35,6 +38,15 @@
                             'staticDefinition' => $detail['staticDefinition'],
                             'mode' => 'detail',
                         ])
+                        @php($traceSpec = \App\Support\KeJingTraceView::for($detail['interpretation'], 'detail'))
+                        @if ($traceSpec !== null && ! empty($detail['interpretation']['evidence']))
+                            @include($traceSpec['view'], [
+                                'trace' => $detail['interpretation']['evidence'], 'title' => $traceSpec['title'],
+                                'tiangan' => \App\Services\PanCalculator::$tiangan, 'dizhi' => \App\Services\PanCalculator::$dizhi,
+                                'wuxing' => \App\Services\PanCalculator::$wuxing, 'tianjiangNames' => \App\Services\PanCalculator::$tianjiang,
+                                'suppressCoreTrace' => true,
+                            ])
+                        @endif
                     </x-card>
                 @endif
 

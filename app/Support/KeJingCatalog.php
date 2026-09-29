@@ -62,6 +62,11 @@ final class KeJingCatalog
             if (is_string($summary) && trim($summary) !== '') {
                 $lesson['summary'] = $summary;
             }
+            $metadata = $extensions->lessonMetadataFor($lesson['code']);
+            if ($metadata !== null) {
+                $lesson['gua'] = $metadata['gua'];
+                $lesson['guaSymbol'] = $metadata['guaSymbol'];
+            }
             $cases = $extensions->casesForLesson($lesson['code']);
             if ($cases !== []) {
                 $lesson['cases'] = $cases;
@@ -101,7 +106,7 @@ final class KeJingCatalog
     /** @return array{number:int,name:string,code:string,slug:string,summary:string} */
     private static function identity(int $number, string $name, string $code): array
     {
-        return ['number' => $number, 'name' => $name, 'code' => 'lesson.'.$code, 'slug' => str_replace('_', '-', $code), 'summary' => ''];
+        return ['number' => $number, 'name' => $name, 'code' => 'lesson.'.$code, 'slug' => str_replace('_', '-', $code), 'summary' => '', 'gua' => null, 'guaSymbol' => null];
     }
 
     /** @param list<array<string,mixed>> $examples @return list<array<string,mixed>> */

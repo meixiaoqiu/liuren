@@ -13,5 +13,7 @@ final readonly class KeJingContribution
         public array $cases = [],
         public array $sourceExamples = [],
         public array $researchDocuments = [],
+        public array $lessonMetadata = [],
+        public array $traceViews = [],
     ) {}
 }

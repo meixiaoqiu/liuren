@@ -27,6 +27,11 @@
                                 <div class="flex min-h-52 flex-col items-center justify-center text-center sm:min-h-56">
                                     <p class="mb-2 text-xs tracking-[0.18em] text-base-content/40">第 {{ $lesson['number'] }} 课</p>
 
+                                    @if (($lesson['gua'] ?? null) !== null && ($lesson['guaSymbol'] ?? null) !== null)
+                                        <div class="text-4xl leading-none text-primary" aria-label="{{ $lesson['gua'] }}卦卦符">{{ $lesson['guaSymbol'] }}</div>
+                                        <p class="mt-2 text-sm text-primary">{{ $lesson['gua'] }}卦</p>
+                                    @endif
+
                                     <h2 class="mt-3 text-base font-semibold tracking-wide sm:text-lg">{{ $lesson['name'] }}</h2>
                                 </div>
                             </x-card>

@@ -48,6 +48,8 @@ test('lesson.wulei extension restores all five expert asset types', function () 
         cases: ['lesson.wulei' => [['case_id' => 'lesson.fake.case', 'status' => 'executable']]],
         sourceExamples: ['lesson.wulei' => [['label' => '虚构旁证', 'source' => '《六壬大全》正文']]],
         researchDocuments: [['number' => 64, 'filename' => '64-fake.md', 'path' => storage_path('framework/testing/64-fake.md')]],
+        lessonMetadata: ['lesson.wulei' => ['gua' => '节', 'guaSymbol' => '䷻', 'name' => '不得覆盖']],
+        traceViews: ['lesson.wulei' => ['view' => 'fake.trace', 'contexts' => ['pan', 'detail']]],
     ));
 
     $codes = array_map(static fn (PanRule $rule): string => $rule->code(), app(RuleRegistry::class)->rules());
@@ -58,8 +60,40 @@ test('lesson.wulei extension restores all five expert asset types', function () 
         ->and($lesson['summary'])->toBe('虚构扩展摘要')
         ->and($lesson['cases'])->toHaveCount(1)
         ->and($lesson['source_examples'][0]['source_type'])->toBe('daquan')
+        ->and($lesson['gua'])->toBe('节')
+        ->and($lesson['guaSymbol'])->toBe('䷻')
+        ->and($lesson['name'])->toBe('物类课')
         ->and($page['researchPath'])->toBe(storage_path('framework/testing/64-fake.md'))
         ->and($page['researchUrl'])->toBe('');
+});
+
+test('lesson metadata 与 trace view 严格注册并读取', function () {
+    $registry = app(KeJingExtensionRegistry::class);
+    $registry->registerLessonMetadataBatch(['lesson.wulei' => ['gua' => '节', 'guaSymbol' => '䷻', 'summary' => '不得覆盖']]);
+    $registry->registerTraceViewsBatch(['lesson.wulei' => ['view' => 'fake.trace', 'contexts' => ['pan'], 'title' => '物类判断']]);
+
+    expect($registry->lessonMetadataFor('lesson.wulei'))->toBe(['gua' => '节', 'guaSymbol' => '䷻'])
+        ->and($registry->traceViewFor('lesson.wulei'))->toBe(['view' => 'fake.trace', 'contexts' => ['pan'], 'title' => '物类判断']);
+});
+
+test('lesson metadata 与 trace view 重复注册会失败', function () {
+    $registry = app(KeJingExtensionRegistry::class);
+    $registry->registerLessonMetadata('lesson.wulei', []);
+    $registry->registerTraceView('lesson.wulei', ['view' => 'fake.trace', 'contexts' => []]);
+
+    expect(fn () => $registry->registerLessonMetadata('lesson.wulei', []))
+        ->toThrow(LogicException::class, 'Duplicate KeJing lesson metadata code')
+        ->and(fn () => $registry->registerTraceView('lesson.wulei', ['view' => 'fake.other', 'contexts' => []]))
+        ->toThrow(LogicException::class, 'Duplicate KeJing trace view code');
+});
+
+test('trace view 拒绝未知 context 与空 view', function () {
+    $registry = app(KeJingExtensionRegistry::class);
+
+    expect(fn () => $registry->registerTraceView('lesson.wulei', ['view' => 'fake.trace', 'contexts' => ['other']]))
+        ->toThrow(LogicException::class, 'Unknown KeJing trace context')
+        ->and(fn () => $registry->registerTraceView('lesson.sanguang', ['view' => ' ', 'contexts' => ['pan']]))
+        ->toThrow(LogicException::class, 'must not be empty');
 });
 
 test('duplicate extension and core rule conflicts fail clearly', function () {
