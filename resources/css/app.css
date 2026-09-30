@@ -42,6 +42,7 @@
 }
 
 @source '../views';
+@source '../../../liuren-expert/resources/views/**/*.blade.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/robsontenorio/mary/src/View/Components/**/*.php';
 
