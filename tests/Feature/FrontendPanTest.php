@@ -1,5 +1,6 @@
 <?php
 
+use App\Extensions\PanResultExtensionRegistry;
 use App\Livewire\Pan\CreatePan;
 use App\Models\Pan;
 use App\Services\PanCalculator;
@@ -10,6 +11,18 @@ uses(RefreshDatabase::class);
 
 test('frontend pan page is available', function () {
     $this->get(route('pan.create'))->assertOk()->assertSee('大六壬排盘')->assertSee('设置起课信息')->assertSee('年命')->assertSee('行年')->assertSee('立即排盘')->assertSee('csrf-token');
+});
+
+test('frontend remains available with no pan result extensions', function () {
+    expect(app(PanResultExtensionRegistry::class)->all())->toBe([]);
+
+    Livewire::test(CreatePan::class)
+        ->set('datetime', '2024-08-11T14:00')
+        ->call('calculate')
+        ->assertHasNoErrors()
+        ->assertSee('三传')
+        ->assertSee('四课')
+        ->assertSee('天地盘');
 });
 
 test('frontend calculation keeps the deterministic core available without expert matches', function () {
