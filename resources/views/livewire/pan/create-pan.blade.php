@@ -288,10 +288,12 @@
                                 @endif
 
                                 @foreach ($lessonInterpretations as $interpretation)
-                                    <article
-                                        id="{{ \App\Support\EvidenceDomId::fromRef('kejing:'.$interpretation['code']) }}"
-                                        class="flow-root scroll-mt-24 py-1"
-                                        data-evidence-ref="kejing:{{ $interpretation['code'] }}"
+                                    @php($evidenceRef = $interpretation['evidence_ref'] ?? null)
+                                    <article class="flow-root {{ $evidenceRef !== null ? 'scroll-mt-24' : '' }} py-1"
+                                        @if ($evidenceRef !== null)
+                                            id="{{ \App\Support\EvidenceDomId::fromRef($evidenceRef) }}"
+                                            data-evidence-ref="{{ $evidenceRef }}"
+                                        @endif
                                     >
                                         @php($kejingPage = \App\Support\KeJingPageCatalog::findByCode($interpretation['code']))
                                         @if ($kejingPage !== null)

@@ -7,6 +7,7 @@ use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
+use App\Extensions\KeJingExtensionRegistry;
 use App\Extensions\PanResultExtensionRegistry;
 use App\Services\PanCalculator;
 use App\Support\KeJingCatalog;
@@ -56,7 +57,7 @@ class CreatePan extends Component
 
     public ?array $pan = null;
 
-    /** @var array<int, array{code: string, name: string, group: string, description: string, marker: string, gua: ?string, guaSymbol: ?string, xiang: ?string, evidence: array<string, mixed>, coverageAreas: list<string>}> */
+    /** @var array<int, array{code: string, name: string, group: string, description: string, marker: string, gua: ?string, guaSymbol: ?string, xiang: ?string, evidence: array<string, mixed>, coverageAreas: list<string>, evidence_ref: ?string}> */
     public array $ruleMatches = [];
 
     /** @var list<array<string, mixed>> 仅包含可直接展示内容的统一知识卡片。 */
@@ -229,8 +230,14 @@ class CreatePan extends Component
             fn ($left, $right): int => ($left->isPrimary ? 0 : 1) <=> ($right->isPrimary ? 0 : 1),
         );
 
+        $keJingRegistry = app(KeJingExtensionRegistry::class);
         $this->ruleMatches = array_values(array_map(
-            fn ($match): array => $match->toArray(),
+            fn ($match): array => [
+                ...$match->toArray(),
+                'evidence_ref' => $keJingRegistry->hasRuleCode($match->code)
+                    ? 'kejing:'.$match->code
+                    : null,
+            ],
             $visibleMatches,
         ));
         $this->coverageNotices = $ruleEngine->coverageNotices($result);
