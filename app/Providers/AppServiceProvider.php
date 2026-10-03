@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Extensions\BiFaExtensionRegistry;
 use App\Extensions\KeJingExtensionRegistry;
 use App\Extensions\PanResultExtensionRegistry;
+use App\Extensions\PanSidebarExtensionRegistry;
 use App\Extensions\PluginLoader;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(BiFaExtensionRegistry::class);
         $this->app->singleton(KeJingExtensionRegistry::class);
         $this->app->singleton(PanResultExtensionRegistry::class);
+        $this->app->singleton(PanSidebarExtensionRegistry::class);
 
         $loader = new PluginLoader($this->app);
 

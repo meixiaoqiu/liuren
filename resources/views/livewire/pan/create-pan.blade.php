@@ -107,6 +107,15 @@
                             <x-button label="立即排盘" type="submit" icon="o-sparkles" class="btn-primary w-full" spinner="calculate" />
                         </x-slot:actions>
                     </x-form>
+
+                    @if ($panSidebarExtensions !== [])
+                        @foreach ($panSidebarExtensions as $extension)
+                            @include($extension['view'], [
+                                'pan' => $pan,
+                                'datetime' => $datetime,
+                            ])
+                        @endforeach
+                    @endif
                 </x-card>
             </aside>
 

@@ -9,6 +9,7 @@ use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
 use App\Extensions\KeJingExtensionRegistry;
 use App\Extensions\PanResultExtensionRegistry;
+use App\Extensions\PanSidebarExtensionRegistry;
 use App\Services\PanCalculator;
 use App\Support\KeJingCatalog;
 use App\Support\Knowledge\BiFaKnowledgeCardFactory;
@@ -283,6 +284,7 @@ class CreatePan extends Component
             'lessonInterpretations' => $this->ruleMatches,
             'bifaInterpretations' => $this->bifaKnowledgeCards,
             'panResultExtensions' => app(PanResultExtensionRegistry::class)->all(),
+            'panSidebarExtensions' => app(PanSidebarExtensionRegistry::class)->all(),
         ]);
     }
 
