@@ -1,8 +1,14 @@
 <?php
 
+use App\Extensions\AdminExtensionRegistry;
 use App\Extensions\BiFaExtensionRegistry;
 use App\Extensions\KeJingExtensionRegistry;
 use App\Extensions\PluginLoader;
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use Filament\Panel;
+use Illuminate\Config\Repository;
+use Illuminate\Container\Container;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\File;
 
@@ -325,4 +331,53 @@ PHP;
             static fn ($rule): string => $rule->code(),
             app(KeJingExtensionRegistry::class)->rules(),
         ))->toContain($extensionCode);
+});
+
+test('后台页面沿宿主注册到插件注册再到面板消费的真实链路贡献且不依赖启动阶段', function () {
+    $paths = [];
+    $providers = [];
+    $pages = [];
+    foreach (['A', 'B'] as $suffix) {
+        $provider = 'AdminLifecycleProvider'.$suffix;
+        $page = 'AdminLifecyclePage'.$suffix;
+        $providers[] = $provider;
+        $pages[] = $page;
+        $definition = <<<PHP
+class {$page} extends \\Filament\\Pages\\Page {}
+class {$provider} extends \\Illuminate\\Support\\ServiceProvider
+{
+    public static bool \$bootCalled = false;
+    public function register(): void
+    {
+        \$this->app->make(\\App\\Extensions\\AdminExtensionRegistry::class)->registerPage({$page}::class);
+    }
+    public function boot(): void
+    {
+        self::\$bootCalled = true;
+        throw new \\LogicException('fixture_boot_must_not_be_needed');
+    }
+}
+PHP;
+        $paths[] = createPluginFixture($this->pluginFixtureRoot, 'admin-'.strtolower($suffix), 'admin-'.strtolower($suffix), [$provider], [$definition]);
+    }
+
+    $host = app();
+    try {
+        $isolated = new Application($host->basePath());
+        $isolated->instance('config', new Repository(['plugins' => ['paths' => $paths]]));
+        $isolated->instance('files', $host->make('files'));
+        $isolated->register(AppServiceProvider::class);
+        $registry = $isolated->make(AdminExtensionRegistry::class);
+        expect($isolated->isBooted())->toBeFalse()
+            ->and($isolated->make(PluginLoader::class)->loadedPluginIds())->toBe(['admin-a', 'admin-b'])
+            ->and($registry->pages())->toBe($pages)
+            ->and($providers[0]::$bootCalled)->toBeFalse()
+            ->and($providers[1]::$bootCalled)->toBeFalse();
+        $panel = (new AdminPanelProvider($isolated))->panel(Panel::make());
+        $contributed = array_values(array_filter($panel->getPages(), fn ($page) => in_array($page, $pages, true)));
+        expect($contributed)->toBe($pages)
+            ->and($isolated->isBooted())->toBeFalse();
+    } finally {
+        Container::setInstance($host);
+    }
 });

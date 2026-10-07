@@ -18,7 +18,12 @@ final class AdminExtensionRegistry
         }
 
         // 类名不区分大小写；别名也必须视为同一个页面。
-        $page = (new \ReflectionClass($page))->getName();
+        $reflection = new \ReflectionClass($page);
+        if (! $reflection->isInstantiable()) {
+            throw new LogicException('后台扩展必须注册可实例化的页面类。');
+        }
+
+        $page = $reflection->getName();
 
         if (in_array($page, $this->pages, true)) {
             throw new LogicException('后台扩展页面不得重复注册。');
