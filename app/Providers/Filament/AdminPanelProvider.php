@@ -80,13 +80,13 @@ class AdminPanelProvider extends PanelProvider
         return $panel;
     }
 
-    /** 按路由分组语义拼接前缀和路径，统一首尾及重复分隔符。 */
+    /** 按路由分组语义拼接前缀和路径，仅处理边界分隔符。 */
     private function pageRouteIdentity(string $page, Panel $panel): string
     {
         $prefix = trim($page::prependClusterSlug($panel, ''), '/');
         $path = trim($page::getRoutePath($panel), '/');
 
-        $identity = trim(preg_replace('~/+~', '/', $prefix.'/'.$path), '/');
+        $identity = trim($prefix.'/'.$path, '/');
 
         return $identity === '' ? '/' : $identity;
     }

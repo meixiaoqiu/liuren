@@ -65,6 +65,14 @@ class TrailingClusterAdminConflictPage extends ClusterAdminConflictPage
 {
     protected static ?string $cluster = SyntheticTrailingAdminCluster::class;
 }
+class ClusterAdminSingleSlashPage extends ClusterAdminConflictPage
+{
+    protected static ?string $slug = 'foo/bar';
+}
+class ClusterAdminDoubleSlashPage extends ClusterAdminSingleSlashPage
+{
+    protected static ?string $slug = 'foo//bar';
+}
 class FlatAdminConflictPage extends Page
 {
     protected static ?string $slug = 'synthetic/conflict';
@@ -239,3 +247,24 @@ it('页面路径身份与真实路由分组规范化一致', function (string $p
     '普通页面' => [FlatAdminConflictPage::class, 'synthetic/conflict'],
     '根页面' => [Dashboard::class, '/'],
 ]);
+
+it('内部双斜线保留且与单斜线路径同时注册不会误判冲突', function () {
+    $panel = Panel::make()->id('admin');
+    $provider = new AdminPanelProvider(app());
+    $method = new ReflectionMethod(AdminPanelProvider::class, 'pageRouteIdentity');
+    $pages = [ClusterAdminSingleSlashPage::class, ClusterAdminDoubleSlashPage::class];
+    $actual = [];
+    foreach ($pages as $page) {
+        $actual[] = actualAdminPageRoute($page, $panel);
+        app(AdminExtensionRegistry::class)->registerPage($page);
+    }
+    expect($actual[0]['uri'])->toBe('synthetic/foo/bar')
+        ->and($actual[1]['uri'])->toBe('synthetic/foo//bar')
+        ->and($actual[0]['uri'])->not->toBe($actual[1]['uri'])
+        ->and($actual[0]['name'])->not->toBe($actual[1]['name']);
+    foreach ($pages as $index => $page) {
+        expect($method->invoke($provider, $page, $panel))->toBe($actual[$index]['uri']);
+    }
+    $registered = $provider->panel(Panel::make());
+    expect(array_values(array_intersect($registered->getPages(), $pages)))->toBe($pages);
+});
