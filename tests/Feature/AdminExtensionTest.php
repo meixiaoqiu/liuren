@@ -2,13 +2,16 @@
 
 use App\Extensions\AdminExtensionRegistry;
 use App\Providers\Filament\AdminPanelProvider;
+use Filament\Clusters\Cluster;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\PanelRegistry;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 
 class AdminExtensionPageA extends Page {}
 class AdminExtensionPageB extends Page {}
@@ -42,6 +45,67 @@ class AdminDashboardNameConflictPage extends Page
     public static function getRelativeRouteName(Panel $panel): string
     {
         return Dashboard::getRelativeRouteName($panel);
+    }
+}
+class SyntheticAdminCluster extends Cluster
+{
+    protected static ?string $slug = 'synthetic';
+}
+class SyntheticTrailingAdminCluster extends Cluster
+{
+    protected static ?string $slug = 'synthetic/';
+}
+class ClusterAdminConflictPage extends Page
+{
+    protected static ?string $cluster = SyntheticAdminCluster::class;
+
+    protected static ?string $slug = 'conflict';
+}
+class TrailingClusterAdminConflictPage extends ClusterAdminConflictPage
+{
+    protected static ?string $cluster = SyntheticTrailingAdminCluster::class;
+}
+class FlatAdminConflictPage extends Page
+{
+    protected static ?string $slug = 'synthetic/conflict';
+
+    public static function getRelativeRouteName(Panel $panel): string
+    {
+        return 'flat-conflict';
+    }
+}
+class SyntheticNameAdminCluster extends Cluster
+{
+    protected static ?string $slug = 'pages/synthetic';
+}
+class ClusterAdminFinalNamePage extends ClusterAdminConflictPage
+{
+    protected static ?string $cluster = SyntheticNameAdminCluster::class;
+}
+class FlatAdminNameConflictPage extends Page
+{
+    protected static ?string $slug = 'flat-name-conflict';
+
+    public static function getRelativeRouteName(Panel $panel): string
+    {
+        return 'synthetic.pages.conflict';
+    }
+}
+
+function actualAdminPageRoute(string $page, Panel $panel): array
+{
+    $router = app('router');
+    $original = $router->getRoutes();
+    $router->setRoutes(new RouteCollection);
+    try {
+        Route::name($panel->generateRouteName(''))->group(fn () => $page::registerRoutes($panel));
+        $router->getRoutes()->refreshNameLookups();
+        $route = $router->getRoutes()->getByName($page::getRouteName($panel));
+        expect($route)->not->toBeNull();
+
+        return ['uri' => $route->uri(), 'name' => $route->getName()];
+    } finally {
+        $router->setRoutes($original);
     }
 }
 
@@ -136,3 +200,42 @@ it('无插件时保留后台登录与认证边界', function () {
     $this->get('/admin/login')->assertOk()->assertDontSee('AdminExtensionRegistry');
     $this->get('/admin')->assertRedirect('/admin/login');
 });
+
+it('集群页面与普通页面的真实路径相同且最终名称不同时仍拒绝', function () {
+    $panel = Panel::make()->id('admin');
+    $actual = [];
+    foreach ([ClusterAdminConflictPage::class, FlatAdminConflictPage::class] as $page) {
+        $actual[] = actualAdminPageRoute($page, $panel);
+        app(AdminExtensionRegistry::class)->registerPage($page);
+    }
+    expect($actual[0]['uri'])->toBe('synthetic/conflict')
+        ->and($actual[1]['uri'])->toBe('synthetic/conflict')
+        ->and($actual[0]['name'])->not->toBe($actual[1]['name']);
+    expect(fn () => (new AdminPanelProvider(app()))->panel(Panel::make()))->toThrow(LogicException::class, 'admin_extension_route_conflict');
+});
+
+it('集群页面真实路径不同而最终路由名称相同时拒绝', function () {
+    $panel = Panel::make()->id('admin');
+    $actual = [];
+    foreach ([ClusterAdminFinalNamePage::class, FlatAdminNameConflictPage::class] as $page) {
+        $actual[] = actualAdminPageRoute($page, $panel);
+        app(AdminExtensionRegistry::class)->registerPage($page);
+    }
+    expect($actual[0]['uri'])->not->toBe($actual[1]['uri'])
+        ->and($actual[0]['name'])->toBe($actual[1]['name'])
+        ->and($actual[0]['name'])->toBe('filament.admin.pages.synthetic.pages.conflict');
+    expect(fn () => (new AdminPanelProvider(app()))->panel(Panel::make()))->toThrow(LogicException::class, 'admin_extension_route_conflict');
+});
+
+it('页面路径身份与真实路由分组规范化一致', function (string $page, string $expected) {
+    $panel = Panel::make()->id('admin');
+    $method = new ReflectionMethod(AdminPanelProvider::class, 'pageRouteIdentity');
+    expect($method->invoke(new AdminPanelProvider(app()), $page, $panel))->toBe($expected);
+    $actual = actualAdminPageRoute($page, $panel);
+    expect($actual['uri'])->toBe($expected);
+})->with([
+    '集群前缀' => [ClusterAdminConflictPage::class, 'synthetic/conflict'],
+    '集群前缀尾分隔符' => [TrailingClusterAdminConflictPage::class, 'synthetic/conflict'],
+    '普通页面' => [FlatAdminConflictPage::class, 'synthetic/conflict'],
+    '根页面' => [Dashboard::class, '/'],
+]);

@@ -69,8 +69,8 @@ class AdminPanelProvider extends PanelProvider
 
         $paths = $names = [];
         foreach ($panel->getPages() as $page) {
-            $path = $page::prependClusterSlug($panel, $page::getRoutePath($panel));
-            $name = $page::prependClusterRouteBaseName($panel, $page::getRelativeRouteName($panel));
+            $path = $this->pageRouteIdentity($page, $panel);
+            $name = $page::getRouteName($panel);
             if (isset($paths[$path]) || isset($names[$name])) {
                 throw new LogicException('admin_extension_route_conflict');
             }
@@ -78,5 +78,16 @@ class AdminPanelProvider extends PanelProvider
         }
 
         return $panel;
+    }
+
+    /** 按路由分组语义拼接前缀和路径，统一首尾及重复分隔符。 */
+    private function pageRouteIdentity(string $page, Panel $panel): string
+    {
+        $prefix = trim($page::prependClusterSlug($panel, ''), '/');
+        $path = trim($page::getRoutePath($panel), '/');
+
+        $identity = trim(preg_replace('~/+~', '/', $prefix.'/'.$path), '/');
+
+        return $identity === '' ? '/' : $identity;
     }
 }
