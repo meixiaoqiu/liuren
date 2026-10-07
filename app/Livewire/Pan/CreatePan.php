@@ -7,6 +7,9 @@ use App\Domain\Pan\BiFa\BiFaRuleEngine;
 use App\Domain\Pan\Facts\PanFacts;
 use App\Domain\Pan\FateCalculator;
 use App\Domain\Pan\Rules\PanRuleEngine;
+use App\Extensions\KeJingExtensionRegistry;
+use App\Extensions\PanResultExtensionRegistry;
+use App\Extensions\PanSidebarExtensionRegistry;
 use App\Services\PanCalculator;
 use App\Support\KeJingCatalog;
 use App\Support\Knowledge\BiFaKnowledgeCardFactory;
@@ -228,8 +231,14 @@ class CreatePan extends Component
             fn ($left, $right): int => ($left->isPrimary ? 0 : 1) <=> ($right->isPrimary ? 0 : 1),
         );
 
+        $keJingRegistry = app(KeJingExtensionRegistry::class);
         $this->ruleMatches = array_values(array_map(
-            fn ($match): array => $match->toArray(),
+            fn ($match): array => [
+                ...$match->toArray(),
+                'evidence_ref' => $keJingRegistry->hasRuleCode($match->code)
+                    ? 'kejing:'.$match->code
+                    : null,
+            ],
             $visibleMatches,
         ));
         $this->coverageNotices = $ruleEngine->coverageNotices($result);
@@ -240,7 +249,10 @@ class CreatePan extends Component
         // 毕法独立判定——领域结果立即转换为只含用户展示内容的 KnowledgeCard。
         $evaluatedBiFaMatches = $bifaRuleEngine->evaluate($result);
         $this->bifaKnowledgeCards = array_values(array_map(
-            static fn ($match): array => $bifaCardFactory->fromMatch($match)->toArray(),
+            static fn ($match): array => [
+                ...$bifaCardFactory->fromMatch($match)->toArray(),
+                'evidence_ref' => 'bifa:'.$match->code,
+            ],
             $evaluatedBiFaMatches,
         ));
     }
@@ -271,6 +283,8 @@ class CreatePan extends Component
             'xundunLabels' => $this->xundunLabels(),
             'lessonInterpretations' => $this->ruleMatches,
             'bifaInterpretations' => $this->bifaKnowledgeCards,
+            'panResultExtensions' => app(PanResultExtensionRegistry::class)->all(),
+            'panSidebarExtensions' => app(PanSidebarExtensionRegistry::class)->all(),
         ]);
     }
 

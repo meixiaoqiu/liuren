@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Extensions\AdminExtensionRegistry;
 use App\Extensions\BiFaExtensionRegistry;
 use App\Extensions\KeJingExtensionRegistry;
+use App\Extensions\PanResultExtensionRegistry;
+use App\Extensions\PanSidebarExtensionRegistry;
 use App\Extensions\PluginLoader;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
         // loadConfigured() 返回时所有插件的 register() 已全部跑完，无需 boot() 延后注入。
         $this->app->singleton(BiFaExtensionRegistry::class);
         $this->app->singleton(KeJingExtensionRegistry::class);
+        $this->app->singleton(AdminExtensionRegistry::class);
+        $this->app->singleton(PanResultExtensionRegistry::class);
+        $this->app->singleton(PanSidebarExtensionRegistry::class);
 
         $loader = new PluginLoader($this->app);
 

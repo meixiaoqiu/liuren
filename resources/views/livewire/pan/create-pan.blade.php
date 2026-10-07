@@ -107,6 +107,9 @@
                             <x-button label="立即排盘" type="submit" icon="o-sparkles" class="btn-primary w-full" spinner="calculate" />
                         </x-slot:actions>
                     </x-form>
+                    @foreach ($panSidebarExtensions as $extension)
+                        @include($extension['view'], ['pan' => $pan, 'datetime' => $datetime])
+                    @endforeach
                 </x-card>
             </aside>
 
@@ -124,9 +127,9 @@
                 @else
                     @php
                         $transmissions = [
-                            ['name' => '初传', 'index' => 0],
-                            ['name' => '中传', 'index' => 1],
-                            ['name' => '末传', 'index' => 2],
+                            ['name' => '初传', 'index' => 0, 'ref' => 'transmission:initial'],
+                            ['name' => '中传', 'index' => 1, 'ref' => 'transmission:middle'],
+                            ['name' => '末传', 'index' => 2, 'ref' => 'transmission:final'],
                         ];
                         $lessonColumns = [
                             ['number' => 4, 'upper' => 7, 'relation' => 3, 'lowerType' => 'branch'],
@@ -163,7 +166,11 @@
                                             $index = $transmission['index'];
                                             $branch = $pan['sanchuan'.$index];
                                         @endphp
-                                        <div class="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 py-4 first:pt-1 last:pb-1">
+                                        <div
+                                            id="{{ \App\Support\EvidenceDomId::fromRef($transmission['ref']) }}"
+                                            class="grid scroll-mt-24 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 py-4 first:pt-1 last:pb-1"
+                                            data-evidence-ref="{{ $transmission['ref'] }}"
+                                        >
                                             <span class="text-center text-sm font-medium text-base-content/55">{{ $liuqinNames[$pan['liuqin'.$index]] }}</span>
                                             <div class="text-center">
                                                 <span class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary">{{ $tianjiangNames[$pan['sanchuan'.$index.'tianjiang']] }}</span>
@@ -198,7 +205,11 @@
                                                 default => 'badge-ghost',
                                             };
                                         @endphp
-                                        <div class="pan-block bg-secondary/8 px-2 py-4">
+                                        <div
+                                            id="{{ \App\Support\EvidenceDomId::fromRef('lesson:'.$lessonColumn['number']) }}"
+                                            class="pan-block scroll-mt-24 bg-secondary/8 px-2 py-4"
+                                            data-evidence-ref="lesson:{{ $lessonColumn['number'] }}"
+                                        >
                                             <span
                                                 class="mb-3 inline-flex h-9 items-center justify-center bg-primary/12 px-2.5 text-sm font-semibold text-primary"
                                                 aria-label="第{{ $lessonColumn['number'] }}课天将{{ $lessonTianjiang }}"
@@ -280,7 +291,13 @@
                                 @endif
 
                                 @foreach ($lessonInterpretations as $interpretation)
-                                    <article class="flow-root py-1">
+                                    @php($evidenceRef = $interpretation['evidence_ref'] ?? null)
+                                    <article class="flow-root {{ $evidenceRef !== null ? 'scroll-mt-24' : '' }} py-1"
+                                        @if ($evidenceRef !== null)
+                                            id="{{ \App\Support\EvidenceDomId::fromRef($evidenceRef) }}"
+                                            data-evidence-ref="{{ $evidenceRef }}"
+                                        @endif
+                                    >
                                         @php($kejingPage = \App\Support\KeJingPageCatalog::findByCode($interpretation['code']))
                                         @php($suppressCoreTrace = $kejingPage !== null)
                                         @if ($kejingPage !== null)
@@ -345,11 +362,26 @@
                                 </p>
                                 <div class="space-y-4">
                                     @foreach ($bifaInterpretations as $bifa)
-                                        @include('livewire.pan.partials.bifa-trace', ['bifa' => $bifa])
+                                        <div
+                                            id="{{ \App\Support\EvidenceDomId::fromRef($bifa['evidence_ref']) }}"
+                                            class="scroll-mt-24"
+                                            data-evidence-ref="{{ $bifa['evidence_ref'] }}"
+                                        >
+                                            @include('livewire.pan.partials.bifa-trace', ['bifa' => $bifa])
+                                        </div>
                                     @endforeach
                                 </div>
                             </x-card>
                         @endif
+                        @foreach ($panResultExtensions as $extension)
+                            @include($extension['view'], [
+                                'pan' => $pan,
+                                'datetime' => $datetime,
+                                'birthDatetime' => $birthDatetime,
+                                'gender' => $gender,
+                                'people' => $people,
+                            ])
+                        @endforeach
                     </div>
                 @endif
             </section>

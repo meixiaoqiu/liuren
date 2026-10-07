@@ -194,6 +194,17 @@ final class KeJingExtensionRegistry
         return $this->rules;
     }
 
+    public function hasRuleCode(string $code): bool
+    {
+        foreach ($this->rules as $rule) {
+            if ($rule->code() === $code) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function summaryFor(string $code): ?string
     {
         return $this->summaries[$code] ?? null;

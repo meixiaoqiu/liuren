@@ -105,7 +105,7 @@
             @if ($mode === 'detail')
                 当前正式规则尚未结构化录入本课成立条件，详情页不擅自以 description 反推。
             @else
-                当前正式规则尚未结构化录入本课成立条件；解盘信息按 RuleMatch.evidence 输出。
+                当前正式规则尚未结构化录入本课成立条件；下方展示已有的判断依据。
             @endif
         </p>
     @else
